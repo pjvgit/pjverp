@@ -8,18 +8,17 @@ $userTypes = unserialize(USER_TYPE);
             <div class="history-date col-4">
                 <p class="date-string">
                     <?php 
-                    $CommonController= new App\Http\Controllers\CommonController();
-                    $updateDate=$CommonController->convertUTCToUserTime($value->created_at,Auth::User()->user_timezone);?>
+                    $createdByUser = getUserDetail($value->created_by);
+                    $OwnDate = convertUTCToUserTime(date('Y-m-d H:i:s', strtotime($value->created_at)), Auth::User()->user_timezone);?>
                     {{date('D, M jS Y',strtotime($updateDate))}}<br>
                     {{date('h:ia',strtotime($updateDate))}}</p>
             </div>
             <div class="history-info col-8">
                 <span>Event updated by
                     <a class=""
-                        href="{{ route('contacts/attorneys/info', $value->createdByUser->decode_id) }}">
-                        {{ @$value->createdByUser->full_name }}
-                        {{-- ({{$userTypes[$value->user_type]}}) --}}
-                        ({{ @$value->createdByUser->user_title }})
+                        href="{{ route('contacts/attorneys/info', $createdByUser->decode_id) }}">
+                        {{ @$createdByUser->full_name }}
+                        ({{ @$createdByUser->user_title ?? @$createdByUser->user_type_text }})
                     </a>
                 </span>
             </div>
@@ -32,8 +31,7 @@ $userTypes = unserialize(USER_TYPE);
         <p class="date-string">
             <?php 
                 $createdByUser = getUserDetail($value->created_by);
-                    $CommonController= new App\Http\Controllers\CommonController();
-                    $OwnDate=$CommonController->convertUTCToUserTime($value->created_at,Auth::User()->user_timezone);?>
+                $OwnDate = convertUTCToUserTime(date('Y-m-d H:i:s', strtotime($value->created_at)), Auth::User()->user_timezone);?>
             {{date('D, M jS Y',strtotime($OwnDate))}}<br>
             {{date('h:ia',strtotime($OwnDate))}}</p>
     </div>
@@ -44,8 +42,7 @@ $userTypes = unserialize(USER_TYPE);
                 <a class=""
                     href="{{ route('contacts/attorneys/info', $createdByUser->decode_id) }}">
                     {{ @$createdByUser->full_name }}
-                    {{-- ({{$userTypes[$value->user_type]}}) --}}
-                    ({{ @$createdByUser->user_title }})
+                    ({{ @$createdByUser->user_title ?? @$createdByUser->user_type_text }})
                 </a> commented</p>
             <div class="comment-message mb-3">
                 <?php print $value->comment; ?>
@@ -65,8 +62,7 @@ $userTypes = unserialize(USER_TYPE);
     <div class="history-date col-4">
         <p class="date-string">
             <?php 
-            $CommonController= new App\Http\Controllers\CommonController();
-            $creatdDate=$CommonController->convertUTCToUserTime($eventData->created_at,Auth::User()->user_timezone);?>
+            $creatdDate = convertUTCToUserTime($eventData->created_at,Auth::User()->user_timezone);?>
             {{date('D, M jS Y',strtotime($creatdDate))}}<br>
             {{date('h:ia',strtotime($creatdDate))}}
         </p>
@@ -78,8 +74,7 @@ $userTypes = unserialize(USER_TYPE);
             <a class=""
                 href="{{ route('contacts/attorneys/info', base64_encode($eventCreatedBy->id)) }}">{{substr($eventCreatedBy->first_name,0,15)}}
                 {{substr($eventCreatedBy->last_name,0,15)}}
-                {{-- ({{$userTypes[$eventCreatedBy->user_type]}}) --}}
-                ({{ @userTypeList()[$value->user_type] }})
+                ({{ @$eventCreatedBy->user_title ?? @$eventCreatedBy->user_type_text }})
             </a>
         </span>
     </div>

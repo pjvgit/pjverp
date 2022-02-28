@@ -96,6 +96,7 @@ $(document).on("click", ".add-more, .add-new-reminder", function() {
     if (checkedLen <= 0 && checkedL <= 0) {
         $(".reminder_user_type option[value='client-lead']").hide();
     }
+    $("#is_reminder_updated").val("yes");
 });
 
 /**

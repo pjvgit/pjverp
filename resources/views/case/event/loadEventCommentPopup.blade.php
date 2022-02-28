@@ -14,7 +14,7 @@
     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
             aria-hidden="true">×</span></button>
 </div>
-<div class="modal-body" style="max-height: 500px;overflow: auto;">
+<div class="modal-body" {{-- style="max-height: 500px;overflow: auto;" --}}>
     <div>
         <div class="container-fluid event-detail-modal-body ml-0">
             <div class="row row ">
@@ -145,14 +145,13 @@
                     </div>
                 </div>
 
-                <div class="event-detail-history col-6">
-                    <div>
+                <div class="event-detail-history col-6 scrollbar scrollbar-primary" style="height: 400px !important;">
                         <div>
                             <div id="editorArea" class="mt-3 mb-3"  style="display: none;">
                                 <form class="addComment" id="addComment" name="addComment" method="POST">
                                     @csrf
-                                    <input class="form-control" value="{{ $event->id}}" name="event_id" type="text">
-                                    <input class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="text">
+                                    <input class="form-control" value="{{ $event->id}}" name="event_id" type="hidden">
+                                    <input class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="hidden">
                                     <div id="editor">
                                         
                                     </div>
@@ -177,7 +176,6 @@
                             </div>
                           
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
