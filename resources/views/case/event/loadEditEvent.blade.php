@@ -17,10 +17,10 @@
         
 
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
-            <input class="form-control changed" id="id" value="{{ $evetData->id}}" name="event_id" type="text">
+            <input class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id" type="text">
             @csrf
-            <input class="form-control" value="{{ $eventRecurring->id}}" name="recurring_event_id" type="text">
-            <input class="form-control" value="{{ $evetData->id}}" name="is_reminder_changed" type="text">
+            <input class="form-control" value="{{ $eventRecurring->id}}" name="recurring_event_id" type="text" id="recurring_event_id">
+            <input class="form-control" value="no" name="is_reminder_updated" type="text" id="is_reminder_updated">
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8">
@@ -164,12 +164,12 @@
                             <div class="col-md-3 form-group mb-3">
                                 <select onchange="selectType()" id="event-frequency" name="event_frequency"
                                     class="form-control custom-select  ">
-                                    <option <?php if($evetData->event_frequency=='DAILY'){?> selected=selected <?php } ?>  value="DAILY">Daily</option>
-                                    <option <?php if($evetData->event_frequency=='EVERY_BUSINESS_DAY'){?> selected=selected <?php } ?>   value="EVERY_BUSINESS_DAY">Every Business Day</option>
-                                    <option <?php if($evetData->event_frequency=='CUSTOM'){?> selected=selected <?php } ?>   value="CUSTOM">Weekly</option>
-                                    <option <?php if($evetData->event_frequency=='WEEKLY'){?> selected=selected <?php } ?>   value="WEEKLY">Weekly on {{date('l',strtotime($evetData->start_date))}}</option>
-                                    <option <?php if($evetData->event_frequency=='MONTHLY'){?> selected=selected <?php } ?>   value="MONTHLY">Monthly</option>
-                                    <option <?php if($evetData->event_frequency=='YEARLY'){?> selected=selected <?php } ?>   value="YEARLY">Yearly</option>
+                                    <option <?php if($evetData->event_recurring_type=='DAILY'){?> selected=selected <?php } ?>  value="DAILY">Daily</option>
+                                    <option <?php if($evetData->event_recurring_type=='EVERY_BUSINESS_DAY'){?> selected=selected <?php } ?>   value="EVERY_BUSINESS_DAY">Every Business Day</option>
+                                    <option <?php if($evetData->event_recurring_type=='CUSTOM'){?> selected=selected <?php } ?>   value="CUSTOM">Weekly</option>
+                                    <option <?php if($evetData->event_recurring_type=='WEEKLY'){?> selected=selected <?php } ?>   value="WEEKLY">Weekly on {{date('l',strtotime($evetData->start_date))}}</option>
+                                    <option <?php if($evetData->event_recurring_type=='MONTHLY'){?> selected=selected <?php } ?>   value="MONTHLY">Monthly</option>
+                                    <option <?php if($evetData->event_recurring_type=='YEARLY'){?> selected=selected <?php } ?>   value="YEARLY">Yearly</option>
                                 </select>
                             </div>
                             <div class="col-md-5 form-group mb-3 repeat_yearly ">
@@ -639,6 +639,7 @@
         }); */
         $('#EditEventForm').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
+            $("#is_reminder_updated").val("yes");
         });
 
         $("#EditEventForm").validate({
@@ -730,6 +731,9 @@
             $('#CaseListError').text('');
         });
 
+        var $form = $('#EditEventForm');
+        var startItems = convertSerializedArrayToHash($form.serializeArray()); 
+
         $('#EditEventForm').submit(function (e) {
             e.preventDefault();
             $(".submit").attr("disabled", true);
@@ -740,7 +744,16 @@
                 return false;
             }
             var dataString ='';
-             dataString = $("#EditEventForm").serialize();
+            // if($("input[name=delete_event_type][value=SINGLE_EVENT]").is(':checked')) {
+                dataString = $("#EditEventForm").serialize(); 
+            /* } else {
+                var currentItems = convertSerializedArrayToHash($("#EditEventForm").serializeArray());
+                var dataString = hashDiff( startItems, currentItems);
+                dataString['recurring_event_id'] = $("#recurring_event_id").val();
+                dataString['event_id'] = $("#event_id").val();
+                dataString['delete_event_type'] = $("input[name=delete_event_type]:checked").val();
+            } */
+            console.log(dataString);
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveEditEventPage", // json datasource
@@ -1068,6 +1081,7 @@
             $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
             $(".submit").trigger("click");
         } else {
+            $("input[name=delete_event_type][value=ALL_EVENTS]").attr('checked', 'checked');
             $("#confirmSave").css('display','block');
             $("#firstStep").css('display','none');
             $("#loadEditEventPopup .modal-dialog").removeClass("modal-xl");
@@ -1183,6 +1197,24 @@ function MarkAsChanged(){
 $(":input").blur(MarkAsChanged).change(MarkAsChanged);
 $(":select").change(MarkAsChanged).change(MarkAsChanged);
 $(":checkbox").change(MarkAsChanged).change(MarkAsChanged);
+$("input[type=button]").click(function(){
+    $(":input:not(.changed)").attr("disabled", "disabled");
+    $("h1").text($("#test").serialize());
+});
 
+function hashDiff(h1, h2) {
+    var d = {};
+    for (k in h2) {
+        if (h1[k] !== h2[k]) d[k] = h2[k];
+    }
+    return d;
+}
 
+function convertSerializedArrayToHash(a) { 
+    var r = {}; 
+    for (var i = 0;i<a.length;i++) { 
+        r[a[i].name] = a[i].value;
+    }
+    return r;
+}
 </script>

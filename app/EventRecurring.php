@@ -69,17 +69,6 @@ class EventRecurring extends Model
     }
 
     /**
-     * Delete event child tables record
-     */
-    public function deleteChildTableRecords($eventIds)
-    {
-        CaseEventLinkedStaff::whereIn("event_id", $eventIds)->forceDelete();
-        CaseEventLinkedContactLead::whereIn("event_id", $eventIds)->forceDelete();
-        CaseEventReminder::whereIn("event_id", $eventIds)->forceDelete();
-        CaseEventComment::whereIn("event_id", $eventIds)->forceDelete();
-    }
-
-    /**
      * Get start date in user timezone
      */
     public function getUserStartDateAttribute(){

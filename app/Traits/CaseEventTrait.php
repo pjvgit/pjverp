@@ -20,7 +20,7 @@ trait CaseEventTrait {
     /**
      * Save recurring event data
      */
-    public function saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID)
+    /* public function saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID)
     {
         $caseEvent = CaseEvent::create([
             "event_title" => $request->event_name,
@@ -51,7 +51,7 @@ trait CaseEventTrait {
             "created_by" => $authUser->id,
         ]);
         return $caseEvent;
-    }
+    } */
 
     /**
      * Save daily event data
