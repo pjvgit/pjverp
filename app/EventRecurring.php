@@ -8,7 +8,7 @@ class EventRecurring extends Model
 {
     protected $timestamp = false;
     protected $fillable = [
-        'id', 'event_id', 'start_date', 'end_date', 'event_reminders', 'event_comments'
+        'id', 'event_id', 'start_date', 'end_date', 'event_reminders', 'event_comments', 'event_linked_staff', 'event_linked_contact_lead'
     ];    
     protected $appends  = ['start_time_user','end_time_user','st','et','start_date_time','end_date_time', 'user_start_date', 'user_end_date']; //colorcode
 

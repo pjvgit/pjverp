@@ -419,11 +419,11 @@ if(isset($_GET['upcoming_events'])){
         // For load more events
         // loadMoreEvent(1, filter = null);
     });
-    $('#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
+    /* $('#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
         // $("#preloader").show();
           window.location.reload();  
         // loadMoreEvent(1, filter = 'true');      
-    });
+    }); */
 
     // Made common code, so commented
     /* function loadReminderPopup(evnt_id) {
@@ -507,7 +507,7 @@ if(isset($_GET['upcoming_events'])){
             })
         })
     }
-    function editEventFunction(evnt_id, recurring_event_id = null) {
+    function editEventFunction(evnt_id, event_recurring_id = null) {
         $("#preloader").show();
         $(function () {
             $.ajax({
@@ -516,7 +516,7 @@ if(isset($_GET['upcoming_events'])){
                 data: {
                     "evnt_id":evnt_id,
                     "from":"edit",
-                    "recurring_event_id": recurring_event_id
+                    "event_recurring_id": event_recurring_id
                 },
                 success: function (res) {
                     $("#loadCommentPopup").modal('hide');

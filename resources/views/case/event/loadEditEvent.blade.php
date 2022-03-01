@@ -19,7 +19,7 @@
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
             <input class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id" type="text">
             @csrf
-            <input class="form-control" value="{{ $eventRecurring->id}}" name="recurring_event_id" type="text" id="recurring_event_id">
+            <input class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="text" id="event_recurring_id">
             <input class="form-control" value="no" name="is_reminder_updated" type="text" id="is_reminder_updated">
             <div id="firstStep">
                 <div class="row">
@@ -746,18 +746,15 @@
             var dataString ='';
             // if($("input[name=delete_event_type][value=SINGLE_EVENT]").is(':checked')) {
                 dataString = $("#EditEventForm").serialize(); 
-            /* } else {
+            // } else {
                 var currentItems = convertSerializedArrayToHash($("#EditEventForm").serializeArray());
-                var dataString = hashDiff( startItems, currentItems);
-                dataString['recurring_event_id'] = $("#recurring_event_id").val();
-                dataString['event_id'] = $("#event_id").val();
-                dataString['delete_event_type'] = $("input[name=delete_event_type]:checked").val();
-            } */
-            console.log(dataString);
+                itemsToSubmit = hashDiff( startItems, currentItems);
+            // }
+            console.log(dataString + '&' + $.param(itemsToSubmit));
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveEditEventPage", // json datasource
-                data: dataString,
+                data: dataString + '&' + $.param(itemsToSubmit),
                 success: function (res) {
                   
                     $(".innerLoader").css('display', 'block');
@@ -777,9 +774,9 @@
 
                         return false;
                     } else {
+                        $('#loadEditEventPopup').modal("hide");
                         window.location.reload();
                         // loadMoreEvent(tab1Page = 1);
-                        // $('#loadEditEventPopup,#loadAddEventPopup').modal("hide");
                         // $(".innerLoader").css('display', 'none');
 
                     }
@@ -1049,7 +1046,7 @@
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadEventRightSection",
-            data: { "case_id": case_id, "event_id":"{{ $evetData->id}}" },
+            data: { "case_id": case_id, "event_id": $("#event_id").val(), "event_recurring_id": $("#event_recurring_id").val() },
             success: function (res) {
                 $("#edit_event_right_section").html(res);
             }
@@ -1205,7 +1202,7 @@ $("input[type=button]").click(function(){
 function hashDiff(h1, h2) {
     var d = {};
     for (k in h2) {
-        if (h1[k] !== h2[k]) d[k] = h2[k];
+        if (h1[k] !== h2[k]) d['updated_'+k] = h2[k];
     }
     return d;
 }

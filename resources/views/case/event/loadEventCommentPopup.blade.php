@@ -111,15 +111,23 @@
                                 <div>
                                     <div class="mb-2 sharing-user">
                                         <div class="row ">
-                                            @if(count($event->eventLinkedStaff))
-                                                @forelse ($event->eventLinkedStaff as $key => $item)
+                                            @if(count($linkedUser))
+                                                @forelse ($linkedUser as $key => $item)
                                                 <div class="col-8">
                                                     <div class="d-flex flex-row">
-                                                        <a href="{{ route('contacts/attorneys/info', base64_encode($item->id)) }}" class="d-flex align-items-center user-link" title="{{ userTypeList()[$item->user_type] }}">
-                                                            {{substr($item->full_name,0,15)}} ({{userTypeList()[$item->user_type]}})</a>
+                                                        @if($item['utype'] == 'staff')
+                                                        <a href="{{ route('contacts/attorneys/info', base64_encode($item['user_id'])) }}" class="d-flex align-items-center user-link">
+                                                            {{ $item['full_name'] }} ({{ $item['user_type'] }})</a>
+                                                        @elseif($item['utype'] == 'lead')
+                                                        <a href="{{ route('contacts/clients/view', $item['user_id']) }}" class="d-flex align-items-center user-link">
+                                                            {{ $item['full_name'] }} ({{ $item['user_type'] }})</a>
+                                                        @else
+                                                        <a href="{{ route('contacts/clients/view', $item['user_id']) }}" class="d-flex align-items-center user-link">
+                                                            {{ $item['full_name'] }} ({{ $item['user_type'] }})</a>
+                                                        @endif
                                                     </div>
                                                 </div>
-                                                <div class="col-4"><b style="color: rgb(99, 108, 114);"><?php if($item->pivot->attending=='yes'){ echo "Attending"; } ?></b></div>
+                                                <div class="col-4"><b style="color: rgb(99, 108, 114);">{{ ($item['attending'] == 'yes') ? "Attending" : "" }}</b></div>
                                                 @empty
                                                 @endforelse
                                             @endif
