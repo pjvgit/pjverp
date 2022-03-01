@@ -1,3 +1,8 @@
+------------------------------------ 01-MAR-2022 ------------------------------
+ALTER TABLE `event_recurrings`
+ADD `event_linked_staff` json NULL AFTER `event_comments`,
+ADD `event_linked_contact_lead` json NULL AFTER `event_linked_staff`;
+
 ------------------------------------ 26-FEB-2022 ------------------------------
 ALTER TABLE `event_recurrings`
 ADD INDEX `start_date` (`start_date`),
