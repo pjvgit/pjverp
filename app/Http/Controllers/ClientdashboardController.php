@@ -2489,11 +2489,15 @@ class ClientdashboardController extends BaseController
         ->where('messages.id', $request->id)
         ->first();
         if(!empty($messagesData)){
+        $userlist = explode(',', $messagesData->user_id);
         $count = 0;
         if($messagesData->created_by == Auth::User()->id){
             $count++;
         }
         if($messagesData->user_id == Auth::User()->id){
+            $count++;
+        }
+        if(in_array(Auth::User()->id, $userlist)){
             $count++;
         }
         if($count == 0){
@@ -2509,13 +2513,15 @@ class ClientdashboardController extends BaseController
         if($messagesData->for_staff == 'yes'){
             $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level')->first();
             $clientList[$messagesData->created_by] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
-        }else{
-            $userlist = explode(',', $messagesData->user_id);
-            foreach ($userlist as $key => $value) {
+        }
+        $userlist = explode(',', $messagesData->user_id);
+        foreach ($userlist as $key => $value) {
+            if($value != Auth::User()->id){
                 $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
                 $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
             }
         }
+        
         return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
         }else{
             abort(404);
@@ -4319,9 +4325,13 @@ class ClientdashboardController extends BaseController
         ->get();
     
         $clientList = [];    
+        if($messagesData->for_staff == 'yes'){
+            $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level')->first();
+            $clientList[$messagesData->created_by] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
+        }
         $userlist = explode(',', $messagesData->user_id);
-        if(count($userlist) > 0) {
-            foreach ($userlist as $key => $value) {
+        foreach ($userlist as $key => $value) {
+            if($value != Auth::User()->id){
                 $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
                 $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
             }

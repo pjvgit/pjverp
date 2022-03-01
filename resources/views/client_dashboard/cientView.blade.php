@@ -1308,7 +1308,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             <input type="hidden" value="" name="contact_id" id="complete_delete_contact_id">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Delete Contact</h5>
+                    <h5 class="modal-title" id="deleteContactFormHeaderModal" >Delete Contact</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">×</span></button>
                 </div>
@@ -2777,6 +2777,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
       //Billing Tab @END
 
     function confirmDelete(){
+        $(".deleteContactFormHeaderModal").html('').html('Confirm delete');
         $("#confirmAccessChange").html('<p style="font-weight:bold; color: red;">This action is permanent and cannot be reversed!</p>');
         $(".confirmsubmit").hide();
         $(".finalsubmit").show();

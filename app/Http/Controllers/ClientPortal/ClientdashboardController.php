@@ -45,7 +45,9 @@ class ClientdashboardController extends Controller
         $messages = $messages->orderBy("messages.updated_at", 'desc');
         $messages = $messages->get();
 
-        return view("client_portal.messages.index",compact('messages', 'request'));            
+        $caseList = User::where('id', Auth::User()->id)->select('id')->with('clientCases')->first();
+
+        return view("client_portal.messages.index",compact('messages', 'request', 'caseList'));            
     }
     public function messageInfo(Request $request){
         
@@ -100,8 +102,8 @@ class ClientdashboardController extends Controller
         $senderName=Auth::User()->first_name." ".Auth::User()->last_name;
         $mail_body = str_replace('{sender}', $senderName, $mail_body);
         $mail_body = str_replace('{subject}', $request['subject'], $mail_body);
-        $mail_body = str_replace('{loginurl}', BASE_URL.'login', $mail_body);
-        $mail_body = str_replace('{url}', BASE_URL.'messages/'.$messageID.'/info', $mail_body);
+        $mail_body = str_replace('{loginurl}', route('login'), $mail_body);
+        $mail_body = str_replace('{url}', route('messages/info',$messageID), $mail_body);
         $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
         $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
         $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
@@ -268,9 +270,39 @@ class ClientdashboardController extends Controller
 
     public function openDraftMessage(Request $request){
         $Messages = Messages::where('id', $request->id)->first();
-        $firmOwner = User::find(Auth::User()->parent_user);
-        $firmCases = CaseMaster::where('firm_id', Auth::User()->firm_name)->get();
+        // $firmOwner = User::find(Auth::User()->parent_user);
+        // $firmCases = CaseMaster::where('firm_id', Auth::User()->firm_name)->get();
+        
+        // show list of user cases staff 
+        $firmOwner = $userCaseStaffList = [];
+        $caseList = User::where('id', Auth::User()->id)->select('id')->with('clientCases')->first();
+        $caseListCount = count($caseList->clientCases);
+        if($caseListCount > 0 && $caseListCount == 1){
+            $userCaseStaffList =  CaseStaff::join('case_client_selection','case_staff.case_id','=','case_client_selection.case_id')
+            ->join('users','case_staff.user_id','=','users.id')
+            ->select("case_client_selection.id as ccs","users.id","users.first_name","users.last_name","users.user_title")
+            ->whereNull('case_client_selection.deleted_at')  
+            ->where('case_client_selection.selected_user',Auth::User()->id)  
+            ->get();
+        }else if($caseListCount >= 2){
+            $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
+            ->select("users.id","users.first_name","users.last_name","users.user_title")
+            ->where('case_staff.case_id',$Messages->case_id)  
+            ->whereNull('case_staff.deleted_at')  
+            ->get();
+        }else if($caseListCount <= 0){
+            $firmOwner = User::find(Auth::User()->parent_user);
+        }
+        return view("client_portal.messages.addMessage",compact('Messages','firmOwner', 'caseList', 'caseListCount', 'userCaseStaffList'));                
+    }
 
-        return view("client_portal.messages.addMessage",compact('Messages','firmCases','firmOwner'));                
+    public function getCaseStaffList(Request $request){
+        $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
+        ->select("users.id","users.first_name","users.last_name","users.user_title")
+        ->where('case_staff.case_id',$request->case_id)  
+        ->get();
+
+        return response()->json(['staffList'=>$userCaseStaffList]);
+
     }
 }

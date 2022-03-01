@@ -44,8 +44,8 @@ class SendMessageJob implements ShouldQueue
             $mail_body = $this->getTemplateData->content;
             $mail_body = str_replace('{sender}', $this->senderName, $mail_body);
             $mail_body = str_replace('{subject}', $this->request['subject'], $mail_body);
-            $mail_body = str_replace('{loginurl}', BASE_URL.'login', $mail_body);
-            $mail_body = str_replace('{url}', BASE_URL.'client/messages/'.$this->messageID.'/info', $mail_body);
+            $mail_body = str_replace('{loginurl}', route('login'), $mail_body);
+            $mail_body = str_replace('{url}', route('client/messages/info',$this->messageID), $mail_body);
             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $this->firmData->firm_name, $mail_body);

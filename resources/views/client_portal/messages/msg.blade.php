@@ -1,4 +1,12 @@
 @if(count($messages) > 0)
+<div class="text-right primary-heading">
+    <select class="form-control  mr-0 ml-auto w-auto">
+        <option value="">All Cases</option>
+        @foreach($caseList->clientCases as $case)
+        <option value="{{$case->id}}">{{$case->case_title}}</option>
+        @endforeach
+    </select>
+</div>
 <ul class="list">
     @foreach ($messages as $key => $item)
     <?php

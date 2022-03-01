@@ -9,15 +9,17 @@
         <!-- A {{ucwords($messagesData->replies_is)}} Message Sent To: -->
         A Conversation Between: You, 
         @if($messagesData->user_id != '')
+            @php $i = count($clientList); @endphp            
             @foreach($clientList as $k=>$v)
+                @php $i = $i - 1; @endphp            
             <span class="message_user_name">
                 @php $u = explode("|",$v); @endphp
                 @if($u[1] == '2')
-                <a href="{{ route('contacts/clients/view', $k) }}">{{$u[0].' (Client)'}}</a>                
+                <a href="{{ route('contacts/clients/view', $k) }}">{{$u[0].' (Client)'}}@if($i >= 1),@endif</a>                
                 @else
-                <a href="{{ route('contacts/attorneys/info', base64_encode($k)) }}">{{$u[0].' (Attorney)'}}</a>
+                <a href="{{ route('contacts/attorneys/info', base64_encode($k)) }}">{{$u[0].' (Attorney)'}}@if($i >= 1),@endif</a>
                 @endif
-            </span>,
+            </span>                    
             @endforeach
         @endif
         <br>

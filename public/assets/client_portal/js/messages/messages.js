@@ -52,8 +52,33 @@ $(document).ready(function() {
         sendMessage();
     });
 
-    $(document).on('blur', '#case_id', function() {
-        sendMessage();
+    $(document).on('change', '#case_id', function() {
+        beforeLoader();
+        var case_id = $('#case_id').val();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/client/messages/getCaseStaffList", // json datasource
+            data: {'case_id' : case_id},
+            success: function (res) {
+                afterLoader();
+                console.log('staffList' + res.staffList);
+                $(".staffList").show();
+                var listHtml = '<div class="form-input__label">To*</div><div class="listView">';
+                $.each(res.staffList, function (key, value) {
+                    listHtml += '<input class="mr-2 sendTo" name="send_to[]"  type="checkbox" value="'+value.id+'" ><label>'+value.first_name+' '+value.last_name+' ('+value.user_title+')</label></br>';
+                });
+                listHtml += '</div></div>';
+                $(".staffList").html('').html(listHtml);
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        });
     });
 
     $(document).on('blur', '#message_subject', function() {
@@ -164,6 +189,7 @@ function addNewMessage(){
         success: function (res) {
             $("#addMessagePopup").modal('show');
             $("#messageView").html('').html(res);
+            $(".staffList").hide();
             afterLoader();
         },
         error: function (xhr, status, error) {
@@ -178,8 +204,8 @@ function addNewMessage(){
 }
 
 function submitBtnDisableCheck(){
-    console.log($(".sendTo").val() +' > '+ $("#case").val() +' > '+ $("#message_subject").val() +' > '+ $("#message_body").val());
-    if($(".sendTo").val() != '' && $("#case").val() != '' && $("#message_subject").val() != '' && $("#message_body").val() != ''){
+    console.log($(".sendTo").val() +' > '+ $("#case_id").val() +' > '+ $("#message_subject").val() +' > '+ $("#message_body").val());
+    if((($(".sendTo").val() == undefined) ? $(".sendTo").val() != undefined : $(".sendTo").val() != '' )  && $("#message_subject").val() != '' && $("#message_body").val() != ''){
         $(":submit").removeAttr("disabled");
     }else{
         $(":submit").prop("disabled", true);

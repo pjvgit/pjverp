@@ -1272,6 +1272,8 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::post('messages/sendOrDraftMessage', 'ClientdashboardController@sendOrDraftMessage')->name('client/messages/sendOrDraftMessage');
     Route::post('messages/discardDraftMessage', 'ClientdashboardController@discardDraftMessage')->name('client/messages/discardDraftMessage');
     Route::post('messages/openDraftMessage', 'ClientdashboardController@openDraftMessage')->name('client/messages/openDraftMessage');
+    Route::post('messages/getCaseStaffList', 'ClientdashboardController@getCaseStaffList')->name('client/messages/getCaseStaffList');
+    
     
 });
 
