@@ -1,12 +1,13 @@
 <form class="deleteEvent" id="deleteEventForm" name="deleteEvent" method="POST">
     <div id="showError2" style="display:none"></div>
     @csrf
-    <input class="form-control" id="event_id" value="{{ $event_id}}" name="event_id" type="hidden">
+    <input class="form-control" id="event_id" value="{{ $event_id}}" name="event_id" type="text">
+    <input class="form-control" id="event_recurring_id" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="text">
     <div class=" col-md-12">
 
       
         <?php
-        if($CaseEvent->parent_evnt_id=="0"){?>
+        if($event->is_recurring == "no"){?>
          <div class="form-group row">
             <label for="inputEmail3" class="col-sm-12 col-form-label">
           Are you sure you want to delete this event?
@@ -43,7 +44,7 @@
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
             </a>
-            <button class="btn btn-primary ladda-button example-button m-1" id="submit" type="submit" >
+            <button class="btn btn-primary ladda-button example-button m-1" type="submit" >
                 <span class="ladda-label">Yes, Delete</span>
             </button>
         </div>
@@ -72,8 +73,8 @@
                 url: baseUrl + "/court_cases/deleteEvent", // json datasource
                 data: {
                     'event_id': $('#event_id').val(),
+                    'event_recurring_id': $('#event_recurring_id').val(),
                     'delete_event_type': $('input[name="delete_event_type"]:checked').val(),
-                    'parent_evnt_id': '<?php echo $CaseEvent->parent_evnt_id;?>',
                 },
                 success: function (res) {
                     $("#innerLoader1").css('display', 'none');

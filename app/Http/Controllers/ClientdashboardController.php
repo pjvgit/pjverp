@@ -4963,8 +4963,11 @@ class ClientdashboardController extends BaseController
     public function listTrustAllocation(Request $request)
     {
         $userProfile = User::where("id", $request->client_id)->where("firm_name", auth()->user()->firm_name)->with('clientCases', 'userAdditionalInfo')->first();
-        $case = $userProfile->clientCases;
-        $UsersAdditionalInfo = $userProfile->userAdditionalInfo;
+        $case = ''; $UsersAdditionalInfo = '';
+        if($userProfile) {
+            $case = $userProfile->clientCases;
+            $UsersAdditionalInfo = $userProfile->userAdditionalInfo;
+        }
         return view("client_dashboard.billing.load_trust_allocation_list", compact('case', 'UsersAdditionalInfo'));
     }
 

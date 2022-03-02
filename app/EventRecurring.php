@@ -2,11 +2,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 class EventRecurring extends Model
 {
-    protected $timestamp = false;
+    use SoftDeletes;
     protected $fillable = [
         'id', 'event_id', 'start_date', 'end_date', 'event_reminders', 'event_comments', 'event_linked_staff', 'event_linked_contact_lead'
     ];    

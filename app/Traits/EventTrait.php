@@ -186,6 +186,7 @@ trait EventTrait {
 
         $eventReminders = $this->getEventReminderJson($caseEvent, $request);
         $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
+        $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
         if($request->event_frequency =='DAILY') {
             $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', date("Y-m-d", $recurringEndDate));
             foreach($period as $date) {
@@ -195,6 +196,7 @@ trait EventTrait {
                     "end_date" => $date,
                     "event_reminders" => $eventReminders,
                     "event_linked_staff" => $eventLinkStaff,
+                    "event_linked_contact_lead" => $eventLinkClient,
                 ]);
             }
         } else if($request->event_frequency == "EVERY_BUSINESS_DAY") {
@@ -207,6 +209,7 @@ trait EventTrait {
                         "end_date" => $date,
                         "event_reminders" => $eventReminders,
                         "event_linked_staff" => $eventLinkStaff,
+                        "event_linked_contact_lead" => $eventLinkClient,
                     ]);
                 }
             }
@@ -217,6 +220,9 @@ trait EventTrait {
                     "event_id" => $caseEvent->id,
                     "start_date" => $date,
                     "end_date" => $date,
+                    "event_reminders" => $eventReminders,
+                    "event_linked_staff" => $eventLinkStaff,
+                    "event_linked_contact_lead" => $eventLinkClient,
                 ]);
             }
         } else if($request->event_frequency == "CUSTOM") {
@@ -226,6 +232,9 @@ trait EventTrait {
                     "event_id" => $caseEvent->id,
                     "start_date" => $date,
                     "end_date" => $date,
+                    "event_reminders" => $eventReminders,
+                    "event_linked_staff" => $eventLinkStaff,
+                    "event_linked_contact_lead" => $eventLinkClient,
                 ]);
             }
         } else if($request->event_frequency == "MONTHLY") {
@@ -245,6 +254,9 @@ trait EventTrait {
                     "event_id" => $caseEvent->id,
                     "start_date" => date('Y-m-d', $date),
                     "end_date" => date('Y-m-d', $date),
+                    "event_reminders" => $eventReminders,
+                    "event_linked_staff" => $eventLinkStaff,
+                    "event_linked_contact_lead" => $eventLinkClient,
                 ]);
             }
         } else if($request->event_frequency == "YEARLY") {
@@ -262,6 +274,9 @@ trait EventTrait {
                     "event_id" => $caseEvent->id,
                     "start_date" => date('Y-m-d', $date),
                     "end_date" => date('Y-m-d', $date),
+                    "event_reminders" => $eventReminders,
+                    "event_linked_staff" => $eventLinkStaff,
+                    "event_linked_contact_lead" => $eventLinkClient,
                 ]);
             }
         }

@@ -7,11 +7,6 @@ ADD `event_linked_contact_lead` json NULL AFTER `event_linked_staff`;
 ALTER TABLE `event_recurrings`
 ADD INDEX `start_date` (`start_date`),
 ADD INDEX `end_date` (`end_date`);
-
-ALTER TABLE `event_recurrings`
-ADD `event_reminders` json NULL,
-ADD `event_comments` json NULL AFTER `event_reminders`;
-
 ------------------------------------ 24-FEB-2022 ------------------------------
 ALTER TABLE `events`
 ADD `event_interval_month` int(11) NULL AFTER `month_of_year`,
@@ -27,7 +22,12 @@ CREATE TABLE `event_recurrings` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `event_id` int(11) NULL,
   `start_date` date NULL,
-  `end_date` date NULL
+  `end_date` date NULL,
+  `event_reminders` json NULL,
+  `event_comments` json NULL,
+  `created_at` timestamp NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL,
 ) ENGINE='InnoDB'
 ------------------------------------ 18-FEB-2022 ------------------------------
 ALTER TABLE `events`
