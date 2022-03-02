@@ -21,7 +21,7 @@
                             <i class="truncatable-text__icon"></i>
                         </div>
                         <p class="truncatable-text">
-                            To : {{ implode(', ',$clientList) }}
+                            To : {{  ucwords(implode(', ',$clientList)) }}
                             <br>
                             @if($messagesData->case_unique_number)    
                                 Case: {{$messagesData->case_title}}

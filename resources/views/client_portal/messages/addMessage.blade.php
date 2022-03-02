@@ -21,13 +21,28 @@
                 <label class="col-12  col-form-label">Case *</label>
                 <div class="col-12 ">
                     <select class="form-control" name="case_id" id="case_id" required="">
+                    <option value="">Please choose one case</option>    
                         @foreach($caseList->clientCases as $case)
-                        <option value="{{$case->id}}">{{$case->case_title}}</option>
+                        <option value="{{$case->id}}" <?php echo ($Messages->case_id == $case->id) ? 'selected' : ''; ?>  >{{$case->case_title}}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
-            
+            <div class="form-group mb-3 pt-3 pb-1 staffList">
+            <?php
+                $staffList = explode(',',$Messages->user_id);
+            ?>
+            @if($Messages->user_id != '')
+                <div class="form-input__label">To*</div>
+                <div class="listView">                    
+                    @foreach($userCaseStaffList as $k => $v)
+                    <input class="mr-2 sendTo" name="send_to[]"  type="checkbox" value="{{$v->id}}" <?php echo (in_array($v->id, $staffList)) ? 'checked' :''; ?> ><label> {{ ucfirst(substr($v->first_name,0,100).' '.substr($v->last_name,0,100)) }} ({{$v->user_title}})</label>
+                    <br/>
+                    @endforeach
+                    </div>   
+                
+            @endif
+                </div>
             @endif
             <div class="form-group row ">
                 <label class="col-12  col-form-label">Subject*</label>

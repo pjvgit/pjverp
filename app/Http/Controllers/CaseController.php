@@ -6446,6 +6446,7 @@ class CaseController extends BaseController
             if((in_array('access_all_messages', $userPermissions))){
                 $messages = $messages->where(function($messages){
                     $messages = $messages->orWhere("messages.created_by",Auth::user()->parent_user);
+                    $messages = $messages->orWhere("messages.user_id",'like', '%'.Auth::user()->id.'%');
                     $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
                 });
             }else{

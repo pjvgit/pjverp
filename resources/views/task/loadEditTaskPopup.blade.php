@@ -576,11 +576,19 @@
                 $("#text_lead_id").val(selectdValue);
                 $("#text_case_id").val('');
                 firmStaff();
-            }                       
+            }  
+            console.log("timeTrackingEnabled > 580 >" + $("#timeTrackingEnabled").val())
             if($("#timeTrackingEnabled").val() == "yes"){
                 setTimeout(function(){  
                     $("input:checkbox#time_tracking_enabled").prop('checked',true);
                     // $('input:checkbox#time_tracking_enabled').trigger('click');
+                    if($("input:checkbox#time_tracking_enabled").is(":checked")){
+                        var SU = getCheckedUser();
+                        loadTimeEstimationUsersList(SU);
+                    }
+                }, 1000);        
+            }else{
+                setTimeout(function(){  
                     if($("input:checkbox#time_tracking_enabled").is(":checked")){
                         var SU = getCheckedUser();
                         loadTimeEstimationUsersList(SU);
@@ -679,6 +687,7 @@
                 "task_id":{{$Task->id}}
             },
             success: function (res) {
+                console.log("resources/views/task/loadEditTaskPopup.blade.php > 682" + res);
                 $("#dynamicUSerTimes").html(res);
                 afterLoader();
             }

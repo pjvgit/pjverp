@@ -2580,19 +2580,35 @@ class BillingController extends BaseController
                 ->where("flat_fee_entry.user_id",auth()->id())
                 ->where("flat_fee_entry.invoice_link",NULL)
                 ->where("flat_fee_entry.status","unpaid")
+                ->where("flat_fee_entry.time_entry_billable","yes")
+                ->where("flat_fee_entry.remove_from_current_invoice","no")
                 ->where("flat_fee_entry.token_id","!=",'9999999')
                 ->delete();
             }else{
                 $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
                 ->where("flat_fee_entry.user_id",auth()->id())
                 ->where("flat_fee_entry.invoice_link",NULL)
+                ->where("flat_fee_entry.time_entry_billable","yes")
                 ->where("flat_fee_entry.status","unpaid")
+                ->where("flat_fee_entry.remove_from_current_invoice","no")
+                ->where("flat_fee_entry.token_id","!=",$request->token)
                 ->delete();
             }
+
             if($caseMaster) {
                 if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                     $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where('status', 'paid')->sum('cost');
-                    $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
+                    $totalUnpaidFlatFee = FlatFeeEntry::where('case_id', $case_id) ->where("flat_fee_entry.token_id","=",$request->token)->where("flat_fee_entry.time_entry_billable","no")->where('status', 'unpaid')->sum('cost');
+                    $totalDeletedFlatFee = FlatFeeEntry::where('case_id', $case_id) ->where("flat_fee_entry.token_id","=",$request->token)->where("flat_fee_entry.remove_from_current_invoice","yes")->where('status', 'unpaid')->sum('cost');
+                    if($totalUnpaidFlatFee > 0) {
+                        $flatFeeAmount = $totalUnpaidFlatFee;
+                    }else if($totalDeletedFlatFee > 0) {
+                        $flatFeeAmount = $totalDeletedFlatFee;
+                    }else{
+                        $flatFeeAmount = $totalFlatFee;
+                    }
+                    $remainFlatFee = $caseMaster->billing_amount - $flatFeeAmount;
+                    // dd($caseMaster->billing_amount .' - '. $totalFlatFee .' - '. $remainFlatFee . ' - '.$totalUnpaidFlatFee);
                     if($remainFlatFee > 0) {
                         FlatFeeEntry::create([
                             'case_id' => $caseMaster->id,
@@ -2636,11 +2652,13 @@ class BillingController extends BaseController
                     $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
                 })->delete();
             }
-            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")
+            ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry.case_id",$case_id)
             // ->where("flat_fee_entry.user_id",auth()->id())
             ->where("flat_fee_entry.invoice_link",NULL)
             ->where("flat_fee_entry.status","unpaid")
+            ->where("flat_fee_entry.remove_from_current_invoice","no")
             ->where(function($FlatFeeEntry) use($request){
                 $FlatFeeEntry->where("flat_fee_entry.token_id","=",$request->token);
                 $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
@@ -2810,6 +2828,7 @@ class BillingController extends BaseController
                 FlatFeeEntry::where('id',$id)->update([
                     'status'=>'unpaid',
                     'invoice_link' => null,
+                    'remove_from_current_invoice' => ($request->token_id != '') ? 'yes' : 'no',
                     'token_id'=>$request->token_id
                 ]);
             }
