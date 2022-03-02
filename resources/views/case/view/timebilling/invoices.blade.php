@@ -51,6 +51,7 @@
         </div>
     </div>
 </div>
+@include('billing.invoices.partials.delete_invoice_modal')
 <style>
     .pagination{width: 80%;float: right;}
     </style>
@@ -174,5 +175,11 @@
         return false;
     }
     $('#hiddenLable').hide();
+
+    function deleteInvoice(id) {
+        $("#deleteInvoicePopup").modal("show");
+        $("#delete_invoice_id").val(id);
+    }
+
 </script>
 @stop

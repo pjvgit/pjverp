@@ -23,7 +23,16 @@
 				</div>
 
 				{{-- What's New Section --}}
-
+				@if(count($caseList->clientCases) >= 1 && $request->folder != 'draft')
+				<div class="text-right">
+					<select class="form-control mr-0 ml-auto w-auto" name="homeCaseFilter" id="homeCaseFilter">
+						<option value="">All Cases</option>
+						@foreach($caseList->clientCases as $case)
+						<option value="{{$case->id}}" <?php echo ($request->case_id == $case->id) ?  "selected" : ""; ?>>{{$case->case_title}}</option>
+						@endforeach
+					</select>
+				</div>
+				@endif
 				@if($totalInvoice > 0 || $totalMessages > 0)
 				<div class="mb-3">
 					<h1 class="primary-heading">What's New</h1>

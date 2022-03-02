@@ -2103,6 +2103,17 @@ class BillingController extends BaseController
                 InvoiceInstallment::where("invoice_id", $Invoices->id)->delete();
                 InvoicePayment::where("invoice_id",$Invoices->id)->delete();
 
+                // send mail to case staff
+                $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
+                ->select("users.email")
+                ->where('case_staff.case_id',$Invoices['case_id'])  
+                ->get();
+                $firmData=Firm::find(Auth::User()->firm_name);
+                $getTemplateData = EmailTemplate::find(44);
+                foreach ($userCaseStaffList as $k => $v){
+                    \App\Jobs\DeleteInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $v->email, $firmData, $getTemplateData);
+                }
+
                 $Invoices->delete();
                 session(['popup_success' => 'Invoice was deleted']);
                 return response()->json(['errors'=>'']);
@@ -7333,7 +7344,8 @@ class BillingController extends BaseController
                     if($request->status=="BC"){  //BC=Billing Contact only
                         $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
                     }else{
-                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
+                        // $CaseClientSelection=CaseClientSelection::select("selected_user")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
+                        $CaseClientSelection=CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select("users.id")->where("case_client_selection.case_id",$Invoice['case_id'])->where('users.user_level','2')->get()->pluck("id");
                     }
                     if(!$CaseClientSelection->isEmpty()){
                         foreach($CaseClientSelection as $k=>$v){
@@ -9056,23 +9068,8 @@ class BillingController extends BaseController
                                 $getTemplateData = EmailTemplate::find(12);
                                 // $token=url('activate_account/bills=&web_token='.$InvoiceSave->invoice_unique_token);
                                 $token = route("client/bills/detail", $InvoiceSave->decode_id);
-                                $mail_body = $getTemplateData->content;
-                                $mail_body = str_replace('{message}', $request->message, $mail_body);
-                                $mail_body = str_replace('{token}', $token, $mail_body);
-                                $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                                $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
-                                $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
-                                $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                                $clientData=User::find($vselected_user);
-                                $user = [
-                                    "from" => FROM_EMAIL,
-                                    "from_title" => FROM_EMAIL_TITLE,
-                                    "subject" => $firmData->firm_name." has sent you an invoice",
-                                    "to" => $clientData['email'],
-                                    "full_name" => "",
-                                    "mail_body" => $mail_body
-                                ];
-                                $sendEmail = $this->sendMail($user);                            
+                                $clientData=User::find($vselected_user);                                
+                                \App\Jobs\ShareInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $clientData['email'], $token, $request->message, $firmData, $getTemplateData);
                                 
                                 $SharedInvoice=new SharedInvoice;
                                 $SharedInvoice->invoice_id=$InvoiceSave->id;                    
@@ -9160,7 +9157,7 @@ class BillingController extends BaseController
             
                 $InvoiceBatch->total_invoice=count($totalInvoice);
                 $InvoiceBatch->draft_invoice=$totalDraft;
-                $InvoiceBatch->unsent_invoice=$totalUnsent;
+                $InvoiceBatch->unsent_invoice=($totalUnsent < 0) ? 0 : $totalUnsent;
                 $InvoiceBatch->sent_invoice=$totalSent;
                 $InvoiceBatch->batch_code=date('M, d Y',strtotime(convertUTCToUserTime(date("Y-m-d H:i:s", strtotime($request->batch['invoice_date'])), auth()->user()->user_tiezone ?? 'UTC')))."-".count($totalInvoice);
                 $InvoiceBatch->firm_id=Auth::User()->firm_name; 

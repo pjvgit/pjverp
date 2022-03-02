@@ -165,7 +165,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                             <div class="form-group row">
                                                 <label for="inputEmail3" class="col-3 ">
                                                     <a data-toggle="modal" data-target="#AddContactModal" data-placement="bottom" href="javascript:;">
-                                                        <button class="btn btn-primary btn-rounded m-1" type="button" onclick="AddContactModal();">Add New
+                                                        <button class="btn btn-primary btn-rounded m-1" type="button" onclick="AddContactModal('add_case');">Add New
                                                             Contact</button></a>
 
                                                 </label>

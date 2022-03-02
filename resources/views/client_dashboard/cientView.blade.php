@@ -2777,7 +2777,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
       //Billing Tab @END
 
     function confirmDelete(){
-        $(".deleteContactFormHeaderModal").html('').html('Confirm delete');
+        $("#deleteContactFormHeaderModal").html('').html('Confirm delete');
         $("#confirmAccessChange").html('<p style="font-weight:bold; color: red;">This action is permanent and cannot be reversed!</p>');
         $(".confirmsubmit").hide();
         $(".finalsubmit").show();

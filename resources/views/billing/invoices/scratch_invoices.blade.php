@@ -63,7 +63,7 @@ if(!isset($adjustment_token)){
                                                         @endforelse
                                                     </optgroup>
                                                 </select>
-                                                <a data-toggle="modal"  data-target="#AddContactModal" data-placement="bottom" href="javascript:;"  onclick="AddContactModal();">Add new contact</a>
+                                                <a data-toggle="modal"  data-target="#AddContactModal" data-placement="bottom" href="javascript:;"  onclick="AddContactModal('adjustment_token', '{{$adjustment_token}}');">Add new contact</a>
 
                                             </div>
                                             <span id="1Error"></span>

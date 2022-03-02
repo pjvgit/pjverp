@@ -393,7 +393,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             <section class="ul-widget-stat-s1">
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6">
-                        <a data-toggle="modal" data-target="#AddContactModal" data-placement="bottom" href="javascript:;" onclick="AddContactModal();"> 
+                        <a data-toggle="modal" data-target="#AddContactModal" data-placement="bottom" href="javascript:;" onclick="AddContactModal('addCompany', '{{$company_id}}');"> 
                             <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
                                 <img src="{{ asset('svg/contact.svg') }}" width="60" height="60">

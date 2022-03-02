@@ -98,6 +98,26 @@ $(document).ready(function() {
         window.location.reload();
     });
 
+    $(document).on('click', '#caseFilter', function(){
+        var folder = $("#folder").val();
+        var url = 'messages?';
+        if(folder != ''){
+            url +='folder='+folder;
+        }
+        if($(this).val() != ''){
+            url +='&case_id='+$(this).val();
+        }
+        window.location.href = url;
+    });
+
+    $(document).on('click', '#homeCaseFilter', function(){
+        var url = 'home?';
+        if($(this).val() != ''){
+            url +='&case_id='+$(this).val();
+        }
+        window.location.href = url;
+    });
+    
 });
 function archiveMessage(){
     beforeLoader();

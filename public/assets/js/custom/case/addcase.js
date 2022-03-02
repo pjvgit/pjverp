@@ -270,9 +270,22 @@ function backStep3() {
     return false;
 }
 
-function AddContactModal(action) {
-    
-    var action = (action == 'loadstep1') ?  'loadStep1' : { action : 'add_case_with_billing'}
+function AddContactModal(action, id = '') {
+    if(action == 'addCompany')
+    {
+        var action = {"company_id": id, "action" : "contact_only"};
+    }else if(action == 'loadstep1')
+    {
+        var action ='loadStep1';        
+    }else if(action == 'adjustment_token')
+    {
+        var action ={'adjustment_token' : id}
+    }else if(action == 'add_case')
+    {
+        var action ={ 'action' : 'add_case'}
+    }else {
+        var action = { 'action' : 'add_case_with_billing'}
+    }    
     $("#innerLoader").css('display', 'none');
     $("#preloader").show();
     $("#step-1-again").html('');

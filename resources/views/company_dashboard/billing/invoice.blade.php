@@ -50,6 +50,15 @@
         </tr>
     </thead>
 </table>
+@include('billing.invoices.partials.delete_invoice_modal')
+@section('page-js-inner')
+<script type="text/javascript">
+function deleteInvoice(id) {
+        $("#deleteInvoicePopup").modal("show");
+        $("#delete_invoice_id").val(id);
+    }
+</script>
+@endsection
 @else
 <div class="text-center">
     <p>There are no invoices.</p> <p><a href="{{ route('bills/invoices/new') }}">Add Invoice</a></p>

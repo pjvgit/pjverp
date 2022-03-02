@@ -1,12 +1,15 @@
-@if(count($messages) > 0)
+@if(count($caseList->clientCases) >= 1 && $request->folder != 'draft')
 <div class="text-right primary-heading">
-    <select class="form-control  mr-0 ml-auto w-auto">
+    <input type="hidden" name="folder" id="folder" value="{{$request->folder ?? ''}}" />
+    <select class="form-control mr-0 ml-auto w-auto" name="caseFilter" id="caseFilter">
         <option value="">All Cases</option>
         @foreach($caseList->clientCases as $case)
-        <option value="{{$case->id}}">{{$case->case_title}}</option>
+        <option value="{{$case->id}}" <?php echo ($request->case_id == $case->id) ?  "selected" : ""; ?>>{{$case->case_title}}</option>
         @endforeach
     </select>
 </div>
+@endif
+@if(count($messages) > 0)
 <ul class="list">
     @foreach ($messages as $key => $item)
     <?php

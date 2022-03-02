@@ -1392,7 +1392,7 @@ td,th{
                         $("#contactID").html('').html(res.list);
                         $("#sharedNotApplied").modal("show");
                     }else{
-                        // window.location.reload();
+                        window.location.reload();
                     }
                 }
             },

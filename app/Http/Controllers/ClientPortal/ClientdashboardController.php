@@ -40,6 +40,10 @@ class ClientdashboardController extends Controller
             $messages = $messages->where("messages.is_archive",0);
             $messages = $messages->where("messages.is_draft",0);
         }
+
+        if(isset($request->case_id) && $request->case_id != ''){
+            $messages = $messages->where("messages.case_id",$request->case_id);
+        }
         
 
         $messages = $messages->orderBy("messages.updated_at", 'desc');

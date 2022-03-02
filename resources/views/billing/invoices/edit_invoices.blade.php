@@ -112,6 +112,7 @@ $expenseTime=0;$expenseAmount=0;
                                         <div style="position: relative;">
                                             <div id="matter_dropdown" class="">
                                                 <div>
+                                                    @if(in_array($findInvoice->case_id, (array)$caseListByClient))
                                                     <select onchange="changeCase()"   name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>
@@ -122,6 +123,9 @@ $expenseTime=0;$expenseAmount=0;
                                                         </option>
                                                         <?php } ?>
                                                     </select>
+                                                    @else
+                                                    <i>This Contact is not linked to any billable cases</i>
+                                                    @endif
                                                 </div>
                                                 <span id="2Error"></span>
                                             </div>
@@ -3596,7 +3600,7 @@ $expenseTime=0;$expenseAmount=0;
     
     function fetchClientAddress(){
         var currentclient=$("#contact").val();
-        var URLS=baseUrl+'/bills/invoices/load_new?contact='+$currentclient;
+        var URLS=baseUrl+'/bills/invoices/load_new?contact='+currentclient;
         window.location.href=URLS;
         return true;
 

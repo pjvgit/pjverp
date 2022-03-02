@@ -345,9 +345,11 @@ class FullBackUpOfApplication implements ShouldQueue
                 $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';
 
                 $contacts = $company = $cases = $casesID = [];            
-                foreach($v['clientCases'] as $kk=>$vv){
-                    $cases[] = $vv->case_title;
-                    $casesID[] = $vv->id;
+                if(!empty($v->clientCases)){
+                    foreach($v->clientCases as $kk=>$vv){
+                        $cases[] = $vv->case_title;
+                        $casesID[] = $vv->id;
+                    }
                 }
                 $companyList = User::select("users.first_name","users.id")->whereIn("users.id",explode(",",$v['multiple_compnay_id']))->get();
 
