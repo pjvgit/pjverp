@@ -4721,7 +4721,7 @@ class CaseController extends BaseController
                             "updated_by" => $authUser->id,
                         ])->save();
                         $eitem->refresh();
-                        if($eitem->event_interval_day != $request->updated_event_interval_day) {
+                        if($eitem->event_interval_day != $request->event_interval_day) {
                             $recurringEvent = EventRecurring::where("event_id", $eitem->id)->first();
                             if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
                                 $eventReminders = $this->getEventReminderJson($eitem, $request);
@@ -4729,7 +4729,7 @@ class CaseController extends BaseController
                                 $eventReminders = encodeDecodeJson($recurringEvent->event_reminders);
                             }
                             EventRecurring::where("event_id", $eitem->id)->delete();
-                            $period = \Carbon\CarbonPeriod::create($eitem->start_date, $request->updated_event_interval_day.' days', $eitem->recurring_event_end_date);
+                            $period = \Carbon\CarbonPeriod::create($eitem->start_date, $request->event_interval_day.' days', $eitem->recurring_event_end_date);
                             foreach($period as $date) {
                                 EventRecurring::create([
                                     "event_id" => $eitem->id,

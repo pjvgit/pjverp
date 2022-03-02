@@ -404,6 +404,11 @@ if(isset($_GET['upcoming_events'])){
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\calendar\listevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
+$(window).load(function(){
+   // PAGE IS FULLY LOADED  
+   // FADE OUT YOUR OVERLAYING DIV
+   $('#preloader').show();
+});
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
             if($(this).is(":checked")) {
