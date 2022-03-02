@@ -33,7 +33,9 @@ if(isset($_GET['upcoming_events'])){
                     </div>
                 </div>
                 
-                
+                @php
+                    $authUser = auth()->user();
+                @endphp
                 <table class="mt-3 border-light event-list-view table table-sm table-hover" id="event_list_table">
                     <tbody>
                     @if(count($allEvents) == 0)
@@ -102,10 +104,10 @@ if(isset($_GET['upcoming_events'])){
                                 </td>
                                 <td>{{ $item->event->event_title }}</td>
                                 @php
-                                    $isAuthUserLinked = $item->event->eventLinkedStaff->where('users.id', auth()->id())->first();
+                                    $isAuthUserLinked = $item->event->eventLinkedStaff->where('users.id', $authUser->id)->first();
                                 @endphp
                                 <td class="c-pointer">
-                                    @if(!empty($item->event->eventType) && ($isAuthUserLinked || auth()->user()->parent_user == 0))
+                                    @if(!empty($item->event->eventType) && ($isAuthUserLinked || $authUser->parent_user == 0))
                                     <div class="d-flex align-items-center mt-3">
                                         <div class="mr-1"
                                             style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$item->event->eventType->color_code }}">
@@ -116,68 +118,79 @@ if(isset($_GET['upcoming_events'])){
                                     @endif
                                 </td>
                                 <td class="event-users">
-                                    @if(!empty($item->event->eventLinkedStaff) && ($isAuthUserLinked || auth()->user()->parent_user == 0))
-                                        @php
-                                            $totalUser = count($item->event->eventLinkedStaff) + count($item->event->eventLinkedContact) + count($item->event->eventLinkedLead);    
+                                    @if(!empty($item->event_linked_staff) && ($isAuthUserLinked || $authUser->parent_user == 0))
+                                        @php    
+                                            $linkedUser = [];
+                                            $linkedStaff = encodeDecodeJson($item->event_linked_staff);
+                                            if(count($linkedStaff)) {
+                                                foreach($linkedStaff as $skey => $sitem) {
+                                                    $user = getUserDetail($sitem->user_id);
+                                                    $linkedUser[] = [
+                                                        'user_id' => $sitem->user_id,
+                                                        'full_name' => $user->full_name,
+                                                        'user_type' => $user->user_type_text,
+                                                        'attending' => $sitem->attending,
+                                                        'utype' => 'staff',
+                                                        'user_level' => $user->user_level,
+                                                    ];
+                                                }
+                                            }
+                                            $linkedClient = [];
+                                            $linkedContact = encodeDecodeJson($item->event_linked_contact_lead);
+                                            if(count($linkedContact)) {
+                                                foreach($linkedContact as $ckey => $citem) {
+                                                    $user = getUserDetail(($citem->user_type == 'lead') ? $citem->lead_id : $citem->contact_id);
+                                                    $linkedClient[] = [
+                                                        'user_id' => ($citem->user_type == 'lead') ? $citem->lead_id : $citem->contact_id,
+                                                        'full_name' => $user->full_name,
+                                                        'user_type' => $user->user_type_text,
+                                                        'attending' => $citem->attending,
+                                                        'utype' => $citem->user_type,
+                                                        'user_level' => $user->user_level,
+                                                    ];
+                                                }
+                                            }
+                                            $totalUser = count($linkedUser) + count($linkedClient);
+                                            if($totalUser > 1) {
+                                                $userListHtml = "<table><tbody>";
+                                                $userListHtml.="<tr><td colspan='2'><b>Staff</b></td></tr>";
+                                                foreach($linkedUser as $linkuserValue){
+                                                    $userListHtml.="<tr><td>
+                                                    <span> 
+                                                        <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                                        <a href=".route('contacts/attorneys/info', base64_encode($linkuserValue['user_id']))."> ".$linkuserValue['full_name']."</a>
+                                                    </span>
+                                                    </td>";
+                                                    if($linkuserValue['attending'] == "yes") {
+                                                        $userListHtml .= "<td>Attending</td></tr>";
+                                                    } else {
+                                                        $userListHtml .= "<td></td></tr>";
+                                                    }
+                                                }
+                                                $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
+                                                foreach($linkedClient as $linkuserValue){
+                                                    $userListHtml.="<tr><td>
+                                                    <span> 
+                                                        <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                                        <a href=".(($linkuserValue['user_level'] == 4) ? route('contacts/companies/view', $linkuserValue['user_id']) : route('contacts/clients/view', $linkuserValue['user_id']))."> ".$linkuserValue['full_name']."</a>
+                                                    </span>
+                                                    </td>";
+                                                    if($linkuserValue['attending'] == "yes") {
+                                                        $userListHtml .= "<td>Attending</td></tr>";
+                                                    } else {
+                                                        $userListHtml .= "<td></td></tr>";
+                                                    }
+                                                }
+                                                $userListHtml .= "</tbody></table>";
+                                            }
                                         @endphp
                                         @if($totalUser > 1)
-                                            @php
-                                            $userListHtml = "<table><tbody>";
-                                            $userListHtml.="<tr><td colspan='2'><b>Staff</b></td></tr>";
-                                            foreach($item->event->eventLinkedStaff as $linkuserValue){
-                                                $userListHtml.="<tr><td>
-                                                <span> 
-                                                    <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
-                                                    <a href=".url('contacts/attorneys/'.$linkuserValue->decode_id)."> ".$linkuserValue->full_name."</a>
-                                                </span>
-                                                </td>";
-                                                if($linkuserValue->pivot->attending == "yes") {
-                                                    $userListHtml .= "<td>Attending</td></tr>";
-                                                } else {
-                                                    $userListHtml .= "<td></td></tr>";
-                                                }
-                                            }
-                                            if(count($item->event->eventLinkedContact)) {
-                                                $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
-                                                foreach($item->event->eventLinkedContact as $linkuserValue){
-                                                    $userListHtml.="<tr><td>
-                                                    <span> 
-                                                        <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
-                                                        <a href=".(($linkuserValue->user_level == 4) ? route('contacts/companies/view', $linkuserValue->id) : route('contacts/clients/view', $linkuserValue->id))."> ".$linkuserValue->full_name."</a>
-                                                    </span>
-                                                    </td>";
-                                                    if($linkuserValue->pivot->attending == "yes") {
-                                                        $userListHtml .= "<td>Attending</td></tr>";
-                                                    } else {
-                                                        $userListHtml .= "<td></td></tr>";
-                                                    }
-                                                }
-                                            }
-                                            if(count($item->event->eventLinkedLead)) {
-                                                $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
-                                                foreach($item->event->eventLinkedLead as $linkuserValue){
-                                                    $userListHtml.="<tr><td>
-                                                    <span> 
-                                                        <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
-                                                        <a href=".route('case_details/info', $linkuserValue->id)."> ".$linkuserValue->full_name."</a>
-                                                    </span>
-                                                    </td>";
-                                                    if($linkuserValue->pivot->attending == "yes") {
-                                                        $userListHtml .= "<td>Attending</td></tr>";
-                                                    } else {
-                                                        $userListHtml .= "<td></td></tr>";
-                                                    }
-                                                }
-                                            }
-                                            $userListHtml .= "</tbody></table>";
-                                            @endphp
                                             <a class="mt-3 event-name d-flex align-items-center pop" tabindex="0" role="button"
-                                            href="javascript:;" data-toggle="popover" title=""
-                                            data-content="{{$userListHtml}}" data-html="true" {{-- data-original-title="Staff" --}}
+                                            href="javascript:;" data-toggle="popover" title="" data-content="{{$userListHtml}}" data-html="true"
                                             style="float:left;">{{ $totalUser ?? 0 }} People</a>
                                         @else
                                             <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                            href="{{ route('contacts/attorneys/info', base64_encode(@$item->event->eventLinkedStaff[0]->id)) }}">{{ @$item->event->eventLinkedStaff[0]->full_name}}</a>
+                                            href="{{ route('contacts/attorneys/info', base64_encode(@$linkedUser[0]['user_id'])) }}">{{ @$linkedUser[0]['full_name']}}</a>
                                         @endif
                                     @else
                                         <i class="table-cell-placeholder mt-3"></i>
@@ -200,7 +213,7 @@ if(isset($_GET['upcoming_events'])){
                                 <td class="event-users">
                                     @if($item->event->is_event_private=='no')
                                     <div class="mt-3 float-right">
-                                        @if($isAuthUserLinked || auth()->user()->parent_user == 0)
+                                        @if($isAuthUserLinked || $authUser->parent_user == 0)
                                         <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"
                                         data-placement="bottom" href="javascript:;"
                                         onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->id}});">
@@ -246,13 +259,13 @@ if(isset($_GET['upcoming_events'])){
                                             ?>
                                             <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
                                             data-placement="bottom" href="javascript:;"
-                                            onclick="deleteEventFunction({{$item->id}},'single');">
+                                            onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'single');">
                                             <i class="fas fa-trash pr-2  align-middle"></i> </a>
                                             <?php
                                         }else{?>
                                         <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
                                             data-placement="bottom" href="javascript:;"
-                                            onclick="deleteEventFunction({{$item->id}},'multiple');">
+                                            onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'multiple');">
                                             <i class="fas fa-trash pr-2  align-middle"></i> </a>
                                         <?php } ?>
                                         @endcan
@@ -552,7 +565,7 @@ $(window).load(function(){
             })
         })
     }
-    function deleteEventFunction(id,types) {
+    function deleteEventFunction(eventRecurringId, eventId, types) {
       if(types=='single'){
           $("#deleteSingle").text('Delete Event');
       }else{
@@ -565,7 +578,7 @@ $(window).load(function(){
                 type: "POST",
                 url: baseUrl + "/court_cases/deleteEventPopup", 
                 data: {
-                    "event_id": id
+                    "event_recurring_id": eventRecurringId, 'event_id': eventId
                 },
                 success: function (res) {
                     $("#eventID").html('');

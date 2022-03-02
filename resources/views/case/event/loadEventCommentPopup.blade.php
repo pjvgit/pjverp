@@ -119,7 +119,7 @@
                                                         <a href="{{ route('contacts/attorneys/info', base64_encode($item['user_id'])) }}" class="d-flex align-items-center user-link">
                                                             {{ $item['full_name'] }} ({{ $item['user_type'] }})</a>
                                                         @elseif($item['utype'] == 'lead')
-                                                        <a href="{{ route('contacts/clients/view', $item['user_id']) }}" class="d-flex align-items-center user-link">
+                                                        <a href="{{ route('case_details/info', $item['user_id']) }}" class="d-flex align-items-center user-link">
                                                             {{ $item['full_name'] }} ({{ $item['user_type'] }})</a>
                                                         @else
                                                         <a href="{{ route('contacts/clients/view', $item['user_id']) }}" class="d-flex align-items-center user-link">
@@ -128,20 +128,6 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-4"><b style="color: rgb(99, 108, 114);">{{ ($item['attending'] == 'yes') ? "Attending" : "" }}</b></div>
-                                                @empty
-                                                @endforelse
-                                            @endif
-                                        </div>
-                                        <div class="row ">
-                                            @if(count($event->eventLinkedContact))
-                                                @forelse ($event->eventLinkedContact as $key => $item)
-                                                <div class="col-8">
-                                                    <div class="d-flex flex-row">
-                                                        <a href="{{ route('contacts/clients/view', $item->id) }}" class="d-flex align-items-center user-link">
-                                                            {{substr($item->full_name,0,15)}} ({{ userLevelList()[$item->user_level] }})</a>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4"><b style="color: rgb(99, 108, 114);"><?php if($item->pivot->attending=='yes'){ echo "Attending"; } ?></b></div>
                                                 @empty
                                                 @endforelse
                                             @endif

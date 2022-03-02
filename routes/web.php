@@ -375,7 +375,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     // Inner tabs
     Route::get('court_cases/{id}/info','CaseController@showCaseDetails')->name('info');
     Route::get('court_cases/{id}/recent_activity','CaseController@showCaseDetails')->name('recent_activity');
-    Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
+    // Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
     Route::get('court_cases/{id}/documents','CaseController@showCaseDetails')->name('documents');
     Route::get('court_cases/{id}/tasks','CaseController@showCaseDetails')->name('tasks');
     Route::get('court_cases/{id}/notes','CaseController@showCaseDetails')->name('notes');
