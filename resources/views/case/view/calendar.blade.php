@@ -49,6 +49,19 @@ if(isset($_GET['upcoming_events'])){
                             </th>
                         </tr>
                     @else
+                        <tr>
+                            <th colspan="6">
+                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y', strtotime(@$allEvents->first()->user_start_date)) }}</h2>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th width="5%">Date</th>
+                            <th width="20%">Time</th>
+                            <th width="35%">Title</th>
+                            <th width="15%">Type</th>
+                            <th width="15%">Users</th>
+                            <th width="13%"></th>
+                        </tr>
                         @forelse ($allEvents as $key => $item)
                             @if(isset($oDate) && date('Y', strtotime($oDate)) != date('Y', strtotime($item->start_date)))
                             <tr>
@@ -417,11 +430,6 @@ if(isset($_GET['upcoming_events'])){
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\calendar\listevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
-$(window).load(function(){
-   // PAGE IS FULLY LOADED  
-   // FADE OUT YOUR OVERLAYING DIV
-   $('#preloader').show();
-});
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
             if($(this).is(":checked")) {
