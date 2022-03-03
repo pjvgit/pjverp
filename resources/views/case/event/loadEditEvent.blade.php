@@ -1171,6 +1171,7 @@
     }
 
     // Get updated option of weekly/monthly/yearly recurring
+    updateMonthlyWeeklyOptions();
     function updateMonthlyWeeklyOptions() {
         var date = new Date($("#start_date").val());
         // for month
