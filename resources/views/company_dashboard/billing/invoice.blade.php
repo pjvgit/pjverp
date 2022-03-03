@@ -52,12 +52,7 @@
 </table>
 @include('billing.invoices.partials.delete_invoice_modal')
 @section('page-js-inner')
-<script type="text/javascript">
-function deleteInvoice(id) {
-        $("#deleteInvoicePopup").modal("show");
-        $("#delete_invoice_id").val(id);
-    }
-</script>
+<script src="{{ asset('assets\js\custom\invoice\listinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @endsection
 @else
 <div class="text-center">

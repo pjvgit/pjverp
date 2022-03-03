@@ -1986,17 +1986,6 @@ class BillingController extends BaseController
         }else{
                 $id=$request->invoice_id;
                 $Invoices=Invoices::find($id);
-                    //Add Invoice history
-                $data=[];
-                $data['case_id']=$Invoices['case_id'];
-                $data['user_id']=$Invoices['user_id'];
-                $data['activity']='deleted an invoice';
-                $data['activity_for']=$Invoices['id'];
-                $data['type']='invoices';
-                $data['action']='delete';
-                $CommonController= new CommonController();
-                $CommonController->addMultipleHistory($data);
-
                 // Invoices::where("id", $id)->delete();
 
                 //Remove flat fee entry for the invoice and reactivated time entry
@@ -2099,20 +2088,41 @@ class BillingController extends BaseController
                     }
                 }
 
+                // invoice payment entry delete
                 InvoicePaymentPlan::where("invoice_id", $Invoices->id)->delete();
                 InvoiceInstallment::where("invoice_id", $Invoices->id)->delete();
                 InvoicePayment::where("invoice_id",$Invoices->id)->delete();
 
                 // send mail to case staff
-                $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
-                ->select("users.email")
-                ->where('case_staff.case_id',$Invoices['case_id'])  
-                ->get();
-                $firmData=Firm::find(Auth::User()->firm_name);
-                $getTemplateData = EmailTemplate::find(44);
-                foreach ($userCaseStaffList as $k => $v){
-                    \App\Jobs\DeleteInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $v->email, $firmData, $getTemplateData);
+                if($Invoices['is_lead_invoice'] == 'yes'){
+                    $userCaseStaffList = LeadAdditionalInfo::join('users','lead_additional_info.assigned_to','=','users.id')
+                    ->select("users.email")
+                    ->where('user_id',$Invoices['user_id'])
+                    ->get();
+                }else{
+                    $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
+                    ->select("users.email")
+                    ->where('case_staff.case_id',$Invoices['case_id'])  
+                    ->get();
                 }
+                if(!empty($userCaseStaffList)){
+                    $firmData=Firm::find(Auth::User()->firm_name);
+                    $getTemplateData = EmailTemplate::find(44);
+                    foreach ($userCaseStaffList as $k => $v){
+                        \App\Jobs\DeleteInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $v->email, $firmData, $getTemplateData);
+                    }
+                }
+
+                //Add Invoice history
+                $data=[];
+                $data['case_id']=$Invoices['case_id'];
+                $data['user_id']=$Invoices['user_id'];
+                $data['activity']='deleted an invoice';
+                $data['activity_for']=$Invoices['id'];
+                $data['type']='invoices';
+                $data['action']='delete';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
 
                 $Invoices->delete();
                 session(['popup_success' => 'Invoice was deleted']);
@@ -4060,6 +4070,7 @@ class BillingController extends BaseController
                     $InvoiceSave->status="Paid";
                 }
             }
+
             $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->bill_sent_status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
@@ -4071,6 +4082,9 @@ class BillingController extends BaseController
             $InvoiceSave->firm_id = auth()->user()->firm_name;
             $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
             $InvoiceSave->invoice_token=Str::random(250);
+            if($request->final_total_text == 0 && $request->nonBillableAmount > 0){
+                $InvoiceSave->status="Paid";
+            }
             $InvoiceSave->save();
 
 
@@ -4531,11 +4545,13 @@ class BillingController extends BaseController
 
             
             //Get the flat fee Entry list
-            $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+            $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
             ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
             ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry_for_invoice.invoice_id",$invoiceID)
+            ->whereNUll("flat_fee_entry_for_invoice.deleted_at")
             ->get();
+            // dd($FlatFeeEntryForInvoice)
     
             //Get the Adjustment list
             $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoiceID)->where("invoice_adjustment.amount",">",0)->get();
@@ -5080,10 +5096,11 @@ class BillingController extends BaseController
         $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
 
            //Get the flat fee Entry list
-        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+           $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
         ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
         ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
         ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+        ->whereNUll("flat_fee_entry_for_invoice.deleted_at")
         ->get();
         
         if(empty($invoice_id)){
@@ -5124,7 +5141,7 @@ class BillingController extends BaseController
         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
 
         //Get the flat fee Entry list
-        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+        $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
         ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
         ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
         ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
@@ -5216,10 +5233,11 @@ class BillingController extends BaseController
         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
 
         //Get the flat fee Entry list
-        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+        $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
         ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
         ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
         ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+        ->whereNUll("flat_fee_entry_for_invoice.deleted_at")
         ->get();
         
         $filename="Invoice_".$invoice_id.'.pdf';
@@ -5265,7 +5283,7 @@ class BillingController extends BaseController
         $firmData=Firm::find($userData['firm_name']);
 
         //Get the flat fee Entry list
-        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+        $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
         ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
         ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
         ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
@@ -5405,10 +5423,11 @@ class BillingController extends BaseController
             $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
     
             //Get the flat fee Entry list
-            $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+            $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
             ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
             ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+            ->whereNUll("flat_fee_entry_for_invoice.deleted_at")
             ->get();            
     
             //check case client company is list out on contacts
@@ -5643,10 +5662,11 @@ class BillingController extends BaseController
                     DB::table('flat_fee_entry')->where("id",$v->id)->delete();
                 }
             }
-            $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id");
+            $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id");
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->leftJoin("users","users.id","=","flat_fee_entry.user_id");
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd");
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->where("flat_fee_entry_for_invoice.invoice_id",$invoiceID);
+            $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->whereNUll("flat_fee_entry_for_invoice.deleted_at");
             // if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
             //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
             //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
@@ -7526,9 +7546,10 @@ class BillingController extends BaseController
                     $InvoiceAdjustmentTotal = ($v->item == 'discount') ? ($InvoiceAdjustmentTotal - str_replace(",","",$v->amount)) : ($InvoiceAdjustmentTotal + str_replace(",","",$v->amount));
                 }
 
-                $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+                $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
                 ->where("invoice_id",$v1)
                 ->where("flat_fee_entry.time_entry_billable","yes")
+                ->whereNUll("flat_fee_entry_for_invoice.deleted_at")
                 ->sum('cost');               
                 
                 $FlatFeeEntryForInvoiceTotal= str_replace(',', '',number_format(str_replace(',', '',$FlatFeeEntryForInvoice), 2));
@@ -10513,10 +10534,11 @@ class BillingController extends BaseController
                     $pdfData[$invoice_id]['ExpenseForInvoice']=$ExpenseForInvoice;
 
                      //Get the flat fee Entry list
-                    $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+                     $FlatFeeEntryForInvoice=FlatFeeEntry::leftJoin("flat_fee_entry_for_invoice","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
                     ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
                     ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
                     ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+                    ->whereNUll("flat_fee_entry_for_invoice.deleted_at")
                     ->get();
                     $pdfData[$invoice_id]['FlatFeeEntryForInvoice']=$FlatFeeEntryForInvoice;
 

@@ -39,6 +39,6 @@ class SolReminderEmailJob implements ShouldQueue
     {       
         Log::info("SOL reminder Email job calling...");
         $mailSend = \Mail::to($this->staff->email)->send(new SolReminderMail($this->caseDetails, $this->firmDetail, $this->staff));
-        Log::info("SOL reminder Email sent to : ". $this->staff->email. ' for time zone : '.$this->staff->user_timezone );
+        Log::info("SOL reminder Email sent to : ". $this->staff->email. ' for time zone : '.$this->staff->user_timezone.' at '. date('Y-m-d H:i:s'));
     }
 }
