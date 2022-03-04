@@ -1,3 +1,7 @@
+------------------------------------ 04-MAR-2022 ------------------------------
+ALTER TABLE `events`
+CHANGE `month_of_year` `custom_event_weekdays` json NULL AFTER `day_of_month`;
+
 ------------------------------------ 01-MAR-2022 ------------------------------
 ALTER TABLE `event_recurrings`
 ADD `event_linked_staff` json NULL AFTER `event_comments`,

@@ -119,11 +119,13 @@ function selectType() {
         $(".repeat_yearly").hide();
         $(".repeat_monthly").show();
         $("#repeat_custom").hide();
+        $("#repeat_daily").hide();
         updateMonthlyWeeklyOptions();
     } else if (selectdValue == 'YEARLY') {
         $(".repeat_yearly").show();
         $(".repeat_monthly").hide();
         $("#repeat_custom").hide();
+        $("#repeat_daily").hide();
         updateMonthlyWeeklyOptions();
     } else if (selectdValue == 'WEEKLY') {
         updateMonthlyWeeklyOptions();
