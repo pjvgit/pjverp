@@ -701,7 +701,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         
                         <!-- <a data-toggle="modal" data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" onclick="loadStep1();">  -->
-                        <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();"> 
+                        <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="addClientForCase('{{$client_id}}');"> 
                             <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
                                 <img src="{{ asset('svg/court_case_add.svg') }}" width="60" height="60">
@@ -2861,6 +2861,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\invoice\listinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\invoice\deleteInvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\trusthistory.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\trustallocation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 

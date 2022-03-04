@@ -1045,7 +1045,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     </div>
                     
                     <div id="adding_box" style="display: none; width: 150px; text-align: center; height: 28px; padding-top: 7px;" class="standard adding ">
-                    <img style="vertical-align: middle;" class="retina" src="https://assets.mycase.com/packs/retina/ajax_arrows-0ba8e6a4d4.gif" width="16" height="16"> <span id="adding_box_text" style="line-height: 16px;">Submitting...</span>
+                    <img style="vertical-align: middle;" class="retina" src="{{ asset('images/ajax_arrows.gif') }}" width="16" height="16"> <span id="adding_box_text" style="line-height: 16px;">Submitting...</span>
                     </div>
                     
                 </div>

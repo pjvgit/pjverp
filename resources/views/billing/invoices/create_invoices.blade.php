@@ -221,7 +221,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                                     Discount, Tax, or Addition</a>
                                 <div id="batch_discount_loading" style="display: none; float: left; margin-left: 2px;">
                                     <img style="vertical-align: middle;" class="retina"
-                                        src="https://assets.mycase.com/packs/retina/ajax_arrows-0ba8e6a4d4.gif"
+                                        src="{{ asset('images/ajax_arrows.gif') }}"
                                         width="16" height="16"> </div>
                                 <a class="btn btn-link btn-sm float-right" href="#"
                                     onclick="toggle_discounts();; return false;">Close<i

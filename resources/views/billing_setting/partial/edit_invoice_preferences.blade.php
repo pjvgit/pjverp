@@ -129,7 +129,7 @@
         <button id="cancel_edit_billing_settings" class="btn btn-link" data-url="{{ route('billing/settings/view/preferences') }}" data-setting-id="{{ @$invSetting->id }}">Cancel Without Saving</button>
         <button id="save_billing_settings" class="btn btn-primary">Save Preferences</button>
     </div>
-    <div id="adding_box" style="display: none;"> <img style="vertical-align: middle;" class="retina" src="https://assets.mycase.com/packs/retina/ajax_arrows-0ba8e6a4d4.gif" width="16" height="16"> Saving… </div>
+    <div id="adding_box" style="display: none;"> <img style="vertical-align: middle;" class="retina" src="{{ asset('images/ajax_arrows.gif') }}" width="16" height="16"> Saving… </div>
 </div>
 
 <div class="reminder-schedule-copy copy hide" style="display: none;">

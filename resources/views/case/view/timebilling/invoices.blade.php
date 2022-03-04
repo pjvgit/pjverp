@@ -57,6 +57,7 @@
     </style>
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\invoice\listinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\invoice\deleteInvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     "use strict";
     $(document).ready(function () {

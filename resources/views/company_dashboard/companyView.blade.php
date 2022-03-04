@@ -497,7 +497,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         
                         <!-- <a data-toggle="modal" data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" onclick="loadStep1FromCompnay();">  -->
-                        <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();"> 
+                        <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="saveSelectdUserFromCompany('{{$company_id}}');"> 
                             <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
                                 <img src="{{ asset('svg/court_case_add.svg') }}" width="60" height="60">

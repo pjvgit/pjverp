@@ -981,6 +981,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('bills/invoices/paymentHistory', 'BillingController@invoicePaymentHistory')->name('bills/invoices/paymentHistory');
     Route::get('bills/invoices/activityHistory', 'BillingController@invoiceActivityHistory')->name('bills/invoices/activityHistory');
     Route::get('bills/invoices/refreshAccountHistory', 'BillingController@invoiceAccountHistory')->name('bills/invoices/refreshAccountHistory');
+    Route::post('bills/invoices/getStaffandClientListOfInvoice', 'BillingController@getStaffandClientListOfInvoice')->name('bills/invoices/getStaffandClientListOfInvoice');
 
     // For online payment
     Route::get('bills/invoices/get/client/detail', 'BillingController@getClientDetail')->name('bills/invoices/get/client/detail');

@@ -223,9 +223,16 @@ console.log("localStorage > smart_timer_created_by : " + smart_timer_created_by)
                 $("#timer_case_id").val(data.smartTimer.case_id);
                 $("#timer_text_field").val(data.smartTimer.comments);
                 if (data.smartTimer.stopped_at != null) {
-                    $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
-                    $(".timerAction").removeClass("fa-pause").addClass("fa-play");
-                    $(".timerAction").attr('id', 'startCounter');
+                    if (data.smartTimer.is_pause == 0) {
+                        $(".logoutTimerAlert").show();
+                        $(".js-timer-root .text-nowrap").html('');
+                        localStorage.setItem("pauseCounter", 'yes');
+                        intervalId = setInterval(timerstart, 1000);
+                    } else {
+                        $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+                        $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                        $(".timerAction").attr('id', 'startCounter');
+                    }
                 } else {
                     if (data.smartTimer.is_pause == 0) {
                         $(".logoutTimerAlert").show();

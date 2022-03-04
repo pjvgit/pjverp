@@ -29,7 +29,7 @@ div.show_red_box {
             <table style="width: 100%;">
                 <tbody><tr>
                     <td style="width: 35px;">
-                        <img src="https://assets.mycase.com/packs/exclaimation_red-4c16104e84.jpg">
+                        <img src='{{ asset("images/exclaimation_red.jpg") }}'>
                     </td>
                     <td style="color: #737373; font-weight: bold;">
                         Access to this invoice is no longer allowed because the invoice has been unshared or removed by a linked firm user.

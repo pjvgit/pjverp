@@ -19,7 +19,7 @@
                 <div class="col-10 pl-0">
                     <ul class="list-unstyled mb-0">
                         <?php foreach($getAllClientForSharing as $k=>$v){ 
-                            if($v->user_level==2){ ?>
+                            if($v->user_level==2 || $v->user_level == 4 ){ ?>
                             <li class="court-case-users-row mb-2 pb-1">
                                 <table class="col-12">
                                     <tbody>                                    
@@ -28,7 +28,7 @@
                                                 <label class="mb-0">
                                                     <input type="checkbox" class="mr-2 mb-1 checkMail" name="client[]"
                                                         id="send-email-{{$v->user_id ?? $v->id}}" value="{{$v->user_id ?? $v->id}}" data-email="{{$v->email}}"></label></td>
-                                            <td class="pl-0 col-12"> {{substr($v->unm ?? ($v->first_name.' '.$v->last_name),0,100)}} (Client) </td>
+                                            <td class="pl-0 col-12"> {{substr($v->unm ?? ($v->first_name.' '.$v->last_name),0,100)}} ({{ ($v->user_level==2) ? 'Client' : 'Company' }})</td>
                                         </tr>
                                         <tr id="mailOpen_{{$v->user_id ?? $v->id}}" style="display: none;"><td></td><td>Please enter an email address for this contact:<input id="new-email-{{$v->user_id ?? $v->id}}" class="col-12 form-control" name="new_email-{{$v->user_id ?? $v->id}}" placeholder="Enter email" value="{{$v->email}}"></td></tr>
                                     

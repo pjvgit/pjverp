@@ -3,6 +3,7 @@
     <div class="modal-dialog" bladefile="resources\views\billing\invoices\partials\delete_invoice_modal.blade.php">
         <form class="deleteInvoiceForm" id="deleteInvoiceForm" name="deleteInvoiceForm" method="POST">
             <input type="hidden" id="delete_invoice_id" name="invoice_id">
+            <input type="hidden" id="redirect_link" name="redirect_link">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
@@ -23,6 +24,13 @@
                             </ul>
                         </div>
                     </div>
+                    <div class="row showuserlist" style="display: none;">
+                        <div class="col-md-12">
+                            <p>Please select the users, to whom will get email of deleted invoice.</p>
+                            <div class="showStaffList"></div>
+                        </div>
+                    </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <div class="col-md-12  text-center">

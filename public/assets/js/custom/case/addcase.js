@@ -38,6 +38,50 @@ function loadAllStep(action = '') {
     $("#returnPage").val(action);
 }
 
+function saveSelectdUserFromCompany(id) {
+    $("#innerLoader").css('display', 'block');
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "/case/saveSelectdUserFromCompany",
+        data: {
+            "selectdValue": id
+        },
+        success: function (res) {
+            loadAllStep();
+            $(".text-center-also").remove();
+            $("#innerLoader").css('display', 'none');
+            $("#beforetext").remove(); 
+            $("#beforebutton").remove();
+            $("#submit_with_user").show(); 
+            $("#submit").remove(); 
+            $("#loadUserAjax").html(res);
+            
+        }
+    })
+}
+
+function addClientForCase(id){
+    
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "/case/saveSelectdUser",
+        data: {
+            "selectdValue": id
+        },
+        success: function (res) {            
+            loadAllStep();
+            $(".text-center-also").remove();
+            $("#innerLoader").css('display', 'none');
+            $("#beforetext").remove(); 
+            $("#beforebutton").remove();
+            $("#submit_with_user").show(); 
+            $("#submit").remove(); 
+            $("#loadUserAjax").html(res);
+        }
+    });
+    
+}
+
 function loadCaseDropdown() {
     $.ajax({
         type: "POST",
