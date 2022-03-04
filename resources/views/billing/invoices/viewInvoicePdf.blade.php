@@ -707,7 +707,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
             <td class="invoice_info_bg" id="invoice-balance-due"
                 style="text-align: right; border-left: none; vertical-align: top; font-weight: bold; ">
                 <?php 
-                    $F = number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$addition+$forwardedInvoices-($discount+$Invoice['paid_amount']),2);
+                    $F = str_replace(",","",number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$addition+$forwardedInvoices-($discount+$Invoice['paid_amount']),2));
                     if($F<=0){
                         $fAmt=0;
                     }else{
