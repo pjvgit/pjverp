@@ -42,7 +42,7 @@
             </div>
             <label for="inputEmail3" class="col-sm-1 col-form-label"></label>
         </div>
-        <div class="form-group row" id="billing_rate_text">
+        <div class="form-group row" id="billing_rate_text" style="display: none;">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Flat fee Amount</label>
             <div class="input-group mb-3 col-sm-5">
                 <div class="input-group-prepend"><span class="input-group-text">$</span></div>

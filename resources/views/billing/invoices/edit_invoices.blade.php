@@ -7,6 +7,7 @@
 <?php
 $timeEntryTime=$timeEntryAmount=0;
 $expenseTime=0;$expenseAmount=0;
+$nonBillableAmount = 0;
 ?>
     <div class="col-md-12">
         <form class="saveInvoiceForm" id="saveInvoiceForm" name="saveInvoiceForm" method="POST" action="{{route('bills/invoices/updateInvoiceEntry')}}">
@@ -112,7 +113,13 @@ $expenseTime=0;$expenseAmount=0;
                                         <div style="position: relative;">
                                             <div id="matter_dropdown" class="">
                                                 <div>
-                                                    @if(in_array($findInvoice->case_id, (array)$caseListByClient))
+                                                    <?php
+                                                    $clientCasesList = [];
+                                                    foreach ($caseListByClient as $k =>$v){ 
+                                                        array_push($clientCasesList,$v->id);
+                                                    }
+                                                    ?>
+                                                    @if(in_array($findInvoice->case_id, $clientCasesList))
                                                     <select onchange="changeCase()"   name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>
@@ -381,7 +388,7 @@ $expenseTime=0;$expenseAmount=0;
                                            {{$v->cost}} 
                                     </td>                                    
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; $nonBillableAmount += 1;} ?>
                                             name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -596,7 +603,7 @@ $expenseTime=0;$expenseAmount=0;
                                     </td>
                                     <td style="text-align: center; padding-top: 10px !important;">
                                         <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="time"
-                                            id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                            id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; $nonBillableAmount += 1;} ?>
                                             name="linked_staff_checked_share[]" priceattr="{{$Total}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -816,7 +823,7 @@ $expenseTime=0;$expenseAmount=0;
                                         </td>
                                         <td style="text-align: center; padding-top: 10px !important;">
                                             <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->eid}}" data-token_id="{{$adjustment_token}}"  data-check-type="expense"
-                                                id="invoice_expense_entry_nonbillable_time{{$v->eid}}"  <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                                id="invoice_expense_entry_nonbillable_time{{$v->eid}}"  <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; $nonBillableAmount += 1;} ?>
                                                 name="invoice_expense_entry_nonbillable_time[]" priceattr="{{$Total}}" value="{{$v->eid}}">
                                         </td>
                                     </tr>
@@ -1277,6 +1284,7 @@ $expenseTime=0;$expenseAmount=0;
                                 <input type="hidden" value="{{$flateFeeTotal}}" name="flat_fee_sub_total_text" id="flat_fee_sub_total_text">
                                 <input type="hidden" value="{{$timeEntryAmount}}" name="time_entry_sub_total_text" id="time_entry_sub_total_text">
                                 <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text" id="expense_sub_total_text">
+                                <input type="hidden" value="{{$nonBillableAmount}}" name="nonBillableAmount"  id="nonBillableAmount">
                                 <input type="hidden" value="" name="sub_total_text" id="sub_total_text">
                                 <input type="hidden" value="" name="total_text" id="total_text">
                                 <input type="hidden" value="{{$discount}}" name="discount_total_text"
@@ -3155,6 +3163,7 @@ $expenseTime=0;$expenseAmount=0;
                 return false;
             }else{
                 var alert = 0;
+                var nonBillableAmount = {{$nonBillableAmount}};
                 <?php if($case_id == "none"){ ?>
                     var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
                     var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
@@ -3168,16 +3177,26 @@ $expenseTime=0;$expenseAmount=0;
                     if(addition_amount > 0) {
                         alert++;
                     }                    
+                    if($("#final_total_text").val() == 0 && alert == 0){
+                        swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
+                        alert++;
+                        afterLoader();
+                        return false;
+                    }else{
+                        afterLoader();
+                        return true;
+                    }   
+                <?php }else{ ?>
+                    if($("#final_total_text").val() == 0 && nonBillableAmount == 0){
+                        swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
+                        alert++;
+                        afterLoader();
+                        return false;
+                    }else{
+                        afterLoader();
+                        return true;
+                    }
                 <?php } ?>
-                if($("#final_total_text").val() == 0 && alert == 0){
-                    swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
-                    alert++;
-                    afterLoader();
-                    return false;
-                }else{
-                    afterLoader();
-                    return true;
-                }   
             }
         });
 

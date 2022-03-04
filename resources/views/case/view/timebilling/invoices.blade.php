@@ -56,6 +56,7 @@
     .pagination{width: 80%;float: right;}
     </style>
 @section('page-js-inner')
+<script src="{{ asset('assets\js\custom\invoice\listinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     "use strict";
     $(document).ready(function () {
@@ -175,11 +176,6 @@
         return false;
     }
     $('#hiddenLable').hide();
-
-    function deleteInvoice(id) {
-        $("#deleteInvoicePopup").modal("show");
-        $("#delete_invoice_id").val(id);
-    }
 
 </script>
 @stop

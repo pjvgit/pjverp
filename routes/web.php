@@ -293,6 +293,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('case/loadStatus', 'CaseController@loadStatus')->name('case/loadStatus');
     Route::post('case/saveStatus', 'CaseController@saveStatus')->name('case/saveStatus');
 
+    Route::get('case/removeTempSelectedUser', 'CaseController@removeTempSelectedUser')->name('case/removeTempSelectedUser');
+
     Route::post('case/loadCaseUpdate', 'CaseController@loadCaseUpdate')->name('case/loadCaseUpdate');
     Route::post('case/saveCaseUpdate', 'CaseController@saveCaseUpdate')->name('case/saveCaseUpdate');
     Route::post('case/editCase', 'CaseController@editCase')->name('case/editCase');

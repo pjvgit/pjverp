@@ -176,13 +176,13 @@
                         $totalCaseNonBillableEntry += str_replace(",","",$case->caseNonBillableEntry);
 
                         $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
-                        $totalCaseBilled += str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
+                        $totalCaseBilled += $totalBilled;
 
                         // collected amount
                         $totalPaidFlatfee += str_replace(",","",$case->paidFlatfee);
                         $totalPaidTimeEntry += str_replace(",","",$case->paidTimeEntry);
                         $totalPaidExpenses += str_replace(",","",$case->paidExpenses);
-                        $totalPaidBalanceForward += str_replace(",","",$case->paidBalanceForward);
+                        
                         $totalPaidInterest += str_replace(",","",$case->paidInterest);
                         $totalPaidTax += str_replace(",","",$case->paidTax);
                         $totalPaidAdditions += str_replace(",","",$case->paidAdditions);
@@ -191,7 +191,6 @@
                         $totalCollected = str_replace(",","",$case->paidFlatfee)
                         + str_replace(",","",$case->paidTimeEntry)
                         + str_replace(",","",$case->paidExpenses)
-                        + str_replace(",","",$case->paidBalanceForward)
                         + str_replace(",","",$case->paidInterest)
                         + str_replace(",","",$case->paidTax)
                         + str_replace(",","",$case->paidAdditions)
@@ -204,7 +203,7 @@
                     ?>        
 
                     <tr class="">
-                        <td><a target="_blank" href="{{route('info', $case->case_unique_number)}}">{{$case->case_title}}</a></td>
+                        <td><a target="_blank" href="{{route('info', $case->case_unique_number)}}">{{$case->case_title}} ({{$case->id}})</a></td>
                         <td>{{($case->caseFlatfees > 0) ? '$'.$case->caseFlatfees : '--'}}</td>
                         <td>{{($case->caseDuration > 0) ? $case->caseDuration : '--'}}</td>
                         <td>{{($case->caseTimeEntry > 0) ? '$'.$case->caseTimeEntry : '--'}}</td>

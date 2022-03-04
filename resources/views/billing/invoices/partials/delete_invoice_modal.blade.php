@@ -1,6 +1,6 @@
 <div id="deleteInvoicePopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog" data-blade-url="resources\views\billing\invoices\partials\delete_invoice_modal.blade.php">
+    <div class="modal-dialog" bladefile="resources\views\billing\invoices\partials\delete_invoice_modal.blade.php">
         <form class="deleteInvoiceForm" id="deleteInvoiceForm" name="deleteInvoiceForm" method="POST">
             <input type="hidden" id="delete_invoice_id" name="invoice_id">
             @csrf

@@ -45,7 +45,7 @@
                 </select>
             </div>
         </div>
-        <div class="form-group row" id="billing_rate_text">
+        <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Potential Value of Case
             </label>
             <div class="input-group mb-4 col-sm-5">

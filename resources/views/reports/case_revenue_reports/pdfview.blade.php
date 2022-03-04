@@ -67,13 +67,13 @@
                         $totalCaseNonBillableEntry += str_replace(",","",$case->caseNonBillableEntry);
 
                         $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
-                        $totalCaseBilled += str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
+                        $totalCaseBilled += $totalBilled;
 
                         // collected amount
                         $totalPaidFlatfee += str_replace(",","",$case->paidFlatfee);
                         $totalPaidTimeEntry += str_replace(",","",$case->paidTimeEntry);
                         $totalPaidExpenses += str_replace(",","",$case->paidExpenses);
-                        $totalPaidBalanceForward += str_replace(",","",$case->paidBalanceForward);
+                        
                         $totalPaidInterest += str_replace(",","",$case->paidInterest);
                         $totalPaidTax += str_replace(",","",$case->paidTax);
                         $totalPaidAdditions += str_replace(",","",$case->paidAdditions);

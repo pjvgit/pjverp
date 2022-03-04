@@ -475,6 +475,10 @@ class CaseController extends BaseController
         return view('case.showSelectdUser',compact('selectdUSerList'));
     }
 
+    public function removeTempSelectedUser(Request $request){
+        DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
+    }
+
     public function remomeSelectedUser(Request $request)
     {
         $firstCheck=TempUserSelection::where("selected_user",$request->selectdValue)->where("user_id",Auth::user()->id)->delete();

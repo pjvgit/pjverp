@@ -13,6 +13,7 @@ if(!isset($expenseAmount)){ $expenseAmount=0;}
 if(!isset($discount)){ $discount=0;}
 if(!isset($addition)){ $addition=0;}
 
+$nonBillableAmount = 0;
 ?>
 <div class="separator-breadcrumb border-top"></div>
 <div class="row">
@@ -408,7 +409,7 @@ if(!isset($addition)){ $addition=0;}
                                     </td>   
                                     
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; $nonBillableAmount += 1;} ?>
                                         data-time_entry_billable="{{$v->time_entry_billable}}" autocomplete="off" name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -631,7 +632,7 @@ if(!isset($addition)){ $addition=0;}
                                     </td>
                                     <td style="text-align: center; padding-top: 10px !important;">
                                         <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="time"
-                                            id="invoice_entry_nonbillable_time_{{$v->itd}}"  data-time_entry_billable="{{$v->time_entry_billable}}" autocomplete="off" <?php if($v->time_entry_billable == "no"){ echo "checked=checked"; } ?>
+                                            id="invoice_entry_nonbillable_time_{{$v->itd}}"  data-time_entry_billable="{{$v->time_entry_billable}}" autocomplete="off" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; $nonBillableAmount += 1;} ?>
                                             name="linked_staff_checked_share[]" priceattr="{{$Total}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -853,7 +854,7 @@ if(!isset($addition)){ $addition=0;}
                                         </td>
                                         <td style="text-align: center; padding-top: 10px !important;">
                                             <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->eid}}" data-token_id="{{$adjustment_token}}" data-check-type="expense"
-                                                id="invoice_expense_entry_nonbillable_time{{$v->eid}}" data-time_entry_billable="{{$v->time_entry_billable}}" autocomplete="off" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                                id="invoice_expense_entry_nonbillable_time{{$v->eid}}" data-time_entry_billable="{{$v->time_entry_billable}}" autocomplete="off" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; $nonBillableAmount += 1;} ?>
                                                 name="invoice_expense_entry_nonbillable_time[]" priceattr="{{$Total}}" value="{{$v->eid}}">
                                         </td> 
                                     </tr>
@@ -1297,6 +1298,7 @@ if(!isset($addition)){ $addition=0;}
                                 <input type="hidden" value="{{$flateFeeTotal}}" name="flat_fee_sub_total_text" id="flat_fee_sub_total_text">
                                 <input type="hidden" value="{{$timeEntryAmount}}" name="time_entry_sub_total_text" id="time_entry_sub_total_text">
                                 <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text"  id="expense_sub_total_text">
+                                <input type="hidden" value="{{$nonBillableAmount}}" name="nonBillableAmount"  id="nonBillableAmount">
                                 <input type="hidden" value="" name="sub_total_text" id="sub_total_text">
                                 <input type="hidden" value="" name="total_text" id="total_text">
                                 <input type="hidden" value="{{$discount}}" name="discount_total_text"
@@ -3030,6 +3032,7 @@ if(!isset($addition)){ $addition=0;}
                 return false;
             }else{
                 var alert = 0;
+                var nonBillableAmount = {{$nonBillableAmount}};
                 var final_total = ($(".final_total").html() != undefined) ? $(".final_total").html().replace(/,/g, '') : 0.00;        
                 <?php if($case_id == "none"){ ?>
                     var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
@@ -3043,18 +3046,28 @@ if(!isset($addition)){ $addition=0;}
                     }
                     if(addition_amount > 0) {
                         alert++;
-                    }                    
-                <?php } ?>
-                // if($("#final_total_text").val() == 0 && alert == 0){
-                if(final_total == 0){
-                    swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
-                    alert++;
-                    afterLoader();
-                    return false;
-                }else{
-                    afterLoader();
-                    return true;
-                }               
+                    }
+                    if(final_total == 0 && alert == 0){
+                        swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
+                        alert++;
+                        afterLoader();
+                        return false;
+                    }else{
+                        afterLoader();
+                        return true;
+                    }
+                <?php }else{ ?>
+                    // console.log("nonBillableAmount : " + nonBillableAmount)
+                    if(final_total == 0 && nonBillableAmount == 0){
+                        swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
+                        alert++;
+                        afterLoader();
+                        return false;
+                    }else{
+                        afterLoader();
+                        return true;
+                    }
+                <?php } ?>                   
             }
         });
 

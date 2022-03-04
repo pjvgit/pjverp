@@ -1064,7 +1064,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="form-group row" id="billing_rate_text">
+                                            <div class="form-group row" id="billing_rate_text" style="display: none;">
                                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Flat fee
                                                     Amount</label>
                                                 <div class="input-group mb-3 col-sm-5">
@@ -1146,7 +1146,7 @@
                                                         table below.</small>
                                                 </div>
                                             </div>
-                                            <div class="form-group row" id="billing_rate_text">
+                                            <div class="form-group row">
                                                 <label for="inputEmail3" class="col-sm-12 col-form-label">Who from your
                                                     firm should have access to this
                                                     case?</label>
@@ -1449,7 +1449,7 @@
         $('#smartwizard').smartWizard("reset");
         $('#createCase')[0].reset();
         $("#user_type").select2("val", "");
-
+        
     }
 
 
@@ -1786,6 +1786,16 @@ $("#take_to_legalcase").click(function() {
 });
 $("#your_firm_popup").on("hidden.bs.modal", function() {
     $("#AddCaseModelUpdate").modal("show");
+})
+
+$("#AddCaseModelUpdate").on("hidden.bs.modal", function() {
+    $.ajax({
+        url: baseUrl + "/case/removeTempSelectedUser",
+        type: "GET",
+        success: function(data) {
+            window.location.reload();
+        }
+    })
 })
 </script>
 @endsection
