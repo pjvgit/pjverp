@@ -905,18 +905,30 @@
         if (selectdValue == 'DAILY') {
             $("#repeat_daily").show();
             $("#repeat_custom").hide();
+            $(".repeat_yearly").hide();
+            $(".repeat_monthly").hide();
         } else if (selectdValue == 'CUSTOM') {
             $("#repeat_custom").show();
+            $("#repeat_daily").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
         } else if (selectdValue == 'MONTHLY') {
             $(".repeat_yearly").hide();
             $(".repeat_monthly").show();
             $("#repeat_custom").hide();
+            updateMonthlyWeeklyOptions();
         } else if (selectdValue == 'YEARLY') {
             $(".repeat_yearly").show();
             $(".repeat_monthly").hide();
             $("#repeat_custom").hide();
+            updateMonthlyWeeklyOptions();
         }else if (selectdValue == 'WEEKLY') {
+            updateMonthlyWeeklyOptions();
             $('#repeat_dropdown').show();
+            $("#repeat_daily").hide();
+            $("#repeat_custom").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
 
         }else if(selectdValue == 'EVERY_BUSINESS_DAY'){
 
@@ -1171,7 +1183,6 @@
     }
 
     // Get updated option of weekly/monthly/yearly recurring
-    updateMonthlyWeeklyOptions();
     function updateMonthlyWeeklyOptions() {
         var date = new Date($("#start_date").val());
         // for month
