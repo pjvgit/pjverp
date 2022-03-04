@@ -53,6 +53,7 @@
 @include('billing.invoices.partials.delete_invoice_modal')
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\invoice\listinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\invoice\deleteInvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @endsection
 @else
 <div class="text-center">

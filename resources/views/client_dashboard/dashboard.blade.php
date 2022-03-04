@@ -84,7 +84,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                         <tr>
                             <td class="align-middle">
                                 <img class="rounded-circle" alt=""
-                                    src="https://assets.mycase.com/api_images/default_avatars/v1/default_avatar_64.svg"
+                                src='{{ asset("images/default_avatar.svg") }}'
                                     width="32" height="32">
                             </td>
                             <td class="align-middle">
@@ -121,7 +121,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                 <div class="row no-gutters d-flex align-items-center">
                     <div class="col-3 col-md-auto">
                         <img class="rounded-circle" alt=""
-                            src="https://assets.mycase.com/api_images/default_avatars/v1/default_avatar_64.svg"
+                        src='{{ asset("images/default_avatar.svg") }}'
                             width="50" height="50">
                     </div>
                     <div class="col pl-3">

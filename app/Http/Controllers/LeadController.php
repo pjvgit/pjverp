@@ -6956,7 +6956,7 @@ class LeadController extends BaseController
             'status'=>$status,
         ])->save();
     }
-    public function deleteInvoice(Request $request)
+    /* public function deleteInvoice(Request $request)
     {
         $validator = \Validator::make($request->all(), [
             'invoice_id' => 'required'
@@ -6983,7 +6983,7 @@ class LeadController extends BaseController
             exit;
         }
         
-    }
+    } */
     public function openSendInvoicePopup(Request $request)
     {
         $invoice_id=$request->invoice_id;

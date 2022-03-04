@@ -2094,22 +2094,12 @@ class BillingController extends BaseController
                 InvoicePayment::where("invoice_id",$Invoices->id)->delete();
 
                 // send mail to case staff
-                if($Invoices['is_lead_invoice'] == 'yes'){
-                    $userCaseStaffList = LeadAdditionalInfo::join('users','lead_additional_info.assigned_to','=','users.id')
-                    ->select("users.email")
-                    ->where('user_id',$Invoices['user_id'])
-                    ->get();
-                }else{
-                    $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
-                    ->select("users.email")
-                    ->where('case_staff.case_id',$Invoices['case_id'])  
-                    ->get();
-                }
+                $userCaseStaffList = $request->userCaseStaffList;
                 if(!empty($userCaseStaffList)){
                     $firmData=Firm::find(Auth::User()->firm_name);
                     $getTemplateData = EmailTemplate::find(44);
                     foreach ($userCaseStaffList as $k => $v){
-                        \App\Jobs\DeleteInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $v->email, $firmData, $getTemplateData);
+                        \App\Jobs\DeleteInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $v, $firmData, $getTemplateData);
                     }
                 }
 
@@ -2404,7 +2394,7 @@ class BillingController extends BaseController
 
             TaskTimeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
             ExpenseEntry::where('status','unpaid')->where('token_id','9999999')->delete();
-            FlatFeeEntry::where('status','unpaid')->where('token_id','9999999')->orWhereNull('token_id')->delete();
+            FlatFeeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
 
             $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
 
@@ -2595,6 +2585,7 @@ class BillingController extends BaseController
             }
             $ExpenseEntry=$ExpenseEntry->get();
 
+            // dd($tempInvoiceToken);
             //Get Flat fees entry
             if($tempInvoiceToken == $request->token){
                 $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
@@ -2602,6 +2593,7 @@ class BillingController extends BaseController
                 ->where("flat_fee_entry.invoice_link",NULL)
                 ->where("flat_fee_entry.status","unpaid")
                 ->where("flat_fee_entry.time_entry_billable","yes")
+                ->where("flat_fee_entry.is_primary_flat_fee","no")
                 ->where("flat_fee_entry.remove_from_current_invoice","no")
                 ->where("flat_fee_entry.token_id","!=",'9999999')
                 ->delete();
@@ -2620,6 +2612,7 @@ class BillingController extends BaseController
                 if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                     $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where('status', 'paid')->sum('cost');
                     $totalUnpaidFlatFee = FlatFeeEntry::where('case_id', $case_id) ->where("flat_fee_entry.token_id","=",$request->token)->where("flat_fee_entry.time_entry_billable","no")->where('status', 'unpaid')->sum('cost');
+                    $totalUnpaidEditFlatFee = FlatFeeEntry::where('case_id', $case_id) ->where("flat_fee_entry.token_id","=","9999999")->where("flat_fee_entry.is_primary_flat_fee","yes")->where('status', 'unpaid')->sum('cost');
                     $totalDeletedFlatFee = FlatFeeEntry::where('case_id', $case_id) ->where("flat_fee_entry.token_id","=",$request->token)->where("flat_fee_entry.remove_from_current_invoice","yes")->where('status', 'unpaid')->sum('cost');
                     if($totalUnpaidFlatFee > 0) {
                         $flatFeeAmount = $totalUnpaidFlatFee;
@@ -2630,7 +2623,7 @@ class BillingController extends BaseController
                     }
                     $remainFlatFee = $caseMaster->billing_amount - $flatFeeAmount;
                     // dd($caseMaster->billing_amount .' - '. $totalFlatFee .' - '. $remainFlatFee . ' - '.$totalUnpaidFlatFee);
-                    if($remainFlatFee > 0) {
+                    if($remainFlatFee > 0 && $totalUnpaidEditFlatFee == 0) {
                         FlatFeeEntry::create([
                             'case_id' => $caseMaster->id,
                             'user_id' => auth()->id(),
@@ -3129,8 +3122,10 @@ class BillingController extends BaseController
             $FlatFeeEntry->user_id =$request->staff_user;
             $FlatFeeEntry->description=$request->case_description;
             $FlatFeeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
-            $FlatFeeEntry->time_entry_billable='yes';
+            // $FlatFeeEntry->time_entry_billable='yes';
             $FlatFeeEntry->cost=str_replace(",","",$request->rate_field_id);
+            $FlatFeeEntry->token_id=9999999; 
+            $FlatFeeEntry->is_primary_flat_fee='yes'; 
             $FlatFeeEntry->updated_by=Auth::User()->id; 
             $FlatFeeEntry->save();
             return response()->json(['errors'=>'','id'=>$FlatFeeEntry->id]);
@@ -4119,7 +4114,7 @@ class BillingController extends BaseController
                         $FlatFeeEntry->status='paid';
                         $FlatFeeEntry->invoice_link = $InvoiceSave->id;
                         if($FlatFeeEntry->token_id == '9999999'){
-                            $FlatFeeEntry->token_id = null;
+                            $FlatFeeEntry->token_id = $request->adjustment_token;
                         }
                         $FlatFeeEntry->save();
                     }
@@ -4142,7 +4137,7 @@ class BillingController extends BaseController
                         $TaskTimeEntry->status='paid';
                         $TaskTimeEntry->invoice_link = $InvoiceSave->id;
                         if($TaskTimeEntry->token_id == '9999999'){
-                            $TaskTimeEntry->token_id = null;
+                            $TaskTimeEntry->token_id = $request->adjustment_token;
                         }
                         $TaskTimeEntry->save();
                     }                   
@@ -4166,7 +4161,7 @@ class BillingController extends BaseController
                         $ExpenseEntry->status='paid';
                         $ExpenseEntry->invoice_link = $InvoiceSave->id;
                         if($ExpenseEntry->token_id == '9999999'){
-                            $ExpenseEntry->token_id = null;
+                            $ExpenseEntry->token_id = $request->adjustment_token;
                         }
                         $ExpenseEntry->save();
                     }  }
@@ -5341,7 +5336,22 @@ class BillingController extends BaseController
             if(!empty($Invoices)){
                 $userData=User::find($Invoices['user_id']);
                 if($Invoices['case_id'] == 0){
-                    $getAllClientForSharing=CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")->where("case_client_selection.case_id",$Invoices['case_id'])->where("case_client_selection.selected_user",$Invoices['user_id'])->get();
+                    if($Invoices['is_lead_invoice'] == 'yes'){
+                        $getAllClientForSharing = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+                        ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")
+                        ->where("users.id", $Invoices['user_id'])->get();
+                    }else{
+                        $getAllClientForSharing = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+                        ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")
+                        ->where("users.id", $Invoices['user_id'])->get();                        
+                    }
+
+                    // $getAllClientForSharing=CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+                    // ->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
+                    // ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")
+                    // ->where("case_client_selection.case_id",$Invoices['case_id'])
+                    // ->where("case_client_selection.selected_user",$Invoices['user_id'])->get();
+                    
                 }else{
                     $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")->where("case_client_selection.case_id",$Invoices['case_id'])->get();
                 }
@@ -12205,6 +12215,51 @@ class BillingController extends BaseController
             }
         }
         
+    }
+
+    public function getStaffandClientListOfInvoice(Request $request){
+        $invoice_id = $request->invoice_id;
+        $Invoices = Invoices::find($invoice_id);
+        $userCaseStaffList = $clientList = [];
+
+        // send mail to case staff
+        if($Invoices['is_lead_invoice'] == 'yes'){
+            $clientList = User::where('id',$Invoices['user_id'])->get();
+            $userCaseStaffList = LeadAdditionalInfo::join('users','lead_additional_info.assigned_to','=','users.id')
+            ->select("users.email","users.first_name","users.last_name","users.user_title")
+            ->where('user_id',$Invoices['user_id'])
+            ->get();
+        }else{
+            $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
+            ->select("users.email","users.first_name","users.last_name","users.user_title")
+            ->where('case_staff.case_id',$Invoices['case_id'])  
+            ->get();
+            $clientList = User::where('id',$Invoices['user_id'])->get();
+        }
+
+        $html = '<table class="col-12"><tbody>';
+        foreach($userCaseStaffList as $k=>$v){
+            $html .= '<tr>
+                        <td>
+                        <label class="mb-0">
+                            <input type="checkbox" class="mr-2 mb-1" name="userCaseStaffList[]" value="'.$v->email.'" data-email="'.$v->email.'">
+                        </label>
+                        </td>
+                        <td class="pl-0 col-12">'.ucfirst($v->first_name.' '.$v->last_name).' ('.$v->user_title.')</td>
+                    </tr>';
+        }
+        foreach($clientList as $k=>$v){
+            $html .= '<tr>
+                        <td>
+                        <label class="mb-0">
+                            <input type="checkbox" class="mr-2 mb-1" name="userCaseStaffList[]" value="'.$v->email.'" data-email="'.$v->email.'">
+                        </label>
+                        </td>
+                        <td class="pl-0 col-12">'.ucfirst($v->first_name.' '.$v->last_name).' ('.$v->user_title.')</td>
+                    </tr>';
+        }
+        $html .= '</tbody></table>';
+        return response()->json(['html' => $html]);
     }
 }
   
