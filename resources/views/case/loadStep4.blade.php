@@ -33,7 +33,7 @@
             <small>The user you select will automatically be checked in the table below.</small>
         </div>
     </div>
-    <div class="form-group row" id="billing_rate_text">
+    <div class="form-group row">
         <label for="inputEmail3" class="col-sm-12 col-form-label">Who from your firm should have access to this
             case?</label>
     </div>

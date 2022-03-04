@@ -426,7 +426,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="form-group row" id="billing_rate_text">
+                                                <div class="form-group row" id="billing_rate_text" style="display: none;">
                                                     <label for="inputEmail3" class="col-sm-2 col-form-label">Flat fee Amount</label>
                                                     <div class="input-group mb-3 col-sm-5">
                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
@@ -493,7 +493,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 <small>The user you select will automatically be checked in the table below.</small>
                                             </div>
                                         </div>
-                                        <div class="form-group row" id="billing_rate_text">
+                                        <div class="form-group row">
                                             <label for="inputEmail3" class="col-sm-12 col-form-label">Who from your firm should have access to this
                                                 case?</label>
                                         </div>
