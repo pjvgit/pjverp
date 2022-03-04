@@ -8,8 +8,13 @@
                 ?> <span class="modal-title">&lt;no-title&gt;</span><?php
             }?>
         </h5>
-        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y, h:ia',strtotime($event->start_date_time))}} —
-            {{date('D, M jS Y, h:ia',strtotime($event->end_date_time))}}</h6>
+        @php
+            $userTimezone = auth()->user()->user_timezone;
+            $startDateTime= convertUTCToUserTime($eventRecurring->start_date.' '.$event->start_time, $userTimezone ?? 'UTC');
+            $endDateTime= convertUTCToUserTime($eventRecurring->end_date.' '.$event->end_time, $userTimezone ?? 'UTC');
+        @endphp
+        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y, h:ia',strtotime($startDateTime))}} —
+            {{date('D, M jS Y, h:ia',strtotime($endDateTime))}}</h6>
     </div>
     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
             aria-hidden="true">×</span></button>
@@ -39,19 +44,19 @@
 
                         <div class="mb-2 row ">
                             <div class="col-3"><b>Repeats</b></div>
-                            <?php if(isset($event) && $event->event_frequency!=NULL){?>
-                            <?php if($event->event_frequency=='DAILY'){?>
+                            <?php if(isset($event) && $event->event_recurring_type!=NULL){?>
+                            <?php if($event->event_recurring_type=='DAILY'){?>
                             <div class="detail-info recurring-rule-text col-9">Daily</div>
-                            <?php }else if($event->event_frequency=='EVERY_BUSINESS_DAY'){?>
+                            <?php }else if($event->event_recurring_type=='EVERY_BUSINESS_DAY'){?>
                             <div class="detail-info recurring-rule-text col-9">Weekly on Weekdays</div>
-                            <?php }else if($event->event_frequency=='CUSTOM'){ ?>
-                            <div class="detail-info recurring-rule-text col-9">Weekly on
-                                {{date("l",strtotime($event->start_date))}}</div>
-                            <?php }else if($event->event_frequency=='WEEKLY'){ ?>
+                            <?php }else if($event->event_recurring_type=='CUSTOM'){ ?>
+                            <div class="detail-info recurring-rule-text col-9">
+                                Weekly {{ ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('M d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "" }} on {{ implode(", ", $event->custom_event_weekdays) }}</div>
+                            <?php }else if($event->event_recurring_type=='WEEKLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">Weekly</div>
-                            <?php }else if($event->event_frequency=='MONTHLY'){ ?>
+                            <?php }else if($event->event_recurring_type=='MONTHLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">Monthly</div>
-                            <?php }else if($event->event_frequency=='YEARLY'){ ?>
+                            <?php }else if($event->event_recurring_type=='YEARLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">Yearly</div>
                             <?php } ?>
                             <?php }else { ?><div class="detail-info recurring-rule-text col-9">Never</div><?php } ?>
