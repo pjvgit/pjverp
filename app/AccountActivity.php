@@ -115,7 +115,7 @@ class AccountActivity extends Authenticatable
     {
         $paymentType = $this->payment_type;
         $isRefund = ($this->is_refunded == "yes") ? "(Refunded)" : "";
-        $isInvoiceCancelled = ($this->invoice_history_id && $this->invoiceHistory->is_invoice_cancelled == 'yes') ? "(Invoice cancelled. Fund moved to trust account.)" : "";
+        $isInvoiceCancelled = ($this->invoice_history_id && @$this->invoiceHistory->is_invoice_cancelled == 'yes') ? "(Invoice cancelled. Fund moved to trust account.)" : "";
         if($paymentType=="withdraw" && $this->pay_type == "trust"){
             $ftype="Withdraw from Trust Account";
         } 
