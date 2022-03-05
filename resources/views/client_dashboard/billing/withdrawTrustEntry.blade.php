@@ -55,7 +55,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">$</span>
                                 </div>
-                                <input class="form-control number" style="width:50%; " maxlength="20" name="amount" id="amount"
+                                <input class="form-control number" style="width:50%; " maxlength="15" name="amount" id="amount"
                                     value="" type="text" aria-label="Amount (to the nearest dollar)">
                                 <small>&nbsp;</small>
                                 <div class="input-group col-sm-9" id="TypeError"></div>

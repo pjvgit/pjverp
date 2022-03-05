@@ -199,43 +199,43 @@
                                         <div class="filter-options d-flex">
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Sun-option" name="custom[]" value="Sunday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Sunday') { echo "checked=checked";} ?>>
+                                                    <input id="Sun-option" name="custom[]" value="Sunday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Sunday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
                                                     <span class="ml-2 ">Sun</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Mon-option" name="custom[]" value="Monday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Monday') { echo "checked=checked";} ?>>
+                                                    <input id="Mon-option" name="custom[]" value="Monday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Monday', $evetData->custom_event_weekdays)) ? "checked" : "" }} >
                                                     <span class="ml-2 ">Mon</span>
                                                     </label>
                                                 </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Tues-option" name="custom[]"  value="Tuesday"  type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Tuesday') { echo "checked=checked";} ?>>
+                                                    <input id="Tues-option" name="custom[]"  value="Tuesday"  type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Tuesday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
                                                     <span class="ml-2 ">Tues</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Wed-option" name="custom[]" value="Wednesday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Wednesday') { echo "checked=checked";} ?>>
+                                                    <input id="Wed-option" name="custom[]" value="Wednesday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Wednesday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
                                                     <span class="ml-2 ">Wed</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Thurs-option" name="custom[]"  value="Thursday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Thursday') { echo "checked=checked";} ?>>
+                                                    <input id="Thurs-option" name="custom[]"  value="Thursday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Thursday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
                                                     <span class="ml-2 ">Thurs</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Fri-option" name="custom[]" value="Friday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Friday') { echo "checked=checked";} ?>>
+                                                    <input id="Fri-option" name="custom[]" value="Friday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Friday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
                                                     <span class="ml-2 ">Fri</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Sat-option" name="custom[]" value="Saturday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Saturday') { echo "checked=checked";} ?>>
+                                                    <input id="Sat-option" name="custom[]" value="Saturday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Saturday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
                                                     <span class="ml-2 ">Sat</span>
                                                 </label>
                                             </div>
@@ -894,7 +894,8 @@
         $(".innerLoader").css('display', 'none');
     } */
     
-    function selectTypeload(selectdValue) {
+    // Duplicate code
+    /* function selectTypeload(selectdValue) {
         $(".innerLoader").css('display', 'block');
         $('#repeat_dropdown').show();
         $("#repeat_daily").hide();
@@ -905,18 +906,30 @@
         if (selectdValue == 'DAILY') {
             $("#repeat_daily").show();
             $("#repeat_custom").hide();
+            $(".repeat_yearly").hide();
+            $(".repeat_monthly").hide();
         } else if (selectdValue == 'CUSTOM') {
             $("#repeat_custom").show();
+            $("#repeat_daily").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
         } else if (selectdValue == 'MONTHLY') {
             $(".repeat_yearly").hide();
             $(".repeat_monthly").show();
             $("#repeat_custom").hide();
+            updateMonthlyWeeklyOptions();
         } else if (selectdValue == 'YEARLY') {
             $(".repeat_yearly").show();
             $(".repeat_monthly").hide();
             $("#repeat_custom").hide();
+            updateMonthlyWeeklyOptions();
         }else if (selectdValue == 'WEEKLY') {
+            updateMonthlyWeeklyOptions();
             $('#repeat_dropdown').show();
+            $("#repeat_daily").hide();
+            $("#repeat_custom").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
 
         }else if(selectdValue == 'EVERY_BUSINESS_DAY'){
 
@@ -928,7 +941,7 @@
             $('#repeat_dropdown').hide();
         }
         $(".innerLoader").css('display', 'none');
-    }
+    } */
 
     function removeUser(id) {
         $(".innerLoader").css('display', 'block');
@@ -1147,10 +1160,11 @@
     <?php }  ?>
   
     <?php  if(isset($evetData->event_recurring_type)){ ?>
-            selectTypeload('{{$evetData->event_recurring_type}}');
+            // selectTypeload('{{$evetData->event_recurring_type}}');
+            selectType();
             $("#endondiv").show();
     <?php }else{  ?>
-            selectTypeload('');
+            selectType();
             $("#endondiv").hide();
     <?php } ?>
 
@@ -1171,7 +1185,6 @@
     }
 
     // Get updated option of weekly/monthly/yearly recurring
-    updateMonthlyWeeklyOptions();
     function updateMonthlyWeeklyOptions() {
         var date = new Date($("#start_date").val());
         // for month

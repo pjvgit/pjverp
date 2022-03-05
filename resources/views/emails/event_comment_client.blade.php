@@ -13,7 +13,7 @@
     $content = str_replace('[EVENT_NAME]', $event->event_title, $content);
     $dt = new DateTime('now', new DateTimeZone(@$user->user_timezone ?? 'UTC'));
     $abbreviation = $dt->format('T');
-    $date = date('M jS Y, h:ia', strtotime(convertUTCToUserTime(@$event->start_date." ".@$event->start_time, @$user->user_timezone ?? 'UTC'))).' — '.date('h:ia',strtotime(convertUTCToUserTime(@$event->end_date." ".@$event->end_time, @$user->user_timezone ?? 'UTC'))).' '.@$abbreviation;
+    $date = date('M jS Y, h:ia', strtotime(convertUTCToUserTime(@$eventRecurring->start_date." ".@$event->start_time, @$user->user_timezone ?? 'UTC'))).' — '.date('h:ia',strtotime(convertUTCToUserTime(@$eventRecurring->end_date." ".@$event->end_time, @$user->user_timezone ?? 'UTC'))).' '.@$abbreviation;
     $content = str_replace('[DATE_TIME]', $date, $content);
     $content = str_replace('[EVENT_URL]', route('client/events/detail', $event->decode_id), $content);
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);

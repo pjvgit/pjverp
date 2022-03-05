@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Log;
 class EventCommentMail extends Mailable
 {
     use Queueable, SerializesModels;
-    protected $event, $firm, $user, $template, $commentAddedUser, $userType;
+    protected $event, $firm, $user, $template, $commentAddedUser, $userType, $eventRecurring;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($event, $firm, $user, $template, $commentAddedUser, $userType)
+    public function __construct($event, $firm, $user, $template, $commentAddedUser, $userType, $eventRecurring)
     {
         $this->event = $event;
         $this->firm = $firm;
@@ -25,6 +25,7 @@ class EventCommentMail extends Mailable
         $this->template = $template;
         $this->commentAddedUser = $commentAddedUser;
         $this->userType = $userType;
+        $this->eventRecurring = $eventRecurring;
     }
 
     /**
@@ -41,7 +42,7 @@ class EventCommentMail extends Mailable
         } else {
             return $this
             ->subject($this->template->subject)
-            ->markdown('emails.event_comment_client', ['event' => $this->event, 'firm' => $this->firm, 'user' => $this->user, 'template' => $this->template, 'commentAddedUser' => $this->commentAddedUser]);
+            ->markdown('emails.event_comment_client', ['event' => $this->event, 'firm' => $this->firm, 'user' => $this->user, 'template' => $this->template, 'commentAddedUser' => $this->commentAddedUser, 'eventRecurring' => $this->eventRecurring]);
         }
     }
 }

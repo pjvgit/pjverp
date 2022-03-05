@@ -194,7 +194,7 @@
                                 </div>
                                 <div class="mr-3">
                                     <label class="d-inline-flex align-items-center">
-                                        <input id="Thurs-option" name="Thurs" value="Thursday" type="checkbox" ><span class="ml-2 ">Thu</span>
+                                        <input id="Thurs-option" name="custom[]" value="Thursday" type="checkbox" ><span class="ml-2 ">Thu</span>
                                     </label>
                                 </div>
                                 <div class="mr-3"><label class="d-inline-flex align-items-center">

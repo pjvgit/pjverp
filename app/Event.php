@@ -12,17 +12,17 @@ class Event extends Model
     protected $fillable = [
         'id', 'case_id', 'lead_id', 'parent_event_id', 'event_title', 'is_SOL', 'event_type_id', 'is_full_day', 'start_date', 'start_time', 
         'end_date', 'end_time', 'event_location_id', 'event_description', 'is_event_private', 'is_recurring', 'event_recurring_type', 'event_interval_day', 
-        'day_of_week', 'day_of_month', 'month_of_year', 'is_no_end_date', 'end_on', 'is_event_read', 'recurring_event_end_date',
-        'firm_id', 'created_by', 'updated_by', 'edit_recurring_pattern', 'event_interval_month', 'event_interval_year', 'monthly_frequency', 'yearly_frequency'
+        'custom_event_weekdays', 'is_no_end_date', 'end_on', 'is_event_read', 'recurring_event_end_date', 'firm_id', 'created_by', 'updated_by', 
+        'edit_recurring_pattern', 'event_interval_month', 'event_interval_year', 'monthly_frequency', 'yearly_frequency', 'event_interval_week'
     ];    
-    protected $appends  = [/* 'caseuser', *//* 'etext', */'decode_id','start_time_user','end_time_user','st','et','start_date_time','end_date_time', 'user_start_date', 'user_end_date']; //colorcode
-
+    protected $appends  = ['decode_id',/* 'start_time_user','end_time_user', *//* 'start_date_time','end_date_time', */ 'user_start_date', 'user_end_date'];
+    protected $casts = ["custom_event_weekdays" => 'array'];
     public function getDecodeIdAttribute(){
          
         return base64_encode($this->id);
     }  
     
-    public function getStartTimeUserAttribute(){
+    /* public function getStartTimeUserAttribute(){
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
@@ -41,29 +41,9 @@ class Event extends Model
         }else{
             return "";
         }
-    }
-    public function getStAttribute(){
-        $timezone=Auth::User()->user_timezone ?? 'UTC';
-        if($this->start_time!=''){
-            $tm=$this->start_date . $this->start_time;
-            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
-            return date('H:i:s',strtotime($currentConvertedDate));
-        }else{
-            return "";
-        }
-    }
-    public function getEtAttribute(){
-        $timezone=Auth::User()->user_timezone ?? 'UTC';
-        if($this->end_time!=''){
-            $tm=$this->end_date . $this->end_time;
-            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
-            return date('H:i:s',strtotime($currentConvertedDate));
-        }else{
-            return "";
-        }
-    }
+    } */
 
-    public function getStartDateTimeAttribute(){
+    /* public function getStartDateTimeAttribute(){
         if($this->start_time!=''){
             $tm=$this->start_date.' '.$this->start_time;
             return $currentConvertedDate= convertUTCToUserTime($tm, auth()->user()->user_timezone ?? 'UTC');
@@ -74,29 +54,7 @@ class Event extends Model
             $tm=$this->end_date.' '.$this->end_time;
             return $currentConvertedDate= convertUTCToUserTime($tm,auth()->user()->user_timezone ?? 'UTC');
         }
-    }
-    public function getColorcodeAttribute(){
-        if(isset(request()->all()['byuser'])){
-        $allUser=json_decode(request()->all()['byuser'], TRUE);
-        if($this->event_type==''){
-            $CheckUserLinked=CaseEventLinkedStaff::select("user_id")->where("event_id",$this->id)->pluck("user_id")->toArray();
-            if(in_array(Auth::User()->id,$CheckUserLinked) && in_array(Auth::User()->id,$allUser)){
-                return Auth::User()->default_color;
-            }else{
-                $allUser=json_decode(request()->all()['byuser'], TRUE);
-                $staffData = User::select("default_color")->where("id","!=",Auth::User()->id)->whereIn("id",$allUser)->first();
-                if(!empty($staffData)){
-                return $staffData->default_color;
-                }else{
-                    return "";
-                }
-            }
-        }
-    }else{
-        return "";
-    }
-       
-    }
+    } */
  
     /**
      * Get the eventType associated with the CaseEvent

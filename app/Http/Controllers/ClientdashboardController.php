@@ -3849,7 +3849,7 @@ class ClientdashboardController extends BaseController
                     else
                         return '#'.sprintf("%06d", $data->related_to_invoice_id);
                 } else if($data->related_to_fund_request_id) {
-                    return $data->fundRequest->padding_id;
+                    return "#R-".sprintf('%05d', $data->related_to_fund_request_id);
                 } else {
                     return '--';
                 }

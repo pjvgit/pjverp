@@ -75,7 +75,7 @@ trait EventTrait {
                 if(!in_array($request['share_checkbox_nonlinked'][$i],$alreadyAdded)){
                     $eventLinkedStaff[] = [
                         'event_id' => $caseEvent->id,
-                        'user_id' => $request['linked_staff_checked_share'][$i],
+                        'user_id' => $request['share_checkbox_nonlinked'][$i],
                         'is_linked' => 'no',
                         'attending' => $attend,
                         'comment_read_at' => Carbon::now(),
@@ -180,7 +180,8 @@ trait EventTrait {
             "event_interval_year" => $request->event_interval_year,
             "monthly_frequency" => $request->monthly_frequency,
             "yearly_frequency" => $request->yearly_frequency,
-            "day_of_week" => $request->daily_weekname,
+            "custom_event_weekdays" => $request->custom,
+            "event_interval_week" => $request->daily_weekname,
             "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
@@ -218,7 +219,7 @@ trait EventTrait {
                 }
             }
         } else if($request->event_frequency == "WEEKLY") {
-            $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
+            /* $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
             foreach($period as $date) {          
                 EventRecurring::insert([
                     "event_id" => $caseEvent->id,
@@ -228,9 +229,10 @@ trait EventTrait {
                     "event_linked_staff" => $eventLinkStaff,
                     "event_linked_contact_lead" => $eventLinkClient,
                 ]);
-            }
+            } */
+            $this->saveWeeklyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "CUSTOM") {
-            $start = new DateTime($start_date);
+            /* $start = new DateTime($start_date);
             $startClone = new DateTime($start_date);
             if(isset($request->end_on)) {
                 $end=new DateTime($request->end_on);
@@ -265,9 +267,10 @@ trait EventTrait {
                         "event_linked_contact_lead" => $eventLinkClient,
                     ]);
                 }
-            }
+            } */
+            $this->saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "MONTHLY") {
-            $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', date("Y-m-d", $recurringEndDate));
+            /* $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', date("Y-m-d", $recurringEndDate));
             foreach($period as $date) {       
                 $currentWeekDay = strtolower($date->format('l')); 
                 if($request->monthly_frequency == 'MONTHLY_ON_DAY'){
@@ -287,9 +290,10 @@ trait EventTrait {
                     "event_linked_staff" => $eventLinkStaff,
                     "event_linked_contact_lead" => $eventLinkClient,
                 ]);
-            }
+            } */
+            $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "YEARLY") {
-            $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_year.' years', date("Y-m-d", $recurringEndDate));
+            /* $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_year.' years', date("Y-m-d", $recurringEndDate));
             foreach($period as $date) {       
                 $currentWeekDay = strtolower($date->format('l'));
                 if($request->yearly_frequency == 'YEARLY_ON_THE'){
@@ -307,34 +311,71 @@ trait EventTrait {
                     "event_linked_staff" => $eventLinkStaff,
                     "event_linked_contact_lead" => $eventLinkClient,
                 ]);
-            }
+            } */
+            $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         }
     }
 
-    public function saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate)
+    /**
+     * SAve custom(weekly) recurring events
+     */
+    public function saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate)
     {
         $eventReminders = $this->getEventReminderJson($caseEvent, $request);
         $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
         $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
-        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', date("Y-m-d", $recurringEndDate));
-        foreach($period as $date) {       
-            $currentWeekDay = strtolower($date->format('l')); 
-            if($request->monthly_frequency == 'MONTHLY_ON_DAY'){
-                $date = strtotime($date);
-            } else if($request->monthly_frequency == 'MONTHLY_ON_THE') {
-                $nthDay = ceil(date('j', strtotime($date)) / 7);
-                $nthText = $this->getWeekNthDay($nthDay);
-                $date = strtotime($nthText." ". $currentWeekDay ." of this month", strtotime($date));
-                // $date = strtotime("fourth ". $currentWeekDay ." of this month", strtotime($date));
-            }else if($request->monthly_frequency=='MONTHLY_ON_THE_LAST'){
-                $date = strtotime("last ". $currentWeekDay ." of this month", strtotime($date));
-            } else { 
-                $date = strtotime($date);
+        $start = new DateTime($start_date);
+        $startClone = new DateTime($start_date);
+        if(isset($request->end_on)) {
+            $recurringEndDate=new DateTime($request->end_on);
+        }else{
+            $recurringEndDate=$startClone->add(new DateInterval('P365D'));
+        }
+
+        $interval = new DateInterval('P1D');
+        $period = new DatePeriod($start, $interval, $recurringEndDate);
+        $weekInterval = $request->daily_weekname;
+        $fakeWeek = 0;
+        $currentWeek = $start->format('W');
+        
+        foreach ($period as $date) {
+            if ($date->format('W') !== $currentWeek) {
+                $currentWeek = $date->format('W');
+                $fakeWeek++;
             }
+        
+            if ($fakeWeek % $weekInterval !== 0) {
+                continue;
+            }
+        
+            $dayOfWeek = $date->format('l');
+            if(in_array($dayOfWeek, $request->custom)) {       
+                EventRecurring::insert([
+                    "event_id" => $caseEvent->id,
+                    "start_date" => $date->format('Y-m-d'),
+                    "end_date" => $date->format('Y-m-d'),
+                    "event_reminders" => $eventReminders,
+                    "event_linked_staff" => $eventLinkStaff,
+                    "event_linked_contact_lead" => $eventLinkClient,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Save weekly recurring event
+     */
+    public function saveWeeklyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate)
+    {
+        $eventReminders = $this->getEventReminderJson($caseEvent, $request);
+        $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
+        $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
+        $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
+        foreach($period as $date) {          
             EventRecurring::create([
                 "event_id" => $caseEvent->id,
-                "start_date" => date('Y-m-d', $date),
-                "end_date" => date('Y-m-d', $date),
+                "start_date" => $date,
+                "end_date" => $date,
                 "event_reminders" => $eventReminders,
                 "event_linked_staff" => $eventLinkStaff,
                 "event_linked_contact_lead" => $eventLinkClient,
@@ -342,10 +383,74 @@ trait EventTrait {
         }
     }
 
-    public function getWeekNthDay($nthDay)
+    /**
+     * Save monthly recurring event
+     */
+    public function saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate)
     {
-        $array = array(1 => 'first', 2 => 'second', 3 => 'third', 4 => 'fourth', 5 => 'fifth', 6 => 'sixth', 7 => 'seventh');
-        return $array[$nthDay];
+        $eventReminders = $this->getEventReminderJson($caseEvent, $request);
+        $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
+        $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
+        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', date("Y-m-d", $recurringEndDate));
+        foreach($period as $date) {       
+            $currentWeekDay = strtolower(date('l', strtotime($request->start_date))); 
+            if($request->monthly_frequency == 'MONTHLY_ON_DAY'){
+                $date1 = strtotime($date);
+            } else if($request->monthly_frequency == 'MONTHLY_ON_THE') {
+                $nthDay = ceil(date('j', strtotime($request->start_date)) / 7);
+                $nthText = getWeekNthDay($nthDay);
+                $date1 = strtotime($nthText." ". $currentWeekDay ." of this month", strtotime($date));
+                // $date = strtotime("fourth ". $currentWeekDay ." of this month", strtotime($date));
+            }else if($request->monthly_frequency=='MONTHLY_ON_THE_LAST'){
+                $date1 = strtotime("last ". $currentWeekDay ." of this month", strtotime($date));
+            } else { 
+                $date1 = strtotime($date);
+            }
+            EventRecurring::create([
+                "event_id" => $caseEvent->id,
+                "start_date" => date('Y-m-d', $date1),
+                "end_date" => date('Y-m-d', $date1),
+                "event_reminders" => $eventReminders,
+                "event_linked_staff" => $eventLinkStaff,
+                "event_linked_contact_lead" => $eventLinkClient,
+            ]);
+        }
     }
+
+    /**
+     * Save yearly recurring event
+     */
+    public function saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate)
+    {
+        $eventReminders = $this->getEventReminderJson($caseEvent, $request);
+        $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
+        $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
+        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_year.' years', date("Y-m-d", $recurringEndDate));
+        foreach($period as $date) {       
+            $currentWeekDay = strtolower(date('l', strtotime($request->start_date))); 
+            if($request->monthly_frequency == 'YEARLY_ON_DAY') {
+                $date1 = strtotime($date);
+            } else if($request->yearly_frequency == 'YEARLY_ON_THE') {
+                $nthDay = ceil(date('j', strtotime($date)) / 7);
+                $nthText = getWeekNthDay($nthDay);
+                $date1 = strtotime($nthText." ". $currentWeekDay ." of this month", strtotime($date));
+                // $date = strtotime("fourth ". $currentWeekDay ." of this month", strtotime($date));
+            } else if($request->yearly_frequency == 'YEARLY_ON_THE_LAST') {
+                $date1 = strtotime("last ". $currentWeekDay ." of this month", strtotime($date));
+            } else { 
+                $date1 = strtotime($date);
+            }
+            EventRecurring::create([
+                "event_id" => $caseEvent->id,
+                "start_date" => date('Y-m-d', $date1),
+                "end_date" => date('Y-m-d', $date1),
+                "event_reminders" => $eventReminders,
+                "event_linked_staff" => $eventLinkStaff,
+                "event_linked_contact_lead" => $eventLinkClient,
+            ]);
+        }
+    }
+
+    
 }
  
