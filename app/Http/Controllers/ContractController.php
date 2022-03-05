@@ -178,6 +178,7 @@ class ContractController extends BaseController
     // Save step 2 data to database.
     public function saveStep2(Request $request)
     {
+        // return $request->all();
         $user = User::where("id",$request->user_id)->first();  
         $user->link_user_to=$request->link_to; 
         
@@ -206,7 +207,7 @@ class ContractController extends BaseController
                     $caseMaster = CaseMaster::where('created_by', $childUSersCase)->get();
                 }                
                 foreach ($caseMaster as $case){
-                    if(isset($request->case_list) && $request->case_list !=''){
+                    // if(isset($request->case_list) && $request->case_list !=''){
                         $CaseStaff = new CaseStaff;
                         $CaseStaff->case_id=$case->id; 
                         $CaseStaff->user_id=$user->id; 
@@ -216,7 +217,7 @@ class ContractController extends BaseController
                         $CaseStaff->rate_type=$request->case_rate ?? "0";
                         $CaseStaff->rate_amount=$request->default_rate ?? "0.00";
                         $CaseStaff->save();
-                    }
+                    // }
                 }
                 break;             
             default:

@@ -6,7 +6,7 @@
     <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
     <input class="form-control" id="timeTrackingEnabled" value="{{$Task->time_tracking_enabled}}" name="timeTrackingEnabled" type="hidden">
     
-    <div class="row"  bladeFile="resources/views/task/loadEditTaskPopup.blade.php">
+    <div class="row"  bladeFile="resources/views/task/loadEditTaskPopup.blade.php" style="overflow-y: scroll; overflow-x: hidden;">
         <div class="col-8">
             <div id="showError" style="display:none"></div>
            <div class="form-group row">

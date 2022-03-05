@@ -279,7 +279,7 @@
                                             <div class="billtext" id="replaceAmt1"> Billable - Billing rate is not specified, the system will use rate: 0</div>
                                         <?php }?>
                                     <div>
-                                        <input type="text" name="defaultrate[1]" id="hideoptioninput2defaultrate1" value="" style="display: none;"/>
+                                        <input type="text" name="defaultrate[1]" id="hideoptioninput2defaultrate1" value="{{$default_rate}}" style="display: none;"/>
                                     </div>
 
                                 </label>
@@ -349,7 +349,7 @@
                                             <div class="billtext"> Billable - Billing rate is not specified, the system will use rate: 0illable - Rate : $0/hr</div>
                                         <?php }?>
                                     <div>
-                                        <input type="text" name="defaultrate[]" value="" style="display: none;"/>
+                                        <input type="text" name="defaultrate[]" value="{{$default_rate}}" style="display: none;"/>
                                     </div>
 
 
