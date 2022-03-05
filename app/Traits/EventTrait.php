@@ -75,7 +75,7 @@ trait EventTrait {
                 if(!in_array($request['share_checkbox_nonlinked'][$i],$alreadyAdded)){
                     $eventLinkedStaff[] = [
                         'event_id' => $caseEvent->id,
-                        'user_id' => $request['linked_staff_checked_share'][$i],
+                        'user_id' => $request['share_checkbox_nonlinked'][$i],
                         'is_linked' => 'no',
                         'attending' => $attend,
                         'comment_read_at' => Carbon::now(),
@@ -180,8 +180,8 @@ trait EventTrait {
             "event_interval_year" => $request->event_interval_year,
             "monthly_frequency" => $request->monthly_frequency,
             "yearly_frequency" => $request->yearly_frequency,
-            "day_of_week" => $request->daily_weekname,
             "custom_event_weekdays" => $request->custom,
+            "event_interval_week" => $request->daily_weekname,
             "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
@@ -397,8 +397,8 @@ trait EventTrait {
             if($request->monthly_frequency == 'MONTHLY_ON_DAY'){
                 $date1 = strtotime($date);
             } else if($request->monthly_frequency == 'MONTHLY_ON_THE') {
-                $nthDay = ceil(date('j', strtotime($date)) / 7);
-                $nthText = $this->getWeekNthDay($nthDay);
+                $nthDay = ceil(date('j', strtotime($request->start_date)) / 7);
+                $nthText = getWeekNthDay($nthDay);
                 $date1 = strtotime($nthText." ". $currentWeekDay ." of this month", strtotime($date));
                 // $date = strtotime("fourth ". $currentWeekDay ." of this month", strtotime($date));
             }else if($request->monthly_frequency=='MONTHLY_ON_THE_LAST'){
@@ -432,7 +432,7 @@ trait EventTrait {
                 $date1 = strtotime($date);
             } else if($request->yearly_frequency == 'YEARLY_ON_THE') {
                 $nthDay = ceil(date('j', strtotime($date)) / 7);
-                $nthText = $this->getWeekNthDay($nthDay);
+                $nthText = getWeekNthDay($nthDay);
                 $date1 = strtotime($nthText." ". $currentWeekDay ." of this month", strtotime($date));
                 // $date = strtotime("fourth ". $currentWeekDay ." of this month", strtotime($date));
             } else if($request->yearly_frequency == 'YEARLY_ON_THE_LAST') {
@@ -451,13 +451,6 @@ trait EventTrait {
         }
     }
 
-    /**
-     * Get week's nth day
-     */
-    public function getWeekNthDay($nthDay)
-    {
-        $array = array(1 => 'first', 2 => 'second', 3 => 'third', 4 => 'fourth', 5 => 'fifth', 6 => 'sixth', 7 => 'seventh');
-        return $array[$nthDay];
-    }
+    
 }
  

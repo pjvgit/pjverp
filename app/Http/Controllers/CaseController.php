@@ -2706,6 +2706,7 @@ class CaseController extends BaseController
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
                             "custom_event_weekdays" => $request->custom,
+                            "event_interval_week" => $request->daily_weekname,
                             "edit_recurring_pattern" => "all events",
                             "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : Null,
@@ -2761,13 +2762,14 @@ class CaseController extends BaseController
                     }
                     $this->saveEventHistory($caseEvent->id);
                 } else if($request->event_frequency == 'MONTHLY') {
+                    // return $request->all();
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         Log::info($request->monthly_frequency." = ". $eitem->monthly_frequency);
                         $eventReminders = $this->getEventReminderJson($eitem, $request);
                         $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                         $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
-                        if($request->monthly_frequency != $eitem->monthly_frequency) {
+                        if($request->monthly_frequency != $eitem->monthly_frequency || $request->event_interval_month != $eitem->event_interval_month || isset($request->updated_start_date)) {
                             Log::info("monthly if true");
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
                             $this->saveMonthlyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
@@ -3390,19 +3392,45 @@ class CaseController extends BaseController
 
         Log::info("comment email job dispatched");
         dispatch(new EventCommentEmailJob($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, Auth::User()->id)); */
-
+        $authUser = auth()->user();
         $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
         if($eventRecurring) {
             $eventComment = [
                 'event_id' => $request->event_id,
                 'comment' => $request->delta,
                 'action_type' => "0",
-                'created_by' => auth()->id(),
+                'created_by' => $authUser->id,
                 'created_at' => Carbon::now(),
             ];
             $decodeJson = encodeDecodeJson($eventRecurring->event_comments);
             $decodeJson->push($eventComment);
             $eventRecurring->fill(['event_comments' => encodeDecodeJson($decodeJson)])->save();
+
+            $event = Event::whereId($request->event_id)->first(); 
+            $data=[];
+            $data['event_for_case'] = $event->case_id;
+            $data['event_id'] = $event->id;
+            $data['event_name'] = $event->event_title;
+            $data['user_id'] = $authUser->id;
+            $data['activity']='commented on event';
+            $data['type']='event';
+            $data['action']='comment';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
+            // For client recent activity
+            if($eventRecurring->event_linked_contact_lead) {
+                $decodeContacts = encodeDecodeJson($eventRecurring->event_linked_contact_lead);
+                foreach($decodeContacts as $key => $item) {
+                    $data['user_id'] = $item->contact_id;
+                    $data['client_id'] = $item->contact_id;
+                    $data['activity']='commented event';
+                    $data['is_for_client'] = 'yes';
+                    $CommonController->addMultipleHistory($data);
+                }
+            }
+            Log::info("comment email job dispatched");
+            dispatch(new EventCommentEmailJob($request->event_id, $authUser->firm_name, $eventComment, $authUser->id, $request->event_recurring_id));
         }
         return response()->json(['errors'=>'']);
         exit;    

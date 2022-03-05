@@ -1,7 +1,3 @@
------------------------------------- 04-MAR-2022 ------------------------------
-ALTER TABLE `events`
-CHANGE `month_of_year` `custom_event_weekdays` json NULL AFTER `day_of_month`;
-
 ------------------------------------ 01-MAR-2022 ------------------------------
 ALTER TABLE `event_recurrings`
 ADD `event_linked_staff` json NULL AFTER `event_comments`,
@@ -59,9 +55,7 @@ CREATE TABLE `events` (
   `is_recurring` enum('no','yes') NOT NULL DEFAULT 'no',
   `event_recurring_type` enum('DAILY','EVERY_BUSINESS_DAY','CUSTOM','WEEKLY','MONTHLY','YEARLY') NULL,
   `event_interval_day` varchar(255) NULL,
-  `day_of_week` varchar(255) NULL,
-  `day_of_month` varchar(255) NULL,
-  `month_of_year` varchar(255) NULL,
+  `custom_event_weekdays` json NULL,
   `is_no_end_date` enum('no','yes') NOT NULL DEFAULT 'no',
   `end_on` date NULL,
   `is_event_read` enum('no','yes') NOT NULL DEFAULT 'no',
