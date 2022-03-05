@@ -346,7 +346,7 @@
                                             <div class="billtext"> Billable - Rate :{{number_format($default_rate,2)}}</div>
 
                                         <?php }else{ ?>
-                                            <div class="billtext"> Billable - Billing rate is not specified, the system will use rate: 0illable - Rate : $0/hr</div>
+                                            <div class="billtext"> Billable - Billing rate is not specified, the system will use rate: 0</div>
                                         <?php }?>
                                     <div>
                                         <input type="text" name="defaultrate[]" value="{{$default_rate}}" style="display: none;"/>
