@@ -14,7 +14,7 @@
             <div class="pr-1 col-sm-4">
                 <div class="allocation-in-bank-507379 input-group">
                     <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                    <input class="form-control allocate-fund number" maxlength="20" name="allocated_balance" value="{{ number_format(@$clientCaseInfo->allocated_trust_balance, 2) }}" data-total-amt="{{ @$clientCaseInfo->allocated_trust_balance + $userAddInfo->unallocate_trust_balance }}">
+                    <input class="form-control allocate-fund number" maxlength="15" name="allocated_balance" value="{{ number_format(@$clientCaseInfo->allocated_trust_balance, 2) }}" data-total-amt="{{ @$clientCaseInfo->allocated_trust_balance + $userAddInfo->unallocate_trust_balance }}">
                 </div>
             </div>
             <div class="px-1 col-sm-4">

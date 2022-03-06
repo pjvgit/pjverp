@@ -12,7 +12,7 @@
             $userTimezone = auth()->user()->user_timezone;
             $startDateTime= convertUTCToUserTime($eventRecurring->start_date.' '.$event->start_time, $userTimezone ?? 'UTC');
             $endDateTime= convertUTCToUserTime($eventRecurring->end_date.' '.$event->end_time, $userTimezone ?? 'UTC');
-            $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('M d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "";
+            $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('F d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "";
         @endphp
         <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y, h:ia',strtotime($startDateTime))}} —
             {{date('D, M jS Y, h:ia',strtotime($endDateTime))}}</h6>
@@ -57,22 +57,35 @@
                                 {{ ($event->event_interval_week > 1) ? "Every ".$event->event_interval_week." weeks" : "Weekly" }} {{ $endOnDate }} on {{ implode(", ", $event->custom_event_weekdays) }}
                             </div>
                             <?php }else if($event->event_recurring_type=='WEEKLY'){ ?>
-                            <div class="detail-info recurring-rule-text col-9">Weekly</div>
+                            <div class="detail-info recurring-rule-text col-9">
+                                Weekly {{ $endOnDate }} on {{ date('l', strtotime($eventRecurring->start_date))."s" }}
+                            </div>
                             <?php }else if($event->event_recurring_type=='MONTHLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">
                                 {{ ($event->event_interval_month > 1) ? "Every ".$event->event_interval_month." months " : "Monthly" }} {{ $endOnDate }}
                                 @if($event->monthly_frequency == "MONTHLY_ON_DAY")
-                                    {{ "on the ".date("jS", strtotime($event->user_start_date))." day of the month" }}
+                                    {{ "on the ".date("jS", strtotime($eventRecurring->user_start_date))." day of the month" }}
                                 @elseif($event->monthly_frequency == "MONTHLY_ON_THE")
                                     @php
                                         $day = ceil(date('j', strtotime($eventRecurring->start_date)) / 7);
                                     @endphp
-                                    {{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".date('l', strtotime($event->start_date)) }}
+                                    {{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".date('l', strtotime($eventRecurring->start_date)) }}
                                 @else
                                 @endif
                             </div>
                             <?php }else if($event->event_recurring_type=='YEARLY'){ ?>
-                            <div class="detail-info recurring-rule-text col-9">Yearly</div>
+                            <div class="detail-info recurring-rule-text col-9">
+                                {{ ($event->event_interval_year > 1) ? "Every ".$event->event_interval_year." years " : "Yearly" }} {{ $endOnDate }}
+                                @if($event->yearly_frequency == "YEARLY_ON_DAY")
+                                    {{ "in ".date("F", strtotime($eventRecurring->user_start_date))." on the ".date("jS", strtotime($eventRecurring->user_start_date))." day of the month" }}
+                                @elseif($event->yearly_frequency == "YEARLY_ON_THE")
+                                    @php
+                                        $day = ceil(date('j', strtotime($eventRecurring->start_date)) / 7);
+                                    @endphp
+                                    {{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".date('l', strtotime($event->start_date))." in ".date("F", strtotime($eventRecurring->user_start_date)) }}
+                                @else
+                                @endif
+                            </div>
                             <?php } ?>
                             <?php }else { ?><div class="detail-info recurring-rule-text col-9">Never</div><?php } ?>
                         </div>

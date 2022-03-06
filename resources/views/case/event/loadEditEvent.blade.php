@@ -167,23 +167,23 @@
                                     <option <?php if($evetData->event_recurring_type=='DAILY'){?> selected=selected <?php } ?>  value="DAILY">Daily</option>
                                     <option <?php if($evetData->event_recurring_type=='EVERY_BUSINESS_DAY'){?> selected=selected <?php } ?>   value="EVERY_BUSINESS_DAY">Every Business Day</option>
                                     <option <?php if($evetData->event_recurring_type=='CUSTOM'){?> selected=selected <?php } ?>   value="CUSTOM">Weekly</option>
-                                    <option <?php if($evetData->event_recurring_type=='WEEKLY'){?> selected=selected <?php } ?>   value="WEEKLY">Weekly on {{date('l',strtotime($evetData->start_date))}}</option>
+                                    <option <?php if($evetData->event_recurring_type=='WEEKLY'){?> selected=selected <?php } ?>   value="WEEKLY">Weekly on {{date('l',strtotime($eventRecurring->user_start_date))}}</option>
                                     <option <?php if($evetData->event_recurring_type=='MONTHLY'){?> selected=selected <?php } ?>   value="MONTHLY">Monthly</option>
                                     <option <?php if($evetData->event_recurring_type=='YEARLY'){?> selected=selected <?php } ?>   value="YEARLY">Yearly</option>
                                 </select>
                             </div>
                             <div class="col-md-5 form-group mb-3 repeat_yearly ">
                                 <select id="yearly-frequency" name="yearly_frequency" class="form-control custom-select  ">
-                                    <option <?php if($evetData->yearly_frequency=='YEARLY_ON_DAY'){?> selected=selected <?php } ?>  value="YEARLY_ON_DAY">On day {{date('d',strtotime($evetData->user_start_date))}} of {{date('F')}}</option>
-                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE">On the fourth {{date('l',strtotime($evetData->user_start_date))}} of {{date('F')}}</option>
-                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE_LAST'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE_LAST">On the last {{date('l',strtotime($evetData->user_start_date))}} of {{date('F')}}</option>
+                                    <option <?php if($evetData->yearly_frequency=='YEARLY_ON_DAY'){?> selected=selected <?php } ?>  value="YEARLY_ON_DAY">On day {{date('d',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
+                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE">On the {{ getWeekNthDay(ceil(date('j', strtotime($eventRecurring->user_start_date)) / 7)) }} {{date('l',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
+                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE_LAST'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE_LAST">On the last {{date('l',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
                                 </select>
                             </div>
                             <div class="col-md-5 form-group mb-3 repeat_monthly">
                                 <select id="monthly-frequency" name="monthly_frequency" class="form-control custom-select  ">
-                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_DAY'){?> selected=selected <?php } ?> value="MONTHLY_ON_DAY">On day {{date('d',strtotime($evetData->start_date))}}</option>
-                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_THE'){?> selected=selected <?php } ?> value="MONTHLY_ON_THE">On the fourth {{date("l",strtotime($evetData->start_date))}}</option>
-                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_THE_LAST'){?> selected=selected <?php } ?> value="MONTHLY_ON_THE_LAST">On the last {{date("l",strtotime($evetData->start_date))}}</option>
+                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_DAY'){?> selected=selected <?php } ?> value="MONTHLY_ON_DAY">On day {{date('d',strtotime($eventRecurring->user_start_date))}}</option>
+                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_THE'){?> selected=selected <?php } ?> value="MONTHLY_ON_THE">On the {{ getWeekNthDay(ceil(date('j', strtotime($eventRecurring->user_start_date)) / 7)) }} {{date("l",strtotime($eventRecurring->user_start_date))}}</option>
+                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_THE_LAST'){?> selected=selected <?php } ?> value="MONTHLY_ON_THE_LAST">On the last {{date("l",strtotime($eventRecurring->user_start_date))}}</option>
                                 </select>
                             </div>
                         </div>
@@ -591,7 +591,7 @@
             'startClass': 'input-start',
             'endClass': 'input-end'
         });
-
+        
         $("#start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
             $("#start_date-error").text('');
@@ -855,47 +855,9 @@
         $("#cancel_new_label").hide();
         $("#add_new_label").show();
     }
-
-    /* function selectType() {
-        $(".innerLoader").css('display', 'block');
-        var selectdValue = $("#event-frequency option:selected").val() // or
-        if (selectdValue == 'DAILY') {
-            $("#repeat_daily").show();
-            $("#repeat_custom").hide();
-            $(".repeat_yearly").hide();
-            $(".repeat_monthly").hide();
-        } else if (selectdValue == 'CUSTOM') {
-            $("#repeat_custom").show();
-            $("#repeat_daily").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
-        } else if (selectdValue == 'MONTHLY') {
-            $(".repeat_yearly").hide();
-            $(".repeat_monthly").show();
-            $("#repeat_custom").hide();
-            updateMonthlyWeeklyOptions();
-        } else if (selectdValue == 'YEARLY') {
-            $(".repeat_yearly").show();
-            $(".repeat_monthly").hide();
-            $("#repeat_custom").hide();
-            updateMonthlyWeeklyOptions();
-        } else if (selectdValue == 'WEEKLY') {
-            updateMonthlyWeeklyOptions();
-            $("#repeat_daily").hide();
-            $("#repeat_custom").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
-        } else {
-            $("#repeat_daily").hide();
-            $("#repeat_custom").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
-        }
-        $(".innerLoader").css('display', 'none');
-    } */
     
-    // Duplicate code
-    /* function selectTypeload(selectdValue) {
+    function selectTypeload(selectdValue) {
+        var selectdValue = $("#event-frequency option:selected").val()
         $(".innerLoader").css('display', 'block');
         $('#repeat_dropdown').show();
         $("#repeat_daily").hide();
@@ -917,14 +879,11 @@
             $(".repeat_yearly").hide();
             $(".repeat_monthly").show();
             $("#repeat_custom").hide();
-            updateMonthlyWeeklyOptions();
         } else if (selectdValue == 'YEARLY') {
             $(".repeat_yearly").show();
             $(".repeat_monthly").hide();
             $("#repeat_custom").hide();
-            updateMonthlyWeeklyOptions();
         }else if (selectdValue == 'WEEKLY') {
-            updateMonthlyWeeklyOptions();
             $('#repeat_dropdown').show();
             $("#repeat_daily").hide();
             $("#repeat_custom").hide();
@@ -941,7 +900,7 @@
             $('#repeat_dropdown').hide();
         }
         $(".innerLoader").css('display', 'none');
-    } */
+    }
 
     function removeUser(id) {
         $(".innerLoader").css('display', 'block');
@@ -1158,10 +1117,9 @@
             $("#start_time").val('').attr("readonly", true);
             $("#end_time").val('').attr("readonly", true);
     <?php }  ?>
-  
+
     <?php  if(isset($evetData->event_recurring_type)){ ?>
-            // selectTypeload('{{$evetData->event_recurring_type}}');
-            selectType();
+            selectTypeload('{{$evetData->event_recurring_type}}');
             $("#endondiv").show();
     <?php }else{  ?>
             selectType();
