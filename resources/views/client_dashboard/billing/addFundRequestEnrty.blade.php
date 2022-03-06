@@ -108,14 +108,14 @@
                 <div class="col-5">
                     <div data-testid="contact-balance">
                         <div class="pb-2 text-muted">
-                            {{-- <div class="row selenium-balance-value-amount">
+                            <div class="row selenium-balance-value-amount">
                                 <div class="col-9">Current Trust Balance:</div>
                                 <div class="col-3" data-testid="current-balance">
                                     $<span id="current-balance">
                                        {{number_format($UsersAdditionalInfo->trust_account_balance ?? 0,2)}}
                                     </span>
                                 </div>
-                            </div> --}}
+                            </div>
                             <div class="row">
                                 <div class="col-9">Minimum Trust Amount Required:</div>
                                 <div class="col-3" data-testid="minimum-trust-balance">
