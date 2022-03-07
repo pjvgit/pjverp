@@ -81,11 +81,12 @@ class BillingController extends BaseController
             $getChildUsers=$this->getParentAndChildUserIds();
             $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
             $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
-            $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
-            $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-            $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
+            // $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+            // $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+            // $getChildUsers[]=Auth::user()->id;
+            // $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+            // $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
+            $loadFirmUser = firmUserList();
             // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
             $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
     
@@ -495,11 +496,12 @@ class BillingController extends BaseController
             $getChildUsers=$this->getParentAndChildUserIds();
             $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
             $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
-            $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
-            $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-            $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
+            // $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+            // $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+            // $getChildUsers[]=Auth::user()->id;
+            // $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+            // $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
+            $loadFirmUser = firmUserList();
             // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
             $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
 
@@ -1468,19 +1470,23 @@ class BillingController extends BaseController
     {
 
         $validator = \Validator::make($request->all(), [
-            'id' => 'required|min:1|max:255',
+            // 'id' => 'required|min:1|max:255',
             'invoice_id' => 'required|min:1|max:255',
         ]);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$request->id)->get()->pluck("selected_user");
-            
-            $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->where("id",$CaseClientSelection)->first();
-
-            $Invoices = Invoices::find($request->invoice_id);
             $invoice_id=$request->invoice_id;
+            $Invoices = Invoices::find($request->invoice_id);
+
+            if(isset($request->id) && $request->id != ''){
+                $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$request->id)->get()->pluck("selected_user");
+                $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->where("id",$CaseClientSelection)->first();
+            }else{
+                $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->where("id",$Invoices->user_id)->first();
+            }
+
             return view('billing.invoices.sendReminderPopup',compact('invoice_id','userData','Invoices'));     
             exit;    
         }

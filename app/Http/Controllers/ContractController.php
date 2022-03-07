@@ -557,12 +557,12 @@ class ContractController extends BaseController
                 $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
                 $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
                 $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
-                $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
-                $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-                $getChildUsers[]=Auth::user()->id;
-                $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-                $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
-          
+                // $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+                // $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+                // $getChildUsers[]=Auth::user()->id;
+                // $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+                // $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+                $loadFirmUser = firmUserList();
             }
 
             $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")->leftjoin("users","case_staff.user_id","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type")->where("case_staff.user_id",$contractUserID)->where("firm_name",Auth::user()->firm_name)->where("case_master.is_entry_done","1")->get();

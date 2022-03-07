@@ -3371,6 +3371,7 @@ $nonBillableAmount = 0;
             paymentTerm();
         @endif
     });
+    var arr = arrShare = {}; 
     $('#removeAlllExistingTimeEntryForm').submit(function (e) {
         beforeLoader();
         e.preventDefault();
@@ -3468,6 +3469,17 @@ $nonBillableAmount = 0;
         }
     });
 
+    if(localStorage.getItem("shared_client")){        
+        var jsObj = JSON.parse(localStorage.getItem("shared_client"));
+        console.log(jsObj);
+        $.each(jsObj, function($key, $val){
+            console.log($key +" exists");
+            $("#portalAccess_"+$key).prop('checked', true);
+            arrShare[$key] = 'checked';
+        });
+        $(".invoiceSharingBox").trigger('change');
+    }
+
    
     /* function paymentTerm(){
         
@@ -3502,6 +3514,12 @@ $nonBillableAmount = 0;
      
     } */
     function checkPortalAccess(id){
+        if ($("#portalAccess_"+id).prop('checked') == true){
+            arrShare[id] = 'checked';
+        } else {
+            delete arrShare[id];
+        }
+        localStorage.setItem('shared_client', JSON.stringify(arrShare));
         // alert(id)
         var em=pa="";
         em=$("#portalAccess_"+id).attr("em");
@@ -3563,7 +3581,7 @@ $nonBillableAmount = 0;
                     afterLoader();
                 }
             })
-        }
+        }        
     }
     
     function fetchClientAddress(){
@@ -3742,7 +3760,7 @@ $nonBillableAmount = 0;
             $('#payment_plan_balance').number($("#payment_plan_balance").text(), 2); 
      
     }
-    var arr = {};    
+       
     function forwardedInvoicesCalculate(){
         
         var lineTotal = 0.00;
@@ -3772,6 +3790,7 @@ $nonBillableAmount = 0;
         $("#forwarded_total_text").val(lineTotal.toFixed(2));
     }
     console.log("localStorage > forwarded_invoices > "+ localStorage.getItem("forwarded_invoices"));
+    console.log("localStorage > shared_client > "+ localStorage.getItem("shared_client"));
     function recalculate() {          
         // $(".forwarded-invoices-check").trigger("change");
         forwardedInvoicesCalculate();

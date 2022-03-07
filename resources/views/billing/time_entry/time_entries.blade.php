@@ -8,18 +8,18 @@ $c=$i=$from=$to=$type=$st="";
 if(isset($_GET['c'])){
     $c= $_GET['c'];
 }
-if(isset($_GET['i'])){
-    $i= $_GET['i'];
-}
+
+$i=(isset($_GET['i'])) ? $_GET['i'] : 'o';
+
 if(isset($_GET['from'])){
     $from= $_GET['from'];
 }
 if(isset($_GET['to'])){
     $to= $_GET['to'];
 }
-if(isset($_GET['type'])){
-    $type= $_GET['type'];
-}
+
+$type= (isset($_GET['type'])) ? $_GET['type'] : 'own';
+
 if(isset($_GET['st'])){
     $st= $_GET['st'];
 }
@@ -38,7 +38,7 @@ if(isset($_GET['st'])){
                     <ul class="d-inline-flex nav nav-pills pl-4">
                         <li class="d-print-none nav-item">
                             <a href="{{route('bills/time_entries')}}?i=o&type={{$type}}"
-                                class="nav-link <?php if(isset($_GET['i'])  && $_GET['i']=='o') echo "active"; ?> ">Open</a>
+                                class="nav-link <?php if(isset($_GET['i'])  && $_GET['i']=='o') echo "active"; ?> <?php if(!isset($_GET['i'])) echo "active"; ?>">Open</a>
                         </li>
                         <li class="d-print-none nav-item">
                             <a href="{{route('bills/time_entries')}}?i=i&type={{$type}}"
@@ -128,7 +128,7 @@ if(isset($_GET['st'])){
                                 <th width="15%">User</th>
                                 <th width="15%">Case</th>
                                 @can('billing_add_edit')
-                                <?php if($_REQUEST['i'] != 'i'){?>
+                                <?php if($i != 'i'){?>
                                 <th width="10%" class="text-center"></th>
                                 <?php } ?>
                                 @endcan
@@ -276,7 +276,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 { data: 'id'},
                 { data: 'id','sorting':false},
                 @can('billing_add_edit')
-                <?php if($_REQUEST['i'] != 'i'){?>
+                <?php if($i != 'i'){?>
                 { data: 'id','sorting':false},
                 <?php } ?>
                 @endcan

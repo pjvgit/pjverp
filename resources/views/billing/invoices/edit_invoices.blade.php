@@ -3423,6 +3423,8 @@ $nonBillableAmount = 0;
         });
 
     });
+
+    var arr = arrShare = {}; 
     $('#removeAlllExistingFlatFeeEntryForm').submit(function (e) {
         beforeLoader();
         e.preventDefault();
@@ -3520,6 +3522,17 @@ $nonBillableAmount = 0;
             $('#SaveInvoiceButton').text('Save & Share with '+c+' Contacts');
         }
     });
+
+    if(localStorage.getItem("shared_client")){        
+        var jsObj = JSON.parse(localStorage.getItem("shared_client"));
+        console.log(jsObj);
+        $.each(jsObj, function($key, $val){
+            console.log($key +" exists");
+            $("#portalAccess_"+$key).prop('checked', true);
+            arrShare[$key] = 'checked';
+        });
+        $(".invoiceSharingBox").trigger('change');
+    }
    
     /* function paymentTerm(){
         
@@ -3554,6 +3567,12 @@ $nonBillableAmount = 0;
      
     } */
     function checkPortalAccess(id){
+        if ($("#portalAccess_"+id).prop('checked') == true){
+            arrShare[id] = 'checked';
+        } else {
+            delete arrShare[id];
+        }
+        localStorage.setItem('shared_client', JSON.stringify(arrShare));
         var em=pa="";
         em=$("#portalAccess_"+id).attr("em");
         pa=$("#portalAccess_"+id).attr("pa");
@@ -3706,7 +3725,7 @@ $nonBillableAmount = 0;
             $('#payment_plan_balance').number($("#payment_plan_balance").text(), 2); 
      
     }
-    var arr = {};
+    
     function forwardedInvoicesCalculate(){
         var lineTotal = 0.00;
         $(".forwarded-invoices-check").each(function(ind, item) {

@@ -848,8 +848,15 @@ if(!isset($adjustment_token)){
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
-        localStorage.setItem('adjustment_token', '');  
-        localStorage.setItem('forwarded_invoices', '');
+        localStorage.setItem('adjustment_token', "");  
+        localStorage.setItem('shared_client', "");  
+        localStorage.setItem('forwarded_invoices', "");
+        localStorage.setItem('showWarning', "");
+        localStorage.setItem('start_date', "");
+        localStorage.setItem('number_installment_field', "");
+        localStorage.setItem('amount_per_installment_field', "");
+        localStorage.setItem('installment_frequency_field', "");
+
         @if(!empty($caseMaster))
         $("#court_case_id").trigger("change");
         @endif

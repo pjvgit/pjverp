@@ -487,6 +487,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script type="text/javascript">
     $(document).ready(function () {   
         localStorage.setItem('adjustment_token', "");  
+        localStorage.setItem('shared_client', "");  
+        localStorage.setItem('forwarded_invoices', "");
+        localStorage.setItem('showWarning', "");
+        localStorage.setItem('start_date', "");
+        localStorage.setItem('number_installment_field', "");
+        localStorage.setItem('amount_per_installment_field', "");
+        localStorage.setItem('installment_frequency_field', "");
+
         $('[data-toggle="tooltip"]').tooltip();
 
         $(".show-history-btn").click(function () {

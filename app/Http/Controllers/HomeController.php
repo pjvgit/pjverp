@@ -188,12 +188,12 @@ class HomeController extends BaseController
 
         $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
 
-        $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
-        $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-        $getChildUsers[]=Auth::user()->id;
-        $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
-   
+        // $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+        // $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+        // $getChildUsers[]=Auth::user()->id;
+        // $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+        // $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        $loadFirmUser = firmUserList();
         $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
         
         $CaseLeadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.id","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))->where("users.firm_name",Auth::user()->firm_name)->groupBy('case_staff.lead_attorney')->get();

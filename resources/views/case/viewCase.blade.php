@@ -309,7 +309,11 @@ $adjustment_token=round(microtime(true) * 1000);
                     </li>
                     @endcanany
                     <li class="nav-item">
+                        @can(['messaging_add_edit'])
                         <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">Communications</a>
+                        @else
+                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/calls')}}">Communications</a>
+                        @endcan
                     </li>
                     @canany(['client_add_edit', 'client_view', 'add_firm_user'])
                     <li class="nav-item">
@@ -487,9 +491,11 @@ $adjustment_token=round(microtime(true) * 1000);
                             </div>
                         </div>
                         <div class="row"  <?php if(in_array(Route::currentRouteName(),["communications/messages"])){ ?> id="printHtml" <?php } ?>>
+                            @can(['messaging_add_edit'])    
                             <?php if(Route::currentRouteName()=="communications/messages"){ ?>
                                       @include('case.view.timebilling.communications')
                             <?php } ?>
+                            @endcan
                             <?php if(Route::currentRouteName()=="communications/calls"){ ?>
                                 @include('case.view.timebilling.calls')
                             <?php } ?>
