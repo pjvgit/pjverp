@@ -278,14 +278,12 @@ trait EventTrait {
                 $currentWeek = $date->format('W');
                 $fakeWeek++;
             }
-        
             if ($fakeWeek % $weekInterval !== 0) {
                 continue;
             }
-        
             $dayOfWeek = $date->format('l');
             if(in_array($dayOfWeek, $request->custom)) {       
-                EventRecurring::insert([
+                EventRecurring::create([
                     "event_id" => $caseEvent->id,
                     "start_date" => $date->format('Y-m-d'),
                     "end_date" => $date->format('Y-m-d'),

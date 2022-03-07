@@ -7971,39 +7971,6 @@ class BillingController extends BaseController
         );
         echo json_encode($json_data);  
     }
-    /* public function loadMixAccountActivityOld()
-    {   
-        $columns = array('id', 'title', 'default_description', 'flat_fees', 'firm_id','id','id','id','id','id',);
-        $requestData= $_REQUEST;
-        
-        $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")
-        ->select('account_activity.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),"users.id as uid");
-        $FetchQuery = $FetchQuery->where("account_activity.firm_id",Auth::User()->firm_name);
-
-        if(isset($requestData['account']) && $requestData['account']!=''){
-            if($requestData['account']=="trust_account"){
-                $FetchQuery = $FetchQuery->where("from_pay","trust");
-            }else{
-                $FetchQuery = $FetchQuery->where("from_pay","none");
-            }
-        }
-        $FetchQuery = $FetchQuery->where("case_id",$requestData['case_id'])->where("credit_amount","!=",0);
-       
-       
-        $totalData=$FetchQuery->count();
-        $totalFiltered = $totalData; 
-
-        $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
-        $FetchQuery = $FetchQuery->orderBy("id","DESC");
-        $FetchQuery = $FetchQuery->get();
-        $json_data = array(
-            "draw"            => intval( $requestData['draw'] ),   
-            "recordsTotal"    => intval( $totalData ),  
-            "recordsFiltered" => intval( $totalFiltered ), 
-            "data"            => $FetchQuery 
-        );
-        echo json_encode($json_data);  
-    } */
 
     public function loadMixAccountActivity(Request $request)
     {           
