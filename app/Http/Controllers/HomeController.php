@@ -15,6 +15,7 @@ use App\ContractUserCase,App\CaseMaster;
 use App\DeactivatedUser,App\TempUserSelection,App\CasePracticeArea,App\CaseStage,App\CaseClientSelection;
 use App\CaseStaff,App\CaseUpdate,App\CaseStageUpdate,App\CaseActivity;
 use App\CaseEvent,App\CaseEventLocation,App\EventType;
+use App\EventRecurring;
 use Carbon\Carbon,App\CaseEventReminder,App\CaseEventLinkedStaff;
 use App\Http\Controllers\CommonController,App\CaseSolReminder;
 use DateInterval,DatePeriod,App\CaseEventComment;
@@ -198,14 +199,22 @@ class HomeController extends BaseController
         
         $CaseLeadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.id","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))->where("users.firm_name",Auth::user()->firm_name)->groupBy('case_staff.lead_attorney')->get();
 
-
         //Get 15 upcoming events for dashboard
-        // $upcomingTenEvents=CaseEvent::leftJoin('case_master','case_master.id','=','case_events.case_id')->leftJoin('users','users.id','=','case_events.lead_id')->select("case_master.id","case_master.case_title","case_master.case_unique_number","users.first_name","users.middle_name","users.last_name","case_events.*")->where('start_date','>=',date('Y-m-d'))->where('case_events.created_by',Auth::User()->id)->orderBy("start_date", "ASC")->limit(15)->get();
-        $upcomingTenEvents=CaseEvent::where('start_date','>=',date('Y-m-d'))/* ->where('case_events.created_by',Auth::User()->id) */
+        $upcomingTenEvents = collect([]);
+        /* $upcomingTenEvents=CaseEvent::where('start_date','>=',date('Y-m-d'))
                 ->whereHas('eventLinkedStaff', function($query) {
                     $query->where('users.id', auth()->id());
                 })
-                ->orderBy("start_date", "ASC")->with("case", "leadUser", 'eventLinkedStaff')->limit(15)->get();
+                ->orderBy("start_date", "ASC")->with("case", "leadUser", 'eventLinkedStaff')->limit(15)->get(); */
+        /* $upcomingTenEvents = EventRecurring::whereDate("start_date", ">=", Carbon::now())
+                            // ->where('event_linked_staff->user_id', auth()->id())
+                            // ->whereJsonContains('event_linked_staff->user_id', auth()->id())
+                            // ->whereJsonContains("event_linked_staff->user_id", [auth()->id()])
+                            // ->whereJsonContains('event_linked_staff', ['user_id' => auth()->id()])
+                            // ->whereRaw("JSON_CONTAINS(event_linked_staff, 1, 'user_id') = 1")
+                            // ->whereRaw("JSON_CONTAINS(event_linked_staff[user_id], '[1]' )")
+                            ->has('event')
+                            ->orderBy("start_date", "asc")->with("event", "event.case", "event.leadUser")->limit(15)->get(); */
 
         //Get 15 upcoming task for dashboard
         $upcomingTask=Task::leftJoin('case_master','case_master.id','=','task.case_id')->leftJoin('users','users.id','=','task.lead_id')

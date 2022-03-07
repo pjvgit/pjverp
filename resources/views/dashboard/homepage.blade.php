@@ -498,11 +498,12 @@
                     </div>
                     <div class="card-body">
                         <?php  
+                        $authUser = auth()->user();
                         if(isset($upcomingTenEvents) && !$upcomingTenEvents->isEmpty()){
                             foreach($upcomingTenEvents as $k=>$v){
-                            $currentTime = convertUTCToUserTime(date('Y-m-d H:i:s'),Auth::User()->user_timezone);
-                            $convertedStartDateTime = convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($v->start_date .$v->start_time)),Auth::User()->user_timezone);
-                            $convertedEndDateTime = convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($v->end_date .$v->end_time)),Auth::User()->user_timezone);
+                            $currentTime = convertUTCToUserTime(date('Y-m-d H:i:s'), $authUser->user_timezone);
+                            $convertedStartDateTime = convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($v->start_date .$v->event->start_time)), $authUser->user_timezone);
+                            $convertedEndDateTime = convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($v->end_date .$v->event->end_time)), $authUser->user_timezone);
                             if($convertedStartDateTime > $currentTime)
                             {
                             ?>
@@ -511,23 +512,29 @@
                                 <div id="event-row-{{$v->id}}" class="d-flex flex-row align-items-center">
                                     <div class="upcoming-event mr-auto">
                                         {{date('D M d',strtotime($convertedStartDateTime))}} -
+                                        @if($v->start_date != $v->end_date)
                                         <small>({{date('M d, Y',strtotime($convertedStartDateTime))}}
                                             ,{{date('h:ia',strtotime($convertedStartDateTime))}} —
                                             {{date('M d, Y',strtotime($convertedEndDateTime))}},
                                             {{date('h:ia',strtotime($convertedEndDateTime))}})</small>
+                                        @else
+                                        <small>({{date('h:ia',strtotime($convertedStartDateTime))}} —
+                                            {{date('h:ia',strtotime($convertedEndDateTime))}})</small>
+                                        @endif
                                         <a class="pendo-upcoming-event-appt-link"
-                                            href="{{ route('events/detail', $v->decode_id) }}">
-                                            {{$v->event_title}}</a>
+                                            href="{{ route('events/detail', $v->id) }}">
+                                            {{$v->event->event_title}}</a>
                                         <i class="ml-1 fas fa-angle-down upcoming-event-toggle-down"></i>
                                         <i class="ml-1 fas fa-angle-up upcoming-event-toggle-up d-none"></i>
                                     </div>
                                     <?php 
                                         $list='';
-                                        $allUSer=json_decode($v->eventLinkedStaff);
+                                        $allUSer = encodeDecodeJson($v->event_linked_staff);
                                         $USerArray=[];
                                         if(!empty($allUSer)){
                                             foreach($allUSer as $m=>$km){
-                                                $USerArray[]=$km->first_name ." ".$km->last_name ." (".$CommonController->getUserLevelText($km->user_type).")";
+                                                $user = getUserDetail($km->user_id);
+                                                $USerArray[]=$user->first_name ." ".$user->last_name ." (".$user->user_type_text.")";
                                             }
                                             $list=implode('<br>',$USerArray);
                                             ?>
@@ -547,10 +554,10 @@
 
                                 </div>
                                 <div id="event-details-{{$v->id}}" style="display: none;">
-                                    @if ($v->case_id!=NULL && $v->case)
-                                    <a class="pendo-upcoming-event-case-link" href="{{BASE_URL}}court_cases/{{$v->case->case_unique_number}}/info">{{$v->case->case_title}}</a>
-                                    @elseif($v->lead_id!=NULL && $v->leadUser)
-                                    <a class="pendo-upcoming-event-case-link" href="{{BASE_URL}}leads/{{$v->lead_id}}/case_details/info">{{$v->full_name}}</a>
+                                    @if ($v->event->case_id!=NULL && $v->event->case)
+                                    <a class="pendo-upcoming-event-case-link" href="{{ route('info', @$v->event->case->case_unique_number) }} ">{{ @$v->event->case->case_title }}</a>
+                                    @elseif($v->event->lead_id!=NULL && $v->event->leadUser)
+                                    <a class="pendo-upcoming-event-case-link" href="{{ route('case_details/info', $v->event->lead_id) }} ">{{$v->full_name}}</a>
                                     @else
                                     {{ "<No Title>" }}
                                     @endif
