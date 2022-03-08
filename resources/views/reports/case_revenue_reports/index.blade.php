@@ -175,7 +175,7 @@
                         $totalCaseNonBillableDuration += str_replace(",","",$case->caseNonBillableDuration);
                         $totalCaseNonBillableEntry += str_replace(",","",$case->caseNonBillableEntry);
 
-                        $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
+                        $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment) - str_replace(",","",$case->caseNonBillableEntry);
                         $totalCaseBilled += $totalBilled;
 
                         // collected amount
@@ -191,6 +191,7 @@
                         $totalCollected = str_replace(",","",$case->paidFlatfee)
                         + str_replace(",","",$case->paidTimeEntry)
                         + str_replace(",","",$case->paidExpenses)
+                        + str_replace(",","",$case->paidBalanceForward)
                         + str_replace(",","",$case->paidInterest)
                         + str_replace(",","",$case->paidTax)
                         + str_replace(",","",$case->paidAdditions)
@@ -203,7 +204,7 @@
                     ?>        
 
                     <tr class="">
-                        <td><a target="_blank" href="{{route('info', $case->case_unique_number)}}">{{$case->case_title}} ({{$case->id}})</a></td>
+                        <td><a target="_blank" href="{{route('info', $case->case_unique_number)}}" data-caseid="{{$case->id}}">{{$case->case_title}}</a></td>
                         <td>{{($case->caseFlatfees > 0) ? '$'.$case->caseFlatfees : '--'}}</td>
                         <td>{{($case->caseDuration > 0) ? $case->caseDuration : '--'}}</td>
                         <td>{{($case->caseTimeEntry > 0) ? '$'.$case->caseTimeEntry : '--'}}</td>
@@ -213,8 +214,8 @@
                         <td>{{($case->caseTaxAdjustment > 0) ? '$'.$case->caseTaxAdjustment : '--'}}</td>
                         <td>{{($case->caseAdditionsAdjustment > 0) ? '$'.$case->caseAdditionsAdjustment : '--'}}</td>
                         <td>{{($case->caseDiscountsAdjustment > 0) ? '$-'.$case->caseDiscountsAdjustment : '--'}}</td>
-                        <td>{{($case->caseNonBillableDuration > 0) ? $case->caseNonBillableDuration : '--'}}</td>
-                        <td>{{($case->caseNonBillableEntry > 0) ? '$'.$case->caseNonBillableEntry : '--'}}</td>
+                        <td class="text-muted">{{($case->caseNonBillableDuration > 0) ? $case->caseNonBillableDuration : '--'}}</td>
+                        <td class="text-muted">{{($case->caseNonBillableEntry > 0) ? '$'.$case->caseNonBillableEntry : '--'}}</td>
                         <th>${{number_format($totalBilled,2)}}</th>
                         <td>{{($case->paidFlatfee > 0) ? '$'.number_format($case->paidFlatfee,2) : '--'}}</td>
                         <td>{{($case->paidTimeEntry > 0) ? '$'.number_format($case->paidTimeEntry,2) : '--'}}</td>
@@ -240,8 +241,8 @@
                         <th>${{number_format($totalCaseTaxAdjustment,2)}}</th>
                         <th>${{number_format($totalCaseAdditionsAdjustment,2)}}</th>
                         <th>$-{{number_format($totalCaseDiscountsAdjustment,2)}}</th>
-                        <th>{{number_format($totalCaseNonBillableDuration,2)}}</th>
-                        <th>${{number_format($totalCaseNonBillableEntry,2)}}</th>
+                        <th class="text-muted">{{number_format($totalCaseNonBillableDuration,2)}}</th>
+                        <th class="text-muted">${{number_format($totalCaseNonBillableEntry,2)}}</th>
                         <th>${{number_format($totalCaseBilled,2)}}</th>
                         <th>${{number_format($totalPaidFlatfee,2)}}</th>
                         <th>${{number_format($totalPaidTimeEntry,2)}}</th>

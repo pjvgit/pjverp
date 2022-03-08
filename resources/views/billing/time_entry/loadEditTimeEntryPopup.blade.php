@@ -36,8 +36,8 @@
                     <select class="form-control Edit_staff_user page_dropdown" id="staff_user" name="staff_user">
                         <?php foreach($loadFirmStaff as $loadFirmStaffkey=>$CasevloadFirmStaffvalal){ ?>
                         <option <?php if($CasevloadFirmStaffvalal->id==$TaskTimeEntry['user_id']){ echo "selected=selected"; } ?>
-                            value="{{$CasevloadFirmStaffvalal->id}}">{{$CasevloadFirmStaffvalal->first_name}}
-                            {{$CasevloadFirmStaffvalal->last_name}}
+                            value="{{$CasevloadFirmStaffvalal->id}}" data-flatfees="{{$caseStaffRates[$CasevloadFirmStaffvalal->id] ?? 0}}">
+                            {{$CasevloadFirmStaffvalal->first_name}} {{$CasevloadFirmStaffvalal->last_name}}
                             <?php if($CasevloadFirmStaffvalal->user_title){ echo "(".$CasevloadFirmStaffvalal->user_title.")"; } ?>
                         </option>
                         <?php } ?>
@@ -52,7 +52,7 @@
                     <select id="activity" name="activity" class="form-control custom-select col Edit_activity dropdown_activity">
                         <option value="">Search activity</option>
                         <?php foreach($TaskActivity as $k=>$v){ ?>
-                        <option <?php if($v->id==$TaskTimeEntry['activity_id']){ echo "selected=selected"; } ?> value="{{$v->id}}">{{$v->title}}</option>
+                        <option data-flatfees="{{$v->flat_fees}}" <?php if($v->id==$TaskTimeEntry['activity_id']){ echo "selected=selected"; } ?> value="{{$v->id}}">{{$v->title}}</option>
                         <?php } ?>
                     </select>
                     <span id="act"></span>
@@ -417,6 +417,33 @@
             e.preventDefault();
             return false;
         }
+    });
+
+    $("#activity").on("select2:select", function(e) {
+        if($(this).select2().find(":selected").data("flatfees") > 0) {
+            $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
+            $("#rate_type_field_id").val('flat');
+        }
+        $("#activity").select2({
+            placeholder: "Select activity",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#loadEditTimeEntryPopup"),
+        });
+    });
+
+    $("#staff_user").on("select2:select", function(e) {
+        if($(this).select2().find(":selected").data("flatfees") > 0) {
+            $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
+            // $("#rate_type_field_id").val('hr');
+        }
+        
+        $("#staff_user").select2({
+            placeholder: "Select...",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#loadEditTimeEntryPopup"),
+        });
     });
 
 </script>

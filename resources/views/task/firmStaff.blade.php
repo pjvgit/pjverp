@@ -166,6 +166,7 @@
                 "arrayList": JSON.stringify(arrayList)
             },
             success: function (res) {
+                $("#dynamicUSerTimes").show();
                 $("#dynamicUSerTimes").html(res);
             }
         })

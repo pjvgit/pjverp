@@ -269,7 +269,18 @@ class BillingController extends BaseController
           $curDate=$request->curDate;
         }
 
-        return view('billing.time_entry.loadEditTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','TaskTimeEntry','createdBy','updatedBy','from','curDate'));     
+        $caseStaffRates = [];
+        $caseStaffData = CaseStaff::select("*")->where("case_id",$TaskTimeEntry->case_id)->get();
+        if(count($caseStaffData) > 0){
+            foreach($caseStaffData as $k => $v){
+                if($v->rate_type == "0"){
+                    $caseStaffRates[$v->user_id] = number_format($defaultRate->default_rate??0 ,2);            
+                }else{
+                    $caseStaffRates[$v->user_id] = $v->rate_amount;
+                }
+            }
+        }
+        return view('billing.time_entry.loadEditTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','TaskTimeEntry','createdBy','updatedBy','from','curDate','caseStaffRates'));     
         exit;    
     } 
     public function getRate(Request $request)

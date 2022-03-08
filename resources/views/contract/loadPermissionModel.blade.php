@@ -3,7 +3,7 @@
     <input type="hidden" name="user_id" value="{{$ContractUser->id}}">
     
     <span id="response"></span>
-    <div class="row">      
+    <div class="row" bladefile="resources/views/contract/loadPermissionModel.blade.php">      
         <div class="col-md-6">
             <div class=" mb-4">
                 <table class="table table-set design-permission">
@@ -98,7 +98,7 @@
                             </td>
                             <td></td>
                         </tr>
-                        <tr>
+                        {{-- <tr>
                             <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_documents.svg') }}"> Documents</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
@@ -120,7 +120,7 @@
                             </td>
 
                             <td></td>
-                        </tr>
+                        </tr> --}}
                         <tr>
                             <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_comment.svg') }}"> Commenting</td>
                             <td class="text-center">
@@ -144,7 +144,7 @@
 
                             <td></td>
                         </tr>
-                        <tr>
+                        {{--<tr>
                             <td class="text-nowrap attorney-permissions-object-image"><i class="fas fa-comment" style="font-size: 18px;"></i> Text Messaging</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
@@ -162,7 +162,7 @@
                                 </label>
                             </td>
                             <td></td>
-                        </tr>
+                        </tr>--}}
                         <tr>
                             <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_messages.svg') }}"> Messaging</td>
                             <td class="text-center">
@@ -327,7 +327,7 @@
                 </div>
                 <hr>
                 <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-6 col-form-label">Delete items (events, documents, etc.) from
+                    <label for="inputEmail3" class="col-sm-6 col-form-label">Delete items (events, etc.) from
                         {{config('app.name')}}?
                     </label>
                     <div class="col-sm-3">
@@ -343,7 +343,7 @@
                         </label>
                     </div>
                 </div>
-                <hr>
+                {{-- <hr>
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Permanetly delete documents from the trash bin?</label>
                     <div class="col-sm-3">
@@ -358,7 +358,7 @@
                             <span class="pl-3">No</span><span class="checkmark"></span>
                         </label>
                     </div>
-                </div>
+                </div> --}}
                 <hr>
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Edit import-export capabilities?
@@ -376,7 +376,7 @@
                         </label>
                     </div>
                 </div>
-                <hr>
+                {{--<hr>
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Edit custom fields settings?
                     </label>
@@ -392,7 +392,7 @@
                                 class="checkmark"></span>
                         </label>
                     </div>
-                </div>
+                </div>--}}
                 <hr>
                 @if(auth()->user()->parent_user == 0 && $ContractUser->parent_user != 0)
                 <div class="form-group row">

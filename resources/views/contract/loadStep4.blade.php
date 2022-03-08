@@ -91,7 +91,7 @@
                 </td>
                 <td></td>
             </tr>
-            <tr>
+            {{--<tr>
                 <td>Documents</td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
@@ -110,7 +110,7 @@
                 </td>
 
                 <td></td>
-            </tr>
+            </tr>--}}
             <tr>
                 <td>Commenting</td>
                 <td class="text-center">
@@ -131,7 +131,7 @@
 
                 <td></td>
             </tr>
-            <tr>
+            {{--<tr>
                 <td class="text-nowrap">Text Messaging</td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
@@ -146,7 +146,7 @@
                     </label>
                 </td>
                 <td></td>
-            </tr>
+            </tr>--}}
             <tr>
                 <td>Messages</td>
                 <td class="text-center">

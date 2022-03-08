@@ -6,7 +6,7 @@
     <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
     <input class="form-control" id="timeTrackingEnabled" value="{{$Task->time_tracking_enabled}}" name="timeTrackingEnabled" type="hidden">
     
-    <div class="row"  bladeFile="resources/views/task/loadEditTaskPopup.blade.php" style="overflow-y: scroll; overflow-x: hidden;">
+    <div class="row"  bladeFile="resources/views/task/loadEditTaskPopup.blade.php" style="max-height: calc(100vh - 10px);overflow-y: scroll;">
         <div class="col-8">
             <div id="showError" style="display:none"></div>
            <div class="form-group row">
@@ -579,8 +579,8 @@
             }  
             console.log("timeTrackingEnabled > 580 >" + $("#timeTrackingEnabled").val())
             if($("#timeTrackingEnabled").val() == "yes"){
+                $("input:checkbox#time_tracking_enabled").prop('checked',true);
                 setTimeout(function(){  
-                    $("input:checkbox#time_tracking_enabled").prop('checked',true);
                     // $('input:checkbox#time_tracking_enabled').trigger('click');
                     if($("input:checkbox#time_tracking_enabled").is(":checked")){
                         var SU = getCheckedUser();
@@ -666,6 +666,7 @@
         }
     });
     function loadTimeEstimationUsersList(SU) {
+        beforeLoader();
         console.log("resources/views/task/loadEditTaskPopup.blade.php > loadTimeEstimationUsersList > 660");
         var arrayList = [];
 
@@ -687,7 +688,8 @@
                 "task_id":{{$Task->id}}
             },
             success: function (res) {
-                console.log("resources/views/task/loadEditTaskPopup.blade.php > 682" + res);
+                // console.log("resources/views/task/loadEditTaskPopup.blade.php > 682" + res);
+                $("#dynamicUSerTimes").show();
                 $("#dynamicUSerTimes").html(res);
                 afterLoader();
             }

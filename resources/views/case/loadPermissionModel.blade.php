@@ -2,7 +2,7 @@
     @csrf
     <input type="hidden" name="user_id" value="{{$ContractUser[0]->id}}"">
     <span id="response"></span>
-    <div class="row">      
+    <div class="row" bladeFile="resources/views/case/loadPermissionModel.blade.php">      
         
 
         <div class="col-md-6">

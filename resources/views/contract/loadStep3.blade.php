@@ -62,7 +62,7 @@
     </div>
     <hr>
     <div class="form-group row">
-        <label for="inputEmail3" class="col-sm-6 col-form-label">Delete items (events, documents, etc.) from
+        <label for="inputEmail3" class="col-sm-6 col-form-label">Delete items (events, etc.) from
             {{config('app.name')}}?
         </label>
         <div class="col-sm-3">
@@ -77,7 +77,7 @@
             </label>
         </div>
     </div>
-    <hr>
+    {{--<hr>
     <div class="form-group row">
         <label for="inputEmail3" class="col-sm-6 col-form-label">Permanetly delete documents from the trash bin?</label>
         <div class="col-sm-3">
@@ -91,7 +91,7 @@
                 <input type="radio" name="empty_trash_permission" value="1" class="empty-trash-permission"><span>No</span><span class="checkmark"></span>
             </label>
         </div>
-    </div>
+    </div> --}}
     <hr>
     <div class="form-group row">
         <label for="inputEmail3" class="col-sm-6 col-form-label">Edit import-export capabilities?
@@ -108,7 +108,7 @@
             </label>
         </div>
     </div>
-    <hr>
+    {{--<hr>
     <div class="form-group row">
         <label for="inputEmail3" class="col-sm-6 col-form-label">Edit custom fields settings?
         </label>
@@ -123,7 +123,7 @@
                 <input type="radio" name="custome_fields" value="1"><span>No</span><span class="checkmark"></span>
             </label>
         </div>
-    </div>
+    </div>--}}
     <hr>
     <div class="form-group row">
         <label for="inputEmail3" class="col-sm-6 col-form-label">Manage your firm's preferences, billing, and payment

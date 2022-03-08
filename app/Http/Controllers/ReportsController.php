@@ -177,15 +177,14 @@ class ReportsController extends BaseController
             $cases = $cases->where("case_close_date", NULL);
         }
 
-        if($lead_id != '' && $lead_id != 'all'){
+        if($lead_id != 'all' || $staff_id != 'all'){
             $cases = $cases->leftJoin("case_staff","case_staff.case_id","=","case_master.id");
             $cases = $cases->whereNull("case_staff.deleted_at");
+        }
+        if($lead_id != '' && $lead_id != 'all'){
             $cases = $cases->where("case_staff.lead_attorney",$lead_id);
         }
-
         if($staff_id != '' && $staff_id != 'all'){
-            $cases = $cases->leftJoin("case_staff","case_staff.case_id","=","case_master.id");
-            $cases = $cases->whereNull("case_staff.deleted_at");
             $cases = $cases->where("case_staff.originating_attorney",$staff_id);
         }
         
@@ -366,7 +365,7 @@ class ReportsController extends BaseController
             $InvoiceAdjustment=InvoiceAdjustment::leftJoin("invoices","invoices.id","=","invoice_adjustment.invoice_id")
             ->select('invoice_adjustment.*')
             ->where("invoice_adjustment.case_id",$case->id)->whereNull("invoices.deleted_at");
-            $InvoiceAdjustment = $InvoiceAdjustment->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt]);
+            // $InvoiceAdjustment = $InvoiceAdjustment->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt]);
             $InvoiceAdjustment = $InvoiceAdjustment->get();
             $caseInterestAdjustment = $caseTaxAdjustment = $caseAdditionsAdjustment = $caseDiscountsAdjustment = 0;
             foreach($InvoiceAdjustment as $k => $v){
@@ -562,7 +561,7 @@ class ReportsController extends BaseController
                 $totalCaseNonBillableDuration += str_replace(",","",$case->caseNonBillableDuration);
                 $totalCaseNonBillableEntry += str_replace(",","",$case->caseNonBillableEntry);
                
-                $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment) - str_replace(",","",$case->caseDiscountsAdjustment) + str_replace(",","",$case->caseNonBillableEntry);
+                $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment) - str_replace(",","",$case->caseNonBillableEntry);
                 $totalCaseBilled += $totalBilled;
 
                 // $totalPaidInvoice = str_replace(",","",$case->caseInvoicePaidAmount);
@@ -595,8 +594,8 @@ class ReportsController extends BaseController
                 
             }
         }
-        foreach($cases as $k => $v) {
-            $totalBilled  = str_replace(",","",$v->caseFlatfees) + str_replace(",","",$v->caseTimeEntry) + str_replace(",","",$v->caseExpenseEntry) + str_replace(",","",$v->caseBalanceForwarded) + str_replace(",","",$v->caseInterestAdjustment) + str_replace(",","",$v->caseTaxAdjustment) + str_replace(",","",$v->caseAdditionsAdjustment)  + str_replace(",","",$v->caseNonBillableEntry) -  str_replace(",","",$v->caseDiscountsAdjustment);
+        foreach($cases as $k => $case) {
+            $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment) - str_replace(",","",$case->caseNonBillableEntry);
             if($totalBilled == 0){            
                 if($show_case_with_daterange == 'on'){
                     unset($cases[$k]);
