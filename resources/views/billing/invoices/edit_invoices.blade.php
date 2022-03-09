@@ -2747,48 +2747,57 @@ $nonBillableAmount = 0;
         }); */
         $('[data-toggle="tooltip"]').tooltip();
 
-        $('.input-daterange').datepicker({
-            format : 'm/d/yyyy',
-            clearBtn: true,
-            keyboardNavigation: false,
-            forceParse: false,
-            todayBtn: "linked",
-            todayHighlight : true
-        });                
+        // $('.input-daterange').datepicker({
+        //     format : 'm/d/yyyy',
+        //     clearBtn: true,
+        //     keyboardNavigation: false,
+        //     forceParse: false,
+        //     todayBtn: "linked",
+        //     todayHighlight : true
+        // });  
+
         $('#bill_from_date').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
-            'todayBtn': "linked",
-            'clearBtn': true,
+            'todayBtn': false,
+            'clearBtn': false,
             'todayHighlight': true
-        });       
+        }).on('changeDate', function (selected) {
+            var todayDate = new Date();
+            var maxDate = new Date(selected.date.valueOf());
+            $('#bill_to_date').val();
+            $('#bill_to_date').datepicker('setStartDate', maxDate);
+        });
+
         $('#bill_to_date').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
-            'todayBtn': "linked",
-            'clearBtn': true,
+            'todayBtn': false,
+            'clearBtn': false,
             'todayHighlight': true
-        }).on('change',function(e){
-            swal({
-                title: 'warning',
-                text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#0CC27E',
-                cancelButtonColor: '#FF586B',
-                cancelButtonText: 'Close',
-                confirmButtonText: 'Proceed',
-                confirmButtonClass: 'btn btn-success',
-                cancelButtonClass: 'btn btn-danger  mr-2',
-                buttonsStyling: false,
-                reverseButtons: true
-            }).then(function(isConfirm){
-                if (isConfirm){     
-                    localStorage.setItem('forwarded_invoices', JSON.stringify([]));               
-                    $('#adjustment_delete').val('1');
-                    changeCase();
-                }
-            });
+        }).on('change',function(selected){
+            if($(this).val()){
+                swal({
+                    title: 'warning',
+                    text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0CC27E',
+                    cancelButtonColor: '#FF586B',
+                    cancelButtonText: 'Close',
+                    confirmButtonText: 'Proceed',
+                    confirmButtonClass: 'btn btn-success',
+                    cancelButtonClass: 'btn btn-danger  mr-2',
+                    buttonsStyling: false,
+                    reverseButtons: true
+                }).then(function(isConfirm){
+                    if (isConfirm){     
+                        localStorage.setItem('forwarded_invoices', JSON.stringify([]));               
+                        $('#adjustment_delete').val('1');
+                        changeCase();
+                    }
+                });
+            }
         });
 
         $('.tdTime').hover(
