@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\AllHistory;
 use App\CaseEvent;
+use App\EventRecurring;
 use App\Http\Controllers\Controller;
 use App\Invoices, App\Messages, App\User;
 use Carbon\Carbon;
@@ -27,13 +28,18 @@ class HomeController extends Controller
         }                
         $totalInvoice = $totalInvoice->count();
 
-        $upcomingEvents = CaseEvent::whereHas("eventLinkedContact", function($query) use($userId) {
+        /* $upcomingEvents = CaseEvent::whereHas("eventLinkedContact", function($query) use($userId) {
                             $query->where('users.id', $userId)->select("case_event_linked_contact_lead.is_view");
                         })->whereDate('start_date', '>=', Carbon::now())
                         ->orderBy('start_date', 'asc');
         if(isset($request->case_id) && $request->case_id != ''){
             $upcomingEvents = $upcomingEvents->where("case_events.case_id",$request->case_id);
         }                
+        $upcomingEvents = $upcomingEvents->take(3)->get(); */
+        $authUserId = (string) auth()->id();
+        $upcomingEvents = EventRecurring::whereJsonContains('event_linked_contact_lead', ["contact_id" => $authUserId])
+                        ->whereDate('start_date', '>=', Carbon::now())
+                        ->orderBy('start_date', 'asc')->with("event");
         $upcomingEvents = $upcomingEvents->take(3)->get();
 
         $recentActivity = AllHistory::where("is_for_client", "yes")->where("client_id", $userId)

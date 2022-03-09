@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Http\Controllers\CommonController;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class TrustHistory extends Authenticatable
@@ -28,9 +29,9 @@ class TrustHistory extends Authenticatable
     public function getAddedDateAttribute(){
         if(isset(Auth::User()->user_timezone) && $this->payment_date!=null) 
         {
-            $timezone=Auth::User()->user_timezone;
-            $convertedDate= convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->payment_date)),$timezone);
-            return date('M j, Y',strtotime($convertedDate));
+            $pDate = Carbon::createFromFormat('Y-m-d', $this->payment_date, "UTC");
+            $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
+            return $pDate->format("M d, Y");
         }else{
             return null;
         }

@@ -7,6 +7,8 @@ use DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Http\Controllers\CommonController;
+use Carbon\Carbon;
+
 class InvoiceHistory extends Authenticatable
 {
     use Notifiable;
@@ -26,9 +28,8 @@ class InvoiceHistory extends Authenticatable
     public function getAddedDateAttribute(){
         if(isset(auth()->user()->user_timezone) && $this->created_at!=null) 
         {
-            // $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
-            $pDate = @convertUTCToUserDate(date('Y-m-d', strtotime($this->created_at)), auth()->user()->user_timezone ?? 'UTC');
-            // return date('M j, Y h:i a',strtotime($userTime));
+            $pDate = Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at, "UTC");
+            $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
             return $pDate->format("M d, Y");
         }else{
             return null;

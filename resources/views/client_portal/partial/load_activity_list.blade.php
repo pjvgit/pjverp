@@ -29,7 +29,7 @@
 </li>
 @elseif($item->type == "event")
 <li class="list-row">
-    <a href="{{ route('client/events/detail', encodeDecodeId($item->event_id, 'encode')) }}">
+    <a href="{{ route('client/events/detail', base64_encode($item->event_id)) }}">
         <i class="far fa-calendar-minus list-row__icon"></i>
         <div class="list-row__body">
             <span class="list-row__wrappable-content">{{ @$item->createdByUser->full_name}} {{ $item->activity }}

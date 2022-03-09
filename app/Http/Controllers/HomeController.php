@@ -200,21 +200,18 @@ class HomeController extends BaseController
         $CaseLeadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.id","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))->where("users.firm_name",Auth::user()->firm_name)->groupBy('case_staff.lead_attorney')->get();
 
         //Get 15 upcoming events for dashboard
-        $upcomingTenEvents = collect([]);
+        // $upcomingTenEvents = collect([]);
         /* $upcomingTenEvents=CaseEvent::where('start_date','>=',date('Y-m-d'))
                 ->whereHas('eventLinkedStaff', function($query) {
                     $query->where('users.id', auth()->id());
                 })
                 ->orderBy("start_date", "ASC")->with("case", "leadUser", 'eventLinkedStaff')->limit(15)->get(); */
-        /* $upcomingTenEvents = EventRecurring::whereDate("start_date", ">=", Carbon::now())
-                            // ->where('event_linked_staff->user_id', auth()->id())
-                            // ->whereJsonContains('event_linked_staff->user_id', auth()->id())
-                            // ->whereJsonContains("event_linked_staff->user_id", [auth()->id()])
-                            // ->whereJsonContains('event_linked_staff', ['user_id' => auth()->id()])
-                            // ->whereRaw("JSON_CONTAINS(event_linked_staff, 1, 'user_id') = 1")
-                            // ->whereRaw("JSON_CONTAINS(event_linked_staff[user_id], '[1]' )")
+        $authUserId = (string) auth()->id();
+        $upcomingTenEvents = EventRecurring::whereDate("start_date", ">=", Carbon::now())
+                            // ->whereJsonContains('event_linked_staff->user_id', "1")
+                            ->whereJsonContains('event_linked_staff', ["user_id" => $authUserId])
                             ->has('event')
-                            ->orderBy("start_date", "asc")->with("event", "event.case", "event.leadUser")->limit(15)->get(); */
+                            ->orderBy("start_date", "asc")->with("event", "event.case", "event.leadUser")->limit(15)->get();
 
         //Get 15 upcoming task for dashboard
         $upcomingTask=Task::leftJoin('case_master','case_master.id','=','task.case_id')->leftJoin('users','users.id','=','task.lead_id')
