@@ -33,6 +33,7 @@ use Exception;
 use App\Http\Controllers\CommonController;
 use App\RequestedFundOnlinePayment;
 use App\UserTrustCreditFundOnlinePayment;
+use Carbon\Carbon;
 
 class ClientdashboardController extends BaseController
 {
@@ -955,10 +956,11 @@ class ClientdashboardController extends BaseController
                 return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
             })
             ->editColumn('payment_date', function ($data) {
-                // return $data->payment_date ?? "--";
                 if($data->payment_date) {
                     // $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone ?? 'UTC');
-                    $pDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',@$data->payment_date.' 00:00:00',auth()->user()->user_timezone ?? 'UTC');
+                    // $pDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',@$data->payment_date.' 00:00:00',auth()->user()->user_timezone ?? 'UTC');
+                    $pDate = Carbon::createFromFormat('Y-m-d', $data->payment_date, "UTC");
+                    $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
                     if ($pDate->isToday()) {
                         return "Today";
                     } else if($pDate->isYesterday()) {

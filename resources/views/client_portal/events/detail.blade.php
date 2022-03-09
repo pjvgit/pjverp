@@ -6,52 +6,59 @@
         <div class="event-detail">
             <div class="detail-view__header">
                 <div class="truncatable-text">
-                    <div class="truncatable-text__content">{{ $event->event_title }}</div><i class="truncatable-text__icon"></i></div>
+                    <div class="truncatable-text__content">{{ $event->event_title ?? "<No Title>" }}</div><i class="truncatable-text__icon"></i></div>
             </div>
             <div class="event-detail__info">
+                @php
+                    $userTimezone = $authUser->user_timezone;
+                    $startDateTime= convertUTCToUserTime($eventRecurring->start_date.' '.$event->start_time, $userTimezone ?? 'UTC');
+                    $endDateTime= convertUTCToUserTime($eventRecurring->end_date.' '.$event->end_time, $userTimezone ?? 'UTC');
+                    $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('F d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "";
+                @endphp
                 <div class="event-detail__info-row">
                     <i class="fas fa-calendar-day list-row__icon"></i>
-                    <span>{{date('D, M jS Y',strtotime($event->start_date_time))}} - {{date('D, M jS Y',strtotime($event->end_date_time))}}</span>
+                    <span>{{date('D, M jS Y',strtotime($startDateTime))}} - {{date('D, M jS Y',strtotime($endDateTime))}}</span>
                 </div>
                 <div class="event-detail__info-row">
                     <i class="far fa-clock list-row__icon"></i>
-                    <div>{{date('h:i A',strtotime($event->start_date_time))}} - {{date('h:i A',strtotime($event->end_date_time))}}
-                    <br>
-                    @php
-                        $startDate = strtotime($event->start_date);
-                        $day = date("l", $startDate);
-                    @endphp
-                    @if($event->event_frequency=='DAILY')
-                        <div><b>Repeats:</b> Daily</div>
-                    @elseif($event->event_frequency=='EVERY_BUSINESS_DAY')
-                        <div><b>Repeats:</b> Weekly on Weekdays</div>
-                    @elseif($event->event_frequency=='CUSTOM')
-                        <div><b>Repeats:</b> Weekly {{ ($event->end_on) ? 'until '. date('F d, Y', strtotime($event->end_on)) : '' }} on {{ $day }}</div>
-                    @elseif($event->event_frequency=='WEEKLY')
-                        <div><b>Repeats:</b> Weekly {{ ($event->end_on) ? 'until '. date('F d, Y', strtotime($event->end_on)) : '' }} on {{ $day }}</div>
-                    @elseif($event->event_frequency=='MONTHLY')
-                        <div><b>Repeats:</b> Monthly {{ ($event->end_on) ? 'until '. date('F d, Y', strtotime($event->end_on)) : '' }} on the 
-                            @if($event->monthly_frequency == "MONTHLY_ON_THE")
-                            {{ date("w", $startDate).date("S", mktime(0, 0, 0, 0, date("w", $startDate), 0)) }} {{ $day }}
-                            @elseif($event->monthly_frequency == "MONTHLY_ON_THE_LAST")
-                                last {{ $day }}
+                    <div>
+                        {{date('h:i A',strtotime($event->startDateTime))}} - {{date('h:i A',strtotime($event->endDateTime))}}
+                        <br>
+                        <div><b>Repeats:</b>
+                            @if($event->event_recurring_type=='DAILY')
+                                {{ ($event->event_interval_day > 1) ? "Every ".$event->event_interval_day." days" : "Daily" }} {{ $endOnDate }}
+                            @elseif($event->event_recurring_type=='EVERY_BUSINESS_DAY')
+                                Weekly {{ $endOnDate }} on Weekdays
+                            @elseif($event->event_recurring_type=='CUSTOM')
+                                {{ ($event->event_interval_week > 1) ? "Every ".$event->event_interval_week." weeks" : "Weekly" }} {{ $endOnDate }} on {{ implode(", ", $event->custom_event_weekdays) }}
+                            @elseif($event->event_recurring_type=='WEEKLY')
+                                Weekly {{ $endOnDate }} on {{ date('l', strtotime($eventRecurring->start_date))."s" }}
+                            @elseif($event->event_recurring_type=='MONTHLY')
+                                {{ ($event->event_interval_month > 1) ? "Every ".$event->event_interval_month." months " : "Monthly" }} {{ $endOnDate }}
+                                @if($event->monthly_frequency == "MONTHLY_ON_DAY")
+                                    {{ "on the ".date("jS", strtotime($eventRecurring->user_start_date))." day of the month" }}
+                                @elseif($event->monthly_frequency == "MONTHLY_ON_THE")
+                                    @php
+                                        $day = ceil(date('j', strtotime($eventRecurring->start_date)) / 7);
+                                    @endphp
+                                    {{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".date('l', strtotime($eventRecurring->start_date)) }}
+                                @else
+                                @endif
+                            @elseif($event->event_recurring_type=='YEARLY')
+                                {{ ($event->event_interval_year > 1) ? "Every ".$event->event_interval_year." years " : "Yearly" }} {{ $endOnDate }}
+                                @if($event->yearly_frequency == "YEARLY_ON_DAY")
+                                    {{ "in ".date("F", strtotime($eventRecurring->user_start_date))." on the ".date("jS", strtotime($eventRecurring->user_start_date))." day of the month" }}
+                                @elseif($event->yearly_frequency == "YEARLY_ON_THE")
+                                    @php
+                                        $day = ceil(date('j', strtotime($eventRecurring->start_date)) / 7);
+                                    @endphp
+                                    {{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".date('l', strtotime($event->start_date))." in ".date("F", strtotime($eventRecurring->user_start_date)) }}
+                                @else
+                                @endif
                             @else
-                                {{ date('jS', $startDate) }} day of month
+                                Never
                             @endif
                         </div>
-                    @elseif($event->event_frequency=='YEARLY')
-                        <div><b>Repeats:</b> Yearly {{ ($event->end_on) ? 'until '. date('F d, Y', strtotime($event->end_on)) : '' }} 
-                            @if($event->yearly_frequency == "YEARLY_ON_THE")
-                                on the {{ date("w", $startDate).date("S", mktime(0, 0, 0, 0, date("w", $startDate), 0)) }} {{ $day }} in {{ date('F', $startDate)}}
-                            @elseif($event->yearly_frequency == "YEARLY_ON_THE_LAST")
-                                on the last {{ $day }} in {{ date('F', $startDate)}}
-                            @else
-                                in {{ date('F', $startDate)}} on the {{ date('jS', $startDate) }} day of the month
-                            @endif
-                        </div>
-                    @else
-                        <div><b>Repeats:</b> Never</div>
-                    @endif
                     </div>
                 </div>
                 <div class="event-detail__info-row">
@@ -79,8 +86,11 @@
                 <div class="event-detail__info-row">
                     <i class="far fa-clock list-row__icon"></i>
                     <div class="event-reminder">
-                        @forelse ($event->clientReminder as $erkey => $eritem)
-                            <div>{{ ucfirst($eritem->reminder_type) }} me {{ $eritem->reminer_number}} {{ $eritem->reminder_frequncy}} before event</div>
+                        @php
+                            $eventReminders = encodeDecodeJson($eventRecurring->event_reminders);
+                        @endphp
+                        @forelse ($eventReminders as $erkey => $eritem)
+                            <div>{{ ucfirst($eritem->reminder_type) }} {{ $eritem->reminder_user_type }} {{ $eritem->reminer_number}} {{ $eritem->reminder_frequncy}} before event</div>
                         @empty
                         @endforelse
                     </div>
@@ -97,6 +107,7 @@
                     <form method="POST" action="javascript:void(0);" data-action="{{ route('client/events/save/comment') }}" id="event_comment_form">
                         @csrf
                         <input type="hidden" name="event_id" value="{{ $event->id }}" id="event_id">
+                        <input type="hidden" name="event_recurring_id" value="{{ $eventRecurring->id }}" id="event_recurring_id">
                         <div class="form-input is-required">
                             <textarea id="event_comment" name="message" class="form-control text-composer__textarea required" rows="2" placeholder="Add Comment"></textarea>
                         </div>
@@ -153,10 +164,11 @@ $("#event_comment_form").validate({
 
 function loadCommentHistory() {
     var eventId = $("#event_id").val();
+    var eventRecurringId = $("#event_recurring_id").val();
     $.ajax({
         url: baseUrl+"/client/events/comment/history",
         type: "GET",
-        data: {event_id: eventId},
+        data: {event_id: eventId, event_recurring_id: eventRecurringId},
         success: function( response ) {
             if(response.view != '') {
                 $("#event_comment_history").html(response.view);

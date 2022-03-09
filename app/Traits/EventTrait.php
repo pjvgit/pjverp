@@ -117,6 +117,7 @@ trait EventTrait {
                         'lead_id' => $request['LeadInviteClientCheckbox'][$i],
                         'attending' => $attend,
                         'invite' => 'yes',
+                        'is_view' => 'no',
                         'created_by' => $authUserId,
                     ];
                 }
@@ -145,6 +146,7 @@ trait EventTrait {
                         'contact_id' => $request['ContactInviteClientCheckbox'][$i],
                         'attending' => $attend,
                         'invite' => 'yes',
+                        'is_view' => 'no',
                         'created_by' => $authUserId,
                     ];
                 }

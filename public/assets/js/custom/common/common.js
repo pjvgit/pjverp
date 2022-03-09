@@ -1,8 +1,8 @@
-// popupNotification();
+popupNotification();
 
 // Schedule the next request when the current one's complete
 setInterval(function() {
-    // popupNotification();
+    popupNotification();
 }, (1000 * 60 * 1));
 
 function popupNotification() {

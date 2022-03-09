@@ -11,9 +11,16 @@ class EventRecurring extends Model
     protected $fillable = [
         'id', 'event_id', 'start_date', 'end_date', 'event_reminders', 'event_comments', 'event_linked_staff', 'event_linked_contact_lead'
     ];    
-    protected $appends  = ['user_start_date', 'user_end_date'];
+    protected $appends  = ['decode_id', 'user_start_date', 'user_end_date', 'is_view'];
 
     // protected $casts = ['event_reminders' => 'array', 'event_comments' => 'array',];
+
+    /**
+     * Get decoded id of event
+     */
+    public function getDecodeIdAttribute(){    
+        return base64_encode($this->id);
+    }
 
     /**
      * Get start date in user timezone
@@ -37,5 +44,15 @@ class EventRecurring extends Model
     public function event()
     {
         return $this->belongsTo(Event::class, 'event_id');
+    }
+
+    /**
+     * Check event is viewed by client attribute
+     */
+    public function getIsViewAttribute()
+    {
+        $authUserId = auth()->id();
+        $decodeJson = encodeDecodeJson($this->event_linked_contact_lead)->where("contact_id", $authUserId)->first();
+        return $decodeJson->is_view ?? "no";
     }
 }

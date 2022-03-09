@@ -3986,7 +3986,7 @@ class CaseController extends BaseController
             $event = Event::whereId($request->event_id)->first(); 
             $data=[];
             $data['event_for_case'] = $event->case_id;
-            $data['event_id'] = $event->id;
+            $data['event_id'] = $eventRecurring->id;
             $data['event_name'] = $event->event_title;
             $data['user_id'] = $authUser->id;
             $data['activity']='commented on event';

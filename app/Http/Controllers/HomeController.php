@@ -206,13 +206,10 @@ class HomeController extends BaseController
                     $query->where('users.id', auth()->id());
                 })
                 ->orderBy("start_date", "ASC")->with("case", "leadUser", 'eventLinkedStaff')->limit(15)->get(); */
+        $authUserId = (string) auth()->id();
         /* $upcomingTenEvents = EventRecurring::whereDate("start_date", ">=", Carbon::now())
-                            // ->where('event_linked_staff->user_id', auth()->id())
-                            // ->whereJsonContains('event_linked_staff->user_id', auth()->id())
-                            // ->whereJsonContains("event_linked_staff->user_id", [auth()->id()])
-                            // ->whereJsonContains('event_linked_staff', ['user_id' => auth()->id()])
-                            // ->whereRaw("JSON_CONTAINS(event_linked_staff, 1, 'user_id') = 1")
-                            // ->whereRaw("JSON_CONTAINS(event_linked_staff[user_id], '[1]' )")
+                            // ->whereJsonContains('event_linked_staff->user_id', "1")
+                            ->whereJsonContains('event_linked_staff', ["user_id" => $authUserId])
                             ->has('event')
                             ->orderBy("start_date", "asc")->with("event", "event.case", "event.leadUser")->limit(15)->get(); */
 
