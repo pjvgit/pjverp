@@ -288,14 +288,22 @@
             }
         });
         
+        var ct = 0; 
+        console.log("auto_logout > AuthSessionTime > "+ localStorage.getItem("AuthSessionTime"));
+        if(localStorage.getItem("AuthSessionTime")){
+            localStorage.setItem("AuthSessionTime",  parseInt(localStorage.getItem("AuthSessionTime")) + 1)
+        }else{
+            localStorage.setItem("AuthSessionTime", 0)
+        }
+        
         // Show idle timeout warning dialog.
         function IdleWarning() {
-         $("#timeoutPopup").modal("show");
+            $("#timeoutPopup").modal("show");
         }
         // Logout the user.
         function IdleTimeout() {
             // $("#logout-form").submit();
-            window.location = baseUrl + '/autologout';
+            window.location = baseUrl + '/autologout';    
         }
 
         function ResetTimers(){
@@ -306,24 +314,33 @@
         console.log("auto_logout > dont_logout_while_timer_runnig > " + dont_logout_while_timer_runnig);
         <?php if(Auth::User()->auto_logout=="on"){?>
         if (localStorage.getItem("pauseCounter") == "no"){
-            console.log("auto_logout > on ");
+        console.log("auto_logout > on ");
         $(document).ready(function () {
+            //----------------------------------------------------------------------------------
             setTimeout(function(){
                 IdleWarning();
             }, {{(Auth::User()->sessionTime * 60000) - 50000}}); //
+            
             var counter = 50;
             $("#ReminingTimeForLogout").html(counter);
+            
             setTimeout(function(){
                 var interval = setInterval(function () {
                     counter--;
                     $("#ReminingTimeForLogout").html(counter);
                     if (counter == 0) {
-                        IdleTimeout();
-                        clearInterval(interval);
+                        if(localStorage.getItem("AuthSessionTime") == 0){
+                            localStorage.removeItem('AuthSessionTime');
+                            IdleTimeout();
+                            clearInterval(interval);
+                        }else{
+                            localStorage.removeItem('AuthSessionTime');
+                            window.location.reload();
+                        }
                     }
                 }, 1000);
-            }, {{(Auth::User()->sessionTime * 60000)-50000}}); //{{Auth::User()->sessionTime * 60000}}
-            
+            }, {{(Auth::User()->sessionTime * 60000) - 50000}}); //{{Auth::User()->sessionTime * 60000}}
+            //----------------------------------------------------------------------------------
             $('#timeoutPopup').on('hidden.bs.modal', function () {
                 window.location.reload();
             });

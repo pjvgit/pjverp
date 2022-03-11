@@ -3352,7 +3352,7 @@ $nonBillableAmount = 0;
             'clearBtn': false,
             'todayHighlight': true
         }).on('change',function(selected){
-            if($(this).val()){
+            if($(this).val() && localStorage.getItem("showWarning") > 0 ){
                 swal({
                     title: 'warning',
                     text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",

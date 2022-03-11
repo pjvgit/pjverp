@@ -976,6 +976,8 @@ function getClientCases(clientId) {
                 
                 if( parseFloat($("#selectContactUnallocatedAmount").html()) <  0.01){
                     $("#allocation-alert-section").hide();
+                }else{
+                    $("#allocation-alert-section").show();
                 }
                 optgroup += "<optgroup label='UNALLOCATED'>";
                 optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.unallocatedTrustBalance.toFixed(2)+")" + "</option>";

@@ -1411,17 +1411,7 @@ class BillingController extends BaseController
          ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
         //  ->where("invoices.created_by",Auth::user()->id);
          ->where("invoices.firm_id", $authUser->firm_name);
-        if(auth()->user()->parent_user != 0) {
-            $Invoices = $Invoices->whereHas('case.caseStaffAll', function($query) use($authUser){
-                $query->where('user_id', $authUser->id);
-            })
-            ->orWhere("invoices.created_by", $authUser->id);
-        }
-      
-         if(isset($requestData['type']) && in_array($requestData['type'],['unsent','sent','partial','forwarded','draft','paid','overdue'])){
-            $Invoices = $Invoices->where("invoices.status",ucfirst($requestData['type']));
-         }
-      
+         
          if(isset($requestData['global_search']) && $requestData['global_search']!=""){
             $MixVal=explode("-",$requestData['global_search']);
             $serachOn=base64_decode($MixVal[1]);
@@ -1439,7 +1429,19 @@ class BillingController extends BaseController
                 $AllIDs=explode(",",$InvoiceBatch['invoice_id']);
                 $Invoices = $Invoices->whereIn("invoices.id",$AllIDs);
             }
+         }else{
+        
+            if(auth()->user()->parent_user != 0) {
+                $Invoices = $Invoices->whereHas('case.caseStaffAll', function($query) use($authUser){
+                    $query->where('user_id', $authUser->id);
+                });
+                $Invoices = $Invoices->orWhere("invoices.created_by", $authUser->id);
+            }
+        }
+         if(isset($requestData['type']) && in_array($requestData['type'],['unsent','sent','partial','forwarded','draft','paid','overdue'])){
+            $Invoices = $Invoices->where("invoices.status",ucfirst($requestData['type']));
          }
+               
         // return $columns[$requestData['order'][0]['column']];
         //  $Invoices = $Invoices->where("invoices.is_lead_invoice",'no');
          $totalData=$Invoices->count();
@@ -5504,7 +5506,7 @@ class BillingController extends BaseController
                 // $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
                 // $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
                 $files = [Storage::path("download/pdf/Invoice_".$invoice_id.".pdf")];
-                // $sendEmail = $this->sendMailWithAttachment($user,$files);
+                $sendEmail = $this->sendMailWithAttachment($user,$files);
                 
                 $invoiceHistory=[];
                 $invoiceHistory['invoice_id']=$invoice_id;
@@ -10739,6 +10741,18 @@ class BillingController extends BaseController
     }
 
     public function saveforwardInvoiceCheck(Request $request){
+        $action = $request->action;
+        if($action != ''){
+            if($request->page == 'edit'){
+                if($request->is_check == 'no'){
+                    DB::statement("DELETE FROM `invoice_forwarded_invoices` WHERE `forwarded_invoice_id` = '".$request->id."' LIMIT 1;");
+                }else{               
+                    DB::statement("INSERT INTO `invoice_forwarded_invoices` (`invoice_id`, `forwarded_invoice_id`) values ('".base64_decode($request->token_id) ."', '".$request->id."')");
+                }
+                // update status
+                $this->updateInvoiceAmount($request->id);
+            }
+        }else{
         $totalTime = str_replace(",","",$request->due); 
         $InvoiceAdjustment = InvoiceAdjustment::where('ad_type','percentage')->where('case_id', $request->case_id)->where('token',$request->token_id)->get();  
         if(count($InvoiceAdjustment) > 0){
@@ -10784,6 +10798,7 @@ class BillingController extends BaseController
                 }
             }
         } 
+        }
         return response()->json(['status' => "no adjustment record"]);
     }
 

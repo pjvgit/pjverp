@@ -295,6 +295,7 @@
     } ?>
 
 <script>
+$(document).ready(function () {   
 $('[data-toggle="tooltip"]').tooltip();
 
 $(".show-history-btn").click(function () {
@@ -316,4 +317,5 @@ $(".single-bill-invoice-history").show();
 $(".bill-invoice-history").hide();
 $(".close-history-btn").hide();
 $(".show-history-btn").show();
+});
 </script>

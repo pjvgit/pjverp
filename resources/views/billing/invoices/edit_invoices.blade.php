@@ -120,12 +120,12 @@ $nonBillableAmount = 0;
                                                     }
                                                     ?>
                                                     @if(in_array($findInvoice->case_id, $clientCasesList))
-                                                    <select onchange="changeCase()"   name="court_case_id" id="court_case_id"
+                                                    <select name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>
-                                                        <option value="none" <?php if($case_id=="none"){ echo "selected=selected";} ?>>None</option>
+                                                        <option value="none" <?php if($case_id=="none"){ echo "selected=selected";}else{ echo "disabled=disabled";} ?>>None</option>
                                                         <?php foreach($caseListByClient as $key=>$val){ ?>
-                                                        <option value="{{$val->id}}" <?php if($val->id==$findInvoice->case_id){ echo "selected=selected";} ?>  > 
+                                                        <option value="{{$val->id}}" <?php if($val->id==$findInvoice->case_id){ echo "selected=selected";}else{ echo "disabled=disabled";} ?>  > 
                                                             {{substr($val->case_title,0,200)}}
                                                         </option>
                                                         <?php } ?>
@@ -4574,6 +4574,7 @@ $nonBillableAmount = 0;
         }
         $("#final_total").text(finaltotal.toFixed(2));
         $("#final_total_text").val(finaltotal.toFixed(2));
+        $("#final_total_amount").val(finaltotal.toFixed(2));
         localStorage.setItem('forwarded_invoices', JSON.stringify(arr));
 
         if($("#forwardedInvoicesAdjustment").val() > 0){
@@ -4584,9 +4585,22 @@ $nonBillableAmount = 0;
             $.ajax({
                 url: baseUrl+"/bills/invoices/save/forwardInvoice/check",
                 type: "GET",
-                data: {case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due, page:'edit'},
+                data: {action:'',case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due, page:'edit'},
                 success: function(data) {
                     window.location.reload();
+                }
+            });
+        }else{
+            $("#preloader").show();
+            var id = $(this).val();
+            var token_id = $(this).attr("data-token_id");
+            var case_id = $("#court_case_id").val();
+            $.ajax({
+                url: baseUrl+"/bills/invoices/save/forwardInvoice/check",
+                type: "GET",
+                data: {action:'uncheckinvoice', case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due, page:'edit'},
+                success: function(data) {
+                    $("#preloader").hide();
                 }
             });
         }
@@ -4620,6 +4634,8 @@ $nonBillableAmount = 0;
         $("#forwarded_total_text").val(lineTotal.toFixed(2));
         $("#final_total").text(finaltotal.toFixed(2));
         $("#final_total_text").val(finaltotal.toFixed(2));
+        $("#final_total_amount").val(finaltotal.toFixed(2));       
+
 
         if($("#forwardedInvoicesAdjustment").val() > 0){
             $("#preloader").show();
