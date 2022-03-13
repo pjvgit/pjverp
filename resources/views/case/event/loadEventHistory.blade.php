@@ -2,14 +2,14 @@
 $userTypes = unserialize(USER_TYPE);
  if(count($commentData) > 0){
      foreach ($commentData as $key => $value) {
-         if($value->action_type=="1"){
+         if($value->action_type == "1" && $value->updated_by != ""){
         ?>
         <div class="history-item row ">
             <div class="history-date col-4">
                 <p class="date-string">
                     <?php 
-                    $createdByUser = getUserDetail($value->created_by);
-                    $OwnDate = convertUTCToUserTime(date('Y-m-d H:i:s', strtotime($value->created_at)), Auth::User()->user_timezone);?>
+                    $createdByUser = getUserDetail($value->updated_by);
+                    $updateDate = convertUTCToUserTime(date('Y-m-d H:i:s', strtotime($value->created_at)), Auth::User()->user_timezone);?>
                     {{date('D, M jS Y',strtotime($updateDate))}}<br>
                     {{date('h:ia',strtotime($updateDate))}}</p>
             </div>
@@ -24,7 +24,7 @@ $userTypes = unserialize(USER_TYPE);
             </div>
         </div>
     <?php
-         }else{
+         }else if($value->action_type == "0") {
      ?>
 <div class="history-item row ">
     <div class="history-date col-4">

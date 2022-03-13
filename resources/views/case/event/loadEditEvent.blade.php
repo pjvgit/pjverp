@@ -133,7 +133,7 @@
                                     <?php 
                                     $time=date('H:i',strtotime($currentDateTime));
                                     $new_time= date('H:i', strtotime($time.'+1 hour')); ?>
-                                    <input class="form-control  input-time input-start" id="start_time" value="{{date('h:i A',strtotime($evetData->start_date_time))}}" name="start_time" type="text" placeholder="">
+                                    <input class="form-control  input-time input-start" id="start_time" value="{{date('h:i A',strtotime($evetData->user_start_time))}}" name="start_time" type="text" placeholder="">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3 pt-2">
@@ -154,7 +154,7 @@
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
-                                    <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($evetData->end_date_time))}}" name="end_time" type="text" placeholder="">
+                                    <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($evetData->user_end_time))}}" name="end_time" type="text" placeholder="">
                                 </div>
                                 
                             </div>

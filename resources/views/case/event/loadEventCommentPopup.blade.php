@@ -218,16 +218,16 @@
     <div class="action-buttons">
         <div>
             @can('delete_items')
-            <?php if($event->parent_evnt_id=="0"){ ?>
-                    <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
+            <?php if(empty($event->parent_event_id) || $event->edit_recurring_pattern == "single event"){ ?>
+                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
                         data-placement="bottom" href="javascript:;"
-                        onclick="deleteEventFromCommentFunction({{$event->id}},'single');">
+                        onclick="deleteEventFunction({{$eventRecurring->id}}, {{$event->id}},'single');">
                         <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button> 
                     </a>
             <?php }else{ ?>
-                    <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
+                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
                     data-placement="bottom" href="javascript:;"
-                    onclick="deleteEventFromCommentFunction({{$event->id}},'multiple');">
+                    onclick="deleteEventFunction({{$eventRecurring->id}}, {{$event->id}},'multiple');">
                     <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button>
                     </a>
             <?php } ?>
@@ -391,7 +391,9 @@ body >
         $("#linkArea").hide();
         $("#editorArea").show();
     }
-    function deleteEventFromCommentFunction(id,types) {
+
+    // Duplicate code, make common code
+    /* function deleteEventFromCommentFunction(id,types) {
   
       if(types=='single'){
             $("#deleteSingleEvent").text('Delete Event');
@@ -413,6 +415,6 @@ body >
                 }
             })
         })
-    }
+    } */
 
 </script>

@@ -108,9 +108,10 @@ if(isset($_GET['upcoming_events'])){
                                     if($item->event->start_time==NULL || $item->event->end_time==NULL && $item->event->is_all_day == "yes"){
                                         echo "All Day";
                                     }else{                        
-                                        echo date('h:i A',strtotime($item->event->start_date_time));
-                                        echo "-";
-                                        echo date('h:i A',strtotime($item->event->end_date_time));
+                                        echo $item->event->user_start_time;
+                                        echo " - ";
+                                        echo (strtotime($item->start_date) != strtotime($item->end_date)) ? $item->user_end_date->format("M d").", " : "";
+                                        echo $item->event->user_end_time;
                                     }
                                     @endphp
                                     </div>
@@ -268,7 +269,7 @@ if(isset($_GET['upcoming_events'])){
                                         @endcan
                                         @can(['case_add_edit','delete_items'])
                                         <?php 
-                                        if($item->parent_evnt_id=="0"){
+                                        if(empty($item->event->parent_event_id) || $item->event->edit_recurring_pattern == "single event"){
                                             ?>
                                             <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
                                             data-placement="bottom" href="javascript:;"
@@ -319,7 +320,7 @@ if(isset($_GET['upcoming_events'])){
     </div>
 </div>
 
-<div id="deleteEvent" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+<div id="deleteEvent" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -366,7 +367,7 @@ if(isset($_GET['upcoming_events'])){
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteSingle">Set Event Reminders</h5>
+                <h5 class="modal-title">Set Event Reminders</h5>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">×</span></button>
             </div>
@@ -387,7 +388,7 @@ if(isset($_GET['upcoming_events'])){
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteSingle">Set Event Reminders</h5>
+                <h5 class="modal-title">Set Event Reminders</h5>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">×</span></button>
             </div>
@@ -403,7 +404,8 @@ if(isset($_GET['upcoming_events'])){
     </div>
 </div>
 
-<div id="deleteFromCommentBox" class="modal fade modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+{{-- Duplicate code, Made common code --}}
+{{-- <div id="deleteFromCommentBox" class="modal fade modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -421,11 +423,13 @@ if(isset($_GET['upcoming_events'])){
 
         </div>
     </div>
-</div>
+</div> --}}
 
 @include('calendar.partials.load_grant_access_modal')
 
-<style> .modal { overflow: auto !important; }</style>
+<style> 
+.modal { overflow: auto !important; } 
+</style>
 
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\calendar\listevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
@@ -438,12 +442,7 @@ if(isset($_GET['upcoming_events'])){
                 $("#upcoming_event").val('off');
             }
             $('#submit').click();
-            // tab1Page = 1;
-            // loadMoreEvent(tab1Page, filter = 'true');
         });
-
-        // For load more events
-        // loadMoreEvent(1, filter = null);
     });
     /* $('#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
         // $("#preloader").show();

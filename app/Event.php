@@ -15,14 +15,14 @@ class Event extends Model
         'custom_event_weekdays', 'is_no_end_date', 'end_on', 'is_event_read', 'recurring_event_end_date', 'firm_id', 'created_by', 'updated_by', 
         'edit_recurring_pattern', 'event_interval_month', 'event_interval_year', 'monthly_frequency', 'yearly_frequency', 'event_interval_week'
     ];    
-    protected $appends  = ['decode_id',/* 'start_time_user','end_time_user', *//* 'start_date_time','end_date_time', */ 'user_start_date', 'user_end_date'];
+    protected $appends  = ['decode_id','user_start_time','user_end_time',/* 'start_date_time','end_date_time', */ 'user_start_date', 'user_end_date'];
     protected $casts = ["custom_event_weekdays" => 'array'];
     public function getDecodeIdAttribute(){
          
         return base64_encode($this->id);
     }  
     
-    /* public function getStartTimeUserAttribute(){
+    public function getUserStartTimeAttribute(){
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
@@ -32,16 +32,16 @@ class Event extends Model
             return "";
         }
     }
-    public function getEndTimeUserAttribute(){
+    public function getUserEndTimeAttribute(){
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->end_time!=''){
-            $tm=$this->start_date . $this->end_time;
+            $tm=$this->end_date . $this->end_time;
             $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('h:ia',strtotime($currentConvertedDate));
         }else{
             return "";
         }
-    } */
+    }
 
     /* public function getStartDateTimeAttribute(){
         if($this->start_time!=''){
