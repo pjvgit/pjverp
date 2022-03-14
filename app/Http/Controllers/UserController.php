@@ -573,9 +573,10 @@ class UserController extends BaseController
         $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
-            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'profile_image' => 'required|mimes:jpeg,png,jpg,gif,svg|max:4096',
         ],[
             'profile_image.required' => 'Please select a file to upload',
+            'profile_image.mimes' => 'File Type must be in jpeg,jpg,png,gif,svg',
         ]);
 
         if ($validator->fails()) {
@@ -594,7 +595,8 @@ class UserController extends BaseController
                     // unlink($storeImageFullPath);
                 }
                 $image = $request->file('profile_image');
-                $image_name = Str::slug($user->id)."_".date('Ymdhis').'.'.$image->getClientOriginalExtension();
+                $image_name = Str::slug($user->id)."_".date('Ymdhis').'.'.$image->extension();
+                // $image_name = Str::slug($user->id)."_".date('Ymdhis').'.'.$image->getClientOriginalExtension();
                 $resize_image = Image::make($image->getRealPath())->save($destinationPath . '/' . $image_name);
                 // $resize_image->resize(160, 160, function($constraint){
                 // })->save($destinationPath . '/' . $image_name);

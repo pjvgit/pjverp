@@ -178,7 +178,15 @@
                     number: true
                 },
                 duration_field: {
-                    required: true,
+                    required: {
+                        depends: function (element) {
+                            var status = true;
+                            if ($("#rate_type_field_id option:selected").val() == "flat") {
+                                var status = false;
+                            }
+                            return status;
+                        }
+                    },
                     min: 0.1,
                     number: true
                 }

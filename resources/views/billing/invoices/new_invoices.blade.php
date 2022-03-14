@@ -3651,13 +3651,9 @@ $nonBillableAmount = 0;
     }
 
     var contact =  $("#contact").val()
-    $("#contact").on("change", function() {
-        $("#preloader").show();
-        // alert($(this).val());
-        var URLS=baseUrl+'/bills/invoices/load_new?contact='+$(this).val();
-        window.location.href=URLS;
-        return true;
-        if(localStorage.getItem("showWarning") > 0){
+    $("#contact").on("change", function() {        
+        if(localStorage.getItem("showWarning") > 0 && contact != $(this).val()){
+            var ct = $(this).val();
             swal({
                 title: 'warning',
                 text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
@@ -3671,14 +3667,18 @@ $nonBillableAmount = 0;
                 cancelButtonClass: 'btn btn-danger  mr-2',
                 buttonsStyling: false,
                 reverseButtons: true
-            }).then(function(isConfirm){
+            }).then(function(isConfirm) {
                 if (isConfirm){
-                    $('#adjustment_delete').val('1');
-                    $("#court_case_id").val('');
-                    changeCase();
+                    $("#preloader").show();
+                    var URLS=baseUrl+'/bills/invoices/load_new?contact='+ct;
+                    window.location.href=URLS;
+                    return true;
+                    // $('#adjustment_delete').val('1');
+                    // $("#court_case_id").val('');
+                    // changeCase();
                 }
             }, function (dismiss) {
-                $("#contact").val(contact);
+                $("#contact").val(contact).trigger('change');
             });
         }else{
             if(contact != $(this).val()){

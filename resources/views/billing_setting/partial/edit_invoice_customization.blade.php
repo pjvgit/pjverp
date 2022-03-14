@@ -1,7 +1,7 @@
 <form class="edit-invoice-display-preferences-form" id="customization_form" method="POST" action="{{ route('billing/settings/update/customization') }}">
     @csrf
     <input type="hidden" name="id" value="{{ @$customize->id }}">
-    <div class="row py-2">
+    <div class="row py-2" bladefile="resources/views/billing_setting/partial/edit_invoice_customization.blade.php">
         <div class="col-3">Invoice Theme</div>
         <div class="col-9 mb-6 pb-2">
             <div class="row">

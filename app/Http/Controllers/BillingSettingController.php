@@ -130,6 +130,8 @@ class BillingSettingController extends BaseController
                     ]);
                 }
             }
+        }else{
+            InvoiceCustomizationSettingColumn::where('firm_id', $authUser->firm_name)->forceDelete();
         }       
 
         return view("billing_setting.partial.view_invoice_customization", compact('customize'));
