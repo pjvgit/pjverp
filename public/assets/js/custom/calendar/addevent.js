@@ -155,3 +155,68 @@ function loadDefaultEventReminder() {
         }
     });
 }
+
+function loadAddEventPopup() {
+    $("#AddEventPage").html('Loading...');
+    $("#preloader").show();
+    $(function () {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadAddEventPage", // json datasource
+            data: {
+                "case_id": $("#case_id").val()
+            },
+            success: function (res) {
+                $("#AddEventPage").html('Loading...');
+                $("#AddEventPage").html(res);
+                $("#preloader").hide();
+            }
+        })
+    })
+}
+
+/**
+ * Load event detail/comment popup 
+ */
+function loadEventComment(event_id, event_recurring_id) {
+    $("#loadCommentPopup").modal('show');
+    $("#eventCommentPopup").html('Loading...');
+    $("#preloader").show();
+    $(function () {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadEventCommentPopup", // json datasource
+            data: {
+                "event_id": event_id, event_recurring_id: event_recurring_id,
+            },
+            success: function (res) {
+                $("#eventCommentPopup").html('Loading...');
+                $("#eventCommentPopup").html(res);
+                $("#preloader").hide();
+            }
+        })
+    })
+}
+
+/**
+ * Load event reminder popup from event listing 
+ */
+function loadEventReminderPopup(event_id, event_recurring_id) {
+    $("#eventReminderData").html('Loading...');
+    $("#preloader").show();
+    $(function () {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadEventReminderPopup", // json datasource
+            data: {
+                "event_id": event_id, event_recurring_id: event_recurring_id,
+            },
+            success: function (res) {
+                $("#eventReminderData").html('Loading...');
+                $("#eventReminderData").html(res);
+                $("#preloader").hide();
+                
+            }
+        })
+    })
+}

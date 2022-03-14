@@ -2073,9 +2073,9 @@ class CaseController extends BaseController
         $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
         $currentDateTime=$this->getCurrentDateAndTime();
 
-        $UserPreferanceReminder = UserPreferanceReminder::where("user_id",Auth::User()->id)->where("type","event")->get();
+        $UserPreferanceReminder = UserPreferanceReminder::where("user_id",$authUser->id)->where("type","event")->get();
         //Get event type 
-        $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
+        $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',$authUser->firm_name)->orderBy("status_order","ASC")->get();
         return view('case.event.loadAddEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id','UserPreferanceReminder'));          
      }
     
@@ -2142,7 +2142,7 @@ class CaseController extends BaseController
                 "created_by" => $authUser->id,
             ]);
 
-            EventRecurring::create([
+            $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => $start_date,
                 "end_date" => $end_date,
@@ -2150,6 +2150,8 @@ class CaseController extends BaseController
                 "event_linked_staff" => $this->getEventLinkedStaffJson($caseEvent, $request),
                 "event_linked_contact_lead" => $this->getEventLinkedContactLeadJson($caseEvent, $request),
             ]);  
+
+            $this->saveEventRecentActivity($request, $caseEvent->id, $eventRecurring->id, 'add');
         } else {  
             $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
             $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
@@ -2235,6 +2237,8 @@ class CaseController extends BaseController
                     'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $recurringEvent),
                 ])->save();
 
+                $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
+
             } else if($caseEvent && $caseEvent->is_recurring == 'yes' && !isset($request->recuring_event)) {
                 $oldEventIds = Event::where("parent_event_id", $caseEvent->id)->orWhere("id", $caseEvent->id)->pluck('id')->toArray();
                 $caseEvent->deleteChildTableRecords($oldEventIds);
@@ -2259,7 +2263,7 @@ class CaseController extends BaseController
                     "created_by" => $authUser->id,
                 ]);
               
-                EventRecurring::create([
+                $recurringEvent = EventRecurring::create([
                     "event_id" => $caseEvent->id,
                     "start_date" => $start_date,
                     "end_date" => $end_date,
@@ -2269,9 +2273,11 @@ class CaseController extends BaseController
                     'event_comments' => $this->getAddEventHistoryJson($caseEvent->id),
                     "created_by" => $authUser->id,
                 ]);
-
                 // Delete old events
                 Event::whereIn("id", $oldEventIds)->forceDelete();
+
+                $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
+
             } else if($caseEvent && $caseEvent->is_recurring == 'yes' && isset($request->recuring_event)) {
                 if($caseEvent->edit_recurring_pattern == 'single event' && $caseEvent->parent_event_id != '') {
                     $caseEvent->fill([
@@ -2341,6 +2347,8 @@ class CaseController extends BaseController
                     'event_linked_contact_lead' => $this->getEventLinkedContactLeadJson($caseEvent, $request),
                     'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $recurringEvent),
                 ])->save();
+                    
+                $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
 
             } else if($caseEvent && $caseEvent->is_recurring == 'no' && isset($request->recuring_event)) {
                 $caseEvent->fill([
@@ -2372,18 +2380,19 @@ class CaseController extends BaseController
 
                 EventRecurring::where("event_id", $caseEvent->id)->forceDelete();
                 if($request->event_frequency=='DAILY') {
-                    $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                    $recurringEvent = $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 } else if($request->event_frequency == "EVERY_BUSINESS_DAY") {
-                    $this->saveBusinessDayRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                    $recurringEvent = $this->saveBusinessDayRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 } else if($request->event_frequency == "WEEKLY") {
-                    $this->saveWeeklyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                    $recurringEvent = $this->saveWeeklyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 } else if($request->event_frequency == "CUSTOM") {
-                    $this->saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                    $recurringEvent = $this->saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 } else if($request->event_frequency == "MONTHLY") {
-                    $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                    $recurringEvent = $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 } else if($request->event_frequency == "YEARLY") {
-                    $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                    $recurringEvent = $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 }
+                $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
             }
         } elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS') {
             $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
@@ -2430,7 +2439,7 @@ class CaseController extends BaseController
                     $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
                     if($oldEvent->event_interval_day != $request->event_interval_day) {
                         EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
-                        $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                     } else {
                         $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', date("Y-m-d", $recurringEndDate));
                         $days = $this->getDatesDiffDays($request);
@@ -2477,7 +2486,7 @@ class CaseController extends BaseController
                     
                     if($oldEvent->event_interval_day != $request->event_interval_day) {
                         EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
-                        $this->saveDailyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveDailyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
                     } else {
                         $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
@@ -2500,6 +2509,7 @@ class CaseController extends BaseController
                         }
                     }
                 }
+                $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
             } else if($request->event_frequency == 'EVERY_BUSINESS_DAY') { 
                 $oldEvent = Event::find($request->event_id);
                 $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
@@ -2605,6 +2615,7 @@ class CaseController extends BaseController
                         }
                     }
                 }
+                $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
             } else if($request->event_frequency == 'CUSTOM') {
                 $oldEvent = Event::find($request->event_id);
                 $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
@@ -2644,7 +2655,7 @@ class CaseController extends BaseController
 
                     if(array_diff( $request->custom, $oldEvent->custom_event_weekdays ) ) {
                         $recurringEvents = EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forcedelete();
-                        $this->saveCustomRecurringEvent($caseEvent, $caseEvent->start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveCustomRecurringEvent($caseEvent, $caseEvent->start_date, $request, $recurringEndDate);
                     } else {
                         $eventReminders = $this->getEventReminderJson($caseEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
@@ -2717,7 +2728,7 @@ class CaseController extends BaseController
 
                     if(array_diff( $request->custom, $oldEvent->custom_event_weekdays ) ) {
                         $recurringEvents = EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forcedelete();
-                        $this->saveCustomRecurringEvent($oldEvent, $oldEvent->start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveCustomRecurringEvent($oldEvent, $oldEvent->start_date, $request, $recurringEndDate);
                     } else {
                         $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
@@ -2763,6 +2774,7 @@ class CaseController extends BaseController
                         }
                     }
                 }
+                $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
             } else if($request->event_frequency == 'WEEKLY') { 
                 $oldEvent = Event::find($request->event_id);
                 $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
@@ -2800,7 +2812,7 @@ class CaseController extends BaseController
 
                     if(isset($request->updated_start_date)) {
                         $recurringEvents = EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forcedelete();
-                        $this->saveWeeklyRecurringEvent($caseEvent, $caseEvent->start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveWeeklyRecurringEvent($caseEvent, $caseEvent->start_date, $request, $recurringEndDate);
                     } else {
                         $eventReminders = $this->getEventReminderJson($caseEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
@@ -2848,7 +2860,7 @@ class CaseController extends BaseController
                     ])->save();
                     if(isset($request->updated_start_date)) {
                         $recurringEvents = EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forcedelete();
-                        $this->saveWeeklyRecurringEvent($oldEvent, $oldEvent->start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveWeeklyRecurringEvent($oldEvent, $oldEvent->start_date, $request, $recurringEndDate);
                     } else {
                         $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
@@ -2871,6 +2883,7 @@ class CaseController extends BaseController
                         }
                     }
                 }
+                $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
             } else if($request->event_frequency == 'MONTHLY') {
                 $oldEvent = Event::find($request->event_id);
                 $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
@@ -2910,7 +2923,7 @@ class CaseController extends BaseController
 
                     if($oldEvent->event_interval_month != $request->event_interval_month || $request->monthly_frequency != $oldEvent->monthly_frequency) {
                         EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
-                        $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                     } else {    
                         $eventReminders = $this->getEventReminderJson($caseEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
@@ -2973,7 +2986,7 @@ class CaseController extends BaseController
                     
                     if($oldEvent->event_interval_month != $request->event_interval_month) {
                         EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
-                        $this->saveMonthlyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveMonthlyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
                     } else {
                         $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
@@ -2996,6 +3009,7 @@ class CaseController extends BaseController
                         }
                     }
                 }
+                $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
             } else if($request->event_frequency == 'YEARLY') {
                 $oldEvent = Event::find($request->event_id);
                 $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
@@ -3035,7 +3049,7 @@ class CaseController extends BaseController
 
                     if($oldEvent->event_interval_year != $request->event_interval_year || $request->yearly_frequency != $oldEvent->yearly_frequency) {
                         EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
-                        $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                     } else {    
                         $eventReminders = $this->getEventReminderJson($caseEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
@@ -3098,7 +3112,7 @@ class CaseController extends BaseController
                     
                     if($oldEvent->event_interval_year != $request->event_interval_year) {
                         EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
-                        $this->saveYearlyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
+                        $eventRecurring = $this->saveYearlyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
                     } else {
                         $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
@@ -3133,6 +3147,7 @@ class CaseController extends BaseController
                         }
                     }
                 }
+                $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
             }
         } elseif($request->delete_event_type=='ALL_EVENTS') {
             $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
@@ -3176,7 +3191,7 @@ class CaseController extends BaseController
                         $eitem->refresh();
                         if($eitem->event_interval_day != $request->event_interval_day) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
-                            $this->saveDailyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
+                            $eventRecurring = $this->saveDailyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
                             $eventReminders = $this->getEventReminderJson($eitem, $request);
                             $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
@@ -3194,6 +3209,7 @@ class CaseController extends BaseController
                             }
                         }
                     }
+                    $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
 
                 } else if($request->event_frequency == 'EVERY_BUSINESS_DAY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
@@ -3238,12 +3254,13 @@ class CaseController extends BaseController
                             }
                         // }
                     }
+                    $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
                 } else if($request->event_frequency == 'CUSTOM') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if(array_diff( $request->custom, $eitem->custom_event_weekdays ) ) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
-                            $this->saveCustomRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
+                            $eventRecurring = $this->saveCustomRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
                             $eventReminders = $this->getEventReminderJson($eitem, $request);
                             $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
@@ -3283,12 +3300,13 @@ class CaseController extends BaseController
                             "updated_by" => $authUser->id,
                         ])->save();
                     }             
+                    $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
                 } else if($request->event_frequency == 'WEEKLY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if(isset($request->updated_start_date)) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
-                            $this->saveWeeklyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
+                            $eventRecurring = $this->saveWeeklyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
                             $eventReminders = $this->getEventReminderJson($eitem, $request);
                             $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
@@ -3328,6 +3346,7 @@ class CaseController extends BaseController
                             "updated_by" => $authUser->id,
                         ])->save();
                     }
+                    $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
                 } else if($request->event_frequency == 'MONTHLY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
@@ -3336,7 +3355,7 @@ class CaseController extends BaseController
                         $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                         if($request->monthly_frequency != $eitem->monthly_frequency || $request->event_interval_month != $eitem->event_interval_month || isset($request->updated_start_date)) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
-                            $this->saveMonthlyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
+                            $eventRecurring = $this->saveMonthlyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
                             $days = $this->getDatesDiffDays($request);
@@ -3376,12 +3395,13 @@ class CaseController extends BaseController
                             "updated_by" => $authUser->id,
                         ])->save();
                     }
+                    $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
                 } else if($request->event_frequency == 'YEARLY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if($request->yearly_frequency != $eitem->yearly_frequency || $request->event_interval_year != $eitem->event_interval_year || isset($request->updated_start_date)) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
-                            $this->saveYearlyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
+                            $eventRecurring = $this->saveYearlyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {    
                             $eventReminders = $this->getEventReminderJson($eitem, $request);
                             $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
@@ -3424,6 +3444,7 @@ class CaseController extends BaseController
                             "updated_by" => $authUser->id,
                         ])->save();
                     }
+                    $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
                 }
             }
         }
@@ -3865,13 +3886,28 @@ class CaseController extends BaseController
         } */
         $event = Event::whereId($request->event_id)->first();
         $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
+        //Master Event History
+        $data=[];
+        $data['event_for_case'] = $event->case_id;
+        $data['event_for_lead']=$event->lead_id;                        
+        $data['client_id']=$event->lead_id;
+        $data['event_id']=$event->id;
+        $data['event_recurring_id']=$request->event_recurring_id;
+        $data['event_name']=$event->event_title;
+        $data['user_id']=auth()->id();
+        $data['activity']='deleted event';
+        $data['type']='event';
+        $data['action']='delete';
+        $CommonController= new CommonController();
         if($request->delete_event_type == 'SINGLE_EVENT') {
             if($event->is_recurring == 'no') {
                 $event->delete();
                 $eventRecurring->delete();
+                $CommonController->addMultipleHistory($data);
             } else if($event->is_recurring == 'yes' && $event->edit_recurring_pattern == "single event") {
                 $event->delete();
                 $eventRecurring->delete();
+                $CommonController->addMultipleHistory($data);
             } else {
                 $eventRecurring->delete();
             }
@@ -3894,24 +3930,8 @@ class CaseController extends BaseController
             $events = Event::where("parent_event_id", $request->event_id)->orWhere("id", $request->event_id);
             EventRecurring::where("event_id", $events->pluck("id")->toArray())->delete();
             $events->delete();
+            $CommonController->addMultipleHistory($data);
         }
-        //Master Event History
-        $data=[];
-        if($event->case_id!=NULL){
-            $data['event_for_case']=$event->case_id;
-        }    
-        if($event->lead_id!=NULL){
-            $data['event_for_lead']=$event->lead_id;                        
-            $data['client_id']=$event->lead_id;
-        }    
-        $data['event_id']=$event->id;
-        $data['event_name']=$event->event_title;
-        $data['user_id']=Auth::User()->id;
-        $data['activity']='deleted event';
-        $data['type']='event';
-        $data['action']='delete';
-        $CommonController= new CommonController();
-        $CommonController->addMultipleHistory($data);
         //Master Event History
         session(['popup_success' => 'Event was deleted.']);
         return response()->json(['errors'=>''   ]);

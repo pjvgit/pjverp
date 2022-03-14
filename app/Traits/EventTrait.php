@@ -4,11 +4,13 @@ namespace App\Traits;
 
 use App\Event;
 use App\EventRecurring;
+use App\Http\Controllers\CommonController;
 use Carbon\Carbon;
 use DateInterval;
 use DatePeriod;
 use DateTime;
 use Illuminate\Support\Facades\Log;
+use phpDocumentor\Reflection\Types\Null_;
 
 trait EventTrait {
     /**
@@ -227,18 +229,20 @@ trait EventTrait {
         ]);
 
         if($request->event_frequency =='DAILY') {
-            $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+            $eventRecurring = $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "EVERY_BUSINESS_DAY") {
-            $this->saveBusinessDayRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+            $eventRecurring = $this->saveBusinessDayRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "WEEKLY") {
-            $this->saveWeeklyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+            $eventRecurring = $this->saveWeeklyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "CUSTOM") {
-            $this->saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+            $eventRecurring = $this->saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "MONTHLY") {
-            $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+            $eventRecurring = $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "YEARLY") {
-            $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+            $eventRecurring = $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         }
+
+        $this->saveEventRecentActivity($request, $caseEvent->id, @$eventRecurring->id, 'add');
     }
 
     /**
@@ -267,7 +271,7 @@ trait EventTrait {
         $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', date("Y-m-d", $recurringEndDate));
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {
-            EventRecurring::create([
+            $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => $date,
                 "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
@@ -277,6 +281,7 @@ trait EventTrait {
                 "event_comments" => $eventHistory
             ]);
         }
+        return $eventRecurring ?? Null;
     }
 
     /**
@@ -292,7 +297,7 @@ trait EventTrait {
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {          
             if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
-                EventRecurring::insert([
+                $eventRecurring = EventRecurring::insert([
                     "event_id" => $caseEvent->id,
                     "start_date" => $date,
                     "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
@@ -303,6 +308,7 @@ trait EventTrait {
                 ]);
             }
         }
+        return $eventRecurring ?? Null;
     }
 
     /**
@@ -339,7 +345,7 @@ trait EventTrait {
             }
             $dayOfWeek = $date->format('l');
             if(in_array($dayOfWeek, $request->custom)) {       
-                EventRecurring::create([
+                $eventRecurring = EventRecurring::create([
                     "event_id" => $caseEvent->id,
                     "start_date" => $date->format('Y-m-d'),
                     "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date->format('Y-m-d'),
@@ -350,6 +356,7 @@ trait EventTrait {
                 ]);
             }
         }
+        return $eventRecurring ?? Null;
     }
 
     /**
@@ -364,7 +371,7 @@ trait EventTrait {
         $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {          
-            EventRecurring::create([
+            $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => $date,
                 "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
@@ -374,6 +381,7 @@ trait EventTrait {
                 "event_comments" => $eventHistory
             ]);
         }
+        return $eventRecurring ?? Null;
     }
 
     /**
@@ -401,7 +409,7 @@ trait EventTrait {
             } else { 
                 $date1 = strtotime($date);
             }
-            EventRecurring::create([
+            $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => date('Y-m-d', $date1),
                 "end_date" => ($days > 0) ? Carbon::parse($date1)->addDays($days)->format('Y-m-d') : date('Y-m-d', $date1),
@@ -411,6 +419,7 @@ trait EventTrait {
                 "event_comments" => $eventHistory
             ]);
         }
+        return $eventRecurring ?? Null;
     }
 
     /**
@@ -438,7 +447,7 @@ trait EventTrait {
             } else { 
                 $date1 = strtotime($date);
             }
-            EventRecurring::create([
+            $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => date('Y-m-d', $date1),
                 "end_date" => ($days > 0) ? Carbon::parse($date1)->addDays($days)->format('Y-m-d') : date('Y-m-d', $date1),
@@ -448,8 +457,36 @@ trait EventTrait {
                 "event_comments" => $eventHistory
             ]);
         }
+        return $eventRecurring ?? Null;
     }
 
-    
+    /**
+     * Save events recent activity like created, updated, deleted etc
+     */
+    public function saveEventRecentActivity($request, $caseEventId, $eventRecurringId = Null, $activityType = "edit")
+    {
+        $data=[];
+        if(!isset($request->no_case_link)){
+            if(isset($request->case_or_lead)) { 
+                if($request->text_case_id!=''){
+                    $data['event_for_case']=$request->text_case_id;
+                }    
+                if($request->text_lead_id!=''){
+                    $data['event_for_lead']=$request->text_lead_id;                                            
+                    $data['client_id']=$request->text_lead_id;
+                }    
+            } 
+        }
+        $data['event_id']=$caseEventId;
+        $data['event_recurring_id']=$eventRecurringId;
+        $data['event_name']=$request->event_name;
+        $data['user_id'] = auth()->id();
+        $data['activity'] = ($activityType == 'edit') ? 'updated event' : 'added event';
+        $data['type'] = 'event';
+        $data['action'] = ($activityType == 'edit') ? 'update' : 'add';
+        
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
+    }
 }
  

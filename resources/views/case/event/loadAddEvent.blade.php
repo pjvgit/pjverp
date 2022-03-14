@@ -29,13 +29,13 @@
                         <option value="">Search for an existing Case or Lead</option>
                         <optgroup label="Court Cases">
                             <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                            <option uType="case" <?php if($case_id==$Caseval->id){ echo "selected=selected"; }?>
+                            <option uType="case" <?php if(!empty($case_id) && $case_id==$Caseval->id){ echo "selected=selected"; }?>
                                 value="{{$Caseval->id}}">{{substr($Caseval->case_title,0,100)}} <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> <?php if($Caseval->case_close_date!=NULL){  echo "[Closed]"; }?> </option>
                             <?php } ?>
                         </optgroup>
                         <optgroup label="Leads">
                             <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
-                            <option uType="lead" <?php if($lead_id==$caseLeadListVal->id){ echo "selected=selected"; }?> value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
+                            <option uType="lead" <?php if(!empty($lead_id) && $lead_id==$caseLeadListVal->id){ echo "selected=selected"; }?> value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                             <?php } ?>
                         </optgroup>
                     </select>
@@ -415,6 +415,11 @@
             allowClear: true,
             dropdownParent: $("#loadAddEventPopup"),
         });
+
+        if( $('#case_id').length ) {
+            changeCaseUser();
+        }
+        $("#reminder_user_type option[value='client-lead']").hide();
        
         $('#dateInputPanel .input-time').timepicker({
             'showDuration': false,
@@ -493,13 +498,7 @@
         $(".repeat_monthly").hide();
         $(".repeat_yearly").hide();
         // $(".hide").hide();
-        /* $(".test-add-new-reminder").on("click", function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
-            // $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
-            // $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
-            // $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
-        }); */
+
         $('#createEvent').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
         });
@@ -822,25 +821,6 @@
         })
     }
     
-    // function changeCaseUser() {
-    //     var selectdValue = $("#case_or_lead option:selected").val() // or
-       
-    //     if(selectdValue!=""){
-    //         loadCaseClient(selectdValue);
-    //         loadCaseNoneLinkedStaff(selectdValue);
-    //         loadCaseLinkedStaff(selectdValue);
-    //         $("#hideUser").hide();            
-    //         $("#showUSer").show();
-    //         $("#showStaffList").hide();
-            
-    //     }else{
-    //         $("#showStaffList").show();
-    //         loadAllFirmStaff();
-    //         $("#hideUser").show();            
-    //         $("#showUSer").hide();
-
-    //     }
-    // }
     function loadRightSection(case_id) {
         $.ajax({
             type: "POST",
@@ -854,9 +834,8 @@
     function changeCaseUser() {
         $("#text_lead_id").val('');
         $("#text_case_id").val('');
-        var uType=$("#case_or_lead option:selected").attr('uType');
-        var selectdValue = $("#case_or_lead option:selected").val() 
-       
+        var uType=$("#loadAddEventPopup #case_or_lead option:selected").attr('uType');
+        var selectdValue = $("#loadAddEventPopup #case_or_lead option:selected").val();
         if(selectdValue!=''){
             if(uType=="case"){
                 $("#text_case_id").val(selectdValue);
@@ -897,8 +876,6 @@
             }
         })
     });
-    changeCaseUser();
-    $("#reminder_user_type option[value='client-lead']").hide();
    
 
     function firmStaff() {
