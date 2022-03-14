@@ -99,6 +99,7 @@ class CommonController extends BaseController {
         $AllHistory->event_for_case=($data['event_for_case'])??NULL;
         $AllHistory->event_for_lead=($data['event_for_lead'])??NULL;
         $AllHistory->event_id=($data['event_id'])??NULL;
+        $AllHistory->event_recurring_id=($data['event_recurring_id'])??NULL;
         $AllHistory->event_name=($data['event_name'])??NULL;
         $AllHistory->task_for_case=($data['task_for_case'])??NULL;
         $AllHistory->task_for_lead=($data['task_for_lead'])??NULL;

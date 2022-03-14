@@ -219,13 +219,13 @@
         <div>
             @can('delete_items')
             <?php if(empty($event->parent_event_id) || $event->edit_recurring_pattern == "single event"){ ?>
-                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
+                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
                         data-placement="bottom" href="javascript:;"
                         onclick="deleteEventFunction({{$eventRecurring->id}}, {{$event->id}},'single');">
                         <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button> 
                     </a>
             <?php }else{ ?>
-                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
+                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
                     data-placement="bottom" href="javascript:;"
                     onclick="deleteEventFunction({{$eventRecurring->id}}, {{$event->id}},'multiple');">
                     <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button>

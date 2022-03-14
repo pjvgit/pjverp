@@ -9,10 +9,11 @@ if(isset($_GET['upcoming_events'])){
 <div class="col-md-12">
     <div id="calendar_page" class="case_info_page" style="">
     <h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
-        <div id="case-calendar-container" data-court-case-id="12126380" data-can-edit-events="true">
+        <div id="case-calendar-container" data-can-edit-events="true">
             <div class="case-calendar-view mt-2">
                 <div class="w-100 d-flex align-items-center">
                     <div class="d-flex ml-auto align-items-center">
+                        <input type="text" id="case_id" value="{{ $CaseMaster->case_id }}" >
                         <form action="" method="get">
                             <div class="custom-control custom-switch mr-2 upcoming-toggle d-flex align-items-center">
                                 <input type="hidden" name="upcoming_events" id="upcoming_event" value="{{ (isset($_GET['upcoming_events']) && $_GET['upcoming_events'] == "off") ? 'off' : 'on' }}">
@@ -271,13 +272,13 @@ if(isset($_GET['upcoming_events'])){
                                         <?php 
                                         if(empty($item->event->parent_event_id) || $item->event->edit_recurring_pattern == "single event"){
                                             ?>
-                                            <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
+                                            <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
                                             data-placement="bottom" href="javascript:;"
                                             onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'single');">
                                             <i class="fas fa-trash pr-2  align-middle"></i> </a>
                                             <?php
                                         }else{?>
-                                        <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
+                                        <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
                                             data-placement="bottom" href="javascript:;"
                                             onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'multiple');">
                                             <i class="fas fa-trash pr-2  align-middle"></i> </a>
@@ -299,28 +300,10 @@ if(isset($_GET['upcoming_events'])){
     </div>
 </div>
 
-<div id="loadAddEventPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Add Event</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12" id="AddEventPage">
+@include('case.event.event_modals')
 
-                    </div>
-                </div><!-- end of main-content -->
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div id="deleteEvent" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+{{-- Duplicate code, Made common code --}}
+{{-- <div id="deleteEvent" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -338,28 +321,7 @@ if(isset($_GET['upcoming_events'])){
 
         </div>
     </div>
-</div>
-
-<div id="loadEditEventPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content" id="EditEventPage">
-           
-           
-                  
-
-        </div>
-    </div>
-</div>
-
-<div id="loadCommentPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content" id="eventCommentPopup">
-
-        </div>
-    </div>
-</div>
+</div> --}}
 
 {{-- Made common code, so commented --}}
 {{-- <div id="loadReminderPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
@@ -383,48 +345,6 @@ if(isset($_GET['upcoming_events'])){
     </div>
 </div> --}}
 
-<div id="loadEventReminderPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Set Event Reminders</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12" id="eventReminderData">
-                    
-                    </div>
-                </div><!-- end of main-content -->
-            </div>
-
-        </div>
-    </div>
-</div>
-
-{{-- Duplicate code, Made common code --}}
-{{-- <div id="deleteFromCommentBox" class="modal fade modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-    aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteSingleEvent"></h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12" id="deleteFromComment">
-                    </div>
-                </div><!-- end of main-content -->
-            </div>
-
-        </div>
-    </div>
-</div> --}}
-
 @include('calendar.partials.load_grant_access_modal')
 
 <style> 
@@ -432,7 +352,7 @@ if(isset($_GET['upcoming_events'])){
 </style>
 
 @section('page-js-inner')
-<script src="{{ asset('assets\js\custom\calendar\listevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+{{-- <script src="{{ asset('assets\js\custom\calendar\listevent.js?').env('CACHE_BUSTER_VERSION') }}"></script> --}}
 <script type="text/javascript">
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
@@ -471,10 +391,8 @@ if(isset($_GET['upcoming_events'])){
         })
     } */
     
-    /**
-     * Load event reminder popup from event listing 
-     */
-    function loadEventReminderPopup(event_id, event_recurring_id) {
+    // Made common code, check addevent.js file
+    /* function loadEventReminderPopup(event_id, event_recurring_id) {
         $("#eventReminderData").html('Loading...');
         $("#preloader").show();
         $(function () {
@@ -492,11 +410,9 @@ if(isset($_GET['upcoming_events'])){
                 }
             })
         })
-    }
-    /**
-     * Load event detail/comment popup 
-     */
-    function loadEventComment(event_id, event_recurring_id) {
+    } */
+    // Made common code, check addevent.js file
+    /* function loadEventComment(event_id, event_recurring_id) {
         $("#eventCommentPopup").html('Loading...');
         $("#preloader").show();
         $(function () {
@@ -513,8 +429,9 @@ if(isset($_GET['upcoming_events'])){
                 }
             })
         })
-    }
-    function loadAddEventPopup() {
+    } */
+    // Made common code, check addevent.js file
+    /* function loadAddEventPopup() {
         $("#AddEventPage").html('Loading...');
         $("#preloader").show();
         $(function () {
@@ -531,7 +448,7 @@ if(isset($_GET['upcoming_events'])){
                 }
             })
         })
-    }
+    } */
     function editEventFunction(evnt_id, event_recurring_id = null) {
         $("#preloader").show();
         $(function () {
@@ -588,8 +505,8 @@ if(isset($_GET['upcoming_events'])){
                     "event_recurring_id": eventRecurringId, 'event_id': eventId
                 },
                 success: function (res) {
-                    $("#eventID").html('');
-                    $("#eventID").html(res);
+                    $("#deleteEventModalBody").html('');
+                    $("#deleteEventModalBody").html(res);
                     $("#preloader").hide();
                 }
             })

@@ -184,19 +184,6 @@ if(isset($_GET['bank_account'])){
             }],
             pageResize: true, // enable page resize
             pageLength: <?php echo USER_PER_PAGE_LIMIT; ?>,
-            /* autoWidth: false,
-            columns : [
-                { width : '50px' },
-                { width : '50px' },
-                { width : '50px' },
-                { width : '50px' },        
-                { width : '50px' },
-                { width : '50px' },
-                { width : '50px' },
-                { width : '50px' },                
-                { width : '50px' },
-                { width : '50px' }        
-            ], */
             columns: [
 
                 {

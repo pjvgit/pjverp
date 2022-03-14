@@ -521,9 +521,11 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      
      Route::get('item_categories', 'CalendarController@item_categories')->name('item_categorie/');
      Route::post('loadEventCalendar/load', 'CalendarController@loadEventCalendar')->name('loadEventCalendar/load');
-     Route::post('court_cases/loadAddEventPageFromCalendar', 'CalendarController@loadAddEventPageFromCalendar')->name('court_cases/loadAddEventPageFromCalendar');
+    //  Duplicate code, made common code
+    //  Route::post('court_cases/loadAddEventPageFromCalendar', 'CalendarController@loadAddEventPageFromCalendar')->name('court_cases/loadAddEventPageFromCalendar');
      Route::post('court_cases/loadAddEventPageSpecificaDate', 'CalendarController@loadAddEventPageSpecificaDate')->name('court_cases/loadAddEventPageSpecificaDate');
-     Route::post('court_cases/loadCommentPopupFromCalendar', 'CalendarController@loadCommentPopupFromCalendar')->name('court_cases/loadCommentPopupFromCalendar');
+    // Duplicate code, made common code
+    //  Route::post('court_cases/loadCommentPopupFromCalendar', 'CalendarController@loadCommentPopupFromCalendar')->name('court_cases/loadCommentPopupFromCalendar');
      Route::post('court_cases/loadSingleEditEventPageFromCalendar', 'CalendarController@loadSingleEditEventPageFromCalendar')->name('court_cases/loadSingleEditEventPageFromCalendar');
      Route::post('court_cases/loadFirmAllStaff', 'CalendarController@loadFirmAllStaff')->name('court_cases/loadFirmAllStaff');
      Route::post('court_cases/loadEditEventPageFromCalendarView', 'CalendarController@loadEditEventPageFromCalendarView')->name('court_cases/loadEditEventPageFromCalendarView');

@@ -256,7 +256,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 </div>
 @endif
 
-<div id="loadAddEventPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
+@include('case.event.event_modals')
+
+{{-- Made common code --}}
+{{-- <div id="loadAddEventPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -275,7 +278,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
         </div>
     </div>
-</div>
+</div> --}}
 <div id="loadAddEventPopupFromCalendar" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
@@ -296,7 +299,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div>
-<div id="deleteEvent" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+
+{{-- Made common code --}}
+{{-- <div id="deleteEvent" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
@@ -314,26 +319,29 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
         </div>
     </div>
-</div>
+</div> --}}
 
-<div id="loadEditEventPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
+{{-- Made common code --}}
+{{-- <div id="loadEditEventPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" id="EditEventPage">
         </div>
     </div>
-</div>
+</div> --}}
 
-<div id="loadCommentPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
+{{-- Made common code --}}
+{{-- <div id="loadCommentPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" id="eventCommentPopup">
 
         </div>
     </div>
-</div>
+</div> --}}
 
-<div id="loadReminderPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
+{{-- Made  --}}
+{{-- <div id="loadReminderPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -373,7 +381,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
         </div>
     </div>
-</div>
+</div> --}}
 
 <div id="deleteFromCommentBox" class="modal fade modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -637,12 +645,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                 var events = [];
                                 if (!!doc.result) {
                                     $.map(doc.result, function (r) {
-                                        
-                                        if (r.event_title == null) {
-                                            var tTitle = "<No Title>";
-                                        } else {
-                                            var tTitle = r.event_title
-                                        }
+                                        // console.log(r);
                                         // if(r.etext!=''){
                                         //     var color= r.etext.color_code
                                         // }else{
@@ -663,11 +666,14 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             });
                                         }
                                         events.push({
-                                            id: r.id,
+                                            id: r.event_recurring_id,
+                                            event_id: r.event_id,
                                             title: t,
-                                            tTitle: tTitle,
-                                            start: r.start_date+'T'+r.st,
-                                            end: r.end_date+'T'+r.et,
+                                            tTitle: r.event_title,
+                                            /* start: r.start_date+'T'+r.st,
+                                            end: r.end_date+'T'+r.et, */
+                                            start: r.st,
+                                            end: r.et,
                                             backgroundColor: '#d5e9ce',  
                                             textColor:'#000000',
                                             resourceIds: resource_id,
@@ -771,6 +777,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     $('[data-toggle="tooltip"]').tooltip();
                 },
                 eventClick: function(event) {
+                    console.log(event);
                     if(event.mytask=="yes"){
                         var redirectURL=baseUrl+'/tasks?id='+event.id;
                         window.location.href=redirectURL;
@@ -778,7 +785,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                         var redirectURL=baseUrl+'/court_cases/'+event.case_id+'/info';
                         window.location.href=redirectURL;
                     }else {
-                        loadEventComment(event.id);
+                        loadEventComment(event.event_id, event.id);
                     }
                 },
                 dayClick: function(date, jsEvent, view) {
@@ -986,7 +993,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             })
         })
     } */
-    function loadReminderPopupIndex(evnt_id) {
+    // Made common code, check addevent.js file
+    /* function loadReminderPopupIndex(evnt_id) {
         $("#reminderDataIndex").html('Loading...');
         $("#preloader").show();
         $(function () {
@@ -1004,8 +1012,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
             })
         })
-    }
-    function loadEventComment(evnt_id) {
+    } */
+    // Made common code, check addevent.js file
+    /* function loadEventComment(evnt_id) {
         $("#loadCommentPopup").modal('show');
         $("#eventCommentPopup").html('Loading...');
         $("#preloader").show();
@@ -1023,8 +1032,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
             })
         })
-    }
-    function loadAddEventPopup() {
+    } */
+    // Made common code , check addevent.js file
+    /* function loadAddEventPopup() {
         $("#AddEventPage").html('Loading...');
         $("#preloader").show();
         $(function () {
@@ -1041,7 +1051,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
             })
         })
-    }
+    } */
     function loadAddEventPopupFromCalendar(selectedate) {
         $("#loadAddEventPopupFromCalendar").modal("show");
         $("#AddEventPageFromCalendar").html('Loading...');

@@ -11,6 +11,8 @@ use App\ContractUserCase,App\CaseMaster;
 use App\DeactivatedUser,App\TempUserSelection,App\CasePracticeArea,App\CaseStage,App\CaseClientSelection;
 use App\CaseStaff,App\CaseUpdate,App\CaseStageUpdate,App\CaseActivity;
 use App\CaseEvent,App\CaseEventLocation,App\EventType;
+use App\Event;
+use App\EventRecurring;
 use Carbon\Carbon,App\CaseEventReminder,App\CaseEventLinkedStaff;
 use App\Http\Controllers\CommonController,App\CaseSolReminder;
 use DateInterval,DatePeriod,App\CaseEventComment;
@@ -44,59 +46,43 @@ class CalendarController extends BaseController
         $CommonController= new CommonController();
 
         // $CaseEvent = DB::table("case_events")->select("*")->where('created_by',Auth::User()->id);
-        $CaseEvent = CaseEvent::/* where('created_by',Auth::User()->id) */whereBetween('start_date',  [$request->start, $request->end]);
-        if($request->event_type!="[]"){
-            $event_type=json_decode($request->event_type, TRUE);
-            $CaseEvent=$CaseEvent->whereIn('event_type',$event_type);
-        }
-        if($request->selectdValue!=""){
-            $CaseEvent=$CaseEvent->where('case_id',$request->selectdValue);
-        }
+        $CaseEvent = EventRecurring::whereBetween('start_date',  [$request->start, $request->end]);
+        $CaseEvent = $CaseEvent->whereHas("event", function($query) use($request) {
+            if($request->event_type!="[]"){
+                $event_type=json_decode($request->event_type, TRUE);
+                $query->whereIn('event_type_id', $event_type);
+            }
+            if($request->selectdValue != "") {
+                $query->where('case_id',$request->selectdValue);
+            }
+        });
 
         $byuser=json_decode($request->byuser, TRUE);
-        $getassignedEvents = CaseEventLinkedStaff::select("event_id")->whereIn('user_id',$byuser)->get()->pluck("event_id");
-        $CaseEvent=$CaseEvent->whereIn('id',$getassignedEvents);
+        // $getassignedEvents = CaseEventLinkedStaff::select("event_id")->whereIn('user_id',$byuser)->get()->pluck("event_id");
+        // $CaseEvent = $CaseEvent->whereJsonContains('event_linked_staff', ["user_id" => $byuser]);
 
-        if($request->taskLoad=='unread'){
+        /* if($request->taskLoad=='unread'){
             $CaseEvent=$CaseEvent->where('event_read','no');
-        }
-        $CaseEvent=$CaseEvent->whereNull('case_events.deleted_at')->with('eventLinkedStaff')->get();
+        } */
+        $CaseEvent=$CaseEvent/* ->whereNull('events.deleted_at') */->with('event', 'event.eventType')->get();
         $newarray = array();
 
         $timezone=Auth::User()->user_timezone;
         foreach($CaseEvent as $k=>$v){
-            
-            if($v->start_time!=""){
-                $tm=$v->start_date . $v->start_time;
-                $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
-                $v->st=date('H:i:s',strtotime($currentConvertedDate));
-            }else{
-                $v->st="";
-            }
+            $event = $v->event;
+            $eventData = [];
+            $eventData["event_id"] = $event->id ?? Null;
+            $eventData["event_recurring_id"] = $v->id ?? "<No Title>";
+            $eventData["event_title"] = $event->event_title ?? "<No Title>";
+            $startDateTime= convertUTCToUserTime($v->start_date.' '.$v->event->start_time, $timezone ?? 'UTC');
+            $endDateTime= convertUTCToUserTime($v->end_date.' '.$v->event->end_time, $timezone ?? 'UTC');
+            $eventData["st"] = date('Y-m-d H:i:s', strtotime($startDateTime));
+            $eventData["et"] = date('Y-m-d H:i:s', strtotime($endDateTime));
+            $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->title : "";
+            $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));
+            $eventData["event_linked_staff"] = encodeDecodeJson($v->event_linked_staff);
 
-            if($v->end_time!=""){
-                $tm=$v->end_date . $v->end_time;
-                $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
-                $v->et=date('H:i:s',strtotime($currentConvertedDate));
-            }else{
-                $v->et="";
-            }
-
-            if($v->event_type!=""){
-            $typeEventText =  DB::table("event_type")->select('title','color_code')->where('status',"1")->where('id',$v->event_type)->first();
-            $v->etext=$typeEventText;
-            }else{
-                $v->etext="";
-            }
-            if($v->start_time!=''){
-                $tm=$v->start_date . $v->start_time;
-                $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
-                $v->start_time_user=date('h:ia',strtotime($currentConvertedDate));
-            }else{
-                $v->start_time_user="";
-            }
-            
-            $newarray[] = $v;
+            $newarray[] = $eventData;
         }
         // print_r($CaseEvent);
         if(isset($request->searchbysol) && $request->searchbysol=="true"){
@@ -170,7 +156,9 @@ class CalendarController extends BaseController
         return view('calendar.partials.load_agenda_view', ["events" => $events])->render();          
         exit;    
     }
-    public function loadAddEventPageFromCalendar(Request $request)
+
+    // Made common code, check CaseController
+    /* public function loadAddEventPageFromCalendar(Request $request)
     {
      $case_id=$lead_id='';
       $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
@@ -185,7 +173,7 @@ class CalendarController extends BaseController
        $caseLeadList = userLeadList();
 
       return view('calendar.event.loadAddEvent',compact('lead_id','case_id','caseLeadList','CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType'));          
-   }
+   } */
 
    public function loadAddEventPageSpecificaDate(Request $request)
    {
@@ -204,36 +192,37 @@ class CalendarController extends BaseController
         return view('calendar.event.loadAddEventSpecificDate',compact('lead_id','case_id','caseLeadList','CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','currentDate','currentTime'));          
   }
 
-    public function loadCommentPopupFromCalendar(Request $request)
-    {
-        $evnt_id=$request->evnt_id;
-        $evetData=CaseEvent::whereId($evnt_id)->with('case', 'leadUser', 'eventLinkedStaff', 'eventCreatedByUser', 'eventUpdatedByUser', 'eventLinkedContact', 'eventLinkedLead', 'eventLocation', 'eventType')->first();
-        // $eventReminderData=CaseEventReminder::where('event_id',$evnt_id)->get();
-        /* $eventLocation='';
-        if($evetData->event_location_id!="0"){
-            $eventLocation = CaseEventLocation::leftJoin('countries','countries.id','=','case_event_location.country')->where('case_event_location.id',$evetData->event_location_id)->first();
-        } */
-        /* $CaseMasterData='';
-        if($evetData->case_id!=NULL){
-            $case_id=$evetData->case_id;
-            $CaseMasterData = CaseMaster::where('id',$case_id)->first();
-        } */
-        // $caseLinkedStaffList = CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","case_event_linked_staff.attending")->where("case_event_linked_staff.event_id",$evnt_id)->get();
+    // Duplicate code, Made common code, check CaseController
+    // public function loadCommentPopupFromCalendar(Request $request)
+    // {
+    //     $evnt_id=$request->evnt_id;
+    //     $evetData=CaseEvent::whereId($evnt_id)->with('case', 'leadUser', 'eventLinkedStaff', 'eventCreatedByUser', 'eventUpdatedByUser', 'eventLinkedContact', 'eventLinkedLead', 'eventLocation', 'eventType')->first();
+    //     // $eventReminderData=CaseEventReminder::where('event_id',$evnt_id)->get();
+    //     /* $eventLocation='';
+    //     if($evetData->event_location_id!="0"){
+    //         $eventLocation = CaseEventLocation::leftJoin('countries','countries.id','=','case_event_location.country')->where('case_event_location.id',$evetData->event_location_id)->first();
+    //     } */
+    //     /* $CaseMasterData='';
+    //     if($evetData->case_id!=NULL){
+    //         $case_id=$evetData->case_id;
+    //         $CaseMasterData = CaseMaster::where('id',$case_id)->first();
+    //     } */
+    //     // $caseLinkedStaffList = CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","case_event_linked_staff.attending")->where("case_event_linked_staff.event_id",$evnt_id)->get();
 
-        //Event created By user name
-        // $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->created_by)->first();
+    //     //Event created By user name
+    //     // $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->created_by)->first();
     
-        /* $updatedEvenByUserData='';
-        if($evetData->updated_by!=NULL){
-            //Event updated By user name
-            $updatedEvenByUserData = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->updated_by)->first();
-        } */
-        // $country = Countries::get();
+    //     /* $updatedEvenByUserData='';
+    //     if($evetData->updated_by!=NULL){
+    //         //Event updated By user name
+    //         $updatedEvenByUserData = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->updated_by)->first();
+    //     } */
+    //     // $country = Countries::get();
 
-        // $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$evnt_id)->get();
-        return view('calendar.event.loadEventCommentPopup',compact('evetData'/* ,'eventLocation' *//* ,'country' *//* ,'CaseMasterData' *//* ,'caseLinkedStaffList' *//* ,'eventCreatedBy' *//* ,'updatedEvenByUserData' *//* ,'CaseEventLinkedContactLead' */));     
-        exit;    
-    }
+    //     // $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$evnt_id)->get();
+    //     return view('calendar.event.loadEventCommentPopup',compact('evetData'/* ,'eventLocation' *//* ,'country' *//* ,'CaseMasterData' *//* ,'caseLinkedStaffList' *//* ,'eventCreatedBy' *//* ,'updatedEvenByUserData' *//* ,'CaseEventLinkedContactLead' */));     
+    //     exit;    
+    // }
 
     public function loadSingleEditEventPageFromCalendar(Request $request)
     {
