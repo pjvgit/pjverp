@@ -722,8 +722,8 @@
         $("#add_new_label").show();
     }
 
-
-    function removeUser(id) {
+    // Below all commented functions are not in use
+    /* function removeUser(id) {
         $(".innerLoader").css('display', 'block');
         $.ajax({
             type: "POST",
@@ -736,9 +736,9 @@
                 $(".innerLoader").css('display', 'none');
             }
         })
-    }
+    } */
 
-    function loadStep2(res) {
+    /* function loadStep2(res) {
 
         console.log(res);
         $('#smartwizard').smartWizard("next");
@@ -756,10 +756,10 @@
         })
 
         return false;
-    }
+    } */
 
 
-    function loadCaseClient(case_id) {
+    /* function loadCaseClient(case_id) {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadCaseClientAndLeads",
@@ -771,9 +771,9 @@
                 //$(".innerLoaderCase").css('display', 'none');
             }
         })
-    }
+    } */
 
-    function loadCaseLinkedStaff(case_id) {
+    /* function loadCaseLinkedStaff(case_id) {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadCaseLinkedStaff",
@@ -785,8 +785,8 @@
                 //$(".innerLoaderCase").css('display', 'none');
             }
         })
-    }
-    function loadCaseNoneLinkedStaff(case_id) {
+    } */
+    /* function loadCaseNoneLinkedStaff(case_id) {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadCaseNoneLinkedStaff",
@@ -798,8 +798,8 @@
                 //$(".innerLoaderCase").css('display', 'none');
             }
         })
-    }
-    function loadAllFirmStaff() {
+    } */
+    /* function loadAllFirmStaff() {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadFirmAllStaff",
@@ -808,7 +808,7 @@
                 $("#add_event_right_section").html(res);
             }
         })
-    }
+    } */
     function loadLeadUsers(lead_id) {
         $.ajax({
             type: "POST",

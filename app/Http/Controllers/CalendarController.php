@@ -78,7 +78,7 @@ class CalendarController extends BaseController
             $endDateTime= convertUTCToUserTime($v->end_date.' '.$v->event->end_time, $timezone ?? 'UTC');
             $eventData["st"] = date('Y-m-d H:i:s', strtotime($startDateTime));
             $eventData["et"] = date('Y-m-d H:i:s', strtotime($endDateTime));
-            $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->title : "";
+            $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->select('title', 'color_code') : "";
             $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));
             $eventData["event_linked_staff"] = encodeDecodeJson($v->event_linked_staff);
 
