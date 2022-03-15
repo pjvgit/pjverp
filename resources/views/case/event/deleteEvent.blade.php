@@ -74,7 +74,7 @@
                 data: {
                     'event_id': $('#event_id').val(),
                     'event_recurring_id': $('#event_recurring_id').val(),
-                    'delete_event_type': $('input[name="delete_event_type"]:checked').val(),
+                    'delete_event_type': $('#deleteEventForm input[name="delete_event_type"]:checked').val(),
                 },
                 success: function (res) {
                     $("#innerLoader1").css('display', 'none');

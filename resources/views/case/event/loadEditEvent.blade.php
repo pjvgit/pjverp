@@ -55,7 +55,7 @@
                                     </optgroup>
                                     <optgroup label="Leads">
                                         <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
-                                        <option uType="lead" value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
+                                        <option uType="lead" value="{{$caseLeadListVal->id}}" {{ ($evetData->lead_id == $caseLeadListVal->id) ? "selected" : "" }} >{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                                         <?php } ?>
                                     </optgroup>
 
@@ -560,14 +560,14 @@
             } else {
                 $('#end_on').removeAttr("disabled");
             } */
-         
+        
         $(".case_or_lead").select2({
             placeholder: "Select...",
             theme: "classic",
             allowClear: true,
             dropdownParent: $("#loadEditEventPopup"),
         });
-       
+        changeCaseUser();        
         $('#dateInputPanel .input-time').timepicker({
             'showDuration': false,
             'timeFormat': 'g:i A',
@@ -902,7 +902,8 @@
         $(".innerLoader").css('display', 'none');
     }
 
-    function removeUser(id) {
+    // Not in use
+    /* function removeUser(id) {
         $(".innerLoader").css('display', 'block');
         $.ajax({
             type: "POST",
@@ -915,9 +916,10 @@
                 $(".innerLoader").css('display', 'none');
             }
         })
-    }
+    } */
 
-    function loadStep2(res) {
+    // Not in use
+    /* function loadStep2(res) {
 
         $('#smartwizard').smartWizard("next");
         $(".innerLoader").css('display', 'none');
@@ -934,7 +936,7 @@
         })
 
         return false;
-    }
+    } */
 
     // Commented as not required
     /* function loadCaseClient(case_id) {
@@ -989,13 +991,12 @@
         })
     }
     function changeCaseUser() {
-
         $("#dynamicUSerTimes").html('');
 
         $("#text_lead_id").val('');
         $("#text_case_id").val('');
-        var uType=$("#case_or_lead option:selected").attr('uType');
-        var selectdValue = $("#case_or_lead option:selected").val();
+        var uType=$("#loadEditEventPopup #case_or_lead option:selected").attr('uType');
+        var selectdValue = $("#loadEditEventPopup #case_or_lead option:selected").val();
         if(selectdValue!=''){
             if(uType=="case"){
                 $("#text_case_id").val(selectdValue);
@@ -1004,14 +1005,14 @@
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
                 $("#text_lead_id").val(selectdValue);
-                firmStaff();
+                loadLeadUsers(selectdValue);
             }
             $(".hideUser").hide();
         }else{
             $("#edit_event_right_section").html('');
             $("#HideShowNonlink").hide();
             $(".hideUser").show();
-            loadDefaultContent();
+            // loadDefaultContent();  // This function is for Task, not for event
         }
     }
     function loadRightSection(case_id) {
@@ -1025,6 +1026,21 @@
         })
     }
 
+    function loadLeadUsers(lead_id) {
+        $(".right-section-loader").show();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadLeadRightSection",
+            data: {"lead_id": lead_id, "event_id": $("#event_id").val(), "event_recurring_id": $("#event_recurring_id").val()},
+            success: function (res) {
+                $(".right-section-loader").hide();
+                $("#edit_event_right_section").html(res);
+              
+            }
+        })
+    }
+
+    // When user select "No case", then show all staff of firm
     function firmStaff() {
         $.ajax({
             type: "POST",
@@ -1036,7 +1052,7 @@
             }
         })
     }
-    changeCaseUser();
+
     function deleteEventFunction1() {
         if (!$('#EditEventForm').valid()) {
             $(".innerLoader").css('display', 'none');

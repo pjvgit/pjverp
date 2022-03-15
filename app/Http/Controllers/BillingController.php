@@ -1754,6 +1754,7 @@ class BillingController extends BaseController
 
                 
                 //Get previous amount
+                $request->request->add(['from_pay' => 'trust']);
                 $this->updateClientPaymentActivity($request, $InvoiceData);
 
                 // Check trust balance is running low or not
@@ -6331,7 +6332,8 @@ class BillingController extends BaseController
         }
     }
 
-    public function payInvoice(Request $request)
+    // Made common  code, this code is not in use
+    /* public function payInvoice(Request $request)
     {
        $validator = \Validator::make($request->all(), [
             'id' => 'required|min:1|max:255',
@@ -6356,7 +6358,7 @@ class BillingController extends BaseController
                 return response()->json(['errors'=>'error']);
             }
         }
-    }
+    } */
     public function saveTrustInvoicePaymentWithHistory(Request $request)
     {
         // return $request->all();

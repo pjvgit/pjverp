@@ -279,7 +279,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div> --}}
-<div id="loadAddEventPopupFromCalendar" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
+
+{{-- Made common code, not in use --}}
+{{-- <div id="loadAddEventPopupFromCalendar" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -298,7 +300,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
         </div>
     </div>
-</div>
+</div> --}}
 
 {{-- Made common code --}}
 {{-- <div id="deleteEvent" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
@@ -646,12 +648,10 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                 if (!!doc.result) {
                                     $.map(doc.result, function (r) {
                                         // console.log(r);
-                                        // if(r.etext!=''){
-                                        //     var color= r.etext.color_code
-                                        // }else{
-                                        //     var color= r.colorcode
-                                        // }
-                                        var color="#00cfd2"
+                                        var color="#00cfd2";
+                                        if(r.etext != '') {
+                                            color = r.etext;
+                                        }
                                         if (r.event_title == null) {
                                             var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
                                                 ' -' + "<No Title>";
@@ -662,7 +662,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                         var resource_id = [];
                                         if(r.event_linked_staff) {
                                             $.each(r.event_linked_staff, function(ind, item) {
-                                                resource_id.push(item.id);
+                                                resource_id.push(item.user_id);
                                             });
                                         }
                                         events.push({
@@ -789,33 +789,11 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     }
                 },
                 dayClick: function(date, jsEvent, view) {
-                    loadAddEventPopupFromCalendar(date.format());
+                    // loadAddEventPopupFromCalendar(date.format());
+                    loadAddEventPopup(date.format());
                 }
             });
-            // calendar.render();
-
-            /* $('#calendarq').batchRendering(function () {
-                $('#calendarq').setOptions({
-                    views: {
-                        StaffView: { buttonText: 'resources on day' },
-                    },
-                    resources: function(callback, start, end, timezone) {
-                        var byuser = getByUser();
-                        var view = $('#calendarq').fullCalendar('getView');
-                        $.ajax({
-                            url: 'loadEventCalendar/loadStaffView',
-                            type: 'POST',
-                            data: {resType: "resources", byuser: byuser, view_name: view.name},
-                            success: function (doc) {
-                                callback(doc);
-                            }
-                        });
-                    },
-                });
-                $('#calendarq').changeView('StaffView');
-                console.log('changed view successfully.');
-            }); */
-            
+            // calendar.render();            
 
             var FC = $.fullCalendar; // a reference to FullCalendar's root namespace
             var View = FC.View;      // the class that all views must inherit from
@@ -852,39 +830,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             });
             FC.views.custom = AgendaView; // register our class with the view system
 
-            /* var FC1 = $.fullCalendar; // a reference to FullCalendar's root namespace
-            var View1 = FC1.View;      // the class that all views must inherit from
-            var StaffView;          // our subclass
-            StaffView = View1.extend({ // make a subclass of View
-                initialize: function() {
-                },
-                render: function() {
-                    var moment = $('#calendarq').fullCalendar('getDate');
-                    var calDate = moment.format('DD.MM.YYYY HH:mm'); //Here you can format your Date
-                    $.ajax({
-                            url: 'loadEventCalendar/loadStaffView',
-                            type: 'POST',
-                            
-                            data: {calDate:calDate
-                            },
-                            success: function (doc) {
-                                $('.fc-view').append(doc);
-                            }
-                        });
-                },
-                setHeight: function(height, isAuto) {
-                },
-                renderEvents: function(events) {
-                },
-                destroyEvents: function() {
-                },
-                renderSelection: function(range) {
-                },
-                destroySelection: function() {
-                }
-            });
-            FC1.views.agenda = StaffView; // register our class with the view system
-             */
             jQuery(".js-form-add-event").on("submit", function (e) {
                 e.preventDefault();
                 var data = $('#newEvent').val();
@@ -894,7 +839,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             });
 
 
-        $('#loadEditEventPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar,#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
+        $('#deleteFromCommentBox').on('hidden.bs.modal', function () {
             $('#calendarq').fullCalendar('refetchEvents');
         });
 
@@ -1052,7 +997,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             })
         })
     } */
-    function loadAddEventPopupFromCalendar(selectedate) {
+    // Made common code, This code is not in use
+    /* function loadAddEventPopupFromCalendar(selectedate) {
         $("#loadAddEventPopupFromCalendar").modal("show");
         $("#AddEventPageFromCalendar").html('Loading...');
         $("#preloader").show();
@@ -1070,8 +1016,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
             })
         })
-    }
-    function editEventFunction(evnt_id) {
+    } */
+    // Made common code. check addevent.js file
+    /* function editEventFunction(evnt_id) {
         $("#preloader").show();
         $("#loadEditEventPopup .modal-dialog").addClass("modal-xl");
         $(function () {
@@ -1089,8 +1036,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
             })
         })
-    }
-    function editSingleEventFunction(evnt_id) {
+    } */
+    // This code not in use
+    /* function editSingleEventFunction(evnt_id) {
         $("#preloader").show();
         $(function () {
             $.ajax({
@@ -1108,8 +1056,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
             })
         })
-    }
-    function deleteEventFunction(id,types) {
+    } */
+    // Not in use
+    /* function deleteEventFunction(id,types) {
       
       if(types=='single'){
           $("#deleteSingle").text('Delete Event');
@@ -1131,7 +1080,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
             })
         })
-    }
+    } */
     function resetButton(){
         var t= $("input:checkbox.event_type:checked").length;
             if(t==0){ $("#resetLink").hide(); }else{ $("#resetLink").show();}
