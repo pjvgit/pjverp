@@ -156,7 +156,12 @@ function loadDefaultEventReminder() {
     });
 }
 
-function loadAddEventPopup() {
+/**
+ * Load add event popup
+ * @param {*} selectedDate 
+ */
+function loadAddEventPopup(selectedDate = null) {
+    $("#loadAddEventPopup").modal('show');
     $("#AddEventPage").html('Loading...');
     $("#preloader").show();
     $(function () {
@@ -164,7 +169,9 @@ function loadAddEventPopup() {
             type: "POST",
             url: baseUrl + "/court_cases/loadAddEventPage", // json datasource
             data: {
-                "case_id": $("#case_id").val()
+                "case_id": $("#case_id").val(),
+                "lead_id": $("#lead_id").val(),
+                "selectedate": selectedDate,
             },
             success: function (res) {
                 $("#AddEventPage").html('Loading...');
@@ -220,3 +227,58 @@ function loadEventReminderPopup(event_id, event_recurring_id) {
         })
     })
 }
+
+/**
+ * Load event popup for single/multiple event
+ */
+function editEventFunction(evnt_id, event_recurring_id = null) {
+    $("#preloader").show();
+    $(function () {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadEditEventPage", // json datasource
+            data: {
+                "evnt_id":evnt_id,
+                "from":"edit",
+                "event_recurring_id": event_recurring_id
+            },
+            success: function (res) {
+                $("#loadCommentPopup").modal('hide');
+                $("#loadEditEventPopup .modal-dialog").addClass("modal-xl");
+                $("#EditEventPage").html('');
+                $("#EditEventPage").html(res);
+                $("#preloader").hide();
+            }
+        })
+    })
+}
+
+/**
+ * Load delete event popup for single/multiple event
+ * @param {*} eventRecurringId 
+ * @param {*} eventId 
+ * @param {*} types 
+ */
+function deleteEventFunction(eventRecurringId, eventId, types) {
+    if(types=='single'){
+        $("#deleteSingle").text('Delete Event');
+    }else{
+      $("#deleteSingle").text('Delete Recurring Event');
+    }
+      $("#preloader").show();
+      $(function () {
+          // alert(id);
+          $.ajax({
+              type: "POST",
+              url: baseUrl + "/court_cases/deleteEventPopup", 
+              data: {
+                  "event_recurring_id": eventRecurringId, 'event_id': eventId
+              },
+              success: function (res) {
+                  $("#deleteEventModalBody").html('');
+                  $("#deleteEventModalBody").html(res);
+                  $("#preloader").hide();
+              }
+          })
+      })
+  }

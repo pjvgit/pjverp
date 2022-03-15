@@ -336,7 +336,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('court_cases/deleteEvent', 'CaseController@deleteEvent')->name('court_cases/deleteEvent');
     Route::post('court_cases/loadAfterFirstCase', 'CaseController@loadAfterFirstCase')->name('court_cases/loadAfterFirstCase');
     Route::post('court_cases/loadEditEventPage', 'CaseController@loadEditEventPage')->name('court_cases/loadEditEventPage');
-    Route::post('court_cases/loadSingleEditEventPage', 'CaseController@loadSingleEditEventPage')->name('court_cases/loadSingleEditEventPage');
+    // Made common code. Not in use
+    // Route::post('court_cases/loadSingleEditEventPage', 'CaseController@loadSingleEditEventPage')->name('court_cases/loadSingleEditEventPage');
     Route::post('court_cases/loadCaseTimeline', 'CaseController@loadCaseTimeline')->name('court_cases/loadCaseTimeline');
 
     Route::post('court_cases/saveEditEventPage', 'CaseController@saveEditEventPage')->name('court_cases/saveEditEventPage');
@@ -377,7 +378,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     // Inner tabs
     Route::get('court_cases/{id}/info','CaseController@showCaseDetails')->name('info');
     Route::get('court_cases/{id}/recent_activity','CaseController@showCaseDetails')->name('recent_activity');
-    Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
+    // Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
     Route::get('court_cases/{id}/documents','CaseController@showCaseDetails')->name('documents');
     Route::get('court_cases/{id}/tasks','CaseController@showCaseDetails')->name('tasks');
     Route::get('court_cases/{id}/notes','CaseController@showCaseDetails')->name('notes');
@@ -515,7 +516,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
 
      //Calender Module
     Route::middleware(['permission:event_add_edit|event_view'])->group(function () {
-     Route::get('events/', 'CalendarController@index')->name('events/');
+    //  Route::get('events/', 'CalendarController@index')->name('events/');
      Route::get('events/{id}', 'CalendarController@eventDetail')->name('events/detail');
      Route::get('print_events', 'CalendarController@printEvents')->name('print_events');
      
@@ -523,12 +524,13 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      Route::post('loadEventCalendar/load', 'CalendarController@loadEventCalendar')->name('loadEventCalendar/load');
     //  Duplicate code, made common code
     //  Route::post('court_cases/loadAddEventPageFromCalendar', 'CalendarController@loadAddEventPageFromCalendar')->name('court_cases/loadAddEventPageFromCalendar');
-     Route::post('court_cases/loadAddEventPageSpecificaDate', 'CalendarController@loadAddEventPageSpecificaDate')->name('court_cases/loadAddEventPageSpecificaDate');
+    //  Route::post('court_cases/loadAddEventPageSpecificaDate', 'CalendarController@loadAddEventPageSpecificaDate')->name('court_cases/loadAddEventPageSpecificaDate');
     // Duplicate code, made common code
     //  Route::post('court_cases/loadCommentPopupFromCalendar', 'CalendarController@loadCommentPopupFromCalendar')->name('court_cases/loadCommentPopupFromCalendar');
-     Route::post('court_cases/loadSingleEditEventPageFromCalendar', 'CalendarController@loadSingleEditEventPageFromCalendar')->name('court_cases/loadSingleEditEventPageFromCalendar');
+    //  Route::post('court_cases/loadSingleEditEventPageFromCalendar', 'CalendarController@loadSingleEditEventPageFromCalendar')->name('court_cases/loadSingleEditEventPageFromCalendar');
      Route::post('court_cases/loadFirmAllStaff', 'CalendarController@loadFirmAllStaff')->name('court_cases/loadFirmAllStaff');
-     Route::post('court_cases/loadEditEventPageFromCalendarView', 'CalendarController@loadEditEventPageFromCalendarView')->name('court_cases/loadEditEventPageFromCalendarView');
+    // Duplicate code, made common code, not in use
+    //  Route::post('court_cases/loadEditEventPageFromCalendarView', 'CalendarController@loadEditEventPageFromCalendarView')->name('court_cases/loadEditEventPageFromCalendarView');
      Route::post('court_cases/loadGrantAccessPage', 'CalendarController@loadGrantAccessPage')->name('court_cases/loadGrantAccessPage');
      Route::post('court_cases/saveGrantAccessPage', 'CalendarController@saveGrantAccessPage')->name('court_cases/saveGrantAccessPage');
      Route::post('court_cases/saveConfirmGrantAccessPage', 'CalendarController@saveConfirmGrantAccessPage')->name('court_cases/saveConfirmGrantAccessPage');
@@ -685,8 +687,9 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      Route::post('leads/editCaseNotePopup','LeadController@editCaseNotePopup')->name('leads/editCaseNotePopup');
      Route::post('leads/updateCaseNotePopup','LeadController@updateCaseNotePopup')->name('leads/updateCaseNotePopup');
      Route::post('leads/deleteCaseNote','LeadController@deleteCaseNote')->name('leads/deleteCaseNote');
-
-    Route::post('leads/loadAddEventPage', 'LeadController@loadAddEventPage')->name('leads/loadAddEventPage');
+    
+    // Made common code, this code not in use
+    // Route::post('leads/loadAddEventPage', 'LeadController@loadAddEventPage')->name('leads/loadAddEventPage');
     Route::post('leads/saveCaseEvent', 'LeadController@saveCaseEvent')->name('leads/saveCaseEvent');
     Route::post('leads/loadEditEventPage', 'LeadController@loadEditEventPage')->name('leads/loadEditEventPage');
     Route::post('leads/loadSingleEditEventPage', 'LeadController@loadSingleEditEventPage')->name('leads/loadSingleEditEventPage');
@@ -1051,7 +1054,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
 
     Route::get('bills/invoices/{id}/edit', 'BillingController@editInvoice')->name('bills/invoices/edit')->middleware('permission:billing_add_edit');
     Route::post('bills/invoices/resendUpdatedInvoice', 'BillingController@resendUpdatedInvoice')->name('bills/invoices/resendUpdatedInvoice');
-    Route::post('bills/invoices/payInvoice', 'BillingController@payInvoice')->name('bills/invoices/payInvoice');
+    // Not in use
+    // Route::post('bills/invoices/payInvoice', 'BillingController@payInvoice')->name('bills/invoices/payInvoice');
     Route::post('bills/invoices/saveTrustInvoicePaymentWithHistory', 'BillingController@saveTrustInvoicePaymentWithHistory')->name('bills/invoices/saveTrustInvoicePaymentWithHistory');
     // Route::post('bills/invoices/saveInvoicePaymentWithHistory', 'BillingController@saveInvoicePaymentWithHistory')->name('bills/invoices/saveInvoicePaymentWithHistory');
     Route::post('bills/invoices/refundPopup', 'BillingController@refundPopup')->name('bills/invoices/refundPopup');

@@ -149,6 +149,9 @@ if(isset($_GET['bank_account'])){
         }, function (start, end, label) {
             $("#daterange").val(label);
         });
+        @if(isset($range) && empty($range))
+        $("#daterange").val('');
+        @endif
         // $('#daterange').data('daterangepicker').setStartDate('03/01/2014');
         $("#bank_account").select2({
             placeholder: "Select a bank account",

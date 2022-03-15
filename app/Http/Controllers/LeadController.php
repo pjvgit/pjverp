@@ -26,6 +26,7 @@ use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit,App\InvoicePayment;
+use App\EventRecurring;
 use Exception;
 
 use App\Invoices,App\TimeEntryForInvoice,App\RequestedFund,App\InvoiceHistory,App\InvoiceAdjustment,App\FlatFeeEntry,App\ClientNotes,App\AllHistory;
@@ -2619,19 +2620,23 @@ class LeadController extends BaseController
         }
         if(\Route::current()->getName()=="case_details/calendars"){
             //Load only upcoming events
-            $allEvents = CaseEvent::select("*")->where("lead_id",$user_id);
+            /* $allEvents = CaseEvent::select("*")->where("lead_id",$user_id);
             if($request->upcoming_events && $request->upcoming_events == 'on') {
                 $allEvents = $allEvents->whereDate("start_date", ">=", date('Y-m-d'));
             }
             $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
             ->with("eventLinkedStaff", "eventType")
-            ->paginate(15)
-            /* ->groupBy(function($val) {
-                return Carbon::parse($val->start_date)->format('Y');
-            }) */;
+            ->paginate(15);
             if($request->ajax()) {
                 return view('case.view.load_event_list', compact('allEvents'));
+            } */
+            $allEvents = EventRecurring::whereHas('event', function($query) use($user_id) {
+                            $query->where('lead_id', $user_id);
+                        });
+            if(!isset($request->upcoming_events) || $request->upcoming_events == 'on') {
+                $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
             }
+            $allEvents = $allEvents->orderBy("start_date", "ASC")->with("event", "event.eventType")->get();
         }
 
         if(\Route::current()->getName()=="case_details/intake_forms"){

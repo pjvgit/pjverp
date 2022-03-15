@@ -101,7 +101,7 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                     <div class="col-md-2 form-group mb-3">
-                        <input class="form-control input-date input-start" id="start_date" value="{{ convertUTCToUserTimeZone('dateOnly') }}" name="start_date" type="text"
+                        <input class="form-control input-date input-start" id="start_date" value="{{ (!empty($currentDate)) ? date('m/d/Y',strtotime($currentDate)) : convertUTCToUserTimeZone('dateOnly') }}" name="start_date" type="text"
                             placeholder="mm/dd/yyyy">
 
                     </div>
@@ -124,7 +124,7 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                     <div class="col-md-2 form-group mb-3 ">
-                        <input class="form-control input-date input-end" id="end_date" value="{{ convertUTCToUserTimeZone('dateOnly') }}" name="end_date" type="text"
+                        <input class="form-control input-date input-end" id="end_date" value="{{ (!empty($currentDate)) ? date('m/d/Y',strtotime($currentDate)) : convertUTCToUserTimeZone('dateOnly') }}" name="end_date" type="text"
                             placeholder="mm/dd/yyyy">
 
                     </div>
@@ -383,7 +383,7 @@
 
             <div class="empty-sharing-list text-muted text-left hideUser" id="hideUser"><p>Select a case or lead to share this event with clients and firm members. Check "This event is not linked to a case or lead" to share only with firm members.</p></div> 
             <section class="sharing-list" id="add_event_right_section">
-                <div class="loader-bubble loader-bubble-primary"></div>
+                <div class="loader-bubble loader-bubble-primary right-section-loader" style="display: none;"></div>
             </section>
         </div>
     </div>
@@ -416,7 +416,7 @@
             dropdownParent: $("#loadAddEventPopup"),
         });
 
-        if( $('#case_id').length ) {
+        if( $('#case_id').length || $('#lead_id').length ) {
             changeCaseUser();
         }
         $("#reminder_user_type option[value='client-lead']").hide();
@@ -449,12 +449,6 @@
         $("#start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
             $("#end_date-error").text('');
-            // var date = new Date($(this).val());
-            // $("#monthly-frequency").find('option').remove();
-            // $("#monthly-frequency").append(
-            //     '<option value="MONTHLY_ON_DAY">On day '+date.getDate+'</option><option value="MONTHLY_ON_THE">'+getNthDayOfMonth(date)+'</option>'
-            // );
-            // $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
             updateMonthlyWeeklyOptions();
         });
         $("#end_date").datepicker().on('change',function(e){
@@ -810,11 +804,13 @@
         })
     } */
     function loadLeadUsers(lead_id) {
+        $(".right-section-loader").show();
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadLeadRightSection",
             data: {"lead_id": lead_id},
             success: function (res) {
+                $(".right-section-loader").hide();
                 $("#add_event_right_section").html(res);
               
             }
@@ -822,11 +818,13 @@
     }
     
     function loadRightSection(case_id) {
+        $(".right-section-loader").show();
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadEventRightSection",
             data: {"case_id": case_id},
             success: function (res) {
+                $(".right-section-loader").hide();
                 $("#add_event_right_section").html(res);
             }
         })
@@ -900,6 +898,7 @@
     $("input:checkbox#no_case_link").click(function () {
         if ($(this).is(":checked")) {
             
+            $('#case_or_lead').val('');
             $('#case_or_lead').prop('selectedIndex',0);
             $("#HideShowNonlink").hide();
             $("#add_event_right_section").html('');

@@ -864,6 +864,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 @section('page-js')
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets/js/custom/lead/converttocase.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+<script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
   function myFunction(id) {
     var links=$("#"+id).attr("link");

@@ -1082,8 +1082,11 @@ class CaseController extends BaseController
 
                 $allEvents = EventRecurring::whereHas('event', function($query) use($case_id) {
                                 $query->where('case_id', $case_id);
-                            })->orderBy("start_date", "ASC")
-                            ->with("event", "event.eventType", "event.eventLinkedStaff", "event.eventLinkedLead", "event.eventLinkedContact")->get();
+                            });
+                if(!isset($request->upcoming_events) || $request->upcoming_events == 'on') {
+                    $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
+                }
+                $allEvents = $allEvents->orderBy("start_date", "ASC")->with("event", "event.eventType")->get();
                 // $allEvents = Event::where('case_id', $case_id)->orderBy("start_date", "ASC")->with("eventType", "eventRecurring", "eventLinkedStaff", "eventLinkedLead", "eventLinkedContact")->get();
             }
 
@@ -2072,11 +2075,12 @@ class CaseController extends BaseController
         $country = Countries::get();
         $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
         $currentDateTime=$this->getCurrentDateAndTime();
+        $currentDate = $request->selectedate;
 
         $UserPreferanceReminder = UserPreferanceReminder::where("user_id",$authUser->id)->where("type","event")->get();
         //Get event type 
         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',$authUser->firm_name)->orderBy("status_order","ASC")->get();
-        return view('case.event.loadAddEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id','UserPreferanceReminder'));          
+        return view('case.event.loadAddEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id','UserPreferanceReminder', 'currentDate'));          
      }
     
     /**
@@ -3166,29 +3170,6 @@ class CaseController extends BaseController
                 if($request->event_frequency=='DAILY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        $eitem->fill([
-                            "event_title" => ($request->updated_event_name) ? $request->updated_event_name : $eitem->event_title,
-                            "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
-                            "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
-                            "event_type_id" => ($request->updated_event_type) ? $request->updated_event_type : $eitem->event_type_id,
-                            "start_date" => ($request->updated_start_date) ? $start_date : $eitem->start_date,
-                            "end_date" => ($request->updated_end_date) ? $end_date : $eitem->end_date,
-                            "start_time" => ($request->updated_start_time && !isset($request->all_day)) ? $start_time : $eitem->start_time,
-                            "end_time" => ($request->updated_end_time && !isset($request->all_day)) ? $end_time : $eitem->end_time,
-                            "recurring_event_end_date" => ($request->updated_end_on) ? convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone) : $eitem->recurring_event_end_date,
-                            "is_full_day" => (isset($request->updated_all_day)) ? "yes" : $eitem->is_full_day,
-                            "event_description" => ($eitem->description != '') ? $eitem->description : $request->updated_description,
-                            "is_recurring" => "yes",
-                            "event_location_id" => ($request->updated_case_location_list) ? $request->updated_case_location_list : $eitem->event_location_id,
-                            "event_recurring_type" => $request->event_frequency,
-                            "event_interval_day" => ($request->updated_event_interval_day) ? $request->updated_event_interval_day : $eitem->event_interval_day,
-                            "is_no_end_date" => (isset($request->updated_no_end_date_checkbox) && $request->end_on) ? "yes" : $eitem->is_no_end_date,
-                            "end_on" => (!isset($request->no_end_date_checkbox) && $request->updated_end_on) ? date("Y-m-d",strtotime($request->updated_end_on)) : $eitem->end_on,
-                            "is_event_private" => (isset($request->updated_is_event_private)) ? 'yes' : $eitem->is_event_private,
-                            "firm_id" => $authUser->firm_name,
-                            "updated_by" => $authUser->id,
-                        ])->save();
-                        $eitem->refresh();
                         if($eitem->event_interval_day != $request->event_interval_day) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
                             $eventRecurring = $this->saveDailyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
@@ -3208,6 +3189,29 @@ class CaseController extends BaseController
                                 ])->save();
                             }
                         }
+
+                        $eitem->fill([
+                            "event_title" => ($request->updated_event_name) ? $request->updated_event_name : $eitem->event_title,
+                            "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : $eitem->case_id,
+                            "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : $eitem->lead_id,
+                            "event_type_id" => ($request->updated_event_type) ? $request->updated_event_type : $eitem->event_type_id,
+                            "start_date" => ($request->updated_start_date) ? $start_date : $eitem->start_date,
+                            "end_date" => ($request->updated_end_date) ? $end_date : $eitem->end_date,
+                            "start_time" => ($request->updated_start_time && !isset($request->all_day)) ? $start_time : $eitem->start_time,
+                            "end_time" => ($request->updated_end_time && !isset($request->all_day)) ? $end_time : $eitem->end_time,
+                            "recurring_event_end_date" => ($request->updated_end_on) ? convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone) : $eitem->recurring_event_end_date,
+                            "is_full_day" => (isset($request->updated_all_day)) ? "yes" : $eitem->is_full_day,
+                            "event_description" => ($eitem->description != '') ? $eitem->description : $request->description,
+                            "is_recurring" => "yes",
+                            "event_location_id" => ($request->updated_case_location_list) ? $request->updated_case_location_list : $eitem->event_location_id,
+                            "event_recurring_type" => $request->event_frequency,
+                            "event_interval_day" => ($request->updated_event_interval_day) ? $request->updated_event_interval_day : $eitem->event_interval_day,
+                            "is_no_end_date" => (isset($request->updated_no_end_date_checkbox) && $request->end_on) ? "yes" : $eitem->is_no_end_date,
+                            "end_on" => (!isset($request->no_end_date_checkbox) && $request->updated_end_on) ? date("Y-m-d",strtotime($request->updated_end_on)) : $eitem->end_on,
+                            "is_event_private" => (isset($request->updated_is_event_private)) ? 'yes' : $eitem->is_event_private,
+                            "firm_id" => $authUser->firm_name,
+                            "updated_by" => $authUser->id,
+                        ])->save();
                     }
                     $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
 
@@ -3216,8 +3220,8 @@ class CaseController extends BaseController
                     foreach($oldEvents as $ekey => $eitem) {
                         $eitem->fill([
                             "event_title" => ($request->updated_event_name) ? $request->event_name : $eitem->event_title,
-                            "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
-                            "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
+                            "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : $eitem->case_id,
+                            "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : $eitem->lead_id,
                             "event_type_id" => ($request->event_type) ? $request->event_type : $eitem->event_type_id,
                             "start_date" => ($request->start_date) ? $start_date : $eitem->start_date,
                             "end_date" => ($request->end_date) ? $end_date : $eitem->end_date,
@@ -3254,7 +3258,7 @@ class CaseController extends BaseController
                             }
                         // }
                     }
-                    $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
+                    $this->saveEventRecentActivity($request, $request->event_id, $request->event_recurring_id);
                 } else if($request->event_frequency == 'CUSTOM') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
@@ -3491,8 +3495,8 @@ class CaseController extends BaseController
             $eventReminderData = ($eventRecurring) ? encodeDecodeJson($eventRecurring->event_reminders) : [];
             return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','eventRecurring'));          
      }
-
-     public function loadSingleEditEventPage(Request $request)
+    // Made common code. This code is not in use
+     /* public function loadSingleEditEventPage(Request $request)
      {
 
            $evnt_id=$request->evnt_id;
@@ -3541,7 +3545,7 @@ class CaseController extends BaseController
            $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$evnt_id)->get();
 
            return view('case.event.loadSingleEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','CaseEventLinkedContactLead'));          
-    }
+    } */
     public function loadCaseClientAndLeads(Request $request)
     {
         $case_id=$request->case_id;
@@ -3859,7 +3863,7 @@ class CaseController extends BaseController
     
     public function deleteEvent(Request $request)
     {
-        
+        // return $request->all();
         $eventId=$request->event_id;
         /* $CaseEvent = CaseEvent::find($eventId);
 
@@ -4010,7 +4014,7 @@ class CaseController extends BaseController
             $CommonController->addMultipleHistory($data);
 
             // For client recent activity
-            if($eventRecurring->event_linked_contact_lead) {
+            if($eventRecurring->event_linked_contact_lead && $event->case_id) {
                 $decodeContacts = encodeDecodeJson($eventRecurring->event_linked_contact_lead);
                 foreach($decodeContacts as $key => $item) {
                     $data['user_id'] = $item->contact_id;
@@ -4020,8 +4024,10 @@ class CaseController extends BaseController
                     $CommonController->addMultipleHistory($data);
                 }
             }
-            Log::info("comment email job dispatched");
-            dispatch(new EventCommentEmailJob($request->event_id, $authUser->firm_name, $eventComment, $authUser->id, $request->event_recurring_id));
+            if($event->case_id) {
+                Log::info("comment email job dispatched");
+                dispatch(new EventCommentEmailJob($request->event_id, $authUser->firm_name, $eventComment, $authUser->id, $request->event_recurring_id));
+            }
         }
         return response()->json(['errors'=>'']);
         exit;    
@@ -4305,13 +4311,13 @@ class CaseController extends BaseController
 
 
         //Client List
-        // $caseCllientSelection = User::select("first_name","last_name","id","parent_user","user_level")->where("id",$request->lead_id)->get();
-        $caseCllientSelection = User::leftJoin('lead_additional_info','lead_additional_info.user_id','=','users.id')->select("users.id","users.first_name","users.last_name","users.user_level","users.parent_user","lead_additional_info.client_portal_enable")->where("users.id",$request->lead_id)->get();
+        $caseCllientSelection = User::select("first_name","last_name","id","parent_user","user_level")->where("id",$request->lead_id)->get();
+        // $caseCllientSelection = User::leftJoin('lead_additional_info','lead_additional_info.user_id','=','users.id')->select("users.id","users.first_name","users.last_name","users.user_level","users.parent_user","lead_additional_info.client_portal_enable")->where("users.id",$request->lead_id)->get();
 
         //Load all staff
         $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->get();
         
-        if(isset($request->event_id) && $request->event_id!=''){
+        /* if(isset($request->event_id) && $request->event_id!=''){
             $caseLinkeSaved = CaseEventLinkedStaff::select("case_event_linked_staff.user_id")->where("case_event_linked_staff.event_id",$request->event_id)->get()->pluck('user_id');
             $caseLinkeSaved= $caseLinkeSaved->toArray();
 
@@ -4325,9 +4331,21 @@ class CaseController extends BaseController
             $caseLinkeSavedInviteLead= $caseLinkeSavedInviteLead->toArray();
             
             $from="edit";
-        }
+        } */
           
- 
+        $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
+        if($eventRecurring) {
+            $linkedStaff = encodeDecodeJson($eventRecurring->event_linked_staff);
+            $caseLinkeSaved = $linkedStaff->where('is_linked', 'yes')->pluck('user_id')->toArray();
+            $caseLinkeSavedAttending = $linkedStaff->where("is_linked","yes")->where('attending','yes')->pluck('user_id')->toArray();
+            // $caseNonLinkeSaved = $linkedStaff->where("is_linked","no")->pluck('user_id')->toArray();
+            // $caseNonLinkeSavedAttending = $linkedStaff->where("is_linked","no")->where('attending','yes')->pluck('user_id')->toArray();
+
+            $linkedContact = encodeDecodeJson($eventRecurring->event_linked_contact_lead);
+            $caseLinkeSavedAttendingLead = $linkedContact->where('attending','yes')->pluck('lead_id')->toArray();
+            $caseLinkeSavedInviteLead = $linkedContact->where('invite','yes')->pluck('lead_id')->toArray();           
+            $from="edit";
+        }
        
         return view('case.event.loadLeadRightSection',compact('caseCllientSelection','loadFirmUser','case_id'/* ,'caseLinkedStaffList' */,'caseLinkeSaved','caseLinkeSavedAttending','from','caseLinkeSavedAttendingLead','caseLinkeSavedInviteLead'));     
         exit;    

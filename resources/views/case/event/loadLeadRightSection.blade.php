@@ -27,22 +27,17 @@
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
                     </a>
-                    {{-- <?php if($val->client_portal_enable == '0'){?> 
-                    <i class="tooltip-alert" id="err_popover_{{ $val->id }}" data-toggle="popover" data-trigger="hover"  data-placement= "bottom"  title="" 
-                        data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' 
-                        data-html="true" data-original-title="" style="display: none;"></i>
-                    <?php } ?> --}}
                 </td>
                 <td>
                     <label class="mb-0">
                         <input data-email-present="false" name="LeadInviteClientCheckbox[]" value="{{$val->id}}" id="cleintUSER_{{$val->id}}" <?php if(in_array($val->id,$caseLinkeSavedInviteLead)){ ?> checked="checked" <?php } ?> 
-                            onclick="loadGrantAccessModal({{$val->id}});" {{-- data-client_portal_enable="{{$val->client_portal_enable}}" --}} type="checkbox"
+                            {{-- onclick="loadGrantAccessModal({{$val->id}});" --}} type="checkbox"
                             class="lead_client_share_all_users client-login-not-enabled handler-attached load-default-reminder">
                     </label>
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input  class="lead_client_attend_all_users {{-- {{ ($val->client_portal_enable == '0') ? 'not-enable-portal' : '' }} --}}"  id="attend_user_{{$val->id}}" 
+                        <input  class="lead_client_attend_all_users"  id="attend_user_{{$val->id}}" 
                         name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  
                         <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php } ?> {{ (in_array($val->id,$caseLinkeSavedInviteLead)) ? "" : "disabled" }}>
                     </label>
@@ -219,22 +214,8 @@
 
         $("#SelectAllLeadShare").click(function () {
             var multi = $('.lead_client_share_all_users');
-            /* var winners_array = [];
-            $.each(multi, function (index, item) {
-                if($(item).attr('data-client_portal_enable') == 0){
-                    winners_array.push( {name: $(item).val(), value: $(item).attr('data-client_portal_enable')} );  
-                    $("#err_popover_"+item.value).show();
-                }
-            }); */
 
             $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
-            /* if(winners_array.length > 0){
-                $.each(winners_array, function (index, item) {
-                    // $(".tooltip-alert").show();
-                    $("#cleintUSER_"+item.name).prop('checked',false);
-                });
-                $("#SelectAllLeadAttend").prop('checked', false);
-            } */
             $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             $(".not-enable-portal").prop('disabled', true);
             if(!$(this).is(":checked")) {
