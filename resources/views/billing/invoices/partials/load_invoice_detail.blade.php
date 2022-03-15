@@ -264,7 +264,7 @@
                             }
 
                         }?>
-                        @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['flat_fee']))
+                        @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['flat_fee']) && in_array("amount", $invoiceSetting['flat_fee']))
                         <tr>
                             <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['flat_fee']) && $invoiceSetting['flat_fee']) ? count($invoiceSetting['flat_fee']) - ( in_array('amount', $invoiceSetting['flat_fee']) ? 1 : 0 ) :'3' }}" class="total-summary-column" style="text-align: right;">
                                 Flat Fee Total:
@@ -472,10 +472,10 @@
                         }
                         
                     }?>
-                    @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']))
+                        @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']) && (in_array("line_total", $invoiceSetting['time_entry']) || in_array("hour", $invoiceSetting['time_entry'])))
                     <tr>
                         <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']) &&  $invoiceSetting['time_entry']) ? count($invoiceSetting['time_entry']) - 2 : '5' }}" class="total-summary-column" style="text-align: right;">
-                        Totals
+                            Totals
                         </td>                       
                         @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']) && in_array("hour", $invoiceSetting['time_entry']))
                         <td class="total-entries-total-hours total-data-column" style="text-align: right; font-weight: bold;">
@@ -669,7 +669,7 @@
                     }
 
                 }?>
-                @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['expense']))
+                @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['expense']) && in_array("line_total", $invoiceSetting['expense']))
                 <tr>
                     <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['expense']) && $invoiceSetting['expense']) ? count($invoiceSetting['expense']) - 1 : '6' }}" style="text-align: right; padding-top: 5px;">
                         Expense Total:

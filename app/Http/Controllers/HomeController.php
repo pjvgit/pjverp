@@ -947,7 +947,9 @@ class HomeController extends BaseController
 
     public function saveTimer(Request $request){
         $SmartTimer = SmartTimer::find($request->smart_timer_id);
-        $SmartTimer->stopped_at = date("Y-m-d H:i:s");
+        session(["paused_time" => date("Y-m-d H:i:s")]);                
+        $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
+        $SmartTimer->is_pause = 1;
         $SmartTimer->case_id = $request->case_id;
         $SmartTimer->save();
         // $SmartTimer

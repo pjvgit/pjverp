@@ -104,7 +104,7 @@
                 </div>
                 <div class="pl-4 col-3">
                     <div class=""><input id="duration-field" maxlength="15" name="duration_field"
-                            class="form-control text-right" min="0" value=""></div>
+                            class="form-control text-right" min="0" value="0"></div>
                 </div>
             </div>
             <div class="row ">
@@ -187,7 +187,15 @@
                             return status;
                         }
                     },
-                    min: 0.1,
+                    min: {
+                        depends: function (element) {
+                            var val = 0.1;
+                            if ($("#rate_type_field_id option:selected").val() == "flat") {
+                                var status = 0;
+                            }
+                            return status;
+                        }
+                    },
                     number: true
                 }
             },

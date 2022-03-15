@@ -86,7 +86,8 @@
                 },
                 rate_field_id: {
                     required: true,
-                    number: true
+                    number: true,
+                    min: 0.1,
                 }
             },
             messages: {
@@ -97,7 +98,8 @@
 
                 rate_field_id: {
                     required: "Amount can't be blank",
-                    number: "Amount field allows number only."
+                    number: "Amount field allows number only.",
+                    min: "Amount must be greater than 0"
                 }
             },errorPlacement: function (error, element) {
                 if (element.is('#staff_user')) {

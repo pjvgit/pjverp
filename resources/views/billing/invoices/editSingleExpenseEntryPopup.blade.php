@@ -175,7 +175,8 @@
                 },
                 duration_field: {
                     required: true,
-                    number: true
+                    number: true,
+                    min:0.1,
                 }
             },
             messages: {
@@ -193,7 +194,8 @@
                 },
                 duration_field: {
                     required: "Duration can't be blank",
-                    number: "Allows number only."
+                    number: "Allows number only.",
+                    min: " Duration must be greater than 0"
                 }
             },
             errorPlacement: function (error, element) {
