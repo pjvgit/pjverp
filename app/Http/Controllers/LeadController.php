@@ -3163,7 +3163,7 @@ class LeadController extends BaseController
     }
     
 
-    public function loadAddEventPage(Request $request)
+    /* public function loadAddEventPage(Request $request)
     {
       $lead_id="";
       if(isset($request->lead_id)){
@@ -3224,13 +3224,18 @@ class LeadController extends BaseController
        
         return view('lead.details.case_detail.loadCaseRightSection',compact('caseCllientSelection','loadFirmUser','caseLinkeSavedAttending','from','task_id','nonLinkedSaved','caseLinkedStaffList','caseLinkeSaved'));     
         exit;    
-   }  
+   } */  
    public function loadAllCaseStaffMember(Request $request)
    {
         $SavedStaff=$from=$alreadySelected=$isAttending='';
-        if($request->event_id){
-            $alreadySelected = CaseEventLinkedStaff::select("user_id")->where("case_event_linked_staff.event_id",$request->event_id)->pluck("user_id")->toArray();
+        if($request->event_id && $request->event_recurring_id) {
+            /* $alreadySelected = CaseEventLinkedStaff::select("user_id")->where("case_event_linked_staff.event_id",$request->event_id)->pluck("user_id")->toArray();
             $isAttending= CaseEventLinkedStaff::select("user_id")->where("case_event_linked_staff.event_id",$request->event_id)->where("case_event_linked_staff.attending",'yes')->pluck("user_id")->toArray();
+            $from="edit"; */
+            $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->first();
+            $decodeJson = encodeDecodeJson($eventRecurring->event_linked_staff);
+            $alreadySelected = $decodeJson->pluck("user_id")->toArray();
+            $isAttending= $decodeJson->where("attending", 'yes')->pluck("user_id")->toArray();
             $from="edit";
         }
         $staffData = User::select("first_name","last_name","id","user_level")->where('user_level',3)->where("firm_name",Auth::user()->firm_name)->get();
@@ -3238,7 +3243,8 @@ class LeadController extends BaseController
         exit;    
     }
 
-    public function loadEditEventPage(Request $request)
+    // Made common code, this code is not in use
+    /* public function loadEditEventPage(Request $request)
     {
 
           $evnt_id=$request->evnt_id;
@@ -5180,7 +5186,7 @@ class LeadController extends BaseController
         session(['popup_success' => 'Event was updated.']);
         return response()->json(['errors'=>'']);
         exit;
-    }
+    } */
 
 
  
@@ -5188,7 +5194,8 @@ class LeadController extends BaseController
 
 
         /***********************LEAD EVENT***************************** */
-    public function saveCaseEvent(Request $request)
+    // Made common code, this code is not in use
+    /* public function saveCaseEvent(Request $request)
     {
         $CommonController= new CommonController();
         $validator = \Validator::make($request->all(), [
@@ -5905,7 +5912,7 @@ class LeadController extends BaseController
                 $alreadyAdded[]=$request['share_checkbox_nonlinked'][$i];
             }
         }
-   }
+   } */
         /***********************LEAD EVENT***************************** */
 
 

@@ -6,7 +6,14 @@
         </tr>
     </thead>
     <tbody class="fc-body">
+        @php
+            $userTimezone = auth()->user()->user_timezone ?? 'UTC';
+        @endphp
         @forelse ($events as $item)
+            @php
+                $startDateTime= convertUTCToUserTime($item->start_date.' '.$item->event->start_time, $userTimezone);
+                $endDateTime= convertUTCToUserTime($item->end_date.' '.$item->event->end_time, $userTimezone);
+            @endphp
             <tr>
                 <td>{{ date('D, M d', strtotime($item->start_date)) }}</td>
                 <td>{{ date('h:i A',strtotime($item->st)) }} - {{ date('h:i A',strtotime($item->et)) }}</td>

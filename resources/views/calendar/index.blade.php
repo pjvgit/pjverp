@@ -768,7 +768,10 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 
                     $("#addevbutton").remove();
                     @can('event_add_edit')
-                    $(".fc-right").append(' <span id="addevbutton"><a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup();">Add Event</button></a></span>'); 
+                    $(".fc-right").append(' <span id="addevbutton">\
+                        <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> \
+                            <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup(null, '+"'events'"+');">Add Event</button>\
+                        </a></span>'); 
                     $( "#dp" ).insertBefore( ".fc-today-button" );
                     @endcan
                    
@@ -785,12 +788,12 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                         var redirectURL=baseUrl+'/court_cases/'+event.case_id+'/info';
                         window.location.href=redirectURL;
                     }else {
-                        loadEventComment(event.event_id, event.id);
+                        loadEventComment(event.event_id, event.id, 'events');
                     }
                 },
                 dayClick: function(date, jsEvent, view) {
                     // loadAddEventPopupFromCalendar(date.format());
-                    loadAddEventPopup(date.format());
+                    loadAddEventPopup(date.format(), 'events');
                 }
             });
             // calendar.render();            

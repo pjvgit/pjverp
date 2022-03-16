@@ -41,7 +41,7 @@
             <a href="{{route('insights/financials')}}" class="{{ Route::currentRouteName()=='insights/financials' ? 'myactive' : '' }}">Financial Insights</a>
         </li>
         @endcan
-        <li>
+        <li class="m2">
             <a href="{{route('time_entries/timesheet_calendar')}}"
                 class="{{ Route::currentRouteName()=='time_entries/timesheet_calendar' ? 'myactive' : '' }}">Timesheet Calendar</a>
         </li>

@@ -618,10 +618,11 @@
                         return false;
                     } else {
                         $('#loadAddEventPopup').modal("hide");
-                        window.location.reload();
-                        // loadMoreEvent(tab1Page = 1);
-                        // $(".innerLoader").css('display', 'none');
-
+                        @if($fromPageRoute == "events")
+                            $('#calendarq').fullCalendar('refetchEvents');
+                        @else
+                            window.location.reload();
+                        @endif
                     }
                 }
             });
@@ -886,19 +887,11 @@
             }
         })
     }
-    /* function chngeTy(sel){
-        if(sel.value=='client-lead'){
-            $("#reminder_type_"+sel.id+" option[value='text-sms']").show();
-            $("#reminder_type_"+sel.id+" option[value='popup']").hide();
-        }else{
-            $("#reminder_type_"+sel.id+" option[value='text-sms']").hide();
-            $("#reminder_type_"+sel.id+" option[value='popup']").show();
-        }
-    } */
+    
     $("input:checkbox#no_case_link").click(function () {
         if ($(this).is(":checked")) {
             
-            $('#case_or_lead').val('');
+            $('#case_or_lead').val('').trigger('change');
             $('#case_or_lead').prop('selectedIndex',0);
             $("#HideShowNonlink").hide();
             $("#add_event_right_section").html('');

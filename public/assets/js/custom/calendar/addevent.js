@@ -160,10 +160,11 @@ function loadDefaultEventReminder() {
  * Load add event popup
  * @param {*} selectedDate 
  */
-function loadAddEventPopup(selectedDate = null) {
+function loadAddEventPopup(selectedDate = null, fromPageRoute = null) {
     $("#loadAddEventPopup").modal('show');
     $("#AddEventPage").html('Loading...');
     $("#preloader").show();
+    alert();
     $(function () {
         $.ajax({
             type: "POST",
@@ -172,20 +173,21 @@ function loadAddEventPopup(selectedDate = null) {
                 "case_id": $("#case_id").val(),
                 "lead_id": $("#lead_id").val(),
                 "selectedate": selectedDate,
+                "from_page_route": fromPageRoute,
             },
             success: function (res) {
                 $("#AddEventPage").html('Loading...');
                 $("#AddEventPage").html(res);
                 $("#preloader").hide();
             }
-        })
-    })
+        });
+    });
 }
 
 /**
  * Load event detail/comment popup 
  */
-function loadEventComment(event_id, event_recurring_id) {
+function loadEventComment(event_id, event_recurring_id, fromPageRoute = null) {
     $("#loadCommentPopup").modal('show');
     $("#eventCommentPopup").html('Loading...');
     $("#preloader").show();
@@ -195,6 +197,7 @@ function loadEventComment(event_id, event_recurring_id) {
             url: baseUrl + "/court_cases/loadEventCommentPopup", // json datasource
             data: {
                 "event_id": event_id, event_recurring_id: event_recurring_id,
+                "from_page_route": fromPageRoute,
             },
             success: function (res) {
                 $("#eventCommentPopup").html('Loading...');
@@ -231,7 +234,7 @@ function loadEventReminderPopup(event_id, event_recurring_id) {
 /**
  * Load event popup for single/multiple event
  */
-function editEventFunction(evnt_id, event_recurring_id = null) {
+function editEventFunction(evnt_id, event_recurring_id = null, fromPageRoute = null) {
     $("#preloader").show();
     $(function () {
         $.ajax({
@@ -240,7 +243,8 @@ function editEventFunction(evnt_id, event_recurring_id = null) {
             data: {
                 "evnt_id":evnt_id,
                 "from":"edit",
-                "event_recurring_id": event_recurring_id
+                "event_recurring_id": event_recurring_id,
+                "from_page_route": fromPageRoute,
             },
             success: function (res) {
                 $("#loadCommentPopup").modal('hide');

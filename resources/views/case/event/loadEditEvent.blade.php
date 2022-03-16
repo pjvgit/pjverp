@@ -68,7 +68,7 @@
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-md-8 form-group mb-3">
                                 <label class="form-check-label">
-                                <input class="mr-2 no_case_link" type="checkbox" <?php if($evetData->case_id==''){?> checked="checked" <?php } ?> id="no_case_link" name="no_case_link">
+                                <input class="mr-2 no_case_link" type="checkbox" <?php if($evetData->case_id=='' && $evetData->lead_id == ''){?> checked="checked" <?php } ?> id="no_case_link" name="no_case_link">
                                     <span>This event is not linked to a case</span>
                                 </label>
 
@@ -561,6 +561,10 @@
                 $('#end_on').removeAttr("disabled");
             } */
         
+        @if($evetData->case_id=='' && $evetData->lead_id == '')
+            firmStaff();
+        @endif
+        
         $(".case_or_lead").select2({
             placeholder: "Select...",
             theme: "classic",
@@ -775,10 +779,11 @@
                         return false;
                     } else {
                         $('#loadEditEventPopup').modal("hide");
-                        window.location.reload();
-                        // loadMoreEvent(tab1Page = 1);
-                        // $(".innerLoader").css('display', 'none');
-
+                        @if($fromPageRoute == "events")
+                            $('#calendarq').fullCalendar('refetchEvents');
+                        @else
+                            window.location.reload();
+                        @endif
                     }
                 }
             });
@@ -980,7 +985,7 @@
             }
         })
     } */
-    function loadAllFirmStaff() {
+    /* function loadAllFirmStaff() {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadFirmAllStaff",
@@ -989,7 +994,7 @@
                 $("#displayStaffList").html(res);
             }
         })
-    }
+    } */
     function changeCaseUser() {
         $("#dynamicUSerTimes").html('');
 
@@ -1045,7 +1050,7 @@
         $.ajax({
             type: "POST",
             url: baseUrl + "/leads/loadAllCaseStaffMember",
-            data: "",
+            data: {"event_id": $("#event_id").val(), "event_recurring_id": $("#event_recurring_id").val()},
             success: function (res) {
                 $("#edit_event_right_section").html(res);
               

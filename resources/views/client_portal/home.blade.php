@@ -65,12 +65,12 @@
 					<h1 class="primary-heading">Upcoming Events</h1>
 					<ul class="list">
 						@php
-							$userTimezone = auth()->user()->user_timezone;
+							$userTimezone = auth()->user()->user_timezone ?? 'UTC';
 						@endphp
 						@forelse ($upcomingEvents as $key => $item)
 							@php
-								$startDateTime= convertUTCToUserTime($item->start_date.' '.@$item->event->start_time, $userTimezone ?? 'UTC');
-								$endDateTime= convertUTCToUserTime($item->end_date.' '.@$item->event->end_time, $userTimezone ?? 'UTC');
+								$startDateTime= convertUTCToUserTime($item->start_date.' '.@$item->event->start_time, $userTimezone);
+								$endDateTime= convertUTCToUserTime($item->end_date.' '.@$item->event->end_time, $userTimezone);
 							@endphp
 							<li class="list-row @if($item->is_view == 'no') is-unread @endif">
 								<a href="{{ route('client/events/detail', $item->decode_id) }}"><i class="fas fa-calendar-day list-row__icon"></i>

@@ -172,10 +172,11 @@
                 onclick="loadEventComment({{$item->event_id}}, {{$item->id}});">
                 @php
                     $commentCount = 0;
-                    if(count($item->event->eventLinkedStaff)) {
-                        $lastReadAt = $item->event->eventLinkedStaff()->wherePivot('user_id', auth()->id())->first();
+                    if(count($eventLinkedStaff)) {
+                        $lastReadAt = $eventLinkedStaff->where('user_id', $authUser->id)->first();
+                        $comments = encodeDecodeJson($item->event_comments);
                         if($lastReadAt)
-                            $commentCount = $item->event->eventComments->where("created_at", ">=", $lastReadAt->pivot->comment_read_at)->count();
+                            $commentCount = $comments->where("action_type", "0")->where("created_at", ">=", $lastReadAt->comment_read_at)->count();
                     }
                 @endphp
                 <i class="fas fa-comment-alt @if(!$commentCount) pr-2 @endif"></i>
