@@ -405,14 +405,15 @@ if(isset($_GET['task_read'])){
                                 <div class="actions-cell float-right">
                                     <div class="d-flex align-item-center task-action-buttons-16333660">
                                         <div>
-
+                                        <?php if(isset($subrow->case_name)){?>
                                             <a class="align-items-center" data-toggle="modal"
                                                 data-target="#loadTimeEntryPopup" data-placement="bottom"
-                                                href="javascript:;" onclick="loadTimeEntryPopup({{$subrow->id}});">
+                                                href="javascript:;" onclick="loadTimeEntryPopup({{$subrow->id}}),{{$subrow->case_id ?? 0}});">
                                                 <span data-toggle="popover" data-trigger="hover" title=""
                                                     data-content="Add time entry" data-placement="top" data-html="true">
                                                     <i class="fas fa-clock pr-3 align-middle"></i></span>
                                             </a>
+                                        <?php } ?>
                                         </div>
                                         <div>
 
@@ -739,14 +740,15 @@ if(isset($_GET['task_read'])){
                                 <div class="actions-cell float-right">
                                     <div class="d-flex align-item-center task-action-buttons-16333660">
                                         <div>
-
+                                        <?php if(isset($subrow->case_name)){?>
                                             <a class="align-items-center" data-toggle="modal"
                                                 data-target="#loadTimeEntryPopup" data-placement="bottom"
-                                                href="javascript:;" onclick="loadTimeEntryPopup({{$subrow->id}});">
+                                                href="javascript:;" onclick="loadTimeEntryPopup({{$subrow->id}},{{$subrow->case_id ?? 0}});">
                                                 <span data-toggle="popover" data-trigger="hover" title=""
-                                                    data-content="Add time entry" data-placement="top" data-html="true">
+                                                data-content="Add time entry" data-placement="top" data-html="true">
                                                     <i class="fas fa-clock pr-3 align-middle"></i></span>
                                             </a>
+                                            <?php } ?>
                                         </div>
                                         <div>
 
@@ -1430,7 +1432,7 @@ if(isset($_GET['task_read'])){
         })
     }
 
-    function loadTimeEntryPopup(id) {
+    function loadTimeEntryPopup(id, case_id = '') {
         $("#preloader").show();
         $("#addTimeEntry").html('');
         $("#addTimeEntry").html('<img src="{{LOADER}}""> Loading...');
@@ -1439,7 +1441,8 @@ if(isset($_GET['task_read'])){
                 type: "POST",
                 url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
                 data: {
-                    "task_id": id
+                    "task_id": id, 
+                    "case_id": case_id
                 },
                 success: function (res) {
                     $("#addTimeEntry").html('');

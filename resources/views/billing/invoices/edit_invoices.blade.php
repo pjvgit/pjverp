@@ -123,9 +123,9 @@ $nonBillableAmount = 0;
                                                     <select name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>
-                                                        <option value="none" <?php if($case_id=="none"){ echo "selected=selected";}else{ echo "disabled=disabled";} ?>>None</option>
+                                                        <option value="none" <?php if($case_id=="none"){ echo "selected=selected";} ?>>None</option>
                                                         <?php foreach($caseListByClient as $key=>$val){ ?>
-                                                        <option value="{{$val->id}}" <?php if($val->id==$findInvoice->case_id){ echo "selected=selected";}else{ echo "disabled=disabled";} ?>  > 
+                                                        <option value="{{$val->id}}" <?php if($val->id==$findInvoice->case_id){ echo "selected=selected";} ?>  > 
                                                             {{substr($val->case_title,0,200)}}
                                                         </option>
                                                         <?php } ?>
@@ -2714,7 +2714,10 @@ $nonBillableAmount = 0;
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-
+        if(localStorage.getItem("invoice_id") !== "{{$findInvoice->id}}" || localStorage.getItem("client_id") !== "{{$client_id}}"){
+            localStorage.setItem("invoice_id", "{{$findInvoice->id}}");
+            localStorage.setItem("showWarning", 0);
+        }
         $('[data-toggle="tooltip"]').tooltip({
             trigger : 'hover'
         });
@@ -2777,7 +2780,7 @@ $nonBillableAmount = 0;
             'clearBtn': false,
             'todayHighlight': true
         }).on('change',function(selected){
-            if($(this).val()){
+            if($(this).val() && localStorage.getItem("showWarning") > 0 ){
                 swal({
                     title: 'warning',
                     text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
@@ -3704,6 +3707,18 @@ $nonBillableAmount = 0;
         })
        
     }
+
+    var court_case_id =  $("#court_case_id").val()
+    $("#court_case_id").on("change", function() {
+        $("#court_case_id").val(court_case_id);
+        swal({
+            title: '',
+            text: "No es posible cambiar el Caso para facturas que ya fueron creadas. Favor de crear una nueva factura.",
+            type: 'warning'
+        });
+            
+    });
+
     function changeCase(){
         var case_id=$("#court_case_id").val();
         var bill_from_date=$("#bill_from_date").val();
@@ -4569,9 +4584,11 @@ $nonBillableAmount = 0;
             finaltotal = parseFloat(finaltotal) + parseFloat(due);
             isCheck = "yes";
             arr[$(this).val()] = 'checked';
+            localStorage.setItem("showWarning",localStorage.getItem("showWarning") + 1);
         } else {
             delete arr[$(this).val()];
             finaltotal = parseFloat(finaltotal) - parseFloat(due);
+            localStorage.setItem("showWarning",localStorage.getItem("showWarning") - 1);
         }
         $("#final_total").text(finaltotal.toFixed(2));
         $("#final_total_text").val(finaltotal.toFixed(2));
@@ -4605,8 +4622,11 @@ $nonBillableAmount = 0;
                 }
             });
         }
-       
         forwardedInvoicesCalculate();
+        var PaymentPlanExits = "{{ count($InvoiceInstallment) }}";
+        if(PaymentPlanExits > 0){
+            installmentCalculation();
+        }
     });
 
     $(document).on("change", ".forwarded-invoices-check-old", function() {

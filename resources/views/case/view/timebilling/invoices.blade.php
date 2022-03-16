@@ -4,11 +4,6 @@
         data-can-add-time-entry="true" data-can-view-billing-rate="true">
         <div id="time-entry-filter-and-table">
             <div class="d-flex justify-content-between py-1">
-                <div class="date-range d-flex align-items-center">
-                    <div class="date-range-filter-dropdown dropdown">
-                       
-                    </div>
-                </div>
                 @if($caseBiller != null)
                     @can(['case_add_edit', 'billing_add_edit'])
                     <a  href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}&contact={{$caseBiller['uid'] ?? ''}}">
@@ -25,6 +20,11 @@
                     </button>
                 </div>
                 @endif
+                <div class="date-range d-flex align-items-center">
+                    <div class="date-range-filter-dropdown dropdown">
+                        
+                    </div>
+                </div>
             </div>
             <div data-testid="mc-table-container" style="font-size: small;">
                 <table class="display table table-striped table-bordered" id="invoiceGrid" style="width:100%">

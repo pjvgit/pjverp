@@ -27,7 +27,7 @@
 
     <div class="ml-auto d-flex align-items-center d-print-none">
         @can("lead_add_edit")
-        <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="{{BASE_URL}}lead_setting#Statuses">Customize</a>
+        <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="/lead_setting#Statuses">Customize</a>
         @endcan
         <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
             <button onclick="setFeedBackForm('single','Lead Management');" type="button" class="btn btn-link pr-4 d-print-none text-black-50">Tell us what you think</button>

@@ -281,9 +281,12 @@ if(isset($_GET['office'])){
         </div>
         <div class="court-cases-insights-feedback-box mt-3 "
             style="border-width: 2px; border-radius: 5px; border-style: dashed; border-color: gainsboro; padding: 20px; text-align: center;">
-            <div class="footer-info-text mb-2" style="font-weight: bold;">What other charts, graphs or insights do
-                you want to see here?</div><button type="button" class="feedback-button btn btn-secondary">Submit
-                feedback</button>
+            <div class="footer-info-text mb-2" style="font-weight: bold;">
+            What other charts, graphs or insights do you want to see here?
+            </div>
+            <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                <button type="button" class="feedback-button btn btn-secondary" onclick="setFeedBackForm('single','Financial Insights');">Submit feedback</button>
+            </a>
         </div>
     </div>
 </div>

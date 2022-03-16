@@ -605,7 +605,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      Route::get('leads/tasks','LeadController@leadTasks')->name('leads/tasks');
      Route::post('leads/loadLeadTask', 'LeadController@loadLeadTask')->name('leads/loadLeadTask');
      
-    Route::post('leads/addLoadSingleTask', 'LeadController@addLoadSingleTask')->name('leads/addLoadSingleTask');
+     Route::post('leads/addLoadSingleTask', 'LeadController@addLoadSingleTask')->name('leads/addLoadSingleTask');
      Route::post('leads/loadAddTaskPopup', 'LeadController@loadAddTaskPopup')->name('leads/loadAddTaskPopup');
      Route::post('leads/saveAddTaskPopup', 'LeadController@saveAddTaskPopup')->name('leads/saveAddTaskPopup');
      Route::post('leads/loadRightSection', 'LeadController@loadRightSection')->name('leads/loadRightSection');
@@ -658,14 +658,14 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      Route::get('leads/{id}/communications/calls','LeadController@leadIno')->name('communications/calls');
      Route::get('leads/{id}/communications/emails','LeadController@leadIno')->name('communications/emails');
 
-     Route::post('leads/addCall','LeadController@addCall')->name('leads/addCall');
-     Route::post('leads/getMobileNumber','LeadController@getMobileNumber')->name('leads/getMobileNumber');
-     Route::post('leads/saveCall','LeadController@saveCall')->name('leads/saveCall');
-     Route::post('leads/loadCalls', 'LeadController@loadCalls')->name('leads/loadCalls');
-     Route::post('leads/deleteCallLog','LeadController@deleteCallLog')->name('leads/deleteCallLog');
-     Route::post('leads/editCall','LeadController@editCall')->name('leads/editCall');
-     Route::post('leads/updateCall','LeadController@updateCall')->name('leads/updateCall');
-     Route::post('leads/changeCallType','LeadController@changeCallType')->name('leads/changeCallType');
+    //  Route::post('leads/addCall','LeadController@addCall')->name('leads/addCall');
+    //  Route::post('leads/getMobileNumber','LeadController@getMobileNumber')->name('leads/getMobileNumber');
+    //  Route::post('leads/saveCall','LeadController@saveCall')->name('leads/saveCall');
+    //  Route::post('leads/loadCalls', 'LeadController@loadCalls')->name('leads/loadCalls');
+    //  Route::post('leads/deleteCallLog','LeadController@deleteCallLog')->name('leads/deleteCallLog');
+    //  Route::post('leads/editCall','LeadController@editCall')->name('leads/editCall');
+    //  Route::post('leads/updateCall','LeadController@updateCall')->name('leads/updateCall');
+    //  Route::post('leads/changeCallType','LeadController@changeCallType')->name('leads/changeCallType');
      
      Route::post('leads/reactivateLead','LeadController@reactivateLead')->name('leads/reactivateLead');
      Route::post('leads/doNotHireFromDetail', 'LeadController@doNotHireFromDetail')->name('leads/doNotHireFromDetail');
@@ -677,12 +677,12 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      Route::post('leads/deleteNote','LeadController@deleteNote')->name('leads/deleteNote');
 
 
-    Route::post('leads/leadActivity', 'LeadController@leadActivity')->name('leads/leadActivity');
-    Route::post('leads/editPotentailCase','LeadController@editPotentailCase')->name('leads/editPotentailCase');
-    Route::post('leads/savePotentailCase','LeadController@savePotentailCase')->name('leads/savePotentailCase');
-    Route::post('leads/caseActivityHistory', 'LeadController@caseActivityHistory')->name('leads/caseActivityHistory');
-    Route::post('leads/loadAllTaskByLead', 'LeadController@loadAllTaskByLead')->name('leads/loadAllTaskByLead');
-    Route::post('leads/addCaseNotePopup','LeadController@addCaseNotePopup')->name('leads/addCaseNotePopup');
+     Route::post('leads/leadActivity', 'LeadController@leadActivity')->name('leads/leadActivity');
+     Route::post('leads/editPotentailCase','LeadController@editPotentailCase')->name('leads/editPotentailCase');
+     Route::post('leads/savePotentailCase','LeadController@savePotentailCase')->name('leads/savePotentailCase');
+     Route::post('leads/caseActivityHistory', 'LeadController@caseActivityHistory')->name('leads/caseActivityHistory');
+     Route::post('leads/loadAllTaskByLead', 'LeadController@loadAllTaskByLead')->name('leads/loadAllTaskByLead');
+     Route::post('leads/addCaseNotePopup','LeadController@addCaseNotePopup')->name('leads/addCaseNotePopup');
      Route::post('leads/saveCaseNotePopup','LeadController@saveCaseNotePopup')->name('leads/saveCaseNotePopup');
      Route::post('leads/editCaseNotePopup','LeadController@editCaseNotePopup')->name('leads/editCaseNotePopup');
      Route::post('leads/updateCaseNotePopup','LeadController@updateCaseNotePopup')->name('leads/updateCaseNotePopup');
@@ -715,6 +715,16 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
 
     // Route::post('leads/collectFormData', 'LeadController@collectFormData')->name('leads/collectFormData');   
     });
+
+    Route::post('leads/addCall','LeadController@addCall')->name('leads/addCall');
+    Route::post('leads/getMobileNumber','LeadController@getMobileNumber')->name('leads/getMobileNumber');
+    Route::post('leads/saveCall','LeadController@saveCall')->name('leads/saveCall');
+    Route::post('leads/loadCalls', 'LeadController@loadCalls')->name('leads/loadCalls');
+    Route::post('leads/deleteCallLog','LeadController@deleteCallLog')->name('leads/deleteCallLog');
+    Route::post('leads/editCall','LeadController@editCall')->name('leads/editCall');
+    Route::post('leads/updateCall','LeadController@updateCall')->name('leads/updateCall');
+    Route::post('leads/changeCallType','LeadController@changeCallType')->name('leads/changeCallType');
+     
     //Invoice
     Route::post('leads/loadInvoices', 'LeadController@loadInvoices')->name('leads/loadInvoices');
     Route::post('leads/addNewInvoices', 'LeadController@addNewInvoices')->name('leads/addNewInvoices');
