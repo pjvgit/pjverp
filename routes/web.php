@@ -378,7 +378,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     // Inner tabs
     Route::get('court_cases/{id}/info','CaseController@showCaseDetails')->name('info');
     Route::get('court_cases/{id}/recent_activity','CaseController@showCaseDetails')->name('recent_activity');
-    // Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
+    Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
     Route::get('court_cases/{id}/documents','CaseController@showCaseDetails')->name('documents');
     Route::get('court_cases/{id}/tasks','CaseController@showCaseDetails')->name('tasks');
     Route::get('court_cases/{id}/notes','CaseController@showCaseDetails')->name('notes');
@@ -516,7 +516,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
 
      //Calender Module
     Route::middleware(['permission:event_add_edit|event_view'])->group(function () {
-    //  Route::get('events/', 'CalendarController@index')->name('events/');
+     Route::get('events/', 'CalendarController@index')->name('events/');
      Route::get('events/{id}', 'CalendarController@eventDetail')->name('events/detail');
      Route::get('print_events', 'CalendarController@printEvents')->name('print_events');
      
