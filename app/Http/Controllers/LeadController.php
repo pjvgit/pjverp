@@ -7213,7 +7213,7 @@ class LeadController extends BaseController
         ->Where('user_status',1)
         ->where('user_level',5)
         ->orWhere('user_level',2)
-        ->where("parent_user",Auth::user()->id)->get();
+        ->where("parent_user",Auth::user()->parent_user)->get();
         
         //Get potential case list
         $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
@@ -7228,14 +7228,15 @@ class LeadController extends BaseController
         //Get Actual case list
         $CaseMasterData = DB::table('case_master')->select("id","case_title");
         //If Parent user logged in then show all child case to parent
-        if(Auth::user()->parent_user==0){
-            $getChildUsers =$this->getParentAndChildUserIds();
-            $CaseMasterData = $CaseMasterData->whereIn("case_master.created_by",$getChildUsers);
-        }else{
-            $CaseMasterData = $CaseMasterData->where("case_master.id",Auth::user()->id);
-        }
+        // if(Auth::user()->parent_user==0){
+        //     $getChildUsers =$this->getParentAndChildUserIds();
+        //     $CaseMasterData = $CaseMasterData->whereIn("case_master.created_by",$getChildUsers);
+        // }else{
+        //     $CaseMasterData = $CaseMasterData->where("case_master.id",Auth::user()->id);
+        // }
+        $CaseMasterData = $CaseMasterData->where("case_master.firm_id",Auth::user()->firm_name);
         $CaseMasterData=$CaseMasterData->where('is_entry_done',"1")->get();
-
+        
         $getAllFirmUser=firmUserList();
         $case_id='';
         if(isset($request->case_id) && $request->case_id != ''){
@@ -7364,7 +7365,12 @@ class LeadController extends BaseController
     {
         $call_id=$request->id;
         //Get client and lead list
-        $ClientAndLead = DB::table('users')->select("first_name","last_name","id","user_level","user_title")->where('user_level',5)->orWhere('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        $ClientAndLead = DB::table('users')->select("first_name","firm_name","last_name","id","user_level","user_title")
+        ->where("firm_name",Auth::user()->firm_name)
+        ->Where('user_status',1)
+        ->where('user_level',5)
+        ->orWhere('user_level',2)
+        ->where("parent_user",Auth::user()->parent_user)->get();
 
         //Get potential case list
         $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
@@ -7379,12 +7385,13 @@ class LeadController extends BaseController
         //Get Actual case list
         $CaseMasterData = DB::table('case_master')->select("id","case_title");
         //If Parent user logged in then show all child case to parent
-        if(Auth::user()->parent_user==0){
-            $getChildUsers =$this->getParentAndChildUserIds();
-            $CaseMasterData = $CaseMasterData->whereIn("case_master.created_by",$getChildUsers);
-        }else{
-            $CaseMasterData = $CaseMasterData->where("case_master.id",Auth::user()->id);
-        }
+        // if(Auth::user()->parent_user==0){
+        //     $getChildUsers =$this->getParentAndChildUserIds();
+        //     $CaseMasterData = $CaseMasterData->whereIn("case_master.created_by",$getChildUsers);
+        // }else{
+        //     $CaseMasterData = $CaseMasterData->where("case_master.id",Auth::user()->id);
+        // }
+        $CaseMasterData = $CaseMasterData->where("case_master.firm_id",Auth::user()->firm_name);
         $CaseMasterData=$CaseMasterData->where('is_entry_done',"1")->get();
 
         $getAllFirmUser=firmUserList();

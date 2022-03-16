@@ -263,7 +263,7 @@ class ReportsController extends BaseController
             ->leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
             ->leftJoin("invoices","invoices.id","=","task_time_entry.invoice_link")
             ->select('task_time_entry.*')
-            ->where("case_master.id",$case->id)->whereNull("invoices.deleted_at");
+            ->where("case_master.id",$case->id)->where("task_time_entry.status",'paid')->whereNull("invoices.deleted_at");
             $TimeEntry = $TimeEntry->whereBetween("task_time_entry.entry_date",[$startDt,$endDt]);
             $TimeEntry = $TimeEntry->get();
             
@@ -309,7 +309,7 @@ class ReportsController extends BaseController
             ->leftJoin("case_master","case_master.id","=","expense_entry.case_id")
             ->leftJoin("invoices","invoices.id","=","expense_entry.invoice_link")
             ->select('expense_entry.*')
-            ->where("case_master.id",$case->id)->whereNull("invoices.deleted_at");
+            ->where("case_master.id",$case->id)->where("expense_entry.status",'paid')->whereNull("invoices.deleted_at");
             $ExpenseEntry = $ExpenseEntry->whereBetween("expense_entry.entry_date",[$startDt,$endDt]);
             $ExpenseEntry = $ExpenseEntry->get();
             
@@ -364,7 +364,8 @@ class ReportsController extends BaseController
                 $caseInvoicePaidAmount += str_replace(",","",$v->paid_amount);
                 if(str_replace(",","",$v->paid_amount) > 0){
                     if($v->case_id == $case->id){
-                        $invPaidRecors[$case->id][$v->id]['paidAmount'][] = str_replace(",","",$v->paid_amount);
+                        $invoicePayment = InvoicePayment::where('invoice_id', $v->id)->whereBetween("payment_date",[$startDt,$endDt])->sum('amount_paid');
+                        $invPaidRecors[$case->id][$v->id]['paidAmount'][] = str_replace(",","",$invoicePayment);
                         $invPaidRecors[$case->id][$v->id]['totalAmount'][] = str_replace(",","",$v->total_amount);
                     }
                 }
@@ -464,10 +465,12 @@ class ReportsController extends BaseController
                         if(isset($val['paidAmount']) && $val['paidAmount']> 0){
                             $totalPaidInvoice = array_sum(str_replace(",","",$val['paidAmount']));
                             $totalInvoiceCount = $val['totalInvoiceEntry'] ?? 0;
-                            \Log::info("case_id > ".$case->id." > totalPaidInvoice > ".$totalPaidInvoice." > totalAmount > ".$val['totalAmount'][0]);
-
-                            $totalDeductPercentage = (($totalPaidInvoice / (($val['totalAmount'][0] > 0) ? $val['totalAmount'][0] : $totalPaidInvoice)) * 100);
-                            
+                            // \Log::info("case_id > ".$case->id." > totalPaidInvoice > ".$totalPaidInvoice." > totalAmount > ".$val['totalAmount'][0]);
+                            if($totalPaidInvoice > 0){
+                                $totalDeductPercentage = (($totalPaidInvoice / (($val['totalAmount'][0] > 0) ? $val['totalAmount'][0] : $totalPaidInvoice)) * 100);
+                            }else{
+                                $totalDeductPercentage = 100;
+                            }
                             // echo  "totalPaidInvoice > ".$totalPaidInvoice.' > <br>';
                             if(isset($val['flatFee'])){                            
                                 if($totalPaidInvoice > 0){
@@ -573,7 +576,6 @@ class ReportsController extends BaseController
                                     //     $payBalanceForward += $totalPaidInvoice;
                                     //     $totalPaidInvoice = $totalPaidInvoice - $payBalanceForward;
                                     // }
-
                                     $payBalanceForward += str_replace(",","",((array_sum($val['forwardedEntry'])  * $totalDeductPercentage) / 100));
                                     $totalPaidInvoice = $totalPaidInvoice - $payBalanceForward;
                                 }

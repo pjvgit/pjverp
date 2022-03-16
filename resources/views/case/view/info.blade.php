@@ -536,9 +536,12 @@
     </div>
     <div class="case-details-feedback-box mt-2 d-print-none pendo-case-info-feedback-button"
         style="border-width: 2px; border-radius: 5px; border-style: dashed; border-color: gainsboro; padding: 20px; text-align: center;">
-        <div class="footer-info-text mb-2" style="font-weight: bold;">What other charts,
-            graphs or insights do you want to see here?</div><button type="button"
-            class="feedback-button btn btn-secondary">Submit feedback</button>
+        <div class="footer-info-text mb-2" style="font-weight: bold;">
+            What other charts,graphs or insights do you want to see here?
+        </div>
+        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+            <button type="button" class="feedback-button btn btn-secondary" onclick="setFeedBackForm('single','Case Details Tab');">Submit feedback</button>
+        </a>
     </div>
 </div>
 <div id="statusUpdate" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"

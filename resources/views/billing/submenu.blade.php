@@ -46,11 +46,11 @@
                 class="{{ Route::currentRouteName()=='time_entries/timesheet_calendar' ? 'myactive' : '' }}">Timesheet Calendar</a>
         </li>
      
-        <li class="">
+        <!-- <li class="">
             <a id="billing-guide-color" target="_blank" href="#">
                 <i class="fas fa-bookmark fa-bill-guide-icon" aria-hidden="true"></i> Billing Guide
             </a>
-        </li>
+        </li> -->
     </ul>
 </div>
 <style>

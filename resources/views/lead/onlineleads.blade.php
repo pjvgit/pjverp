@@ -48,17 +48,12 @@
                     if(count($leads)<=0){?>
                     <div class="opportunities-list" id="opportunities-list">
                         <div class="leads-empty-state m-5 d-flex flex-column justify-content-center align-items-center">
-                            <h1 class="font-weight-bold display-3">Setup Your</h1>
-                            <h1 class="font-weight-bold display-3">"Contact Us" Form</h1>
-                            <hr class="w-50 bg-dark">
-                            <p class="font-weight-bold mt-2 h1">This is where your prospective clients will display when
-                            </p>
-                            <p class="font-weight-bold h1">a "Contact Us" Form is submitted from your website.</p>
-                            <p class="h4 mt-3 mb-4">Don't know how to use the {{config('app.name')}} contact us form? <a
-                                    target="_blank" rel="noreferrer noopener" href="#">Click here</a></p><button
-                                type="button"
+                            <i class="far fa-address-card my-4 fa-5x" data-testid="empty-state-icon"></i>
+                            <p class="font-weight-bold mt-2 h1">Automatically Turn Website Inquiries into Leads</p>
+                            <p class="h6 mt-3 mb-4">Stop manually entering every Lead’s information, and direct them to your website instead to fill out a contact form and they will appear as a lead in LegalCase. </p>
+                            <a target="_blank" rel="noreferrer noopener" href="{{ route('form_templates') }}" 
                                 class="d-flex justify-content-center align-items-center btn btn-info">Setup Contact
-                                Us Form Now</button>
+                                Us Form Now</button></a>
                         </div>
                     </div>
                     <?php }else{ ?>

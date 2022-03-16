@@ -9450,7 +9450,8 @@ class BillingController extends BaseController
          ->leftJoin("case_master","invoices.case_id","=","case_master.id")
          ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
          ->where("invoices.created_by",Auth::user()->id)
-         ->where("invoices.status","!=","Paid");
+         ->where("invoices.status","!=","Paid")
+         ->where("invoices.due_amount",">","0");
       
          $Invoices=$Invoices->get();
 
