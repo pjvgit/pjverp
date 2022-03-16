@@ -250,7 +250,7 @@
                                         </a>
                                     </li>
                                     @endcan
-                                    <li class="nav-item">
+                                    <li class="nav-item m2">
                                         <a class="{{ Route::currentRouteName()=='time_entries/timesheet_calendar' ? 'open' : '' }}"
                                             href="{{route('time_entries/timesheet_calendar')}}">
                                             <span class="item-name">Timesheet Calendar</span>

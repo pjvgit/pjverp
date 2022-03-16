@@ -30,7 +30,7 @@ class EventController extends Controller
                     }])->get(); */
         $authUserId = (string) auth()->id();
         $events = EventRecurring::whereJsonContains('event_linked_contact_lead', ["contact_id" => $authUserId])
-                    ->whereDate('start_date', '>=', Carbon::now())
+                    ->whereDate('start_date', '>=', Carbon::now())->has('event')
                     ->orderBy('start_date', 'asc')->with("event")->get();
         return view("client_portal.events.index", compact('events'));
     }
@@ -46,7 +46,7 @@ class EventController extends Controller
         /* $event = CaseEvent::where("id",$eventId)->whereHas("eventLinkedContact", function($query) {
                     $query->where('users.id', auth()->id());
                 })->with('case', 'eventLocation', 'leadUser', 'clientReminder')->first(); */
-        $eventRecurring = EventRecurring::where("id", $eventRecurringId)->whereJsonContains('event_linked_contact_lead', ["contact_id" => $authUserId])->first();
+        $eventRecurring = EventRecurring::where("id", $eventRecurringId)->whereJsonContains('event_linked_contact_lead', ["contact_id" => $authUserId])->has('event')->first();
         if($eventRecurring) {
             $event = Event::where("id", $eventRecurring->event_id)->with('case', 'eventLocation', 'leadUser')->first();
             /* if($event->parent_evnt_id > 0) {
@@ -112,7 +112,8 @@ class EventController extends Controller
             $event = Event::whereId($request->event_id)->first(); 
             $data=[];
             $data['event_for_case'] = $event->case_id;
-            $data['event_id'] = $eventRecurring->id;
+            $data['event_id'] = $event->id;
+            $data['event_recurring_id'] = $eventRecurring->id;
             $data['event_name'] = $event->event_title;
             $data['user_id'] = $authUser->id;
             $data['activity']='commented on event';
@@ -145,7 +146,7 @@ class EventController extends Controller
     public function eventCommentHistory(Request $request)
     {
         $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->first();
-        $commentData = encodeDecodeJson($eventRecurring->event_comments);
+        $commentData = encodeDecodeJson($eventRecurring->event_comments)->where('action_type', "0");
         $view = view('client_portal.events.load_comment_history',compact('commentData'))->render();
         return response()->json(['totalComment' => $commentData->count(), 'view' => $view]);
     }  

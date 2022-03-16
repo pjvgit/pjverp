@@ -38,9 +38,13 @@ class HomeController extends Controller
         $upcomingEvents = $upcomingEvents->take(3)->get(); */
         $authUserId = (string) auth()->id();
         $upcomingEvents = EventRecurring::whereJsonContains('event_linked_contact_lead', ["contact_id" => $authUserId])
-                        ->whereDate('start_date', '>=', Carbon::now())
-                        ->orderBy('start_date', 'asc')->with("event");
-        $upcomingEvents = $upcomingEvents->take(3)->get();
+                        ->whereDate('start_date', '>=', Carbon::now())->has('event');
+        if(isset($request->case_id) && $request->case_id != ''){
+            $upcomingEvents = $upcomingEvents->whereHas('event', function($query) use($request) {
+                $query->where("case_events.case_id",$request->case_id);
+            });
+        }
+        $upcomingEvents = $upcomingEvents->orderBy('start_date', 'asc')->with("event")->take(3)->get();
 
         $recentActivity = AllHistory::where("is_for_client", "yes")->where("client_id", $userId)
                         ->orderBy("created_at", "desc")->with(["createdByUser", "task"/*  => function($query) {

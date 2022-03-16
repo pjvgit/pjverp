@@ -136,8 +136,7 @@ class CalendarController extends BaseController
                 ];
             }
             return response()->json($resources);
-        }
-        // return view('calendar.partials.load_staff_view',compact('events'));          
+        }        
         exit;    
     }
 
@@ -148,16 +147,27 @@ class CalendarController extends BaseController
     {        
         $startDate = date("Y-m-d", strtotime($request->start));
         $endDate = date("Y-m-d", strtotime($request->end));
-        $events = CaseEvent::/* where('created_by', auth()->id())-> */whereBetween('start_date',  [$startDate, $endDate]);
+        $events = EventRecurring::whereBetween('start_date',  [$startDate, $endDate]);
         if($request->byuser) {
-            $events = $events->whereHas('eventLinkedStaff', function($query) use($request){
-                        $query->whereIn('users.id', $request->byuser);
-                    });
+            $byuser=json_decode($request->byuser, TRUE);
+            $events = $events->when($byuser , function($query) use ($byuser) {
+                $query->where(function ($query) use ($byuser) {
+                    foreach($byuser as $user) {
+                        $query->orWhereJsonContains('event_linked_staff', ['user_id' => $user]);
+                    }
+                });
+            });
         }
-        if($request->event_type) {
-            $events = $events->whereIn("event_type", $request->event_type);
-        }
-        $events = $events->with("case", "leadUser", "eventCreatedByUser")->get();
+        $events = $events->whereHas("event", function($query) use($request) {
+            if($request->event_type!="[]"){
+                $event_type=json_decode($request->event_type, TRUE);
+                $query->whereIn('event_type_id', $event_type);
+            }
+            if($request->selectdValue != "") {
+                $query->where('case_id',$request->selectdValue);
+            }
+        });
+        $events = $events->with('event', 'event.eventType')->get();
         return view('calendar.partials.load_agenda_view', ["events" => $events])->render();          
         exit;    
     }
