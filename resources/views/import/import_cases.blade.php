@@ -526,7 +526,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     afterLoader();
                     return false;
                 } else {
-                    window.location.reload();
+                    // window.location.reload();
                 }
             },
             error: function (xhr, status, error) {
@@ -536,7 +536,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 $('.showError').append(errotHtml);
                 $('.showError').show();
                 afterLoader();
-                window.location.reload();
+                // window.location.reload();
             }
         });
     });    

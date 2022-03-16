@@ -95,7 +95,7 @@
                 </div>
                 <div class="col-4">
                     <div class=""><input id="duration-field" maxlength="15" name="duration_field"
-                            class="form-control text-right" min="0" value=""></div>
+                            class="form-control text-right" min="0" value="0"></div>
                 </div>
             </div>
             <div class="row ">
@@ -169,6 +169,7 @@
                 },
                 duration_field: {
                     required: true,
+                    min: 0.1,
                     number: true
                 }
             },
@@ -187,7 +188,8 @@
                 },
                 duration_field: {
                     required: "Quantity can't be blank",
-                    number: "Allows number only."
+                    number: "Allows number only.",
+                    min: " Duration must be greater than 0"
                 }
             },errorPlacement: function (error, element) {
                 if (element.is('#staff_user')) {

@@ -464,7 +464,9 @@ class ReportsController extends BaseController
                         if(isset($val['paidAmount']) && $val['paidAmount']> 0){
                             $totalPaidInvoice = array_sum(str_replace(",","",$val['paidAmount']));
                             $totalInvoiceCount = $val['totalInvoiceEntry'] ?? 0;
-                            $totalDeductPercentage = (($totalPaidInvoice / $val['totalAmount'][0] ?? $totalPaidInvoice) * 100);
+                            \Log::info("case_id > ".$case->id." > totalPaidInvoice > ".$totalPaidInvoice." > totalAmount > ".$val['totalAmount'][0]);
+
+                            $totalDeductPercentage = (($totalPaidInvoice / (($val['totalAmount'][0] > 0) ? $val['totalAmount'][0] : $totalPaidInvoice)) * 100);
                             
                             // echo  "totalPaidInvoice > ".$totalPaidInvoice.' > <br>';
                             if(isset($val['flatFee'])){                            

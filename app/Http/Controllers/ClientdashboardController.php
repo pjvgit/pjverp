@@ -3250,7 +3250,7 @@ class ClientdashboardController extends BaseController
                         
                         $user_level="2";
                         unset($csv_data[0]);
-                        if(trim($csv_data[1][0]) == ""){
+                        if(empty($csv_data) || trim($csv_data[1][0]) == ""){
                             $errorString='<ul><li>please fill the correct data into file. No blank data added into import.</li></ui>';
                             $ClientCompanyImport->error_code=$errorString;
                             $ClientCompanyImport->status=2;
@@ -3411,7 +3411,7 @@ class ClientdashboardController extends BaseController
                         if($csv_data[0][0]=="Company" || $csv_data[0][0]=="company" || $csv_data[0][0]=="Legalcase ID" ){
                         $user_level="4";
                         unset($csv_data[0]);
-                        if(trim($csv_data[1][0]) == ""){
+                        if(empty($csv_data) || trim($csv_data[1][0]) == ""){
                             $errorString='<ul><li>please fill the correct data into file. No blank data passed into import.</li></ui>';
                             $ClientCompanyImport->error_code=$errorString;
                             $ClientCompanyImport->status=2;
@@ -4547,8 +4547,17 @@ class ClientdashboardController extends BaseController
                     return response()->json(['errors'=>'We recommend importing less than 1000 records at a time or the import may error out. If you have more than 1000 records to import, we suggest breaking the import up into multiple spreadsheets and try again']);
                     exit;
                 }else{
-                if(trim($csv_data[0][0])=="Case/Matter Name" && trim($csv_data[0][1]) =="Number" && trim($csv_data[0][2])=="Open Date" && trim($csv_data[0][3]) =="Practice Area" && trim($csv_data[0][4])=="Case Description" && trim($csv_data[0][5]) =="Case Closed" && trim($csv_data[0][6])=="Closed Date" && trim($csv_data[0][7]) =="Lead Attorney" && trim($csv_data[0][8])=="Originating Attorney" && trim($csv_data[0][9]) =="SOL Date" && trim($csv_data[0][10])=="Outstanding Balance" && trim($csv_data[0][11]) =="Case Stage" && trim($csv_data[0][12])=="Conflict Check?" && trim($csv_data[0][13]) =="Conflict Check Notes" && trim($csv_data[0][14])=="Note: <Imported Note 1>" && trim($csv_data[0][15]) =="Note: <Imported Note 2>"){                    
+                    if(trim($csv_data[0][0])=="Case/Matter Name" && trim($csv_data[0][1]) =="Number" && trim($csv_data[0][2])=="Open Date" && trim($csv_data[0][3]) =="Practice Area" && trim($csv_data[0][4])=="Case Description" && trim($csv_data[0][5]) =="Case Closed" && trim($csv_data[0][6])=="Closed Date" && trim($csv_data[0][7]) =="Lead Attorney" && trim($csv_data[0][8])=="Originating Attorney" && trim($csv_data[0][9]) =="SOL Date" && trim($csv_data[0][10])=="Outstanding Balance" && trim($csv_data[0][11]) =="Case Stage" && trim($csv_data[0][12])=="Conflict Check?" && trim($csv_data[0][13]) =="Conflict Check Notes" && trim($csv_data[0][14])=="Note: <Imported Note 1>" && trim($csv_data[0][15]) =="Note: <Imported Note 2>"){                    
                     unset($csv_data[0]);
+                    // dd($csv_data);
+                    if(empty($csv_data) || trim($csv_data[1][0]) == ""){
+                        $errorString='<ul><li>please fill the correct data into file. No blank data added into import.</li></ui>';
+                        $ClientCompanyImport->error_code=$errorString;
+                        $ClientCompanyImport->status=2;
+                        $ClientCompanyImport->save();
+                        return response()->json(['errors'=>$errorString]);
+                        exit;
+                    }
                     
                     $uploadFile = $request->upload_file;
                     $namewithextension = $uploadFile->getClientOriginalName(); 
@@ -4566,7 +4575,8 @@ class ClientdashboardController extends BaseController
 
                     $waringCount = 0;
                     $caseArray = [];
-                    try{                        
+                    try{   
+                    $errorString='<ul>';                     
                         foreach($csv_data as $key=>$val){
                             $caseArray[$key]['case_title'] = $val[0];
                             $caseArray[$key]['case_number'] = $val[1];
@@ -4588,7 +4598,7 @@ class ClientdashboardController extends BaseController
 
                         $ic=0;
                         foreach($caseArray as $finalOperationKey=>$finalOperationVal){
-                            $errorString='<ul>';
+                            
 
                             $CaseMaster = new CaseMaster;
                             $CaseMaster->case_title=$finalOperationVal['case_title'];

@@ -583,16 +583,17 @@ $nonBillableAmount = 0;
                                         <div class="locked row_total timeentry_amount_{{$v->itd}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
                                             <?php 
                                             
+                                            // \Log::info($v->duration .' > '.$v->entry_rate);
                                             if($v->rate_type=="flat"){
                                                 echo $Total=$v->entry_rate;
                                                 if($v->time_entry_billable=="yes"){
                                                     $timeEntryAmount+=$v->entry_rate;
                                                 }
                                             }else{
-                                                echo $Total= (str_replace(",","",$v->duration) * $v->entry_rate);
+                                                echo $Total= (str_replace(",","",$v->duration ?? 0) * str_replace(",","",$v->entry_rate));
                                                 if($v->time_entry_billable=="yes"){
                                                     $timeEntryAmount+=$Total;
-                                                    $timeEntryTime=$timeEntryTime+str_replace(",","",$v->duration);
+                                                    $timeEntryTime=$timeEntryTime+str_replace(",","",$v->duration ?? 0);
                                                 }
                                             }
 

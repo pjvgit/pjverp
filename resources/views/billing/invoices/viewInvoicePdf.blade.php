@@ -2,137 +2,84 @@
 @if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
 <div class="invoice-modern-theme">
 <style>
-@media only screen and (max-width: 320px) {
-.invoice-modern-theme .line-items-table {
-    margin-left: 10px;
-    margin-right: 10px;
-    }
-}
 .invoice-modern-theme {
-    padding: 15px;
+    padding: 15px!important;
 }
 
 .invoice-modern-theme tr.invoice_info_row td {
-    border: 0;
-    border-bottom: 1px solid #ababab;
-    padding: 5px;
+    border: 0!important;
+    border-bottom: 1px solid #ababab!important;
+    padding: 5px!important;    
 }
 
 .invoice-modern-theme .invoice_info_bg {
-    background-color: #fff;
-    font-weight: 700;
+    background-color: #fff!important;
+    font-weight: 700!important;
 }
 
-.invoice-modern-theme tr.invoice_info_row td {
-    border: 0;
-    border-bottom: 1px solid #ababab;
-    padding: 5px;
-}
 
 .invoice-modern-theme .line-items-table {
-    margin-left: 30px;
-    margin-right: 30px;
+    margin-left: 30px!important;
+    margin-right: 30px!important;
 }
 
 .invoice-modern-theme h3 {
-    margin-bottom: 5px;
-}
-
-.invoice-modern-theme h3 {
-    margin-bottom: 5px;
+    margin-bottom: 5px!important;
 }
 
 .invoice-modern-theme .line-items-table .invoice_info_bg {
-    background-color: #fff;
-    font-size: 12.8px;
-    font-weight: 400;
-    text-transform: uppercase;
-}
-
-.invoice-modern-theme tr.invoice_info_row td {
-    border: 0;
-    border-bottom: 1px solid #ababab;
-    padding: 5px;
-}
-
-.invoice-modern-theme .line-items-table {
-    margin-left: 30px;
-    margin-right: 30px;
+    background-color: #fff!important;
+    font-size: 12.8px!important;
+    font-weight: 400!important;
+    text-transform: uppercase!important;
 }
 
 .invoice-modern-theme .invoice-summary-section {
-    margin-top: 30px;
+    margin-top: 30px!important;
 }
 
 .invoice-modern-theme .invoice-summary-section .notes {
-    vertical-align: text-top;
-    width: 75%;
+    vertical-align: text-top!important;
+    width: 75%!important;
 }
 
 .invoice-modern-theme .totals-table .invoice_info_row td {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 15px!important;
+    padding-right: 15px!important;
 }
 
 .invoice-modern-theme tr.invoice_info_row td.totals-border-top {
-    border-top: 8px solid #ababab;
+    border-top: 8px solid #ababab!important;
 }
 
-.invoice-modern-theme tr.invoice_info_row td {
-    border: 0;
-    border-bottom: 1px solid #ababab;
-    padding: 5px;
-}
 
 tr.invoice_info_row td {
-    border: 1px solid #000;
-    padding: 5px;
-    word-wrap: break-word;
+    border: 1px solid #000!important;
+    padding: 5px!important;
+    word-wrap: break-word!important;
 }
 
 .invoice-modern-theme .totals-table .invoice_info_row .balance-due-wrapper {
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 0!important;
+    padding-right: 0!important;
 }
 
 .invoice-modern-theme tr.invoice_info_row td.totals-border-bot {
-    border-bottom: 8px solid #ababab;
+    border-bottom: 8px solid #ababab!important;
 }
 
-.invoice-modern-theme .line-items-table .invoice_info_bg {
-    background-color: #fff;
-    font-size: 12.8px;
-    font-weight: 400;
-    text-transform: uppercase;
-}
-
-.invoice-modern-theme tr.invoice_info_row td {
-    border: 0;
-    border-bottom: 1px solid #ababab;
-    padding: 5px;
-}
 
 .invoice-modern-theme .totals-table .balance-due-box {
-    background-color: #eceeef;
-    padding: 8px 15px;
-}
-
-.invoice-modern-theme .line-items-table {
-    margin-left: 30px;
-    margin-right: 30px;
+    background-color: #eceeef!important;
+    padding: 8px 15px!important;
 }
 
 .invoice-modern-theme .payment-section {
-    margin-top: 25px;
+    margin-top: 25px!important;
 }
 
-.invoice-modern-theme .payment-section {
-    margin-top: 25px;
-}
-
-.invoice-modern-theme .line-items-table {
-    margin-left: 30px;
-    margin-right: 30px;
+.invoice-modern-theme .ledger-histories table{
+    border:none !important;
 }
 
 </style>
@@ -224,19 +171,25 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
     </tbody>
 </table>
 <hr>
-
+@if($Invoice['case_id'] != 0)
 <h3>
     <p>{{ucfirst(substr(@$caseMaster['case_title'],0,100))}} 
     @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['show_case_no_after_case_name'] == "yes")
-        ({{ $caseMaster->case_number }})
+        ({{ @$caseMaster->case_number }})
     @endif
     </p>
 </h3>
+@endif
+
 <?php if(isset($FlatFeeEntryForInvoice) && !$FlatFeeEntryForInvoice->isEmpty()){?>
 @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['flat_fee']))
 <b>Flat Fee</b>
 @endif
+@if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+<table style="width: 100%; border-collapse: collapse;font-size: 12px; border: none;" border="1">
+@else
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
+@endif
     <tbody>
         @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['flat_fee']))
         <tr class="invoice_info_row">
@@ -359,7 +312,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
             @endif
         <?php } ?>
         @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['flat_fee']))
-        <tr>
+        <tr class="invoice_info_row ">
             <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['flat_fee']) && $invoiceSetting['flat_fee']) ? count($invoiceSetting['flat_fee']) - ( in_array('amount', $invoiceSetting['flat_fee']) ? 1 : 0 ) :'3' }}" class="total-summary-column" style="text-align: right;">
                 Flat Fee Total:
             </td>
@@ -380,7 +333,11 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']))
 <b>Time Entries</b>
 @endif
+@if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+<table style="width: 100%; border-collapse: collapse; border: none;" border="1">
+@else
 <table style="width: 100%; border-collapse: collapse;" border="1">
+@endif
     <tbody>
         @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']))
         <tr class="invoice_info_row">
@@ -498,7 +455,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
         } ?>
 
         <?php
-        if(!empty($nonBillData)){
+        if(!empty($nonBillData) && isset($invoiceSetting) && !empty($invoiceSetting) && @$invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
             ?>
             @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']))
             <tr class="invoice_info_row nonbillable-title">
@@ -569,8 +526,8 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 <?php
             }
         }?>
-        @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']))
-        <tr>
+        @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']) && (in_array("line_total", $invoiceSetting['time_entry']) || in_array("hour", $invoiceSetting['time_entry'])))
+        <tr class="invoice_info_row ">
             <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['time_entry']) &&  $invoiceSetting['time_entry']) ? count($invoiceSetting['time_entry']) - 2 : '5' }}" class="total-summary-column" style="text-align: right;">
             Totals
             </td>                       
@@ -594,9 +551,13 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 <?php } ?>
 <?php  if(!$ExpenseForInvoice->isEmpty()){?>
 @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['expense']))
-<h3>Expenses</h3>
+<b>Expenses</b>
 @endif
+@if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+<table style="width: 100%; border-collapse: collapse; border: none;" border="1">
+@else
 <table style="width: 100%; border-collapse: collapse;" border="1">
+@endif
 <tbody>
     @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['expense']))
     <tr class="invoice_info_row">
@@ -697,7 +658,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
         } ?>
 
     <?php
-    if(!empty($expenseNonBill)){
+    if(!empty($expenseNonBill) && isset($invoiceSetting) && @$invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
         ?>
         @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['expense']))
         <tr class="invoice_info_row nonbillable-title">
@@ -770,7 +731,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 
     }?>
     @if (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['expense']))
-    <tr>
+    <tr class="invoice_info_row ">
         <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && isset($invoiceSetting['expense']) && $invoiceSetting['expense']) ? count($invoiceSetting['expense']) - 1 : '6' }}" style="text-align: right; padding-top: 5px;">
             Expense Total:
         </td>
@@ -787,10 +748,13 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 <br>
 @endif
 <?php } ?>
-</div>
 @if (count($Invoice->forwardedInvoices))
 <h3>Unpaid Invoice Balance Forward</h3>
+@if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+<table style="width: 100%; border-collapse: collapse;font-size: 12px; border: none;" border="1">
+@else
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
+@endif
     <tbody>
         <tr class="invoice_info_row">
             <td class="invoice_info_bg">Invoice #</td>
@@ -809,7 +773,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
             </tr>
         @empty                        
         @endforelse
-        <tr>
+        <tr class="invoice_info_row">
             <td colspan="4" class="total-summary-column" style="text-align: right;">
                 Balance Forward:
             </td>
@@ -825,7 +789,11 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 <?php 
     if(!$InvoiceAdjustment->isEmpty()){?>
 <h3>Adjustments</h3>
+@if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+<table style="width: 100%; border-collapse: collapse;font-size: 12px; border: none;" border="1">
+@else
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
+@endif
     <tbody>
         <tr class="invoice_info_row">
             <td class="invoice_info_bg">
@@ -912,7 +880,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
         <?php } ?>
 
 
-        <tr>
+        <tr class="invoice_info_row">
             <?php if($discount!="0"){?>
 
             <td colspan="6" style="text-align: right; padding-top: 5px;">
@@ -922,7 +890,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 (${{number_format($discount,2)}})
             </td>
         </tr>
-        <tr>
+        <tr class="invoice_info_row">
             <?php } ?>
             <?php if($addition!="0"){?>
 
@@ -940,8 +908,13 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 <br>
 <?php } ?>
 
+@if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+<table style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;
+        border-bottom: none;border-top: none; border: none;" border="1">
+@else
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;
         border-bottom: none;border-top: none;" border="1">
+@endif
     <tbody>
         <tr class="invoice_info_row">
             <?php if($Invoice->terms_condition!=""){?>
@@ -1043,11 +1016,11 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 @if(!empty($InvoiceInstallment) && count($InvoiceInstallment))
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;float:right;
             border-bottom: none;border-top: none;margin-bottom:10px;float:left;" border="0">
-    <tr>
+    <tr class="invoice_info_row">
         <td>
         </td>
     </tr>
-    <tr>
+    <tr class="invoice_info_row">
         <td>
             <table style="width: 35%; border-collapse: collapse;font-size: 12px;border-left: none;float:right;
                 border-bottom: none;border-top: none;margin-bottom:10px;" border="0">
@@ -1109,9 +1082,11 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 @endif
 <?php if(isset($InvoiceHistoryTransaction) && !$InvoiceHistoryTransaction->isEmpty()){?>
 <h3> Payment History</h3>
-<table
-    style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;float:right; border-bottom: none;border-top: none;margin-bottom:10px;"
-    border="1">
+@if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+<table style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;float:right; border-bottom: none;border-top: none;margin-bottom:10px; border: none;" border="1">
+@else
+<table style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;float:right; border-bottom: none;border-top: none;margin-bottom:10px;" border="1">
+@endif
     <tbody>
         <tr class="invoice_info_row invoice_header_row invoice-table-row">
             <td class="invoice_info_bg" style="width: 12%;">
@@ -1175,6 +1150,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 &nbsp;
 <br>
 
+
 @if(!empty($Invoice->invoice_setting))
     @if(!empty($Invoice->applyTrustCreditFund))
     <div>
@@ -1182,3 +1158,4 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
     </div>
     @endif
 @endif
+</div>

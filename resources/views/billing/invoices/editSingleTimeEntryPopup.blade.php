@@ -188,8 +188,24 @@
                     number:true
                 },
                 duration_field: {
-                    required: true,
-                    min: 0.1,
+                    required: {
+                        depends: function (element) {
+                            var status = true;
+                            if ($("#rate_type_field_id option:selected").val() == "flat") {
+                                var status = false;
+                            }
+                            return status;
+                        }
+                    },
+                    min: {
+                        depends: function (element) {
+                            var val = 0.1;
+                            if ($("#rate_type_field_id option:selected").val() == "flat") {
+                                var status = 0;
+                            }
+                            return status;
+                        }
+                    },
                     number: true
                 }
             },
@@ -209,7 +225,7 @@
                 duration_field: {
                     required: "Duration can't be blank",
                     number: "Allows number only.",
-                    min: " Duration must be greater than 0"
+                    min: "Duration must be greater than 0"
                 }
             },
             errorPlacement: function (error, element) {

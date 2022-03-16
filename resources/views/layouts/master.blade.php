@@ -334,6 +334,7 @@
                             IdleTimeout();
                             clearInterval(interval);
                         }else{
+                            clearInterval(interval);
                             localStorage.removeItem('AuthSessionTime');
                             window.location.reload();
                         }
