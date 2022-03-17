@@ -52,7 +52,16 @@
             @endphp
             </div>
         </td>
-        <td>{{ $item->event->event_title }}</td>
+        <td>
+            @if($item->event->is_SOL == 'yes')
+                @if($item->event->case && $item->event->case->sol_satisfied == "yes")
+                <span class="mr-2 badge badge-success">SOL</span>
+                @else 
+                <span class="mr-2 badge badge-danger">SOL</span>
+                @endif
+            @endif
+            {{ $item->event->event_title }}
+        </td>
         @php
             $eventLinkedStaff = encodeDecodeJson($item->event_linked_staff);
             $isAuthUserLinked = $eventLinkedStaff->where('user_id', $authUser->id)->first();

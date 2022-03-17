@@ -52,8 +52,8 @@ class CalendarController extends BaseController
                 $event_type=json_decode($request->event_type, TRUE);
                 $query->whereIn('event_type_id', $event_type);
             }
-            if($request->selectdValue != "") {
-                $query->where('case_id',$request->selectdValue);
+            if($request->case_id != "") {
+                $query->where('case_id',$request->case_id);
             }
         });
 
@@ -77,7 +77,7 @@ class CalendarController extends BaseController
             $event = $v->event;
             $eventData = [];
             $eventData["event_id"] = $event->id ?? Null;
-            $eventData["event_recurring_id"] = $v->id ?? "<No Title>";
+            $eventData["event_recurring_id"] = $v->id;
             $eventData["event_title"] = $event->event_title ?? "<No Title>";
             $startDateTime= convertUTCToUserTime($v->start_date.' '.$v->event->start_time, $timezone ?? 'UTC');
             $endDateTime= convertUTCToUserTime($v->end_date.' '.$v->event->end_time, $timezone ?? 'UTC');
@@ -91,24 +91,22 @@ class CalendarController extends BaseController
         }
         // print_r($CaseEvent);
         if(isset($request->searchbysol) && $request->searchbysol=="true"){
-            $CaseEventSOL = CaseEvent::leftJoin('case_master','case_master.id','=','case_events.case_id')
-            ->select("case_master.case_unique_number as case_unique_number","case_events.*")
-            ->where('case_events.created_by',Auth::User()->id);
+            $CaseEventSOL = Event::leftJoin('case_master','case_master.id','=','events.case_id')
+            ->select("case_master.case_unique_number as case_unique_number","case_master.sol_satisfied","events.*")
+            ->where('events.created_by',Auth::User()->id);
             $CaseEventSOL=$CaseEventSOL->whereBetween('start_date', [$request->start, $request->end]);
             $CaseEventSOL=$CaseEventSOL->where('is_SOL','yes');
-            $CaseEventSOL=$CaseEventSOL->whereNull('case_events.deleted_at')->get();
+            $CaseEventSOL=$CaseEventSOL->whereNull('events.deleted_at')->get();
         }else{
             $CaseEventSOL='';
         }
         if(isset($request->searchbymytask) && $request->searchbymytask=="true"){
-            // $Task = Task::where('created_by',Auth::User()->id);
-            // $Task=$Task->whereBetween('task_due_on', [$request->start, $request->end]);
             $Task = Task::whereBetween('task_due_on', [$request->start, $request->end])
                     ->whereHas('taskLinkedStaff', function($query) {
                         $query->where('users.id', auth()->id());
                     });
             $Task=$Task->where('task_due_on',"!=",'9999-12-30');
-            
+            $Task = $Task->where("status", "0")->whereNotNull("task_due_on");
             $Task=$Task->whereNull('deleted_at')->get();
         }else{
             $Task='';
@@ -145,11 +143,14 @@ class CalendarController extends BaseController
      */
     public function loadAgendaView (Request $request)
     {        
+        $authUserId = auth()->id();
+        $timezone = auth()->user()->user_timezone;
         $startDate = date("Y-m-d", strtotime($request->start));
         $endDate = date("Y-m-d", strtotime($request->end));
+        $finalDataList = [];
         $events = EventRecurring::whereBetween('start_date',  [$startDate, $endDate]);
-        if($request->byuser) {
-            $byuser=json_decode($request->byuser, TRUE);
+        if($request->byuser != "[]") {
+            $byuser = json_decode($request->byuser, TRUE);
             $events = $events->when($byuser , function($query) use ($byuser) {
                 $query->where(function ($query) use ($byuser) {
                     foreach($byuser as $user) {
@@ -159,16 +160,102 @@ class CalendarController extends BaseController
             });
         }
         $events = $events->whereHas("event", function($query) use($request) {
-            if($request->event_type!="[]"){
-                $event_type=json_decode($request->event_type, TRUE);
+            $query->where("is_SOL", "no");
+            if($request->event_type != "[]"){
+                $event_type = json_decode($request->event_type, TRUE);
                 $query->whereIn('event_type_id', $event_type);
             }
-            if($request->selectdValue != "") {
-                $query->where('case_id',$request->selectdValue);
+            if($request->case_id != "") {
+                $query->where('case_id',$request->case_id);
             }
+            $query->where('case_id',3);
         });
-        $events = $events->with('event', 'event.eventType')->get();
-        return view('calendar.partials.load_agenda_view', ["events" => $events])->render();          
+        $events = $events->with('event', 'event.case', 'event.leadUser')->get();
+        if(count($events)) {
+            foreach($events as $key => $item) {
+                $startDateTime= convertUTCToUserTime($item->start_date.' '.$item->event->start_time, $timezone ?? 'UTC');
+                $endDateTime= convertUTCToUserTime($item->end_date.' '.$item->event->end_time, $timezone ?? 'UTC');
+                $finalDataList[] = (object)[
+                    'event_id' => $item->event_id,
+                    'event_recurring_id' => $item->id,
+                    'event_title' => $item->event->event_title,
+                    "start_date" => $item->start_date,
+                    "start_date_time" => $startDateTime,
+                    "end_date_time" => $endDateTime,
+                    "is_event_private" => $item->event->is_event_private,
+                    "parent_event_id" => $item->event->parent_event_id,
+                    "is_recurring" => $item->event->is_recurring,
+                    "is_all_day" => $item->is_all_day,
+                    "edit_recurring_pattern" => $item->event->edit_recurring_pattern,
+                    "event_linked_staff" => encodeDecodeJson($item->event_linked_staff),
+                    "event_linked_contact_lead" => encodeDecodeJson($item->event_linked_contact_lead),
+                    "is_SOL" => "no",
+                    "sol_satisfied" => "no",
+                    "case_id" => $item->event->case_id,
+                    "case_title" => ($item->event->case_id) ? $item->event->case->case_title : "",
+                    "case_unique_number" => ($item->event->case_id) ? $item->event->case->case_unique_number : "",
+                    'lead_id' => $item->event->lead_id,
+                    "lead_user_name" => ($item->event->lead_id) ? $item->event->leadUser->full_name : "",
+                    'created_by' => $item->created_by,
+                    'is_task' => 'no',
+                ];
+            }
+        }
+        $solEvents = [];
+        if(isset($request->searchbysol) && $request->searchbysol=="true") {
+            $solEvents = Event::where('is_SOL','yes')->leftJoin('case_master','case_master.id','=','events.case_id')
+                ->where('events.created_by', $authUserId)
+                ->whereBetween('start_date', [$request->start, $request->end]);
+            if($request->case_id != "") {
+                $solEvents = $solEvents->where('case_id',$request->case_id);
+            }
+            $solEvents = $solEvents->select("case_master.case_unique_number as case_unique_number","case_master.sol_satisfied","case_master.case_title","events.*")
+                ->whereNull('events.deleted_at')->get();
+            if(count($solEvents)) {
+                foreach($solEvents as $key => $item) {
+                    $finalDataList[] = (object)[
+                        'event_id' => $item->id,
+                        'event_recurring_id' => "",
+                        'event_title' => $item->event_title,
+                        "start_date" => $item->start_date,
+                        "start_date_time" => $item->start_date,
+                        "end_date_time" => $item->end_date,
+                        "is_event_private" => $item->is_event_private,
+                        "parent_event_id" => $item->parent_event_id,
+                        "is_all_day" => $item->is_all_day,
+                        "is_recurring" => $item->is_recurring,
+                        "edit_recurring_pattern" => $item->edit_recurring_pattern,
+                        "event_linked_staff" => (object)[],
+                        "event_linked_contact_lead" => (object)[],
+                        "is_SOL" => $item->is_SOL,
+                        "case_id" => $item->case_id,
+                        "case_title" => $item->case_title ?? "",
+                        "case_unique_number" => $item->case_unique_number ?? "",
+                        "sol_satisfied" => $item->sol_satisfied,
+                        'lead_id' => $item->lead_id,
+                        "lead_user_name" => "",
+                        'created_by' => $item->created_by,
+                        'is_task' => 'no',
+                    ];
+                }
+            }
+        }
+        $tasks = [];
+        if(isset($request->searchbymytask) && $request->searchbymytask=="true"){
+            $tasks = Task::whereBetween('task_due_on', [$request->start, $request->end])
+                    ->whereHas('taskLinkedStaff', function($query) use($authUserId) {
+                        $query->where('users.id', $authUserId);
+                    })->where('task_due_on',"!=",'9999-12-30')
+                    ->where("status", "0")->whereNotNull("task_due_on");
+            if($request->case_id != "") {
+                $tasks = $tasks->where('case_id',$request->case_id);
+            }
+            $tasks = $tasks->whereNull('deleted_at')->get();
+        }
+        $finalData = collect($finalDataList)->sortBy(function($col) {
+            return $col->start_date;
+        })->values()->all();
+        return view('calendar.partials.load_agenda_view', ["events" => $finalData])->render();          
         exit;    
     }
 

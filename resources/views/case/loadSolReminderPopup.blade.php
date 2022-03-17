@@ -44,7 +44,7 @@
                 </div>
             </div>  
 
-            <div class="fieldGroupCopy copy hide" style="display: none;">
+            <div class="fieldGroupCopySol copy hide" style="display: none;">
                 <div class="">
                     <div class="d-flex col-10 pl-0 align-items-center">
                         
@@ -86,13 +86,13 @@
 <script type="text/javascript">
     $(document).ready(function () {
         afterLoader();
-        $(".add-more-index").click(function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
+        $("#editReminderForCase .add-more-index").click(function () {
+            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopySol").html() +
                 '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
+            $('body').find('#editReminderForCase .fieldGroup:last').before(fieldHTML);
         });
         $('#editReminderForCase').on('click', '.remove', function () {
-            var $row = $(this).parents('.fieldGroup').remove();
+            var $row = $(this).parents('#editReminderForCase .fieldGroup').remove();
         });
 
 

@@ -56,7 +56,7 @@
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="">
+                                        <a href="{{route('events/')}}?view=month" class="">
                                             <span class="item-name">Agenda</span>
                                         </a>
                                     </li>

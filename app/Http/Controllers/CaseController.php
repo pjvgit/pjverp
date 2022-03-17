@@ -4200,8 +4200,9 @@ class CaseController extends BaseController
     } */
 
     public function saveSOLEventIntoCalender($case_id){
+        $authUser = auth()->user();
         $CaseData=CaseMaster::find($case_id);
-        CaseEvent::updateOrCreate(
+        $solEvent = Event::updateOrCreate(
             [
                 'case_id' => $case_id,
                 'is_SOL' => "yes"
@@ -4211,15 +4212,24 @@ class CaseController extends BaseController
             'event_type'=>NULL,
             'start_date'=>$CaseData->case_statute_date,
             'end_date'=>$CaseData->case_statute_date,
-            'all_day'=>"yes",
+            'is_full_day'=>"yes",
             'is_SOL'=>"yes",
             'event_description'=>"",
-            'recuring_event'=>"no",
+            'is_recurring'=>"no",
             'event_location_id'=>'0',
             'is_event_private'=>'no',
-            'parent_evnt_id'=>'0',
-            'created_by'=>Auth::user()->id
+            'firm_id' => $authUser->firm_name,
+            'created_by'=> $authUser->id,
         ]);
+
+        EventRecurring::updateOrCreate([
+                'event_id' => $solEvent->id,
+            ], [
+                'event_id' => $solEvent->id,
+                'start_date' => $CaseData->case_statute_date,
+                'end_date' => $CaseData->case_statute_date,
+            ]);
+
         // $CaseEvent = new CaseEvent;
         // $CaseEvent->event_title=$CaseData->case_title;  
         // $CaseEvent->case_id=$case_id;
@@ -5044,7 +5054,7 @@ class CaseController extends BaseController
   {
       $case_id=$request->case_id;
       $CaseSolReminder = CaseSolReminder::where("case_id",$case_id)->get();
-      return view('case.loadReminderPopup',compact('case_id','CaseSolReminder'));     
+      return view('case.loadSolReminderPopup',compact('case_id','CaseSolReminder'));     
       exit;    
   }
 
