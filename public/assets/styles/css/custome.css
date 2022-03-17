@@ -753,3 +753,8 @@ p {
     color: #696969;
     font-size: 18px;
 }
+
+.badge-danger {
+    color: #fff;
+    background-color: #c9252d !important;
+}

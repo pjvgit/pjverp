@@ -2,7 +2,7 @@
     <input class="form-control" id="event_id" value="{{ $event_id}}" name="event_id" type="text">
     <input class="form-control" id="event_recurring_id" value="{{ $event_recurring_id}}" name="event_recurring_id" type="text">
     @csrf
-    <div class="row">
+    <div class="row"  bladefile="resources\views\case\event\loadReminderPopupIndex.blade.php">
     <div class="col-md-12">
 
         <div class="text-muted mb-3">You can only edit reminders that you created. Reminders assigned to you by another
@@ -129,10 +129,10 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $(".add-more-reminder").click(function () {
+        $("#editReminderIndex .add-more-reminder").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
+            $('body').find('#editReminderIndex .fieldGroup:last').before(fieldHTML);
         });
         $('#editReminderIndex').on('click', '.remove', function () {
             var remindId = $(this).attr("data-remind-id");
@@ -140,7 +140,7 @@
                 $("#deleted_reminder_id").val($('#deleted_reminder_id').val() + ','+remindId);
             else
                 $("#deleted_reminder_id").val($('#deleted_reminder_id').val() + remindId);
-            var $row = $(this).parents('.fieldGroup').remove();
+            var $row = $(this).parents('#editReminderIndex .fieldGroup').remove();
         });
 
 

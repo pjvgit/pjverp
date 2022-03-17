@@ -220,7 +220,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 <div class="filter-list">
                     <div class="form-group row">
                         <div class="col-12 form-group mb-3">
-                            <select onChange="changeCaseUser()" class="form-control case_or_lead" id="case_or_lead"
+                            <select onchange="changeCase()" class="form-control case_or_lead" id="case_or_lead"
                                 name="case_or_lead" data-placeholder="Search for an existing contact or company">
                                 <option value="">Filter by case</option>
                                 <optgroup label="Court Cases">
@@ -448,6 +448,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 $defaultView="month";
 if(isset($_GET['view']) && $_GET['view']=='day'){
     $defaultView="agendaDay";
+    // $defaultView="staffView";
 
 }else if(isset($_GET['view']) &&  $_GET['view']=='week'){
     $defaultView="agendaWeek";
@@ -581,11 +582,13 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     AgendaView: {
                         type: 'custom',
                         buttonText: 'Agenda',
-                        duration: { days: 30 },
+                        duration: { days: 31 },
                         visibleRange: function(currentDate) {
+                            console.log(currentDate);
                             return {
-                            start: currentDate.clone().subtract(1, 'days'),
-                            end: currentDate.clone().add(30, 'days') // exclusive end, so 3
+                            // start: currentDate.clone().subtract(1, 'days'),
+                            start: currentDate.clone(),
+                            end: currentDate.clone().add(31, 'days') // exclusive end, so 3
                             };
                         },
                     },
@@ -615,19 +618,30 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                         eventTypes.push($(this).val());
                     });
                     var byuser = getByUser();
+                    var bysol=getSOL();
+                    var mytask=getMytask();
                     if(view.name == 'AgendaView') {
+                        alert();
                         $.ajax({
                             url: 'loadEventCalendar/loadAgendaView',
                             type: 'POST',
-                            data: { start: start.format(), end: end.format(), event_type: eventTypes, byuser: byuser },
+                            data: {
+                                start: start.format(),
+                                end: end.format(),
+                                event_type: JSON.stringify(eventTypes),
+                                byuser: JSON.stringify(byuser),
+                                case_id: $(".case_or_lead option:selected").val(),
+                                searchbysol:bysol,
+                                searchbymytask:mytask,
+                                dateFilter:getDate(),
+                                taskLoad:$("#loadType").val()
+                            },
                             success: function (doc) {
                                 $('.fc-view').html(doc);
                                 $("#preloaderData").hide();
                             }
                         });
                     } else {
-                        var bysol=getSOL();
-                        var mytask=getMytask();
                         $.ajax({
                             url: 'loadEventCalendar/load',
                             type: 'POST',
@@ -637,7 +651,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                 end: end.format(),
                                 event_type: JSON.stringify(eventTypes),
                                 byuser: JSON.stringify(byuser),
-                                selectdValue: $(".case_or_lead option:selected").val(),
+                                case_id: $(".case_or_lead option:selected").val(),
                                 searchbysol:bysol,
                                 searchbymytask:mytask,
                                 dateFilter:getDate(),
@@ -682,7 +696,12 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                 }
                                 if (!!doc.sol_result) {
                                     $.map(doc.sol_result, function (r) {
-                                        var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;">SOL</span>'+' ' + r.event_title
+                                        console.log(r);
+                                        if(r.sol_satisfied == 'yes') {
+                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
+                                        } else {
+                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;">SOL</span>'+' ' + r.event_title;
+                                        }
                                         var tplain = 'SOL'+' -' + r.event_title
                                         events.push({
                                             mysol:'yes',
@@ -690,8 +709,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             id: r.id,
                                             title: t,
                                             tTitle: tplain,
-                                            start: r.start_date+'T'+r.st,
-                                            end: r.end_date+'T'+r.et,
+                                            start: r.start_date,
+                                            end: r.end_date,
                                             textColor:'#000000',
                                             backgroundColor: 'rgb(236, 238, 239)',
                                             resourceId: r.created_by,
@@ -804,7 +823,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             AgendaView = View.extend({ // make a subclass of View
                 initialize: function() {
                 },
-                render: function() {
+                /* render: function() {
                     var view = $('#calendarq').fullCalendar('getView');
                     var start = view.start._d;
                     var end = view.end._d;
@@ -819,7 +838,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                 $("#preloaderData").hide();
                             }
                         });
-                },
+                }, */
                 setHeight: function(height, isAuto) {
                 },
                 renderEvents: function(events) {
@@ -884,7 +903,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
     });
 
     
-    function changeCaseUser() {
+    function changeCase() {
         var selectdValue = $(".case_or_lead option:selected").val() // or
         $('#calendarq').fullCalendar('refetchEvents');
     }
