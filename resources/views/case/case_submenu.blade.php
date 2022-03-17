@@ -13,8 +13,8 @@
             <a href="" class="myactive"> Case Details </a>
         </li>
         <?php } ?>
-        <li><a class=" <?php if(in_array(Route::currentRouteName(),["apexColumnCharts","apexBarCharts","apexAreaCharts"])){ echo'myactive'; } ?>"
-                href="{{route('apexColumnCharts')}}"> Case Insights </a></li>
+        {{-- <li><a class=" <?php if(in_array(Route::currentRouteName(),["apexColumnCharts","apexBarCharts","apexAreaCharts"])){ echo'myactive'; } ?>"
+                href="{{route('apexColumnCharts')}}"> Case Insights </a></li> --}}
     </ul>
 </div>
 <div class="separator-breadcrumb border-top"></div>

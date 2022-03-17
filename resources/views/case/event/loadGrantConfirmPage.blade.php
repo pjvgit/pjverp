@@ -1,6 +1,6 @@
 <form class="grantAccessPageConfirm" id="grantAccessPageConfirm" name="grantAccessPageConfirm" method="POST">
     @csrf
-    <div class="row">
+    <div class="row" bladefile="resources/views/case/event/loadGrantConfirmPage.blade.php">
         <div class="col-md-12">
             <p>
                 In order to share this, {{$UserMasterData->first_name}} {{$UserMasterData->last_name}} must have their client portal enabled. Please click "Grant Access" to enable their portal. An email with login instructions will be automatically sent to {{$UserMasterData->first_name}} {{$UserMasterData->last_name}}'s inbox.
@@ -22,10 +22,6 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $('.dismissLoadGrantAccessModal').on('click', function() {
-            $('#loadGrantAccessModal').modal('hide');
-        });
-        
         $('#grantAccessPageConfirm').submit(function (e) {
             e.preventDefault();
             $(this).find(":submit").prop("disabled", true);

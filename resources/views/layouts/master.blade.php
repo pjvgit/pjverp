@@ -262,6 +262,7 @@
     </script>
     @endif
     @yield('bottom-js')
+    @yield('modal-js')
     <script>
           $(document).ready(function () {
              $("[data-toggle=popover]").popover();

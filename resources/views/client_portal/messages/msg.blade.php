@@ -1,4 +1,4 @@
-@if(count($caseList->clientCases) >= 1 && $request->folder != 'draft')
+@if(count($caseList->clientCases) >= 2 && $request->folder != 'draft')
 <div class="text-right primary-heading">
     <input type="hidden" name="folder" id="folder" value="{{$request->folder ?? ''}}" />
     <select class="form-control mr-0 ml-auto w-auto" name="caseFilter" id="caseFilter">

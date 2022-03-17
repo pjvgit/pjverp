@@ -41,7 +41,7 @@ class HomeController extends Controller
                         ->whereDate('start_date', '>=', Carbon::now())->has('event');
         if(isset($request->case_id) && $request->case_id != ''){
             $upcomingEvents = $upcomingEvents->whereHas('event', function($query) use($request) {
-                $query->where("case_events.case_id",$request->case_id);
+                $query->where("case_id",$request->case_id);
             });
         }
         $upcomingEvents = $upcomingEvents->orderBy('start_date', 'asc')->with("event")->take(3)->get();

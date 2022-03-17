@@ -111,7 +111,7 @@
               
                     $('td:eq(0)', nRow).html('<a href="'+baseUrl+'/court_cases?pa='+aData.decode_primary_id+'">'+aData.title+'</a>'); 
                     $('td:eq(1)', nRow).html('<div class="text-left">'+aData.linked_case_count+'</div>'); 
-                    if(aData.created_by_name==''){
+                    if(aData.created_by_name=='' || aData.created_by_name === undefined){
                         $('td:eq(2)', nRow).html('<div class="text-left">System Default</div>'); 
                     }else{
                         $('td:eq(2)', nRow).html('<div class="text-left"><a href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.created_by_name+'</a></div>'); 

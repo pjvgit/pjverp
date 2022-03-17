@@ -1,6 +1,6 @@
 <form class="grantAccessPage" id="grantAccessPage" name="grantAccessPage" method="POST">
     @csrf
-    <div class="row">
+    <div class="row" bladefile="resources/views/case/event/loadGrantAccessPage.blade.php">
         <div class="col-md-12">
             <p>In order to share this, {{$UserMasterData->first_name}} {{$UserMasterData->last_name}} must have their
                 client portal enabled, which requires an
@@ -33,9 +33,6 @@
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
-        $('.dismissLoadGrantAccessModal').on('click', function() {
-            $('#loadGrantAccessModal').modal('hide');
-        });
     
         $("#grantAccessPage").validate({
             rules: {

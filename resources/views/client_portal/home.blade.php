@@ -23,7 +23,7 @@
 				</div>
 
 				{{-- What's New Section --}}
-				@if(count($caseList->clientCases) >= 1 && $request->folder != 'draft')
+				@if(count($caseList->clientCases) >= 2 && $request->folder != 'draft')
 				<div class="text-right">
 					<select class="form-control mr-0 ml-auto w-auto" name="homeCaseFilter" id="homeCaseFilter">
 						<option value="">All Cases</option>

@@ -33,7 +33,7 @@ $adjustment_token=round(microtime(true) * 1000);
                             
                             <span class="text-success" id="conflict_check_IresolveText"><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Satisfied </span>
                             <span class="error" id="conflict_check_InonResolveText" ><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Unsatisfied </span>
-                            <input type="checkbox" <?php if($CaseMaster->conflict_check=="1"){ echo "checked=checked"; }?> name="conflict_check" id="conflict_check_Icall_resolved"><span class="slider"></span>
+                            <input type="checkbox" <?php if($CaseMaster->sol_satisfied=="yes"){ echo "checked=checked"; }?> name="conflict_check" id="conflict_check_Icall_resolved"><span class="slider"></span>
                         </label>
                         <div><a  data-toggle="modal" data-target="#addCaseReminderPopup" data-placement="bottom" href="javascript:;" onclick="addCaseReminder({{$CaseMaster->case_id}});"> <span aria-hidden="true" class="fas fa-bell text-black-50 pb-2 mb-1 c-pointer pendo-sol-reminder-icon"  data-toggle="tooltip" data-placement="right" title="" data-original-title="<strong><span> Edit Statute of Limitations Reminders</span> </strong>" data-html="true" data-original-title="" id="editSolReminders" data-testid="sol-reminders" ></span></a></div>
                     <?php }else{ ?>
@@ -1540,7 +1540,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         }
     });
     
-    <?php if($CaseMaster->conflict_check=="0"){?>
+    <?php if($CaseMaster->sol_satisfied=="no"){?>
         $("#conflict_check_InonResolveText").show();
         $("#conflict_check_IresolveText").hide();
       

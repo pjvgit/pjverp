@@ -134,8 +134,8 @@
                                     @endcan
                                     <li><a class="{{ Route::currentRouteName()=='apexBubbleCharts' ? 'open' : '' }}"
                                             href="{{route('practice_areas')}}"> Practice Areas </a></li>
-                                    <li><a class="{{ Route::currentRouteName()=='apexColumnCharts' ? 'open' : '' }}"
-                                            href="{{route('apexColumnCharts')}}"> Case Insights </a></li>
+                                    {{-- <li><a class="{{ Route::currentRouteName()=='apexColumnCharts' ? 'open' : '' }}"
+                                            href="{{route('apexColumnCharts')}}"> Case Insights </a></li> --}}
 
 
                                 </ul>

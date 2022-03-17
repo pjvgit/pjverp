@@ -16,13 +16,13 @@
     </div>
 </div>
 {{-- If open section, event list not working --}}
-{{-- @section('page-js-inner') --}} 
+@section('modal-js')
 <script type="text/javascript">
-    $(document).ready(function () {
-        $('.dismissLoadGrantAccessModal').on('click', function() {
-            localStorage.setItem('loadGrantAccessModal', "hide");
-            $('#loadGrantAccessModal').modal('hide');
-        });
+    
+    $(document).on('click', '.dismissLoadGrantAccessModal', function() {
+        localStorage.setItem('loadGrantAccessModal', "hide");
+        $('#loadGrantAccessModal').modal('hide');
     });
+    
 </script>
-{{-- @endsection --}}
+@endsection

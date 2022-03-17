@@ -1577,7 +1577,7 @@ class CaseController extends BaseController
          }
          $case = $case->offset($requestData['start'])->limit($requestData['length']);
          $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-         $case = $case->get()->each->setAppends(["linked_case_count"]);
+         $case = $case->get()->each->setAppends(["linked_case_count","created_by_name","decode_id"]);
          $json_data = array(
              "draw"            => intval( $requestData['draw'] ),   
              "recordsTotal"    => intval( $totalData ),  
@@ -2042,7 +2042,7 @@ class CaseController extends BaseController
     public function reloadCaserStages(Request $request)
     {
         $caseStage = CaseStage::select("*")->where("status","1");
-        $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+        $getChildUsers = User::select("id")->where('firm_name',Auth::user()->firm_name)->get()->pluck('id');
         $getChildUsers[]=Auth::user()->id;
         $caseStage = $caseStage->whereIn("created_by",$getChildUsers);          
         $caseStage=$caseStage->orderBy('stage_order','ASC')->get();
