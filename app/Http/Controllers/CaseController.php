@@ -1070,16 +1070,6 @@ class CaseController extends BaseController
             
             if(\Route::current()->getName()=="calendars"){
                 $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
-
-                //Get all event by 
-                // $allEvents = Event::select("*")->where("case_id",$case_id);
-                // if($request->upcoming_events && $request->upcoming_events == 'on') {
-                //     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
-                // }
-                // $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
-                // ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
-                // ->get();
-
                 $allEvents = EventRecurring::whereHas('event', function($query) use($case_id) {
                                 $query->where('case_id', $case_id);
                             });
@@ -3608,8 +3598,6 @@ class CaseController extends BaseController
      */
     public function loadEventCommentPopup(Request $request)
     {
-        $CaseMasterData=[];
-        $evnt_id=$request->evnt_id;
         $event = Event::whereId($request->event_id)->with('eventType', 'eventLocation', 'case')->first();
         $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->where("event_id", $request->event_id)->first();
         $linkedStaff = encodeDecodeJson($eventRecurring->event_linked_staff);
@@ -3872,8 +3860,8 @@ class CaseController extends BaseController
        $event_id=$request->event_id;
        $event = Event::find($event_id);
        $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
-
-       return view('case.event.deleteEvent',compact('event_id','event', 'eventRecurring'));     
+        $fromPageRoute = $request->from_page_route ?? Null;
+       return view('case.event.deleteEvent',compact('event_id','event', 'eventRecurring', 'fromPageRoute'));     
        exit;    
    }    
    

@@ -14,7 +14,7 @@
         <th width="13%"></th>
     </tr>
     @endif
-    <tr>
+    <tr class="{{ ($item->is_read == 'no') ? 'is-unread' : '' }}">
         <td class="event-date-and-time  c-pointer" style="width: 50px;">
             @if(isset($oDate) && $item->start_date==$oDate)
             @else

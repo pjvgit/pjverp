@@ -11,7 +11,7 @@
             $authUser = auth()->user();
         @endphp
         @forelse ($events as $item)
-            <tr>
+            <tr class="{{ ($item->is_read == 'no') ? 'is-unread' : '' }}">
                 <td>
                     @if(isset($oDate) && $item->start_date==$oDate)
                     @else
@@ -34,9 +34,9 @@
                         @else 
                         <span class="mr-2 badge badge-danger">SOL</span>
                         @endif
-                        <i class="sol-gavel mr-1"></i>
+                        <i class="fa-solid fa-gavel mr-1"></i>
                         {{ $item->event_title }}
-                        <br><p class="agenda-sol-satisfied">Satisfied</p>
+                        <br><p class="agenda-sol-satisfied">{{ ($item->sol_satisfied == "yes") ? 'Satisfied' : 'Unsatisfied' }}</p>
                     @else
                         {{ $item->event_title }}
                     @endif
@@ -137,46 +137,46 @@
                 </td>
                 @if($item->is_SOL=='yes')
                 <td class="event-users">
-                    <a class="align-items-center" data-toggle="modal" data-target="#addCaseReminderPopup" 
-                    data-placement="bottom" href="javascript:;" 
-                    onclick="addCaseReminder({{$item->case_id}});"> 
+                    <a class="align-items-center" data-toggle="modal" data-target="#addCaseReminderPopup" data-placement="bottom" href="javascript:;" onclick="addCaseReminder({{$item->case_id}});"> 
                     <i class="fas fa-bell pr-2 align-middle"></i>
                     </a>
                 </td>
                 @else
                 <td class="event-users">
                     @if($item->is_event_private=='no')
-                    <div class="">
-                        @if (auth()->id() == $item->created_by)
-                        <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup" data-placement="bottom" href="javascript:;" onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->event_recurring_id}});"> <i class="fas fa-bell pr-2 align-middle"></i> </a>
+                        @if($item->is_read == 'no')
+                            <button type="button" class="mark-as-read-button float-right m-1 btn btn-secondary" onclick="markEventAsRead({{ $item->event_id }});">Mark as Read</button>
+                        @else
+                            <div class="">
+                                <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup" data-placement="bottom" href="javascript:;" onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->event_recurring_id}});"> <i class="fas fa-bell pr-2 align-middle"></i> </a>
+                                <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup" data-placement="bottom" href="javascript:;" onclick="loadEventComment({{$item->event_id}}, {{$item->event_recurring_id}}, 'events');"> <i class="fas fa-comment-alt pr-2 align-middle"></i> </a>
+                                @can('event_add_edit')
+                                <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->event_id}}, {{$item->event_recurring_id}}, 'events');">
+                                    <i class="fas fa-pen pr-2  align-middle"></i> 
+                                </a>
+                                @endcan
+                                @can(['event_add_edit','delete_items'])
+                                <?php 
+                                if(empty($item->parent_event_id)  && $item->is_recurring == "no"){
+                                    ?>
+                                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
+                                    data-placement="bottom" href="javascript:;"
+                                    onclick="deleteEventFunction({{$item->event_recurring_id}}, {{$item->event_id}},'single', 'events');">
+                                    <i class="fas fa-trash pr-2  align-middle"></i> </a>
+                                <?php }else if($item->edit_recurring_pattern == "single event" && $item->is_recurring == "yes"){ ?>
+                                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
+                                    data-placement="bottom" href="javascript:;"
+                                    onclick="deleteEventFunction({{$item->event_recurring_id}}, {{$item->event_id}},'single', 'events');">
+                                    <i class="fas fa-trash pr-2  align-middle"></i> </a>
+                                <?php }else{ ?>
+                                <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
+                                    data-placement="bottom" href="javascript:;"
+                                    onclick="deleteEventFunction({{$item->event_recurring_id}}, {{$item->event_id}},'multiple', 'events');">
+                                    <i class="fas fa-trash pr-2  align-middle"></i> </a>
+                                <?php } ?>
+                                @endcan
+                            </div>
                         @endif
-                        <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup" data-placement="bottom" href="javascript:;" onclick="loadEventComment({{$item->event_id}}, {{$item->event_recurring_id}});"> <i class="fas fa-comment pr-2 align-middle"></i> </a>
-                        @can('event_add_edit')
-                        <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->event_id}}, {{$item->event_recurring_id}});">
-                            <i class="fas fa-pen pr-2  align-middle"></i> 
-                        </a>
-                        @endcan
-                        @can(['event_add_edit','delete_items'])
-                        <?php 
-                        if(empty($item->parent_event_id)  && $item->is_recurring == "no"){
-                            ?>
-                            <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
-                            data-placement="bottom" href="javascript:;"
-                            onclick="deleteEventFunction({{$item->event_recurring_id}}, {{$item->event_id}},'single');">
-                            <i class="fas fa-trash pr-2  align-middle"></i> </a>
-                        <?php }else if($item->edit_recurring_pattern == "single event" && $item->is_recurring == "yes"){ ?>
-                            <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
-                            data-placement="bottom" href="javascript:;"
-                            onclick="deleteEventFunction({{$item->event_recurring_id}}, {{$item->event_id}},'single');">
-                            <i class="fas fa-trash pr-2  align-middle"></i> </a>
-                        <?php }else{ ?>
-                        <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
-                            data-placement="bottom" href="javascript:;"
-                            onclick="deleteEventFunction({{$item->event_recurring_id}}, {{$item->event_id}},'multiple');">
-                            <i class="fas fa-trash pr-2  align-middle"></i> </a>
-                        <?php } ?>
-                        @endcan
-                    </div>
                     @endif
                 </td>
                 @endif

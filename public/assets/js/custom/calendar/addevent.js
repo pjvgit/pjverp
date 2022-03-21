@@ -164,7 +164,6 @@ function loadAddEventPopup(selectedDate = null, fromPageRoute = null) {
     $("#loadAddEventPopup").modal('show');
     $("#AddEventPage").html('Loading...');
     $("#preloader").show();
-    alert();
     $(function () {
         $.ajax({
             type: "POST",
@@ -191,6 +190,7 @@ function loadEventComment(event_id, event_recurring_id, fromPageRoute = null) {
     $("#loadCommentPopup").modal('show');
     $("#eventCommentPopup").html('Loading...');
     $("#preloader").show();
+    markEventAsRead(event_id);
     $(function () {
         $.ajax({
             type: "POST",
@@ -263,26 +263,38 @@ function editEventFunction(evnt_id, event_recurring_id = null, fromPageRoute = n
  * @param {*} eventId 
  * @param {*} types 
  */
-function deleteEventFunction(eventRecurringId, eventId, types) {
+function deleteEventFunction(eventRecurringId, eventId, types, fromPageRoute = null) {
     if(types=='single'){
         $("#deleteSingle").text('Delete Event');
     }else{
       $("#deleteSingle").text('Delete Recurring Event');
     }
-      $("#preloader").show();
-      $(function () {
-          // alert(id);
-          $.ajax({
-              type: "POST",
-              url: baseUrl + "/court_cases/deleteEventPopup", 
-              data: {
-                  "event_recurring_id": eventRecurringId, 'event_id': eventId
-              },
-              success: function (res) {
-                  $("#deleteEventModalBody").html('');
-                  $("#deleteEventModalBody").html(res);
-                  $("#preloader").hide();
-              }
-          })
-      })
-  }
+    $("#preloader").show();
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "/court_cases/deleteEventPopup", 
+        data: {
+            "event_recurring_id": eventRecurringId, 'event_id': eventId,
+            "from_page_route": fromPageRoute,
+        },
+        success: function (res) {
+            $("#deleteEventModalBody").html('');
+            $("#deleteEventModalBody").html(res);
+            $("#preloader").hide();
+        }
+    })
+}
+
+// Mark event as read
+function markEventAsRead(eventId) {
+    $.ajax({
+        type: "GET",
+        url: baseUrl + "/events/mark/read", 
+        data: {
+            'event_id': eventId,
+        },
+        success: function (res) {
+            $('#calendarq').fullCalendar('refetchEvents');
+        }
+    })
+}

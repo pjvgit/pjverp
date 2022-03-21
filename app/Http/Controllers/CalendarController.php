@@ -38,7 +38,7 @@ class CalendarController extends BaseController
         }else{
             AllHistory::where('type','event')->where('created_by', Auth::user()->parent_user)->update(['is_read'=>0]);
         }
-        // return view('calendar.index-new',compact('CaseMasterData','EventType','staffData'));
+        // return view('calendar.indexnew',compact('CaseMasterData','EventType','staffData'));
         return view('calendar.index',compact('CaseMasterData','EventType','staffData'));
     }
     public function loadEventCalendar (Request $request)
@@ -71,8 +71,8 @@ class CalendarController extends BaseController
         } */
         $CaseEvent=$CaseEvent/* ->whereNull('events.deleted_at') */->with('event', 'event.eventType')->get();
         $newarray = array();
-
-        $timezone=Auth::User()->user_timezone;
+        $authUser = auth()->user();
+        $timezone = $authUser->user_timezone;
         foreach($CaseEvent as $k=>$v){
             $event = $v->event;
             $eventData = [];
@@ -85,7 +85,10 @@ class CalendarController extends BaseController
             $eventData["et"] = date('Y-m-d H:i:s', strtotime($endDateTime));
             $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->color_code : "";
             $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));
-            $eventData["event_linked_staff"] = encodeDecodeJson($v->event_linked_staff);
+            $decodeStaff = encodeDecodeJson($v->event_linked_staff);
+            $eventData["event_linked_staff"] = $decodeStaff;
+            $isEventRead = $decodeStaff->where("user_id", $authUser->id)->first();
+            $eventData["is_read"] = (isset($isEventRead->is_read)) ? $isEventRead->is_read : 'no';
 
             $newarray[] = $eventData;
         }
@@ -93,7 +96,7 @@ class CalendarController extends BaseController
         if(isset($request->searchbysol) && $request->searchbysol=="true"){
             $CaseEventSOL = Event::leftJoin('case_master','case_master.id','=','events.case_id')
             ->select("case_master.case_unique_number as case_unique_number","case_master.sol_satisfied","events.*")
-            ->where('events.created_by',Auth::User()->id);
+            ->where('events.created_by', $authUser->id);
             $CaseEventSOL=$CaseEventSOL->whereBetween('start_date', [$request->start, $request->end]);
             $CaseEventSOL=$CaseEventSOL->where('is_SOL','yes');
             $CaseEventSOL=$CaseEventSOL->whereNull('events.deleted_at')->get();
@@ -102,8 +105,8 @@ class CalendarController extends BaseController
         }
         if(isset($request->searchbymytask) && $request->searchbymytask=="true"){
             $Task = Task::whereBetween('task_due_on', [$request->start, $request->end])
-                    ->whereHas('taskLinkedStaff', function($query) {
-                        $query->where('users.id', auth()->id());
+                    ->whereHas('taskLinkedStaff', function($query) use($authUser) {
+                        $query->where('users.id', $authUser->id);
                     });
             $Task=$Task->where('task_due_on',"!=",'9999-12-30');
             $Task = $Task->where("status", "0")->whereNotNull("task_due_on");
@@ -175,6 +178,8 @@ class CalendarController extends BaseController
             foreach($events as $key => $item) {
                 $startDateTime= convertUTCToUserTime($item->start_date.' '.$item->event->start_time, $timezone ?? 'UTC');
                 $endDateTime= convertUTCToUserTime($item->end_date.' '.$item->event->end_time, $timezone ?? 'UTC');
+                $decodeStaff = encodeDecodeJson($item->event_linked_staff);
+                $isEventRead = $decodeStaff->where("user_id", $authUserId)->first();
                 $finalDataList[] = (object)[
                     'event_id' => $item->event_id,
                     'event_recurring_id' => $item->id,
@@ -187,7 +192,7 @@ class CalendarController extends BaseController
                     "is_recurring" => $item->event->is_recurring,
                     "is_all_day" => $item->is_all_day,
                     "edit_recurring_pattern" => $item->event->edit_recurring_pattern,
-                    "event_linked_staff" => encodeDecodeJson($item->event_linked_staff),
+                    "event_linked_staff" => $decodeStaff,
                     "event_linked_contact_lead" => encodeDecodeJson($item->event_linked_contact_lead),
                     "is_SOL" => "no",
                     "sol_satisfied" => "no",
@@ -198,6 +203,7 @@ class CalendarController extends BaseController
                     "lead_user_name" => ($item->event->lead_id) ? $item->event->leadUser->full_name : "",
                     'created_by' => $item->created_by,
                     'is_task' => 'no',
+                    'is_read' => ($isEventRead->is_read == 'yes') ? $isEventRead->is_read : 'no',
                 ];
             }
         }
@@ -205,6 +211,7 @@ class CalendarController extends BaseController
         if(isset($request->searchbysol) && $request->searchbysol=="true") {
             $solEvents = Event::where('is_SOL','yes')->leftJoin('case_master','case_master.id','=','events.case_id')
                 ->where('events.created_by', $authUserId)
+                // ->where('case_master.sol_satisfied', 'no')
                 ->whereBetween('start_date', [$request->start, $request->end]);
             if($request->case_id != "") {
                 $solEvents = $solEvents->where('case_id',$request->case_id);
@@ -236,6 +243,7 @@ class CalendarController extends BaseController
                         "lead_user_name" => "",
                         'created_by' => $item->created_by,
                         'is_task' => 'no',
+                        'is_read' => 'yes',
                     ];
                 }
             }
@@ -257,6 +265,29 @@ class CalendarController extends BaseController
         })->values()->all();
         return view('calendar.partials.load_agenda_view', ["events" => $finalData])->render();          
         exit;    
+    }
+
+    /**
+     * Mark event as read
+     */
+    public function eventMarkAsRead(Request $request)
+    {
+        $authUserId = (string) auth()->id();
+        $eventIds = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->pluck('id')->toArray();
+        $eventREcurrings = EventRecurring::whereIn('event_id', $eventIds)->whereJsonContains('event_linked_staff', ["user_id" => $authUserId])->get();
+        foreach($eventREcurrings as $key => $item) {
+            $linkStaffPivot = encodeDecodeJson($item->event_linked_staff);
+            if(count($linkStaffPivot)) {
+                $newArray = [];
+                foreach($linkStaffPivot as $skey => $sitem) {
+                    if($sitem->user_id == $authUserId) {
+                        $sitem->is_read = 'yes';
+                    }
+                    $newArray[] = $sitem;
+                }
+                $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
+            }
+        }
     }
 
     // Made common code, check CaseController
