@@ -7,7 +7,7 @@
     padding: 5px 10px !important;
 }
 .fc-view.fc-AgendaView-view{
-    max-height: 700px !important;
+    max-height: 500px !important;
     overflow-y: auto !important;
 }
 .accordion{
@@ -15,14 +15,10 @@
     overflow-y: auto;
     overflow-x: hidden;
 }
-.card .collapse-scroll{
+.card.ul-card__v-space{
     max-height: 250px;
     overflow-y: auto;
     overflow-x: hidden;
-    margin-right: 3px;
-}
-.is-unread {
-    font-weight: 700;
 }
 </style>    
 @endsection
@@ -63,7 +59,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 <div class="row">
     <div class="col-md-2 pt-0">
        
-        <div class="accordion scrollbar-primary" id="accordionRightIcon">
+        <div class="accordion" id="accordionRightIcon">
             <div class="card ul-card__v-space">
                 <div class="card-header header-elements-inline">
                     <h6 class="card-title ul-collapse__icon--size ul-collapse__right-icon mb-0">
@@ -71,7 +67,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             aria-expanded="true">Staff</a>
                     </h6>
                 </div>
-                <div id="accordion-item-icon-right-coll-1" class="collapse show collapse-scroll scrollbar-primary" style="">
+                <div id="accordion-item-icon-right-coll-1" class="collapse show" style="">
                     <div class="collapse show">
                         <div class="py-3 pl-2">
                             <?php
@@ -127,7 +123,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         </span>
                    
                 </div>
-                <div id="accordion-item-icon-right-coll-2" class="collapse show collapse-scroll scrollbar-primary">
+                <div id="accordion-item-icon-right-coll-2" class="collapse show">
                     <div class="collapse show">
                         <div class="py-3 pl-1">
                             <label class="checkbox checkbox-outline-primary">
@@ -172,7 +168,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             href="#accordion-item-icon-right-coll-3">Other</a>
                     </h6>
                 </div>
-                <div id="accordion-item-icon-right-coll-3" class="collapse collapse-scroll scrollbar-primary">
+                <div id="accordion-item-icon-right-coll-3" class="collapse">
                     <div class="py-3 pl-2">
                         <label class="checkbox checkbox-dark">
                             <input type="checkbox" class="sol" value="sol" checked="checked"><span>Statute of Limitations (SOL)</span><span
@@ -389,27 +385,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     </div>
 </div> --}}
 
-<div id="addCaseReminderPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteSingle">Set Statute of Limitations Reminders</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12" id="addCaseReminderPopupArea">
-
-                    </div>
-                </div><!-- end of main-content -->
-            </div>
-
-        </div>
-    </div>
-</div>
-
 <div id="deleteFromCommentBox" class="modal fade modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
@@ -496,6 +471,242 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 
 <script type="text/javascript">
+
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendarq');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        initialDate: '2022-03-07',
+        /* headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        }, */
+        customButtons: {
+            agendaView: {
+                text: 'Agenda',
+                click: function() {
+                    alert('clicked the custom button!');
+                    // $('#calendarq').fullCalendar('changeView', 'AgendaView');
+                }
+            },
+            staffView: {
+                text: 'Day',
+                click: function () {
+                    $('#calendarq').fullCalendar('changeView', 'StaffView');
+                    $('#calendarq').fullCalendar('rerenderResources');
+                    $('#calendarq').fullCalendar( 'refetchEvents');
+                    return true; 
+                }
+            },
+            timeGridDay: {
+                text: 'Staff',
+                click: function () {
+                    $('#calendarq').fullCalendar('changeView', 'agendaDay');
+                }
+            },
+            /* timeGridWeek: {
+                text: 'Week',
+            },
+            dayGridMonth: {
+                text: 'Month',
+            }, */
+        },
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'staffView,timeGridDay,timeGridWeek,dayGridMonth,agendaView'
+        },
+        views: {
+            AgendaView: {
+                type: 'custom',
+                buttonText: 'Agenda',
+                duration: { days: 31 },
+                visibleRange: function(currentDate) {
+                    console.log(currentDate);
+                    return {
+                    // start: currentDate.clone().subtract(1, 'days'),
+                    start: currentDate.clone(),
+                    end: currentDate.clone().add(31, 'days') // exclusive end, so 3
+                    };
+                },
+            },
+            StaffView: {
+                type: 'timeGrid',
+                // duration: { days: 2 },
+                buttonText: 'Day',
+            },
+        },
+        resources: function(callback, start, end, timezone) {
+            var byuser = getByUser();
+            var view = $('#calendarq').fullCalendar('getView');
+                $.ajax({
+                    url: 'loadEventCalendar/loadStaffView',
+                    type: 'POST',
+                    data: {resType: "resources", byuser: byuser, view_name: view.name},
+                    success: function (doc) {
+                        callback(doc);
+                    }
+                });
+        },
+        events: function(info, successCallback, failureCallback) {
+            console.log(info);
+            // var view = $('#calendarq').fullCalendar('getView');
+            var start = info.startStr;
+            var end = info.endStr;
+            var eventTypes = [];
+            $.each($("input[name='event_type[]']:checked"), function(){
+                eventTypes.push($(this).val());
+            });
+            var byuser = getByUser();
+            var bysol=getSOL();
+            var mytask=getMytask();
+            /* if(view.name == 'AgendaView') {
+                alert();
+                $.ajax({
+                    url: 'loadEventCalendar/loadAgendaView',
+                    type: 'POST',
+                    data: {
+                        start: start,
+                        end: end,
+                        event_type: JSON.stringify(eventTypes),
+                        byuser: JSON.stringify(byuser),
+                        case_id: $(".case_or_lead option:selected").val(),
+                        searchbysol:bysol,
+                        searchbymytask:mytask,
+                        dateFilter:getDate(),
+                        taskLoad:$("#loadType").val()
+                    },
+                    success: function (doc) {
+                        $('.fc-view').html(doc);
+                        $("#preloaderData").hide();
+                    }
+                });
+            } else { */
+                $.ajax({
+                    url: 'loadEventCalendar/load',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        start: start,
+                        end: end,
+                        event_type: JSON.stringify(eventTypes),
+                        byuser: JSON.stringify(byuser),
+                        case_id: $(".case_or_lead option:selected").val(),
+                        searchbysol:bysol,
+                        searchbymytask:mytask,
+                        dateFilter:getDate(),
+                        taskLoad:$("#loadType").val()
+                    },
+                    success: function (doc) {
+                        var events = [];
+                        if (!!doc.result) {
+                            $.map(doc.result, function (r) {
+                                // console.log(r);
+                                var color="#00cfd2";
+                                if(r.etext != '') {
+                                    color = r.etext;
+                                }
+                                if (r.event_title == null) {
+                                    var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
+                                        ' -' + "<No Title>";
+                                } else {
+                                    var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
+                                        ' -' + r.event_title
+                                }
+                                var resource_id = [];
+                                if(r.event_linked_staff) {
+                                    $.each(r.event_linked_staff, function(ind, item) {
+                                        resource_id.push(item.user_id);
+                                    });
+                                }
+                                events.push({
+                                    id: r.event_recurring_id,
+                                    event_id: r.event_id,
+                                    title: t,
+                                    tTitle: r.event_title,
+                                    /* start: r.start_date+'T'+r.st,
+                                    end: r.end_date+'T'+r.et, */
+                                    start: r.st,
+                                    end: r.et,
+                                    backgroundColor: '#d5e9ce',  
+                                    textColor:'#000000',
+                                    resourceIds: resource_id,
+                                });
+                            });
+                        }
+                        if (!!doc.sol_result) {
+                            $.map(doc.sol_result, function (r) {
+                                console.log(r);
+                                if(r.sol_satisfied == 'yes') {
+                                    var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
+                                } else {
+                                    var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;">SOL</span>'+' ' + r.event_title;
+                                }
+                                var tplain = 'SOL'+' -' + r.event_title
+                                events.push({
+                                    mysol:'yes',
+                                    case_id:r.case_unique_number,
+                                    id: r.id,
+                                    title: t,
+                                    tTitle: tplain,
+                                    start: r.start_date,
+                                    end: r.end_date,
+                                    textColor:'#000000',
+                                    backgroundColor: 'rgb(236, 238, 239)',
+                                    resourceId: r.created_by,
+                                });
+                            });
+                        }
+                        if (!!doc.mytask) {
+                            $.map(doc.mytask, function (r) {
+                                if(r.task_priority==1){
+                                    var cds="background-color: rgb(202, 66, 69); width: 30px;";
+                                }else if(r.task_priority==2){
+                                    var cds="background-color: rgb(254, 193, 8); width: 30px;";
+                                }else if(r.task_priority==3){
+                                    var cds="background-color: rgb(40, 167, 68); width: 30px;";
+                                }else{
+                                    var cds="background-color: rgb(40, 167, 68); width: 30px;";
+                                }    
+                                var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'+cds+'">DUE</span>'+' ' + r.task_title
+                                var tplain = 'DUE'+' -' + r.task_title
+                                events.push({
+                                    mytask:'yes',
+                                    id: r.id,
+                                    title: t,
+                                    tTitle: tplain,
+                                    start: r.task_due_on,
+                                    end: r.task_due_on,
+                                    textColor:'#000000',
+                                    backgroundColor: 'rgb(236, 238, 239)',
+                                    resourceId: r.created_by,
+                                });
+                            });
+                        }
+                        // callback(events);
+                        successCallback(events)
+                    },
+                });
+            // }
+        },
+        /* eventRender: function (event, element,view) {
+            if(view.name == 'agendaWeek' || view.name == 'agendaDay') {
+                element.find('.fc-title').html(event.title);
+                element.find('.fc-title').append('<span class="yourCSS"></span> '); 
+            } else{
+                $(element).tooltip({
+                    title: event.tTitle
+                });
+                element.find('.fc-title').html(event.title);
+            }
+        }, */
+    });
+
+    calendar.render();
+});
+
     $(document).ready(function () {
         $("#datepicker").datepicker({
             'format': 'm/d/yyyy',
@@ -531,350 +742,18 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
         }
         initEvent();
 
-
             /* initialize the calendar
             -----------------------------------------------------------------*/
             var newDate = new Date,
-                date = newDate.getDate(),
-                month = newDate.getMonth(),
-                year = newDate.getFullYear();
-                if(localStorage.getItem('weekends')=='hide'){
-                    var hd=[0, 6];
-                }else{
-                    var hd=[];
-                }
-                var today = moment().day();
-            $('#calendarq').fullCalendar({
-                lazyFetching:false,
-                firstDay: 0,
-                timezone: "@if(auth()->user()->user_timezone) {{auth()->user()->user_timezone}} @else 'UTC' @endif",
-                // defaultDate: moment('2020-09-01'),
-                displayEventTime: false,
-                // timeFormat: 'h:mma',
-                defaultView: '{{$defaultView}}',
-                themeSystem: "bootstrap4",
-                droppable: false,
-                height: 700,
-                title: true,  
-                hiddenDays: hd,
-                disableDragging : false,
-                eventLimit: true, // allow "more" link when too many events
-                drop: function () {
-                    // is the "remove after drop" checkbox checked?
-                    if ($('#drop-remove').is(':checked')) {
-                        // if so, remove the element from the "Draggable Events" list
-                        $(this).remove();
-                    }
-                },
-                loading: function (bool) {
-                    $("#preloaderData").show();
-                },
-                buttonText:{
-                    month:    'Month',
-                    week:     'Week',
-                    day:      'Day',
-                    today : 'Today'
-                },
-                customButtons: {
-                    staffView: {
-                        text: 'Day',
-                        click: function () {
-                            $('#calendarq').fullCalendar('changeView', 'StaffView');
-                            $('#calendarq').fullCalendar('rerenderResources');
-                            $('#calendarq').fullCalendar( 'refetchEvents');
-                            return true; 
-                        }
-                    },
-                    agendaView: {
-                        text: 'Agenda',
-                        click: function () {
-                            $('#calendarq').fullCalendar('changeView', 'AgendaView');
-                        }
-                    },
-                    agendaDay: {
-                        text: 'Staff',
-                        click: function () {
-                            $('#calendarq').fullCalendar('changeView', 'agendaDay');
-                        }
-                    },                    
-                },
-                header: {
-                    left: 'prev next today', //myCustomButton
-                    center: 'title',
-                    right: 'agendaDay,staffView,agendaWeek,month,agendaView'
-                },
-                views: {
-                    AgendaView: {
-                        type: 'custom',
-                        buttonText: 'Agenda',
-                        duration: { days: 31 },
-                        visibleRange: function(currentDate) {
-                            console.log(currentDate);
-                            return {
-                            // start: currentDate.clone().subtract(1, 'days'),
-                            start: currentDate.clone(),
-                            end: currentDate.clone().add(31, 'days') // exclusive end, so 3
-                            };
-                        },
-                    },
-                    StaffView: {
-                        type: 'agenda',
-                        // duration: { days: 2 },
-                        buttonText: 'Day',
-                    },
-                },
-                // defaultView: 'month',
-                // groupByResource: true,
-                resources: function(callback, start, end, timezone) {
-                    var byuser = getByUser();
-                    var view = $('#calendarq').fullCalendar('getView');
-                        $.ajax({
-                            url: 'loadEventCalendar/loadStaffView',
-                            type: 'POST',
-                            data: {resType: "resources", byuser: byuser, view_name: view.name},
-                            success: function (doc) {
-                                callback(doc);
-                            }
-                        });
-                },
-                events: function (start, end, timezone, callback) {
-                    var view = $('#calendarq').fullCalendar('getView');
-                    var eventTypes = [];
-                    $.each($("input[name='event_type[]']:checked"), function(){
-                        eventTypes.push($(this).val());
-                    });
-                    var byuser = getByUser();
-                    var bysol=getSOL();
-                    var mytask=getMytask();
-                    if(view.name == 'AgendaView') {
-                        $.ajax({
-                            url: 'loadEventCalendar/loadAgendaView',
-                            type: 'POST',
-                            data: {
-                                start: start.format(),
-                                end: end.format(),
-                                event_type: JSON.stringify(eventTypes),
-                                byuser: JSON.stringify(byuser),
-                                case_id: $(".case_or_lead option:selected").val(),
-                                searchbysol:bysol,
-                                searchbymytask:mytask,
-                                dateFilter:getDate(),
-                                taskLoad:$("#loadType").val()
-                            },
-                            success: function (doc) {
-                                $('.fc-view').html(doc);
-                                $("#preloaderData").hide();
-                            }
-                        });
-                    } else {
-                        $.ajax({
-                            url: 'loadEventCalendar/load',
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                start: start.format(),
-                                end: end.format(),
-                                event_type: JSON.stringify(eventTypes),
-                                byuser: JSON.stringify(byuser),
-                                case_id: $(".case_or_lead option:selected").val(),
-                                searchbysol:bysol,
-                                searchbymytask:mytask,
-                                dateFilter:getDate(),
-                                taskLoad:$("#loadType").val()
-                            },
-                            success: function (doc) {
-                                var events = [];
-                                if (!!doc.result) {
-                                    $.map(doc.result, function (r) {
-                                        // console.log(r);
-                                        var color="#00cfd2";
-                                        if(r.etext != '') {
-                                            color = r.etext;
-                                        }
-                                        var sTime = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +' -';
-                                        if (r.is_read == 'no') {
-                                            var t = sTime + '<span style="background: transparent;font-weight: bold;color: black;">'+ r.event_title +'</span>';
-                                        } else {
-                                            var t = sTime + r.event_title;
-                                        }
-                                        var resource_id = [];
-                                        if(r.event_linked_staff) {
-                                            $.each(r.event_linked_staff, function(ind, item) {
-                                                resource_id.push(item.user_id);
-                                            });
-                                        }
-                                        events.push({
-                                            id: r.event_recurring_id,
-                                            event_id: r.event_id,
-                                            title: t,
-                                            tTitle: r.event_title,
-                                            /* start: r.start_date+'T'+r.st,
-                                            end: r.end_date+'T'+r.et, */
-                                            start: r.st,
-                                            end: r.et,
-                                            backgroundColor: '#d5e9ce',  
-                                            textColor:'#000000',
-                                            resourceIds: resource_id,
-                                        });
-                                    });
-                                }
-                                if (!!doc.sol_result) {
-                                    $.map(doc.sol_result, function (r) {
-                                        console.log(r);
-                                        if(r.sol_satisfied == 'yes') {
-                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
-                                        } else {
-                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;">SOL</span>'+' ' + r.event_title;
-                                        }
-                                        var tplain = 'SOL'+' -' + r.event_title
-                                        events.push({
-                                            mysol:'yes',
-                                            case_id:r.case_unique_number,
-                                            id: r.id,
-                                            title: t,
-                                            tTitle: tplain,
-                                            start: r.start_date,
-                                            end: r.end_date,
-                                            textColor:'#000000',
-                                            backgroundColor: 'rgb(236, 238, 239)',
-                                            resourceId: r.created_by,
-                                        });
-                                    });
-                                }
-                                if (!!doc.mytask) {
-                                    $.map(doc.mytask, function (r) {
-                                        if(r.task_priority==1){
-                                            var cds="background-color: rgb(202, 66, 69); width: 30px;";
-                                        }else if(r.task_priority==2){
-                                            var cds="background-color: rgb(254, 193, 8); width: 30px;";
-                                        }else if(r.task_priority==3){
-                                            var cds="background-color: rgb(40, 167, 68); width: 30px;";
-                                        }else{
-                                            var cds="background-color: rgb(40, 167, 68); width: 30px;";
-                                        }    
-                                        var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'+cds+'">DUE</span>'+' ' + r.task_title
-                                        var tplain = 'DUE'+' -' + r.task_title
-                                        events.push({
-                                            mytask:'yes',
-                                            id: r.id,
-                                            title: t,
-                                            tTitle: tplain,
-                                            start: r.task_due_on,
-                                            end: r.task_due_on,
-                                            textColor:'#000000',
-                                            backgroundColor: 'rgb(236, 238, 239)',
-                                            resourceId: r.created_by,
-                                        });
-                                    });
-                                }
-                                callback(events);
-                            },
-                        });
-                    }
-                },
-                eventRender: function (event, element,view) {
-                    if(view.name == 'agendaWeek' || view.name == 'agendaDay') {
-                        element.find('.fc-title').html(event.title);
-                        element.find('.fc-title').append('<span class="yourCSS"></span> '); 
-                    } else{
-                        $(element).tooltip({
-                            title: event.tTitle
-                        });
-                        element.find('.fc-title').html(event.title);
-                    }
-                },
-                viewRender: function(view, element){
-                    var view = $('#calendarq').fullCalendar('getView');
-                    if (view.name == 'month' || view.name == 'week' || view.name == 'day') {
-                    }else{
-                        var currentdate = view.intervalStart;
-                        var endDate = view.intervalEnd;
-                        $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
-                        var dateText= $("#datepicker").val();
-                        date = moment(currentdate).format('YYYY-MM-DD');
-                        // $("#calendarq").fullCalendar('gotoDate', date);
-                    }
-                },
-                eventAfterAllRender: function (view) {
-                    $("#preloaderData").hide();
-                    if(localStorage.getItem('weekends')=='hide'){
-                        var chk="";
-                    }else{
-                        var chk="checked=checked";
-                    }
-                    
-                    $("#printicon").remove();
-                    $(".fc-right").append('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>'); 
-
-                    $("#settingicon").remove();
-                    $(".fc-right").append('<span id="settingicon"> <button class="btn btn-secondry dropdown-toggle" id="shuesuid" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i aria-hidden="true" class="fas fa-cog icon"></i> </button><div class="dropdown-menu bg-transparent shadow-none p-0 m-0" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 34px, 0px); top: 0px; left: 0px; will-change: transform "><div class="card"><div tabindex="-1" role="menu" aria-hidden="false" class="dropdown-menu dropdown-menu-right show" x-placement="top-end"> <b class="ml-2">Actions:</b> <button type="button" tabindex="0" role="menuitem" class="dropdown-item mb-1" onclick="markAsRead()">Mark All As Read</button>  <b class="ml-2">Settings:</b><a href="'+baseUrl+'/locations" tabindex="0" role="menuitem" class="dropdown-item">Locations</a> <b class="ml-2">Format Options:</b><label class="checkbox checkbox-outline-primary ml-2"><input type="checkbox" class="showweekend ml-2" '+chk+' value="1" onclick="callWeekend()"><span>Show Weekends</span><span class="checkmark"></span></label><span></span></button> </div> </div> </div> </span>'); 
-
-                    $("#addevbutton").remove();
-                    @can('event_add_edit')
-                    $(".fc-right").append(' <span id="addevbutton">\
-                        <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> \
-                            <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup(null, '+"'events'"+');">Add Event</button>\
-                        </a></span>'); 
-                    $( "#dp" ).insertBefore( ".fc-today-button" );
-                    @endcan
-                   
-                    $("#shuesuid").trigger('click');
-                    $("#preloaderData").hide();
-                    $('[data-toggle="tooltip"]').tooltip();
-                },
-                eventClick: function(event) {
-                    console.log(event);
-                    if(event.mytask=="yes"){
-                        var redirectURL=baseUrl+'/tasks?id='+event.id;
-                        window.location.href=redirectURL;
-                    }else if(event.mysol=="yes"){
-                        var redirectURL=baseUrl+'/court_cases/'+event.case_id+'/info';
-                        window.location.href=redirectURL;
-                    }else {
-                        loadEventComment(event.event_id, event.id, 'events');
-                    }
-                },
-                dayClick: function(date, jsEvent, view) {
-                    // loadAddEventPopupFromCalendar(date.format());
-                    loadAddEventPopup(date.format(), 'events');
-                }
-            });
-            // calendar.render();            
-
-            var FC = $.fullCalendar; // a reference to FullCalendar's root namespace
-            var View = FC.View;      // the class that all views must inherit from
-            var AgendaView;          // our subclass
-            AgendaView = View.extend({ // make a subclass of View
-                initialize: function() {
-                },
-                /* render: function() {
-                    var view = $('#calendarq').fullCalendar('getView');
-                    var start = view.start._d;
-                    var end = view.end._d;
-                    var eventTypes = getCheckedUser();
-                        var byuser = getByUser();
-                    $.ajax({
-                            url: 'loadEventCalendar/loadAgendaView',
-                            type: 'POST',
-                            data: { start: moment(start).format('YYYY-MM-DD'), end: moment(end).format('YYYY-MM-DD'), event_type: eventTypes, byuser: byuser },
-                            success: function (doc) {
-                                $('.fc-view').html(doc);
-                                $("#preloaderData").hide();
-                            }
-                        });
-                }, */
-                setHeight: function(height, isAuto) {
-                },
-                renderEvents: function(events) {
-                },
-                destroyEvents: function() {
-                },
-                renderSelection: function(range) {
-                },
-                destroySelection: function() {
-                }
-            });
-            FC.views.custom = AgendaView; // register our class with the view system
+            date = newDate.getDate(),
+            month = newDate.getMonth(),
+            year = newDate.getFullYear();
+            if(localStorage.getItem('weekends')=='hide'){
+                var hd=[0, 6];
+            }else{
+                var hd=[];
+            }
+            var today = moment().day();
 
             jQuery(".js-form-add-event").on("submit", function (e) {
                 e.preventDefault();
@@ -884,8 +763,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 initEvent();
             });
         
-        // $('#calendar').fullCalendar('changeView', 'custom');
-
         $('#deleteFromCommentBox').on('hidden.bs.modal', function () {
             $('#calendarq').fullCalendar('refetchEvents');
         });
@@ -963,185 +840,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
     }
     function getDate(){
         return $("#datepicker").val();
-    }
-
-    // Made common code, so commented
-    /* function loadReminderPopup(evnt_id) {
-        $("#reminderDAta").html('Loading...');
-        $("#preloader").show();
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/loadReminderPopup", // json datasource
-                data: {
-                    "evnt_id": evnt_id
-                },
-                success: function (res) {
-                    $("#reminderDAta").html('Loading...');
-                    $("#reminderDAta").html(res);
-                    $("#preloader").hide();
-                 
-                }
-            })
-        })
-    } */
-    // Made common code, check addevent.js file
-    /* function loadReminderPopupIndex(evnt_id) {
-        $("#reminderDataIndex").html('Loading...');
-        $("#preloader").show();
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/loadReminderPopupIndex", // json datasource
-                data: {
-                    "evnt_id": evnt_id
-                },
-                success: function (res) {
-                    $("#reminderDataIndex").html('Loading...');
-                    $("#reminderDataIndex").html(res);
-                    $("#preloader").hide();
-                 
-                }
-            })
-        })
-    } */
-    // Made common code, check addevent.js file
-    /* function loadEventComment(evnt_id) {
-        $("#loadCommentPopup").modal('show');
-        $("#eventCommentPopup").html('Loading...');
-        $("#preloader").show();
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/loadCommentPopupFromCalendar", // json datasource
-                data: {
-                    "evnt_id": evnt_id
-                },
-                success: function (res) {
-                    $("#eventCommentPopup").html('Loading...');
-                    $("#eventCommentPopup").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    } */
-    // Made common code , check addevent.js file
-    /* function loadAddEventPopup() {
-        $("#AddEventPage").html('Loading...');
-        $("#preloader").show();
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/loadAddEventPageFromCalendar", // json datasource
-                data: {
-                   
-                },
-                success: function (res) {
-                    $("#AddEventPage").html('Loading...');
-                    $("#AddEventPage").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    } */
-    // Made common code, This code is not in use
-    /* function loadAddEventPopupFromCalendar(selectedate) {
-        $("#loadAddEventPopupFromCalendar").modal("show");
-        $("#AddEventPageFromCalendar").html('Loading...');
-        $("#preloader").show();
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/loadAddEventPageSpecificaDate", // json datasource
-                data: {
-                    selectedate:selectedate
-                },
-                success: function (res) {
-                    $("#AddEventPageFromCalendar").html('Loading...');
-                    $("#AddEventPageFromCalendar").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    } */
-    // Made common code. check addevent.js file
-    /* function editEventFunction(evnt_id) {
-        $("#preloader").show();
-        $("#loadEditEventPopup .modal-dialog").addClass("modal-xl");
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/loadEditEventPageFromCalendarView", // json datasource
-                data: {
-                    "evnt_id":evnt_id
-                },
-                success: function (res) {
-                    $("#loadCommentPopup").modal('hide');
-                    $("#EditEventPage").html('');
-                    $("#EditEventPage").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    } */
-    // This code not in use
-    /* function editSingleEventFunction(evnt_id) {
-        $("#preloader").show();
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/loadSingleEditEventPageFromCalendar", // json datasource
-                data: {
-                    "evnt_id":evnt_id
-                },
-                success: function (res) {
-                    $("#loadCommentPopup").modal('hide');
-
-                    $("#EditEventPage").html('');
-                    $("#EditEventPage").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    } */
-    // Not in use
-    /* function deleteEventFunction(id,types) {
-      
-      if(types=='single'){
-          $("#deleteSingle").text('Delete Event');
-      }else{
-        $("#deleteSingle").text('Delete Recurring Event');
-      }
-        $("#preloader").show();
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/deleteEventPopup", 
-                data: {
-                    "event_id": id
-                },
-                success: function (res) {
-                    $("#eventID").html('');
-                    $("#eventID").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    } */
-
-    // SOL reminders
-    function addCaseReminder(case_id) {
-        $("#reminderDataIndexInView").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/court_cases/addCaseReminderPopup", // json datasource
-                data: {"case_id": case_id},
-                success: function (res) {
-                    $("#addCaseReminderPopupArea").html(res);
-                }
-            })
-        })
     }
 
     function resetButton(){

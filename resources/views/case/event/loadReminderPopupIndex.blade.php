@@ -155,7 +155,7 @@
                 return false;
             }
             var dataString ='';
-             dataString = $("form").serialize();
+             dataString = $("#editReminderIndex").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveEventReminderPopup", // json datasource

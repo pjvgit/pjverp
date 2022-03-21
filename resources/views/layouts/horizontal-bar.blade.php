@@ -37,7 +37,7 @@
                                 </label>
                                 <a href="{{route('events/')}}">Calender <span class="badge badge-secondary eventCount" style="margin-bottom: 10px;"></span></a><input type="checkbox" id="drop-2"><input
                                     type="checkbox" id="drop-2">
-                                {{-- <ul>
+                                <ul>
 
                                     <li class="nav-item">
                                         <a href="{{route('events/')}}?view=day" class="">
@@ -67,7 +67,7 @@
                                     </li>
 
 
-                                </ul> --}}
+                                </ul>
                             </div>
                         </div>
                     </li>

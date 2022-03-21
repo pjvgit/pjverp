@@ -91,9 +91,12 @@
                         $("#innerLoader1").css('display', 'none');
                         return false;
                     } else {
-                        window.location.reload();
-                        // $('#deleteEvent').modal('hide');
-                        // loadMoreEvent(1, filter = 'true'); 
+                        $("#deleteEventModal, #loadCommentPopup").modal('hide');
+                        @if($fromPageRoute == "events")
+                            $('#calendarq').fullCalendar('refetchEvents');
+                        @else
+                            window.location.reload();
+                        @endif
                     }
                 }
             });

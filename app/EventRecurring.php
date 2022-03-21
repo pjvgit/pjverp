@@ -11,7 +11,7 @@ class EventRecurring extends Model
     protected $fillable = [
         'id', 'event_id', 'start_date', 'end_date', 'event_reminders', 'event_comments', 'event_linked_staff', 'event_linked_contact_lead'
     ];    
-    protected $appends  = ['decode_id', 'user_start_date', 'user_end_date', 'is_view'];
+    protected $appends  = ['decode_id', 'user_start_date', 'user_end_date', 'is_view', 'is_read'];
 
     // protected $casts = ['event_reminders' => 'array', 'event_comments' => 'array',];
 
@@ -54,5 +54,15 @@ class EventRecurring extends Model
         $authUserId = auth()->id();
         $decodeJson = encodeDecodeJson($this->event_linked_contact_lead)->where("contact_id", $authUserId)->first();
         return $decodeJson->is_view ?? "no";
+    }
+
+    /**
+     * Check event is read by firm user/staff attribute
+     */
+    public function getIsReadAttribute()
+    {
+        $authUserId = (string) auth()->id();
+        $decodeJson = encodeDecodeJson($this->event_linked_staff)->where("user_id", $authUserId)->first();
+        return $decodeJson->is_read ?? "no";
     }
 }

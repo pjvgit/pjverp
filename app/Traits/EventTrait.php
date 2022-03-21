@@ -54,6 +54,7 @@ trait EventTrait {
                         'attending' => (isset($request['linked_staff_checked_attend']) && in_array($request['linked_staff_checked_share'][$i], $request['linked_staff_checked_attend'])) ? "yes" : "no",
                         'comment_read_at' => Carbon::now(),
                         'created_by' => $authUserId,
+                        'is_read' => 'no',
                     ];
                 }
                 $alreadyAdded[]=$request['linked_staff_checked_share'][$i];
@@ -82,6 +83,7 @@ trait EventTrait {
                         'attending' => $attend,
                         'comment_read_at' => Carbon::now(),
                         'created_by' => $authUserId,
+                        'is_read' => 'no',
                     ];
                 }
                 $alreadyAdded[]=$request['share_checkbox_nonlinked'][$i];
