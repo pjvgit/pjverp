@@ -2180,7 +2180,8 @@ class BillingController extends BaseController
             ExpenseEntry::where('status','unpaid')->where('token_id','9999999')->delete();
             FlatFeeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
             $upcomingInvoice=1;
-            return view('billing.invoices.create_invoices',compact(/* 'practiceAreaList', */'upcomingInvoice'));
+            $getInvoicePendingCase = $this->getInvoicePendingCase();
+            return view('billing.invoices.create_invoices',compact(/* 'practiceAreaList', */'upcomingInvoice','getInvoicePendingCase'));
         }else{
             return view('pages.404');
         }

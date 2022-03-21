@@ -16,7 +16,6 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
         <div class="card text-left">
             <div class="card-body">
                 <span id="responseMain"></span>
-
                 <div class="d-flex align-items-center pl-4 pb-4">
                     <h3> Create a New Invoice</h3>
                     <ul class="d-inline-flex nav nav-pills pl-4">
@@ -26,7 +25,11 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                                 Open Balances
                             </a>
                         </li>
+                        @if(count($getInvoicePendingCase) == 0)
                         <li class="d-print-none nav-item arrow-right">
+                        @else
+                        <li class="d-print-none nav-item">
+                        @endif
                             <a href="{{route('bills/invoices/new')}}"
                                 class="nav-link {{ request()->is('bills/invoices/new*') ? 'active' : '' }} {{ request()->is('bills/invoices/load_new*') ? 'active' : '' }}">From
                                 Scratch</a>
