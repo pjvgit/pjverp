@@ -1161,13 +1161,14 @@ var start = 0;
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() >= $(document).height()) {
             if(lazyLoadingActive == 1)
+                $("#preloader").show();
                 loadMoreData(roundPage);
         }
     });
 
     function loadMoreData(round){
         $("#preloader").show(); 
-        // beforeLoader();       
+        beforeLoader();       
         $.ajax(
         {
             url: baseUrl + "/bills/invoices/loadUpcomingInvoicesWithLoader",
@@ -1189,7 +1190,7 @@ var start = 0;
         })
         .done(function(result)
         {
-            $("#preloader").show();
+            
             roundPage = round + 1;
             var res = JSON.parse(result);
             var resultHtml = '';
@@ -1272,7 +1273,7 @@ var start = 0;
                 });
                
             });
-            // afterLoader();
+            
             }
             if(res.recordsTotal > 0){
                 $(".lazy-load-data").append(resultHtml);  
@@ -1287,8 +1288,9 @@ var start = 0;
             
             // $(".lazy-load-data").html('');
             // $(".lazy-load-data").html(resultHtml);
-            $("#preloader").hide();
             reloadBilling();
+            $("#preloader").hide();
+            afterLoader();
         })
         .fail(function(jqXHR, ajaxOptions, thrownError)
         {

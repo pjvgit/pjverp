@@ -3,14 +3,17 @@
     <div id="new-case-time-entries" data-court-case-id="14011629" data-show-ledes-info="false"
         data-can-add-time-entry="true" data-can-view-billing-rate="true">
         <div id="time-entry-filter-and-table">
-            <div class="d-flex justify-content-between py-1">
-                @if($caseBiller != null)
+            @if($caseBiller != null)
+            <div class="d-flex justify-content-end py-1">
                     @can(['case_add_edit', 'billing_add_edit'])
                     <a  href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}&contact={{$caseBiller['uid'] ?? ''}}">
                     <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                     >Add Invoice</button></a>
                     @endcan
-                @else
+            
+            </div>        
+            @else
+            <div class="d-flex justify-content-between py-1">
                 <div class="alert alert-primary alert-dismissible fade show" role="alert">
                     <p>
                         Create an invoice for the time spent on the case then share it with your contacts right from MyCase.You must link an active client to this case before you can add an invoice by clicking Contacts & Staff.
@@ -19,13 +22,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                @endif
-                <div class="date-range d-flex align-items-center">
-                    <div class="date-range-filter-dropdown dropdown">
-                        
-                    </div>
-                </div>
             </div>
+            @endif
             <div data-testid="mc-table-container" style="font-size: small;">
                 <table class="display table table-striped table-bordered" id="invoiceGrid" style="width:100%">
                     <thead>

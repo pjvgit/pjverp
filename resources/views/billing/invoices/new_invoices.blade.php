@@ -3081,6 +3081,7 @@ $nonBillableAmount = 0;
                     $("#saveInvoiceForm").submit();
                 }else{
                     $("#invoice_payment_plan_error").show();
+                    $('html, body').animate({scrollTop:$('#invoice_payment_plan_error').position().top}, 'slow');
                     afterLoader();
                     return false;
                 }                
@@ -3682,7 +3683,11 @@ $nonBillableAmount = 0;
             });
         }else{
             if(contact != $(this).val()){
-            fetchClientAddress();
+            // fetchClientAddress();
+            $("#preloader").show();
+            var URLS=baseUrl+'/bills/invoices/load_new?contact='+$(this).val();
+            window.location.href=URLS;
+            return true;
             }
         }    
     });

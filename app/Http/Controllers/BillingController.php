@@ -2495,6 +2495,15 @@ class BillingController extends BaseController
             $CompanyList = userCompanyList();
         
             $case_id=$request->court_case_id;
+            if($case_id == ""){
+                $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",0)
+                ->where("flat_fee_entry.user_id",auth()->id())
+                ->where("flat_fee_entry.invoice_link",NULL)
+                ->where("flat_fee_entry.time_entry_billable","yes")
+                ->where("flat_fee_entry.status","unpaid")
+                ->where("flat_fee_entry.remove_from_current_invoice","no")
+                ->delete();
+            }
             $caseClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$case_id)->select("*")->first(); //->where('case_client_selection.is_billing_contact','yes')
           
             $client_id=$request->contact;
@@ -4033,7 +4042,7 @@ class BillingController extends BaseController
             }
         }
         $paymentPlanAmount = 0;
-        if(isset($request->new_payment_plans)){
+        if($request->payment_plan == "on" && isset($request->new_payment_plans)){
             foreach($request->new_payment_plans as $k=>$v){
                 $paymentPlanAmount += (float) str_replace(',', '', $v['amount']);
             }
@@ -4041,6 +4050,9 @@ class BillingController extends BaseController
         $paymentPlanAmount = (float) str_replace(',', '', number_format($paymentPlanAmount,2));
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
             $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
+        }       
+        if($request->payment_plan == "on" && ($request->number_installment_field == null || $request->amount_per_installment_field == null)){
+            $rules['number_installment_field'] = 'required';
         }       
         $request->validate($rules,
         [
@@ -4050,7 +4062,8 @@ class BillingController extends BaseController
             "contact.required"=>"Billing user can't be blank",
             "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
             "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity",
-            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice."
+            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice.",
+            "number_installment_field.required"=>"Payment plans must required Amount/Installment as the invoice."
         ]);      
         // dd($request->all());    
         dbStart();        
@@ -5867,6 +5880,9 @@ class BillingController extends BaseController
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
             $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
         }        
+        if($request->payment_plan == "on" && ($request->number_installment_field == null || $request->number_installment_field == null)){
+            $rules['number_installment_field'] = 'required';
+        }         
         $request->validate($rules, [
             "invoice_number_padded.required"=>"Invoice number must be greater than 0",
             "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
@@ -5874,7 +5890,8 @@ class BillingController extends BaseController
             "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
             "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity",
             "final_total_text.gte" => "You cannot lower the amount of this invoice below $".$InvoiceSave->total_amount." because payments have already been received for that amount.",
-            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice."
+            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice.",
+            "number_installment_field.required"=>"Payment plans must required Amount/Installment as the invoice."
         ]);
         
             // print_r($request->all());exit;

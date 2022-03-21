@@ -3356,6 +3356,7 @@ $nonBillableAmount = 0;
                         $("#saveInvoiceForm").submit();
                     }else{
                         $("#invoice_payment_plan_error").show();
+                        $('html, body').animate({scrollTop:$('#invoice_payment_plan_error').position().top}, 'slow');
                         afterLoader();
                         return false;
                     }
@@ -3366,6 +3367,7 @@ $nonBillableAmount = 0;
                         $("#saveInvoiceForm").submit();
                     }else{
                         $("#invoice_payment_plan_error").show();
+                        $('html, body').animate({scrollTop:$('#invoice_payment_plan_error').position().top}, 'slow');
                         afterLoader();
                         return false;
                     }
