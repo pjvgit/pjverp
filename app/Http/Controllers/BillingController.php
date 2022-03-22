@@ -7905,7 +7905,7 @@ class BillingController extends BaseController
                 $userData = UsersAdditionalInfo::where('user_id', $Invoices['user_id'])->first();
 
                 //Get the trust account balance and invoice due amount
-                if($userData->unallocate_trust_balance > 0 && $caseClientCount == 1 && $Invoices->status != "Forwarded" && $Invoices->status != "Paid")
+                if($userData->unallocate_trust_balance > 0 && $caseClientCount == 1 && !in_array($Invoices->status, ["Forwarded", "Paid"]))
                 {
                     if($finalAmt >= $userData->unallocate_trust_balance ){
                         $finalAmt = $userData->unallocate_trust_balance;
@@ -7963,6 +7963,7 @@ class BillingController extends BaseController
                     $invoiceHistory['invoice_id']=$invoice_id;
                     $invoiceHistory['acrtivity_title']='Payment Received';
                     $invoiceHistory['pay_method']='Trust';
+                    $invoiceHistory['payment_from']='trust';
                     $invoiceHistory['amount']=$finalAmt;
                     $invoiceHistory['responsible_user']=Auth::User()->id;
                     $invoiceHistory['deposit_into']='Operating Account';

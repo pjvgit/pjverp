@@ -14,7 +14,11 @@
         <th width="13%"></th>
     </tr>
     @endif
-    <tr class="{{ ($item->is_read == 'no') ? 'is-unread' : '' }}">
+    @php
+        $eventLinkedStaff = encodeDecodeJson($item->event_linked_staff);
+        $isAuthUserLinked = $eventLinkedStaff->where('user_id', $authUser->id)->first();
+    @endphp
+    <tr class="{{ ($item->is_read == 'no' && $isAuthUserLinked) ? 'font-weight-bold' : '' }}">
         <td class="event-date-and-time  c-pointer" style="width: 50px;">
             @if(isset($oDate) && $item->start_date==$oDate)
             @else
@@ -59,13 +63,15 @@
                 @else 
                 <span class="mr-2 badge badge-danger">SOL</span>
                 @endif
+                {{ $item->event->event_title ?? "<no title>" }}
+            @else
+                @if($item->event->is_event_private=='yes' && !$isAuthUserLinked)
+                    Private Event
+                @else
+                    {{ $item->event->event_title ?? "<no title>" }} @if($item->event->is_event_private == 'yes') <span class="agenda-shared-private-event"> [Private]</span> @endif
+                @endif
             @endif
-            {{ $item->event->event_title }}
         </td>
-        @php
-            $eventLinkedStaff = encodeDecodeJson($item->event_linked_staff);
-            $isAuthUserLinked = $eventLinkedStaff->where('user_id', $authUser->id)->first();
-        @endphp
         <td class="c-pointer">
             @if(!empty($item->event->eventType) && ($isAuthUserLinked || $authUser->parent_user == 0))
             <div class="d-flex align-items-center mt-3">
@@ -166,7 +172,8 @@
         </td>
         @else
         <td class="event-users">
-            @if($item->event->is_event_private=='no')
+            @if($item->event->is_event_private=='yes' && !$isAuthUserLinked)
+            @else
             <div class="mt-3 float-right">
                 @if($isAuthUserLinked || $authUser->parent_user == 0)
                 <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"

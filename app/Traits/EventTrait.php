@@ -54,7 +54,7 @@ trait EventTrait {
                         'attending' => (isset($request['linked_staff_checked_attend']) && in_array($request['linked_staff_checked_share'][$i], $request['linked_staff_checked_attend'])) ? "yes" : "no",
                         'comment_read_at' => Carbon::now(),
                         'created_by' => $authUserId,
-                        'is_read' => 'no',
+                        'is_read' => ($authUserId == $request['linked_staff_checked_share'][$i]) ? 'yes' : 'no',
                     ];
                 }
                 $alreadyAdded[]=$request['linked_staff_checked_share'][$i];
@@ -83,7 +83,7 @@ trait EventTrait {
                         'attending' => $attend,
                         'comment_read_at' => Carbon::now(),
                         'created_by' => $authUserId,
-                        'is_read' => 'no',
+                        'is_read' => ($authUserId == $request['share_checkbox_nonlinked'][$i]) ? 'yes' : 'no',
                     ];
                 }
                 $alreadyAdded[]=$request['share_checkbox_nonlinked'][$i];
@@ -240,9 +240,11 @@ trait EventTrait {
             $eventRecurring = $this->saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         } else if($request->event_frequency == "MONTHLY") {
             $eventRecurring = $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
-        } else if($request->event_frequency == "YEARLY") {
-            $eventRecurring = $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
         }
+        // Commented. As per client's requirement
+        /* else if($request->event_frequency == "YEARLY") {
+            $eventRecurring = $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+        } */
 
         $this->saveEventRecentActivity($request, $caseEvent->id, @$eventRecurring->id, 'add');
     }

@@ -14,6 +14,7 @@
     height: 700px;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-right: 7px;
 }
 .card .collapse-scroll{
     max-height: 250px;
@@ -21,14 +22,14 @@
     overflow-x: hidden;
     margin-right: 3px;
 }
-.is-unread {
-    font-weight: 700;
+.agenda-task-incomplete {
+    color: #ca4245;
 }
 </style>    
 @endsection
 @section('main-content')
 <?php
-$timezoneData = unserialize(TIME_ZONE_DATA); 
+// $timezoneData = unserialize(TIME_ZONE_DATA); 
 ?>
 @if(!isset($evetData))
 <div class="loadscreen" id="preloaderData" style="display: none;">
@@ -62,8 +63,17 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 <div id="calendar_view_div">
 <div class="row">
     <div class="col-md-2 pt-0">
-       
+        
         <div class="accordion scrollbar-primary" id="accordionRightIcon">
+            <div class="filter-list">
+                <div>
+                    <div role="group" class="d-flex btn-group">
+                        <button type="button" value="all" id="all" class="w-100 btn btn-outline-secondary active" onclick="allTask()">All</button>
+                        <button type="button" value="unread" id="unread" class="w-100 btn btn-outline-secondary" onclick="allUnread()">Unread</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="card ul-card__v-space">
                 <div class="card-header header-elements-inline">
                     <h6 class="card-title ul-collapse__icon--size ul-collapse__right-icon mb-0">
@@ -165,7 +175,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 </div>
             </div>
 
-            <div class="card ul-card__v-space">
+            {{-- <div class="card ul-card__v-space">
                 <div class="card-header header-elements-inline">
                     <h6 class="card-title ul-collapse__icon--size ul-collapse__right-icon mb-0">
                         <a data-toggle="collapse" class="text-default collapsed"
@@ -210,20 +220,12 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         </label>
                     </div>
                 </div>
-            </div>
+            </div> --}}
             <div class="sticky-bottom-filter">
-                <div class="filter-list">
-                    <div>
-                        <div role="group" class="d-flex btn-group">
-                            <button type="button" value="all" id="all" class="w-100 btn btn-outline-secondary active" onclick="allTask()">All</button>
-                            <button type="button" value="unread" id="unread" class="w-100 btn btn-outline-secondary" onclick="allUnread()">Unread</button>
-                        </div>
-                    </div>
-                </div>
-                <br>
                 <div class="filter-list">
                     <div class="form-group row">
                         <div class="col-12 form-group mb-3">
+                            <label>Case</label>
                             <select onchange="changeCase()" class="form-control case_or_lead" id="case_or_lead"
                                 name="case_or_lead" data-placeholder="Search for an existing contact or company">
                                 <option value="">Filter by case</option>
@@ -239,6 +241,42 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
                         </div>
                     </div>
+                </div>
+                <div class="form-groupW">
+                    <label class="checkbox checkbox-dark">
+                        <input type="checkbox" class="sol" value="sol" checked="checked"><span>Statute of Limitations (SOL)</span><span
+                            class="checkmark"></span>
+                    </label>
+                    <label class="checkbox checkbox-dark">
+                        <input type="checkbox" class="mytask" value="mytask" checked="checked">
+                            <span>My Tasks</span>
+                            <span class="checkmark"></span>
+                            <span class="ml-1 calendar-help-bubble" style="cursor: pointer;">
+                            <a class="mt-3 event-name align-items-center" style="float: none;" tabindex="0" role="button" href="javascript:;" data-toggle="popover" data-trigger="focus" title="New task icons" 
+                                data-content="<table><tbody>
+                                <tr><td>
+                                    <div class='line-help-bubble'> 
+                                        <span class='calendar-badge d-inline-block undefined badge badge-secondary' style='background-color: rgb(202, 66, 69);float:left; width: 30px;'>
+                                        DUE</span>
+                                        <div style='float:left;margin-left: 5px;padding-left:3px;'>High priority</div>
+                                    </div>
+                                </td></tr>
+                                <tr><td>
+                                    <div class='line-help-bubble'> 
+                                        <span class='calendar-badge d-inline-block undefined badge badge-secondary' style='background-color: rgb(254, 193, 8);float:left; width: 30px;'>
+                                        DUE</span>
+                                        <div style='float:left;margin-left: 5px;padding-left:3px;'>Medium priority</div>
+                                    </div>
+                                </td></tr>
+                                <tr><td>
+                                    <div class='line-help-bubble'> 
+                                        <span class='calendar-badge d-inline-block undefined badge badge-secondary' style='background-color: rgb(40, 167, 68);float:left; width: 30px;'>
+                                        DUE</span>
+                                        <div style='float:left;margin-left: 5px;padding-left:3px;'>Low/No priority</div>
+                                    </div>
+                                </td></tr></tbody></table>" data-html="true" style="float:left;" data-original-title=""><i aria-hidden="true" class="fa fa-question-circle icon-question-circle icon text-primary"></i></a>
+                            </span>
+                    </label>
                 </div>
                 <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">                                    
                     <button onclick="setFeedBackForm('rating','Timesheet Calender');"  type="button" class="w-100 btn btn-outline-secondary m-1">Tell us what you think</button>
@@ -647,6 +685,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     var bysol=getSOL();
                     var mytask=getMytask();
                     if(view.name == 'AgendaView') {
+                        $("#preloaderData").show();
                         $.ajax({
                             url: 'loadEventCalendar/loadAgendaView',
                             type: 'POST',
@@ -664,9 +703,10 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                             success: function (doc) {
                                 $('.fc-view').html(doc);
                                 $("#preloaderData").hide();
-                            }
+                            },
                         });
                     } else {
+                        $("#preloaderData").show();
                         $.ajax({
                             url: 'loadEventCalendar/load',
                             type: 'POST',
@@ -692,10 +732,11 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             color = r.etext;
                                         }
                                         var sTime = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +' -';
-                                        if (r.is_read == 'no') {
-                                            var t = sTime + '<span style="background: transparent;font-weight: bold;color: black;">'+ r.event_title +'</span>';
+                                        var eTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.event_title +'</span>' : r.event_title;
+                                        if (r.is_all_day == 'yes') {
+                                            var t = eTitle;
                                         } else {
-                                            var t = sTime + r.event_title;
+                                            var t = sTime + eTitle;
                                         }
                                         var resource_id = [];
                                         if(r.event_linked_staff) {
@@ -712,7 +753,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             end: r.end_date+'T'+r.et, */
                                             start: r.st,
                                             end: r.et,
-                                            backgroundColor: '#d5e9ce',  
+                                            allDay: (r.is_all_day == 'yes') ? true : false, 
+                                            color: (r.is_all_day == 'yes') ? color : '#d5e9ce',
+                                            backgroundColor: (r.is_all_day == 'yes') ? color : '#d5e9ce',
                                             textColor:'#000000',
                                             resourceIds: resource_id,
                                         });
@@ -747,8 +790,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             var cds="background-color: rgb(202, 66, 69); width: 30px;";
                                         }else if(r.task_priority==2){
                                             var cds="background-color: rgb(254, 193, 8); width: 30px;";
-                                        }else if(r.task_priority==3){
-                                            var cds="background-color: rgb(40, 167, 68); width: 30px;";
+                                        // }else if(r.task_priority==3){
+                                        //     var cds="background-color: rgb(40, 167, 68); width: 30px;";
                                         }else{
                                             var cds="background-color: rgb(40, 167, 68); width: 30px;";
                                         }    
@@ -768,6 +811,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                     });
                                 }
                                 callback(events);
+                                $("#preloaderData").hide();
                             },
                         });
                     }
@@ -823,7 +867,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     $('[data-toggle="tooltip"]').tooltip();
                 },
                 eventClick: function(event) {
-                    console.log(event);
                     if(event.mytask=="yes"){
                         var redirectURL=baseUrl+'/tasks?id='+event.id;
                         window.location.href=redirectURL;

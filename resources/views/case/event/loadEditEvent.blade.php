@@ -169,16 +169,18 @@
                                     <option <?php if($evetData->event_recurring_type=='CUSTOM'){?> selected=selected <?php } ?>   value="CUSTOM">Weekly</option>
                                     <option <?php if($evetData->event_recurring_type=='WEEKLY'){?> selected=selected <?php } ?>   value="WEEKLY">Weekly on {{date('l',strtotime($eventRecurring->user_start_date))}}</option>
                                     <option <?php if($evetData->event_recurring_type=='MONTHLY'){?> selected=selected <?php } ?>   value="MONTHLY">Monthly</option>
-                                    <option <?php if($evetData->event_recurring_type=='YEARLY'){?> selected=selected <?php } ?>   value="YEARLY">Yearly</option>
+                                    {{-- Commented. As per client's requirement --}}
+                                    {{-- <option <?php if($evetData->event_recurring_type=='YEARLY'){?> selected=selected <?php } ?>   value="YEARLY">Yearly</option> --}}
                                 </select>
                             </div>
-                            <div class="col-md-5 form-group mb-3 repeat_yearly ">
+                            {{-- Commented. As per client's requirement --}}
+                            {{-- <div class="col-md-5 form-group mb-3 repeat_yearly ">
                                 <select id="yearly-frequency" name="yearly_frequency" class="form-control custom-select  ">
                                     <option <?php if($evetData->yearly_frequency=='YEARLY_ON_DAY'){?> selected=selected <?php } ?>  value="YEARLY_ON_DAY">On day {{date('d',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
                                     <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE">On the {{ getWeekNthDay(ceil(date('j', strtotime($eventRecurring->user_start_date)) / 7)) }} {{date('l',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
                                     <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE_LAST'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE_LAST">On the last {{date('l',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="col-md-5 form-group mb-3 repeat_monthly">
                                 <select id="monthly-frequency" name="monthly_frequency" class="form-control custom-select  ">
                                     <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_DAY'){?> selected=selected <?php } ?> value="MONTHLY_ON_DAY">On day {{date('d',strtotime($eventRecurring->user_start_date))}}</option>
@@ -244,13 +246,13 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="form-group row repeat_yearly" id="repeat_yearly">
+                        {{-- Commented. As per client's requirement --}}
+                        {{-- <div class="form-group row repeat_yearly" id="repeat_yearly">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>Repeat every</span><input
                                     class="form-control mx-2 w-25" id="event-interval"  name="event_interval_year" type="number" value="{{($evetData->event_interval_year)??'1'}}"><span>year(s)</span>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="form-group row repeat_monthly" id="repeat_monthly">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>Repeat every</span><input
@@ -1171,12 +1173,13 @@
         $("#monthly-frequency").append(
             '<option value="MONTHLY_ON_DAY">On day '+date.getDate()+'</option><option value="MONTHLY_ON_THE">'+getNthDayOfMonth(date)+'</option>'
         );
+        // Commented. As per client's requirement
         // for year
-        $("#yearly-frequency").find('option').remove();
+        /* $("#yearly-frequency").find('option').remove();
         var monthName = date.toLocaleString('default', { month: 'long' });
         $("#yearly-frequency").append(
             '<option value="YEARLY_ON_DAY">On day '+date.getDate()+' of '+monthName+'</option><option value="YEARLY_ON_THE">'+getNthDayOfMonth(date)+' of '+monthName+'</option>'
-        );
+        ); */
         // for week
         $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
     }

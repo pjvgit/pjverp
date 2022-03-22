@@ -1077,7 +1077,10 @@ class CaseController extends BaseController
                     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
                 }
                 $allEvents = $allEvents->orderBy("start_date", "ASC")->with("event", "event.eventType")->get();
-                // $allEvents = Event::where('case_id', $case_id)->orderBy("start_date", "ASC")->with("eventType", "eventRecurring", "eventLinkedStaff", "eventLinkedLead", "eventLinkedContact")->get();
+
+                $allEvents = $allEvents->sortBy(function ($product, $key) {
+                    return $product['start_date'].$product['event']['start_time'];
+                })->values();
             }
 
             if(\Route::current()->getName()=="recent_activity"){
@@ -2376,9 +2379,11 @@ class CaseController extends BaseController
                     $recurringEvent = $this->saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 } else if($request->event_frequency == "MONTHLY") {
                     $recurringEvent = $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
-                } else if($request->event_frequency == "YEARLY") {
-                    $recurringEvent = $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 }
+                // Commented. As per client's requirement
+                /* else if($request->event_frequency == "YEARLY") {
+                    $recurringEvent = $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
+                } */
                 $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
             }
         } elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS') {
@@ -3015,7 +3020,9 @@ class CaseController extends BaseController
                         }
                     }
                     $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
-                } else if($request->event_frequency == 'YEARLY') {
+                } 
+                // Commented. As per client's requirement
+                /* else if($request->event_frequency == 'YEARLY') {
                     $oldEvent = Event::find($request->event_id);
                     $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
                     if($oldEvent->start_date != $eventRecurring->start_date) {
@@ -3153,7 +3160,7 @@ class CaseController extends BaseController
                         }
                     }
                     $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
-                }
+                } */
             }
         } elseif($request->delete_event_type=='ALL_EVENTS') {
             $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
@@ -3402,7 +3409,9 @@ class CaseController extends BaseController
                         ])->save();
                     }
                     $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
-                } else if($request->event_frequency == 'YEARLY') {
+                }
+                // Commented. As per client's requirement
+                /* else if($request->event_frequency == 'YEARLY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if($request->yearly_frequency != $eitem->yearly_frequency || $request->event_interval_year != $eitem->event_interval_year || isset($request->updated_start_date)) {
@@ -3451,7 +3460,7 @@ class CaseController extends BaseController
                         ])->save();
                     }
                     $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
-                }
+                } */
             }
         }
         return response()->json(['errors'=>'']);

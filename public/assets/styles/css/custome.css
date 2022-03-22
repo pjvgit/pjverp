@@ -758,3 +758,6 @@ p {
     color: #fff;
     background-color: #c9252d !important;
 }
+.agenda-shared-private-event {
+    color: #ca4245;
+}
