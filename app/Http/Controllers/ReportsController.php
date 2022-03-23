@@ -201,7 +201,7 @@ class ReportsController extends BaseController
         }
 
         $cases = $cases->where("case_master.is_entry_done","1");
-        // $cases = $cases->whereIn("case_master.id",["16"]); 
+        // $cases = $cases->whereIn("case_master.id",["175"]); 
         $cases = $cases->groupBy("case_master.id"); 
         $cases = $cases->get();
 
@@ -482,7 +482,7 @@ class ReportsController extends BaseController
                                     //     $totalPaidInvoice = $totalPaidInvoice - $payFlatfee;
                                     // }
                                     $payFlatfee += str_replace(",","",((array_sum($val['flatFee']) * $totalDeductPercentage) / 100));
-                                    $totalPaidInvoice = $totalPaidInvoice - $payFlatfee;
+                                    // $totalPaidInvoice = $totalPaidInvoice - $payFlatfee;
                                 }
                             }
                             if(isset($val['timeEntry'])){
@@ -496,7 +496,7 @@ class ReportsController extends BaseController
                                     //     $totalPaidInvoice = $totalPaidInvoice - $payTimeEntry;
                                     // }
                                     $payTimeEntry += str_replace(",","",((array_sum($val['timeEntry'])  * $totalDeductPercentage) / 100));
-                                    $totalPaidInvoice = $totalPaidInvoice - $payTimeEntry;
+                                    // $totalPaidInvoice = $totalPaidInvoice - $payTimeEntry;
                                 }
                                 // print_r($payTimeEntry);
                             }
@@ -511,20 +511,7 @@ class ReportsController extends BaseController
                                     // }
 
                                     $payExpenses += str_replace(",","",((array_sum($val['expenseEntry'])  * $totalDeductPercentage) / 100));
-                                    $totalPaidInvoice = $totalPaidInvoice - $payExpenses;
-                                }
-                            }
-                            if(isset($val['discountAmount'])){
-                                if($totalPaidInvoice > 0){
-                                    // if($totalPaidInvoice > array_sum($val['discountAmount'])){
-                                    //     $payDiscounts += str_replace(",","",array_sum($val['discountAmount']));
-                                    //     $totalPaidInvoice = $totalPaidInvoice - $payDiscounts;
-                                    // }else{
-                                    //     $payDiscounts += $totalPaidInvoice;
-                                    //     $totalPaidInvoice = $totalPaidInvoice - $payDiscounts;
-                                    // }
-                                    $payDiscounts += str_replace(",","",((array_sum($val['discountAmount'])  * $totalDeductPercentage) / 100));
-                                    $totalPaidInvoice = $totalPaidInvoice - $payDiscounts;
+                                    // $totalPaidInvoice = $totalPaidInvoice - $payExpenses;
                                 }
                             }
                             if(isset($val['interestAmount'])){
@@ -537,7 +524,7 @@ class ReportsController extends BaseController
                                     //     $totalPaidInvoice = $totalPaidInvoice - $payInterest;
                                     // }
                                     $payInterest += str_replace(",","",((array_sum($val['interestAmount'])  * $totalDeductPercentage) / 100));
-                                    $totalPaidInvoice = $totalPaidInvoice - $payInterest;
+                                    // $totalPaidInvoice = $totalPaidInvoice - $payInterest;
                                 }
                             }
                             if(isset($val['taxAmount'])){
@@ -550,7 +537,7 @@ class ReportsController extends BaseController
                                     //     $totalPaidInvoice = $totalPaidInvoice - $payTax;
                                     // }
                                     $payTax += str_replace(",","",((array_sum($val['taxAmount'])  * $totalDeductPercentage) / 100));
-                                    $totalPaidInvoice = $totalPaidInvoice - $payTax;
+                                    // $totalPaidInvoice = $totalPaidInvoice - $payTax;
                                     
                                 }
                             }
@@ -564,9 +551,22 @@ class ReportsController extends BaseController
                                     //     $totalPaidInvoice = $totalPaidInvoice - $payAdditions;
                                     // }
                                     $payAdditions += str_replace(",","",((array_sum($val['additionAmount'])  * $totalDeductPercentage) / 100));
-                                    $totalPaidInvoice = $totalPaidInvoice - $payAdditions;
+                                    // $totalPaidInvoice = $totalPaidInvoice - $payAdditions;
                                 }
                             }
+                            if(isset($val['discountAmount'])){
+                                if($totalPaidInvoice > 0){
+                                    // if($totalPaidInvoice > array_sum($val['discountAmount'])){
+                                    //     $payDiscounts += str_replace(",","",array_sum($val['discountAmount']));
+                                    //     $totalPaidInvoice = $totalPaidInvoice - $payDiscounts;
+                                    // }else{
+                                    //     $payDiscounts += $totalPaidInvoice;
+                                    //     $totalPaidInvoice = $totalPaidInvoice - $payDiscounts;
+                                    // }
+                                    $payDiscounts += str_replace(",","",((array_sum($val['discountAmount'])  * $totalDeductPercentage) / 100));
+                                    // $totalPaidInvoice = $totalPaidInvoice - $payDiscounts;
+                                }
+                            }                            
                             if(isset($val['forwardedEntry'])){
                                 if($totalPaidInvoice > 0){
                                     // if($totalPaidInvoice > array_sum($val['forwardedEntry'])){
@@ -577,7 +577,7 @@ class ReportsController extends BaseController
                                     //     $totalPaidInvoice = $totalPaidInvoice - $payBalanceForward;
                                     // }
                                     $payBalanceForward += str_replace(",","",((array_sum($val['forwardedEntry'])  * $totalDeductPercentage) / 100));
-                                    $totalPaidInvoice = $totalPaidInvoice - $payBalanceForward;
+                                    // $totalPaidInvoice = $totalPaidInvoice - $payBalanceForward;
                                 }
                             }
                         }

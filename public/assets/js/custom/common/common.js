@@ -351,13 +351,13 @@ function deleteTimer() {
                     $("#preloader").show();
                     removeLocalStorage();
                     $("#smart_timer_id").val("");
-                    // window.location.reload();
+                    window.location.reload();
                 },
                 error: function(xhr, status, error) {
                     $("#preloader").show();
                     removeLocalStorage();
                     $("#smart_timer_id").val("");
-                    // window.location.reload();
+                    window.location.reload();
                 }
             });
         });

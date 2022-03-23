@@ -955,7 +955,11 @@ class HomeController extends BaseController
         // $SmartTimer
         $duration = 0;
         if(isset($request->total_time) && $request->total_time != ''){
-            $duration = strtotime((string) $request->total_time, 0) / 60;
+            $str_time = $request->total_time;
+            $str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $str_time);
+            sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
+            $time_seconds = $hours * 3600 + $minutes * 60 + $seconds;
+            $duration = $time_seconds / 60 ;
             $duration = floor($duration /6); 
             $duration = $duration * 0.1; 
             $duration = $duration + 0.1; 

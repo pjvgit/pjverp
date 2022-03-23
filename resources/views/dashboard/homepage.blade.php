@@ -687,7 +687,7 @@
                                     </div>
 
                                     <div>
-                                        <?php 
+                                    <?php 
                                     if($kv->case_id!=NULL){
                                     ?>
                                         <a class="btn btn-link text-black-50 pendo-upcoming-task-view-case-icon"
@@ -696,14 +696,8 @@
                                                 data-original-title="View Case"></i>
                                             <span class="sr-only">View Case</span>
                                         </a>
-                                        <?php   
-                                    }else{ ?>
-                                        <span style="padding-left: 40px;"></span>
-                                    <?php }
-                                    ?>
-
-                                        <?php 
-                                    if($kv->lead_id!=NULL){
+                                    <?php   
+                                    }else if($kv->lead_id!=NULL){
                                     ?>
                                         <a class="btn btn-link text-black-50 pendo-upcoming-task-view-lead-icon"
                                             href="{{BASE_URL}}leads/{{$kv->lead_id}}/case_details/info">
@@ -711,7 +705,9 @@
                                                 data-placement="top" data-original-title="View Lead"></i>
                                             <span class="sr-only">View Lead</span>
                                         </a>
-                                        <?php } ?>
+                                    <?php }else{ ?>
+                                        <span style="padding-left: 40px;"></span>
+                                    <?php } ?>
                                     </div>
 
                                     <div>
