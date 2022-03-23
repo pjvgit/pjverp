@@ -928,7 +928,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         }else{
                                 eventTitle='<a href="#">&lt;No Title&gt;</a> ';
                         }
-                        eventDate=moment(obj_upcoming_event.start_date_time).format("MMM, DD YYYY, hh:mm a");
+                        if(obj_upcoming_event.is_all_day == 'yes')
+                            eventDate = 'All day';
+                        else
+                            eventDate=moment(obj_upcoming_event.start_date_time).format("MMM, DD YYYY, hh:mm a");
                     }else{
                         eventTitle='<i class="table-cell-placeholder"></i>';
                     }

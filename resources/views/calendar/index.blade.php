@@ -509,15 +509,9 @@
 @endif
 <?php 
 $defaultView="month";
-if(isset($_GET['view']) && $_GET['view']=='day'){
-    // $defaultView="agendaDay";
-    $defaultView="staffView";
-
-}else if(isset($_GET['view']) &&  $_GET['view']=='week'){
+if(isset($_GET['view']) &&  $_GET['view']=='week'){
     $defaultView="agendaWeek";
 
-}else if(isset($_GET['view']) && $_GET['view']=='month'){
-    $defaultView="month";
 }
 ?>
 <style> 
@@ -569,7 +563,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
         }
         initEvent();
 
-
             /* initialize the calendar
             -----------------------------------------------------------------*/
             var newDate = new Date,
@@ -620,6 +613,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                             $('#calendarq').fullCalendar('changeView', 'StaffView');
                             $('#calendarq').fullCalendar('rerenderResources');
                             $('#calendarq').fullCalendar( 'refetchEvents');
+                            $(document).find(".fc-right .btn").removeClass('active');
+                            $(document).find(".fc-staffView-button").addClass('active');
                             return true; 
                         }
                     },
@@ -657,12 +652,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     },
                     StaffView: {
                         type: 'agenda',
-                        // duration: { days: 2 },
                         buttonText: 'Day',
                     },
                 },
-                // defaultView: 'month',
-                // groupByResource: true,
                 resources: function(callback, start, end, timezone) {
                     var byuser = getByUser();
                     var view = $('#calendarq').fullCalendar('getView');
@@ -795,6 +787,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                         }else{
                                             var cds="background-color: rgb(40, 167, 68); width: 30px;";
                                         }    
+                                        // var tTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.task_title +'</span>' : r.task_title;
                                         var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'+cds+'">DUE</span>'+' ' + r.task_title
                                         var tplain = 'DUE'+' -' + r.task_title
                                         events.push({
@@ -927,7 +920,14 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 initEvent();
             });
         
-        // $('#calendar').fullCalendar('changeView', 'custom');
+        
+        @if(isset($_GET['view']) && $_GET['view'] == 'agenda')
+            $(document).find(".fc-agendaView-button").trigger('click');
+            $(document).find(".fc-agendaView-button").addClass('active');
+        @elseif(isset($_GET['view']) && $_GET['view'] == 'day')
+            $(document).find(".fc-staffView-button").trigger('click');
+            $(document).find(".fc-staffView-button").addClass('active');
+        @endif
 
         $('#deleteFromCommentBox').on('hidden.bs.modal', function () {
             $('#calendarq').fullCalendar('refetchEvents');

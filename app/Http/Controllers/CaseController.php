@@ -151,13 +151,13 @@ class CaseController extends BaseController
         }
         $case = $case->offset($requestData['start']??0)->limit($requestData['length']);
         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $case = $case->with(["upcomingEvent", "upcomingTask", "caseStaffDetails" => function($query) {
+        $case = $case->with([/* "upcomingEvent", */ "upcomingTask", "caseStaffDetails" => function($query) {
                     $query->select("users.id", "users.first_name","users.last_name","case_staff.lead_attorney");
                 }, "caseUpdate" => function($query) {
                     $query->with("createdByUser");
                     // $query->leftjoin('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","case_update.update_status","case_update.created_at");
                 }])->withCount("overdueTasks")->get()
-                ->each->setAppends(["created_new_date", "case_stage_text", "practice_area_text", "createdby"]);
+                ->each->setAppends(["created_new_date", "case_stage_text", "practice_area_text", "createdby", "upcoming_event"]);
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -1027,7 +1027,11 @@ class CaseController extends BaseController
                     $eventCountNextDays=CaseEvent::select('id')->where('case_id',$case_id)->where("start_date","<=",date("Y-m-d", strtotime("+365 days")))->count();
 
                      //Upcoming event list 
-                     $upcomingEventList=CaseEvent::select('*')->where('case_id',$case_id)->where("start_date","<=",date("Y-m-d", strtotime("+365 days")))->where("start_date",">=",date("Y-m-d"))->orderBy("start_date","ASC")->limit("4")->get();
+                     $upcomingEventList = EventRecurring::whereHas('event', function($query) use($case_id) {
+                                    $query->where('case_id',$case_id);
+                                })->where("start_date","<=",date("Y-m-d", strtotime("+365 days")))->where("start_date",">=",date("Y-m-d"))
+                                ->whereJsonContains('event_linked_staff', ['user_id' => (string)auth()->id()])
+                                ->orderBy("start_date","ASC")->with('event')->limit("4")->get();
 
                      $startDate=date('Y-m-d');
                      $InvoicesOverdueCase=Invoices::where("invoices.case_id",$case_id)->where('invoices.due_date',"<",$startDate)->count();

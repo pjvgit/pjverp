@@ -143,6 +143,12 @@
                                 </div>
                             </div>
                         </div>
+                        @if($event->is_event_private == 'yes')
+                        <div class="mb-2 row ">
+                            <div class="col-3"><b>Privacy</b></div>
+                            <div class="detail-info privacy-message col-9" style="color: rgb(202, 66, 69);">This event is private.</div>
+                        </div>
+                        @endif
                         <hr>
                         <div>
                             <div class="event-sharing-list">
