@@ -506,8 +506,10 @@
                                             foreach($upcomingEventList as $k=>$v){
                                                 if($k!="3"){?>
                                                         <div class="d-flex justify-content-between mt-1">
-                                                            <a href="{{route('events/')}}" class="p-0 pendo-case-info-task-link btn btn-link">
-                                                                {{$v->event_title}}
+                                                            <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup" href="javascript:;"
+                                                            onclick="loadEventComment({{$v->event_id}}, {{$v->id}});">
+                                                            {{-- <a href="{{route('events/')}}" class="p-0 pendo-case-info-task-link btn btn-link"> --}}
+                                                                {{$v->event->event_title ?? "<No Title>"}}
                                                             </a>
                                                             <div>{{date('m/d/y',strtotime($v->start_date))}}</div>
                                                         </div>
@@ -520,7 +522,7 @@
                                             if(count($upcomingEventList)=="4"){?>
                                             <div class="row show-more ml-1 mt-2">
                                                 
-                                                <a href="{{BASE_URL}}court_cases/12477698/calendar" tabindex="0" role="menuitem" class="btn-link">Show more</a>
+                                                <a href="{{ route('calendars', $CaseMaster->case_unique_number) }}" tabindex="0" role="menuitem" class="btn-link">Show more</a>
                                             </div>
                                             <?php } ?>
 
@@ -605,6 +607,9 @@
         </div>
     </div>
 </div>
+
+@include('case.event.event_modals')
+
 @section('page-js-inner')
 <script type="text/javascript">
     
