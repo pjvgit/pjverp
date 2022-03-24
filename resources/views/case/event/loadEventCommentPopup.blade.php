@@ -156,26 +156,44 @@
                                 <div>
                                     <div class="mb-2 sharing-user">
                                         <div class="row ">
-                                            @if(count($linkedUser))
-                                                @forelse ($linkedUser as $key => $item)
-                                                <div class="col-8">
-                                                    <div class="d-flex flex-row">
-                                                        @if($item['utype'] == 'staff')
-                                                        <a href="{{ route('contacts/attorneys/info', base64_encode($item['user_id'])) }}" class="d-flex align-items-center user-link">
-                                                            {{ $item['full_name'] }} ({{ $item['user_type'] }})</a>
-                                                        @elseif($item['utype'] == 'lead')
-                                                        <a href="{{ route('case_details/info', $item['user_id']) }}" class="d-flex align-items-center user-link">
-                                                            {{ $item['full_name'] }} ({{ $item['user_type'] }})</a>
-                                                        @else
-                                                        <a href="{{ route('contacts/clients/view', $item['user_id']) }}" class="d-flex align-items-center user-link">
-                                                            {{ $item['full_name'] }} ({{ $item['user_type'] }})</a>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-4"><b style="color: rgb(99, 108, 114);">{{ ($item['attending'] == 'yes') ? "Attending" : "" }}</b></div>
-                                                @empty
-                                                @endforelse
-                                            @endif
+                                            @php    
+                                            $userTypes = unserialize(USER_TYPE);
+                                            @endphp                                          
+                                                @if(!empty($event->eventLinkedStaff))
+                                                    @foreach($event->eventLinkedStaff as $kstaff=>$vstaff)
+                                                        <div class="col-8">
+                                                            <div class="d-flex flex-row">
+                                                                <a href="{{ route('contacts/attorneys/info', base64_encode($vstaff->id)) }}"
+                                                                    class="d-flex align-items-center user-link"
+                                                                    title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
+                                                                    {{substr($vstaff->last_name,0,15)}}
+                                                                    ({{$userTypes[$vstaff->user_type]}})</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4"><b
+                                                                style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
+                                                        </div>
+                                                    @endforeach
+                                                @endif
+                                        </div>
+                                        <div class="row ">
+                                            <?php                                              
+                                                if(!empty($linkedContactas)){
+                                                    foreach($linkedContactas as $vstaff){?>
+                                                        <div class="col-8">
+                                                            <div class="d-flex flex-row">
+                                                                <a href="{{ route('contacts/clients/view', $vstaff->contact_id) }}"
+                                                                    class="d-flex align-items-center user-link"
+                                                                    title="{{@$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
+                                                                    {{substr($vstaff->last_name,0,15)}}
+                                                                    (Client)</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4"><b
+                                                                style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
+                                                        </div>
+                                                <?php } 
+                                                }?>
                                         </div>
                                     </div>
                                 </div>

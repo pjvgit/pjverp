@@ -194,7 +194,7 @@
                             <div class="custom-box">
                                 <div>
                                     <div class="custom-rule-form align-items-baseline mt-2 mb-2 d-flex w-50"><span>Repeat
-                                            every</span><input class="form-control mx-2 w-25" id="event-interval" name="daily_weekname" type="number"
+                                            every</span><input class="form-control mx-2 w-25" name="daily_weekname" type="number" min="1" max="100"
                                             value="{{($evetData->daily_weekname)??'1'}}"><span class="ml-1">week(s)</span></div>
                                     <div>
                                         
@@ -242,6 +242,7 @@
                                                 </label>
                                             </div>
                                         </div>
+                                        <span class="error custom-error"></span>
                                     </div>
                                 </div>
                             </div>
@@ -250,19 +251,19 @@
                         {{-- <div class="form-group row repeat_yearly" id="repeat_yearly">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>Repeat every</span><input
-                                    class="form-control mx-2 w-25" id="event-interval"  name="event_interval_year" type="number" value="{{($evetData->event_interval_year)??'1'}}"><span>year(s)</span>
+                                    class="form-control mx-2 w-25" id="event-interval"  name="event_interval_year" type="number" value="{{($evetData->event_interval_year)??'1'}}" min="1" max="100"><span>year(s)</span>
                             </div>
                         </div> --}}
                         <div class="form-group row repeat_monthly" id="repeat_monthly">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>Repeat every</span><input
-                                    class="form-control mx-2 w-25" id="event-interval" name="event_interval_month" type="number"
+                                    class="form-control mx-2 w-25" name="event_interval_month" type="number" min="1" max="100"
                                     value="{{($evetData->event_interval_month)??'1'}}"><span>month(s)</span></div>
                         </div>
                         <div class="form-group row" id="repeat_daily">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="d-flex flex-row align-items-center w-50"><span>Repeat every</span>
-                                <input class="form-control mx-2 w-25" id="event-interval" name="event_interval_day" type="number"
+                                <input class="form-control mx-2 w-25" name="event_interval_day" type="number" min="1" max="100"
                                 value="{{($evetData->event_interval_day)??'1'}}"><span>day(s)</span>
                             </div>
                         </div>
@@ -670,6 +671,15 @@
                             }
                             return status;
                         }
+                    },
+                    dateGreaterThan:  {
+                        depends: function (element) {
+                            var status = true;
+                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                                var status = false;
+                            }
+                            return status;
+                        }
                     }
                 },
                 start_date:{
@@ -693,6 +703,21 @@
                         else
                             return true;
                     }
+                },
+                "custom[]": {
+                    required: {
+                        depends: function (element) {
+                            if ($("#event-frequency").val() == "CUSTOM") {
+                                console.log($("input[name='custom[]']:checked").length);
+                                if($("input[name='custom[]']:checked").length > 0)
+                                    return false;
+                                else
+                                    return true;
+                            }
+                            return false;
+                        }
+                    }
+
                 }
             },
             messages: {
@@ -719,6 +744,9 @@
                 end_time: {
                     required: "End time is invalid"
 
+                },
+                "custom[]": {
+                    required: "Please select a day for weekly event"
                 }
             },
             errorPlacement: function (error, element) {
@@ -727,6 +755,8 @@
                     error.appendTo('#CaseListError');
                 }else if (element.is('#end_on')) {
                     error.appendTo('#EndOnListError');
+                }else if (element.attr('name') == 'custom[]') {
+                    error.appendTo('.custom-error');
                 } else {
                     element.after(error);
                 }
@@ -897,14 +927,14 @@
             $(".repeat_monthly").hide();
             $(".repeat_yearly").hide();
 
-        }else if(selectdValue == 'EVERY_BUSINESS_DAY'){
-
+        // }else if(selectdValue == 'EVERY_BUSINESS_DAY'){
+            
         } else {
             $("#repeat_daily").hide();
             $("#repeat_custom").hide();
             $(".repeat_monthly").hide();
             $(".repeat_yearly").hide();
-            $('#repeat_dropdown').hide();
+            // $('#repeat_dropdown').hide();
         }
         $(".innerLoader").css('display', 'none');
     }

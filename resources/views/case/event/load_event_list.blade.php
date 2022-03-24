@@ -197,7 +197,7 @@
                 @endphp
                 <i class="fas fa-comment-alt @if(!$commentCount) pr-2 @endif"></i>
                 @if($commentCount)
-                <span class="badge badge-danger comment-count">{{ $commentCount }}</span>
+                <span class="badge badge-danger comment-count comment-count-{{ $item->id }}">{{ $commentCount }}</span>
                 @endif
                 </a>
                 @endcanany

@@ -224,7 +224,7 @@ trait EventTrait {
             "custom_event_weekdays" => $request->custom,
             "event_interval_week" => $request->daily_weekname,
             "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
-            "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
+            "end_on" => (!isset($request->no_end_date_checkbox)) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
             "firm_id" => $authUser->firm_name,
             "created_by" => $authUser->id,

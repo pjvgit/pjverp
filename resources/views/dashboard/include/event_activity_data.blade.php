@@ -21,7 +21,7 @@
         <a class="name" href="{{ $url }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
         {{$v->activity}}
         @if($v->deleteEvents == null && $v->delete_recurring_event == Null) 
-            <a class="name" href="{{ route('events/detail',base64_encode($v->event_id)) }}"> {{$v->eventTitle}} </a> 
+            <a class="name" href="{{ route('events/detail',base64_encode($v->event_recurring_id)) }}"> {{$v->eventTitle}} </a> 
         @else 
             {{$v->event_name}} 
         @endif

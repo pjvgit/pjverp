@@ -298,3 +298,15 @@ function markEventAsRead(eventId) {
         }
     })
 }
+
+// Validation to check end on date is greater than start date
+$.validator.addMethod("dateGreaterThan", function(value, element) {
+    var startDate = $('#start_date').val();
+    return Date.parse(startDate) <= Date.parse(value) || value == "";
+}, "The end date must be after the start date");
+
+// Hide comment count after the read comment from comment popup
+$('#loadCommentPopup').on('hidden.bs.modal', function () {
+    var eventId = $("input[name='event_recurring_id']").val();
+    $(".comment-count-"+eventId).hide();
+});
