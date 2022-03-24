@@ -203,8 +203,11 @@ class ReportsController extends BaseController
         $cases = $cases->where("case_master.is_entry_done","1");
         // $cases = $cases->whereIn("case_master.id",["175"]); 
         $cases = $cases->groupBy("case_master.id"); 
-        $cases = $cases->get();
-
+        if($export_csv == 1 || $export_pdf == 1){
+            $cases = $cases->paginate(999999999)->appends(request()->except('page'));
+        }else{
+            $cases = $cases->paginate(200)->appends(request()->except('page'));
+        }
         $invPaidRecors = [];
         if($export_csv == 1 || $export_pdf == 1){
             $fileDestination = 'export/'.date('Y-m-d').'/'.Auth::User()->firm_name;
@@ -379,7 +382,7 @@ class ReportsController extends BaseController
             $InvoiceAdjustment=InvoiceAdjustment::leftJoin("invoices","invoices.id","=","invoice_adjustment.invoice_id")
             ->select('invoice_adjustment.*')
             ->where("invoice_adjustment.case_id",$case->id)->whereNull("invoices.deleted_at");
-            // $InvoiceAdjustment = $InvoiceAdjustment->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt]);
+            $InvoiceAdjustment = $InvoiceAdjustment->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt]);
             $InvoiceAdjustment = $InvoiceAdjustment->get();
             $caseInterestAdjustment = $caseTaxAdjustment = $caseAdditionsAdjustment = $caseDiscountsAdjustment = 0;
             foreach($InvoiceAdjustment as $k => $v){

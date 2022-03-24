@@ -204,7 +204,7 @@
                     ?>        
 
                     <tr class="">
-                        <td><a target="_blank" href="{{route('invoices', $case->case_unique_number)}}" data-caseid="{{$case->id}}">{{$case->case_title}} ({{$case->id}})</a></td>
+                        <td><a target="_blank" href="{{route('invoices', $case->case_unique_number)}}" data-caseid="{{$case->id}}">{{$case->case_title}}</a></td>
                         <td>{{($case->caseFlatfees > 0) ? '$'.$case->caseFlatfees : '--'}}</td>
                         <td>{{($case->caseDuration > 0) ? $case->caseDuration : '--'}}</td>
                         <td>{{($case->caseTimeEntry > 0) ? '$'.$case->caseTimeEntry : '--'}}</td>
@@ -255,11 +255,16 @@
                         <th>${{number_format($totalcaseInvoicePaidAmount,2)}}</th>                        
                     </tr>
                 </tfoot>
-            </table>
+            </table>            
             @else
                 <span class="alert alert-info d-flex">No billing activity found.</span>
             @endif
         </div>
+        @if( count($cases) > 0 )
+            <div class="float-right">
+            {!! $cases->links() !!}
+            </div>
+        @endif 
     </div>
 </div>
 <style>
