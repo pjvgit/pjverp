@@ -2055,11 +2055,13 @@ class CaseController extends BaseController
             $lead_id=$request->lead_id;
         }
         $case_id=$request->case_id;
-        $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        // $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
 
         $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1")->get();
 
-        $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
+        $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")
+            ->where("users.user_type","5")->where("users.user_level","5")->where('firm_id', $authUser->firm_name)
+            ->where("lead_additional_info.is_converted","no")->get();
 
         $country = Countries::get();
         $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
@@ -2070,7 +2072,7 @@ class CaseController extends BaseController
         //Get event type 
         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',$authUser->firm_name)->orderBy("status_order","ASC")->get();
         $fromPageRoute = $request->from_page_route ?? Null;
-        return view('case.event.loadAddEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id','UserPreferanceReminder', 'currentDate', 'fromPageRoute'));          
+        return view('case.event.loadAddEvent',compact(/* 'CaseMasterClient', */'CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id','UserPreferanceReminder', 'currentDate', 'fromPageRoute'));          
      }
     
     /**
@@ -2217,7 +2219,7 @@ class CaseController extends BaseController
                     "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
                     "event_description" => $request->description,
                     "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
-                    "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                    "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                     "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                     "firm_id" => $authUser->firm_name,
                     "updated_by" => $authUser->id,
@@ -2251,7 +2253,7 @@ class CaseController extends BaseController
                     "event_description" => $request->description,
                     "is_recurring" => "no",
                     "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
-                    "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                    "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                     "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                     "firm_id" => $authUser->firm_name,
                     "created_by" => $authUser->id,
@@ -2294,7 +2296,7 @@ class CaseController extends BaseController
                         "event_interval_year" => $request->event_interval_year,
                         "monthly_frequency" => $request->monthly_frequency,
                         "yearly_frequency" => $request->yearly_frequency,
-                        "is_no_end_date" => (isset($request->no_end_date_checkbox) && !$request->end_on) ? "yes" : "no",
+                        "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                         "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                         "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                         "firm_id" => $authUser->firm_name,
@@ -2323,7 +2325,7 @@ class CaseController extends BaseController
                         "monthly_frequency" => $request->monthly_frequency,
                         "yearly_frequency" => $request->yearly_frequency,
                         "edit_recurring_pattern" => "single event",
-                        "is_no_end_date" => (isset($request->no_end_date_checkbox) && !$request->end_on) ? "yes" : "no",
+                        "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                         "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                         "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                         "firm_id" => $authUser->firm_name,
@@ -2365,7 +2367,7 @@ class CaseController extends BaseController
                     "event_interval_year" => $request->event_interval_year,
                     "monthly_frequency" => $request->monthly_frequency,
                     "yearly_frequency" => $request->yearly_frequency,
-                    "is_no_end_date" => (isset($request->no_end_date_checkbox) && !$request->end_on) ? "yes" : "no",
+                    "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                     "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                     "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                     "firm_id" => $authUser->firm_name,
@@ -2440,7 +2442,7 @@ class CaseController extends BaseController
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_day" => $request->event_interval_day,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -2490,7 +2492,7 @@ class CaseController extends BaseController
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_day" => $request->event_interval_day,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -2552,7 +2554,7 @@ class CaseController extends BaseController
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_day" => $request->event_interval_day,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -2599,7 +2601,7 @@ class CaseController extends BaseController
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_day" => $request->event_interval_day,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -2659,7 +2661,7 @@ class CaseController extends BaseController
                             "event_recurring_type" => $request->event_frequency,
                             "custom_event_weekdays" => $request->custom,
                             "event_interval_week" => $request->daily_weekname,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -2733,7 +2735,7 @@ class CaseController extends BaseController
                             "custom_event_weekdays" => $request->custom,
                             "event_interval_week" => $request->daily_weekname,
                             "edit_recurring_pattern" => "all events",
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : Null,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "firm_id" => $authUser->firm_name,
@@ -2816,7 +2818,7 @@ class CaseController extends BaseController
                             "parent_event_id" => $oldEvent->id,
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -2865,7 +2867,7 @@ class CaseController extends BaseController
                             "parent_event_id" => $oldEvent->id,
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -2927,7 +2929,7 @@ class CaseController extends BaseController
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_month" => $request->event_interval_month,
                             "monthly_frequency" => $request->monthly_frequency,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -2990,7 +2992,7 @@ class CaseController extends BaseController
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_month" => $request->event_interval_month,
                             "monthly_frequency" => $request->monthly_frequency,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -3055,7 +3057,7 @@ class CaseController extends BaseController
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_year" => $request->event_interval_year,
                             "yearly_frequency" => $request->yearly_frequency,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -3118,7 +3120,7 @@ class CaseController extends BaseController
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_year" => $request->event_interval_year,
                             "yearly_frequency" => $request->yearly_frequency,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "edit_recurring_pattern" => "following event",
@@ -3180,10 +3182,11 @@ class CaseController extends BaseController
                 // Create new events for new frequency
                 $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $recurringEndDate, $locationID);
             } else {
+                $isNoEndDate = (isset($request->no_end_date_checkbox)) ? "yes" : "no";
                 if($request->event_frequency=='DAILY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        if($eitem->event_interval_day != $request->event_interval_day) {
+                        if($eitem->event_interval_day != $request->event_interval_day || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date)) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
                             $eventRecurring = $this->saveDailyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3219,7 +3222,7 @@ class CaseController extends BaseController
                             "event_location_id" => ($request->updated_case_location_list) ? $request->updated_case_location_list : $eitem->event_location_id,
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_day" => ($request->updated_event_interval_day) ? $request->updated_event_interval_day : $eitem->event_interval_day,
-                            "is_no_end_date" => (isset($request->updated_no_end_date_checkbox) && $request->end_on) ? "yes" : $eitem->is_no_end_date,
+                            "is_no_end_date" => (isset($request->updated_no_end_date_checkbox)) ? "yes" : $eitem->is_no_end_date,
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->updated_end_on) ? date("Y-m-d",strtotime($request->updated_end_on)) : $eitem->end_on,
                             "is_event_private" => (isset($request->updated_is_event_private)) ? 'yes' : $eitem->is_event_private,
                             "firm_id" => $authUser->firm_name,
@@ -3231,6 +3234,26 @@ class CaseController extends BaseController
                 } else if($request->event_frequency == 'EVERY_BUSINESS_DAY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
+                        if($eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date)) {
+                            $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
+                            $eventRecurring = $this->saveBusinessDayRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
+                        } else {
+                            $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
+                            $eventReminders = $this->getEventReminderJson($eitem, $request);
+                            $eventLinkStaff = $this->geteventLinkedStaffJson($eitem, $request);
+                            $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
+                            $days = $this->getDatesDiffDays($request);
+                            foreach($recurringEvents as $rkey => $ritem) {
+                                $ritem->fill([
+                                    "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
+                                    'event_reminders' => $eventReminders,
+                                    'event_linked_staff' => $eventLinkStaff,
+                                    'event_linked_contact_lead' => $eventLinkClient,
+                                    'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
+                                ])->save();
+                            }
+                        }
+
                         $eitem->fill([
                             "event_title" => ($request->updated_event_name) ? $request->event_name : $eitem->event_title,
                             "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : $eitem->case_id,
@@ -3247,35 +3270,18 @@ class CaseController extends BaseController
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
                             "event_interval_day" => ($request->event_interval_day) ? $request->event_interval_day : $eitem->event_interval_day,
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : $eitem->end_on,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : $eitem->is_event_private,
                             "firm_id" => $authUser->firm_name,
                             "updated_by" => $authUser->id,
                         ])->save();
-                        $eitem->refresh();
-                        // if($request->is_reminder_updated == 'yes') {
-                            $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
-                            $eventReminders = $this->getEventReminderJson($eitem, $request);
-                            $eventLinkStaff = $this->geteventLinkedStaffJson($eitem, $request);
-                            $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
-                            $days = $this->getDatesDiffDays($request);
-                            foreach($recurringEvents as $rkey => $ritem) {
-                                $ritem->fill([
-                                    "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    'event_reminders' => $eventReminders,
-                                    'event_linked_staff' => $eventLinkStaff,
-                                    'event_linked_contact_lead' => $eventLinkClient,
-                                    'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
-                                ])->save();
-                            }
-                        // }
                     }
                     $this->saveEventRecentActivity($request, $request->event_id, $request->event_recurring_id);
                 } else if($request->event_frequency == 'CUSTOM') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        if(array_diff( $request->custom, $eitem->custom_event_weekdays ) ) {
+                        if(array_diff( $request->custom, $eitem->custom_event_weekdays )  || $eitem->is_no_end_date != $isNoEndDate ) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3310,7 +3316,7 @@ class CaseController extends BaseController
                             "custom_event_weekdays" => $request->custom,
                             "event_interval_week" => $request->daily_weekname,
                             "edit_recurring_pattern" => "all events",
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : Null,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "firm_id" => $authUser->firm_name,
@@ -3321,7 +3327,7 @@ class CaseController extends BaseController
                 } else if($request->event_frequency == 'WEEKLY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        if(isset($request->updated_start_date)) {
+                        if(isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
                             $eventRecurring = $this->saveWeeklyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3356,7 +3362,7 @@ class CaseController extends BaseController
                             "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                             "event_recurring_type" => $request->event_frequency,
                             "edit_recurring_pattern" => "all events",
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : Null,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "firm_id" => $authUser->firm_name,
@@ -3370,7 +3376,7 @@ class CaseController extends BaseController
                         $eventReminders = $this->getEventReminderJson($eitem, $request);
                         $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                         $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
-                        if($request->monthly_frequency != $eitem->monthly_frequency || $request->event_interval_month != $eitem->event_interval_month || isset($request->updated_start_date)) {
+                        if($request->monthly_frequency != $eitem->monthly_frequency || $request->event_interval_month != $eitem->event_interval_month || isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate) {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->forcedelete();
                             $eventRecurring = $this->saveMonthlyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3405,7 +3411,7 @@ class CaseController extends BaseController
                             "event_interval_month" => ($request->event_interval_month) ? $request->event_interval_month : $eitem->event_interval_month,
                             "monthly_frequency" => ($request->monthly_frequency) ? $request->monthly_frequency : $eitem->monthly_frequency,
                             "edit_recurring_pattern" => "all events",
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => $isNoEndDate,
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : $eitem->end_on,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : $eitem->is_event_private,
                             "firm_id" => $authUser->firm_name,
@@ -3456,7 +3462,7 @@ class CaseController extends BaseController
                             "event_interval_year" => $request->event_interval_year,
                             "yearly_frequency" => $request->yearly_frequency,
                             "edit_recurring_pattern" => "all events",
-                            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
                             "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : Null,
                             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                             "firm_id" => $authUser->firm_name,
@@ -3480,7 +3486,7 @@ class CaseController extends BaseController
             $evetData=Event::find($evnt_id);
 
             $case_id=$evetData->case_id;
-            $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+            // $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
             $CaseMasterData = CaseMaster::where("firm_id", $authUser->firm_name)->where('is_entry_done',"1")->get();
 
             $country = Countries::get();
@@ -3505,11 +3511,13 @@ class CaseController extends BaseController
         
             $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type_id)->where('firm_id',$authUser->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
 
-            $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
+            $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")
+                ->where("users.user_type","5")->where("users.user_level","5")->where("firm_id", $authUser->firm_name)
+                ->where("lead_additional_info.is_converted","no")->get();
             $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->first();
             $eventReminderData = ($eventRecurring) ? encodeDecodeJson($eventRecurring->event_reminders) : [];
             $fromPageRoute = $request->from_page_route ?? Null;
-            return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','eventRecurring', 'fromPageRoute'));          
+            return view('case.event.loadEditEvent',compact(/* 'CaseMasterClient', */'CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','eventRecurring', 'fromPageRoute'));          
      }
     // Made common code. This code is not in use
      /* public function loadSingleEditEventPage(Request $request)
@@ -3949,11 +3957,13 @@ class CaseController extends BaseController
             $events = Event::where("parent_event_id", $request->event_id)->whereNotIn("id", $remainEventIds);
             $lastRecurringEvent = EventRecurring::where("id", "<", $request->event_recurring_id)->whereIn("event_id", $remainEventIds)->orderBy("id", 'desc')->first();
             $lastEvent = Event::whereIn('id', $remainEventIds)/* ->whereNotIn('edit_recurring_pattern', ['single event']) */->orderBy("id", "desc")->first();
-            $lastEvent->fill([
-                'end_on' => $lastRecurringEvent->start_date,
-                'is_no_end_date' => 'no',
-                'recurring_event_end_date' => $lastRecurringEvent->start_date,
-            ])->save();
+            if($lastEvent) {
+                $lastEvent->fill([
+                    'end_on' => $lastRecurringEvent->start_date,
+                    'is_no_end_date' => 'no',
+                    'recurring_event_end_date' => $lastRecurringEvent->start_date,
+                ])->save();
+            }
             EventRecurring::whereIn("event_id", $events->pluck("id")->toArray())->orWhere("event_id", $request->event_id)->where("id", ">=", $request->event_recurring_id)->delete();
             $events->delete();
         

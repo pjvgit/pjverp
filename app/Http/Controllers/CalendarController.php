@@ -1393,8 +1393,8 @@ class CalendarController extends BaseController
      */
     public function eventDetail($event_id)
     {
-        $event_id=base64_decode($event_id);
-        $evetData = CaseEvent::whereId($event_id);
+        $event_recurring_id=base64_decode($event_id);
+        /* $evetData = CaseEvent::whereId($event_id);
         if($evetData->first()) {
             if(auth()->user()->parent_user != 0) {
                 $evetData = $evetData->whereHas('eventLinkedStaff', function($query) {
@@ -1409,6 +1409,41 @@ class CalendarController extends BaseController
             } else {
                 abort(403);
             }
+        } else {
+            return redirect()->route('events/');
+        } */
+
+        $eventRecurring = EventRecurring::whereId($event_recurring_id)->has('event')->first();
+        if($eventRecurring) {
+            $event = Event::whereId($eventRecurring->event_id)->with('eventType', 'eventLocation', 'case')->first();
+            $linkedStaff = encodeDecodeJson($eventRecurring->event_linked_staff);
+            $linkedUser = [];
+            if(count($linkedStaff)) {
+                foreach($linkedStaff as $key => $item) {
+                    $user = getUserDetail($item->user_id);
+                    $linkedUser[] = [
+                        'user_id' => $item->user_id,
+                        'full_name' => $user->full_name,
+                        'user_type' => $user->user_type_text,
+                        'attending' => $item->attending,
+                        'utype' => 'staff',
+                    ];
+                }
+            }
+            $linkedContact = encodeDecodeJson($eventRecurring->event_linked_contact_lead);
+            if(count($linkedContact)) {
+                foreach($linkedContact as $key => $item) {
+                    $user = getUserDetail(($item->user_type == 'lead') ? $item->lead_id : $item->contact_id);
+                    $linkedUser[] = (object)[
+                        'user_id' => ($item->user_type == 'lead') ? $item->lead_id : $item->contact_id,
+                        'full_name' => $user->full_name,
+                        'user_type' => $user->user_type_text,
+                        'attending' => $item->attending,
+                        'utype' => $item->user_type,
+                    ];
+                }
+            }
+            return view('calendar.event.event_detail', compact('event', 'eventRecurring', 'linkedUser', 'linkedContact'));
         } else {
             return redirect()->route('events/');
         }

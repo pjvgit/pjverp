@@ -31,7 +31,7 @@
 <?php
 // $timezoneData = unserialize(TIME_ZONE_DATA); 
 ?>
-@if(!isset($evetData))
+{{-- @if(!isset($evetData)) --}}
 <div class="loadscreen" id="preloaderData" style="display: none;">
     <div class="loader"><img class="logo mb-3" src="{{asset('public/images/logo.png')}}" style="display: none" alt="">
         <div class="loader-bubble loader-bubble-primary d-block"></div>
@@ -292,11 +292,11 @@
 </div>
 <input type="hidden" name="loadType" id="loadType" value="all">
 </div>
-@else
+{{-- @else
 <div id="event_detail_view_div">
     @include('calendar.event.event_detail')
 </div>
-@endif
+@endif --}}
 
 @include('case.event.event_modals')
 

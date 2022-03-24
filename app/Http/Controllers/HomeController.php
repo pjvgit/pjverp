@@ -207,11 +207,14 @@ class HomeController extends BaseController
                 })
                 ->orderBy("start_date", "ASC")->with("case", "leadUser", 'eventLinkedStaff')->limit(15)->get(); */
         $authUserId = (string) auth()->id();
-        /* $upcomingTenEvents = EventRecurring::whereDate("start_date", ">=", Carbon::now())
+        $upcomingTenEvents = EventRecurring::whereDate("start_date", ">=", Carbon::now())
                             // ->whereJsonContains('event_linked_staff->user_id', "1")
                             ->whereJsonContains('event_linked_staff', ["user_id" => $authUserId])
                             ->has('event')
-                            ->orderBy("start_date", "asc")->with("event", "event.case", "event.leadUser")->limit(15)->get(); */
+                            ->orderBy("start_date", "asc")->with("event", "event.case", "event.leadUser")->limit(15)->get();
+        $upcomingTenEvents = $upcomingTenEvents->sortBy(function ($product, $key) {
+                    return $product['start_date'].$product['event']['start_time'];
+                })->values();
 
         //Get 15 upcoming task for dashboard
         $upcomingTask=Task::leftJoin('case_master','case_master.id','=','task.case_id')->leftJoin('users','users.id','=','task.lead_id')
