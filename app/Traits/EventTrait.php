@@ -29,7 +29,13 @@ trait EventTrait {
                     'reminder_frequncy' => $request['reminder_time_unit'][$i],
                     'reminder_user_type' => $request['reminder_user_type'][$i],
                     'created_by' => $authUserId,
-                    'remind_at' => Carbon::now(),
+                    'remind_at' => $this->getRemindAtAttribute($request, $request['reminder_time_unit'][$i], $request['reminder_number'][$i]),
+                    'snooze_time' => null,
+                    'snooze_type' => null,
+                    'snoozed_at' => null,
+                    'snooze_remind_at' => null,
+                    'is_dismiss' => 'no',
+                    'reminded_at' => null
                 ];
             }
         }
@@ -223,7 +229,7 @@ trait EventTrait {
             "yearly_frequency" => $request->yearly_frequency,
             "custom_event_weekdays" => $request->custom,
             "event_interval_week" => $request->daily_weekname,
-            "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+            "is_no_end_date" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
             "end_on" => (!isset($request->no_end_date_checkbox)) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
             "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
             "firm_id" => $authUser->firm_name,
@@ -491,6 +497,30 @@ trait EventTrait {
         
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
+    }
+
+    /**
+     * Get event remind at attribute
+     */
+    public function getRemindAtAttribute($request, $reminder_frequncy, $reminder_number)
+    {
+        if($reminder_frequncy == "week" || $reminder_frequncy == "day") {
+            $eventStartDate = Carbon::parse($request->start_date);
+            if($reminder_frequncy == "week") {
+                $remindTime = $eventStartDate->subWeeks($reminder_number)->format('Y-m-d');
+            } else {
+                $remindTime = $eventStartDate->subDays($reminder_number)->format('Y-m-d');
+            }
+        } else if($reminder_frequncy == "hour") {
+            $eventStartTime = @$request->start_date." ".@$request->start_time;
+            $remindTime = Carbon::parse($eventStartTime)->subHours($reminder_number)->format('Y-m-d');
+        } else if($reminder_frequncy == "minute") {
+            $eventStartTime = @$request->start_date." ".@$request->start_time;
+            $remindTime = Carbon::parse($eventStartTime)->subMinutes($reminder_number)->format('Y-m-d');
+        } else {
+            $remindTime = Carbon::now()->format('Y-m-d');
+        }
+        return $remindTime;
     }
 }
  

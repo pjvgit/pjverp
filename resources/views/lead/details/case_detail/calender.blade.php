@@ -12,7 +12,7 @@ $CommonController= new App\Http\Controllers\CommonController();
             <div class="case-calendar-view mt-2">
                 <div class="w-100 d-flex align-items-center">
                     <div class="d-flex ml-auto align-items-center">
-                        <input type="text" id="lead_id" value="{{ $user_id }}" >
+                        <input type="hidden" id="lead_id" value="{{ $user_id }}" >
                         <form action="" method="get">
                             <div class="custom-control custom-switch mr-2 upcoming-toggle d-flex align-items-center">
                                 <input type="hidden" name="upcoming_events" id="upcoming_event" value="{{ (isset($_GET['upcoming_events']) && $_GET['upcoming_events'] == "off") ? 'off' : 'on' }}">

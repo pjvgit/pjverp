@@ -1885,14 +1885,23 @@ class CaseController extends BaseController
             $data1['staff_id']=$CaseStaffSelection->user_id;
             $this->caseActivity($data1);
             // remove from task_linked_staff and case_allocation staff
-            $CaseEventData = CaseEvent::where('case_id',$CaseStaffSelection->case_id)->get();
-            
+            /* $CaseEventData = EventRecurring::whereHas('event', function($query) use($CaseStaffSelection) {
+                    $query->where('case_id',$CaseStaffSelection->case_id);
+                })->whereJsonContains('event_linked_user', ['user_id' => $CaseStaffSelection->user_id])->get();
             if(count($CaseEventData) > 0) {
-                foreach ($CaseEventData as $k=>$v){
-                    CaseEventLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
-                    CaseEventLinkedContactLead::where('contact_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
+                foreach ($CaseEventData as $key => $item) {
+                    // CaseEventLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
+                    // CaseEventLinkedContactLead::where('contact_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
+                    $decodeStaff = encodeDecodeJson($item->event_linked_staff);
+                    $newArray = [];
+                    foreach($decodeStaff as $skey => $sitem) {
+                        if($sitem->user_id != $CaseStaffSelection->user_id) {
+                            $newArray[] = $sitem;
+                        }
+                    }
+                    $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
                 }
-            }
+            } */
             $TaskData = Task::where('case_id',$CaseStaffSelection->case_id)->get();
             if(count($TaskData) > 0) {
                 foreach ($TaskData as $k=>$v){
@@ -1927,7 +1936,7 @@ class CaseController extends BaseController
     } 
     public function saveStaffLinkSelection(Request $request)
     {
-       
+        // return $request->all();
         if(isset($request->case_id)) {
             $checkBeforAdd=CaseStaff::where("case_id",$request->case_id)->where("user_id",$request->staff_user_id)->count();
             if($checkBeforAdd<=0){
@@ -1943,6 +1952,40 @@ class CaseController extends BaseController
                 }
                 $CaseStaff->created_by=Auth::user()->id; 
                 $CaseStaff->save();
+
+                // Link user with events
+                /* if(isset($request->user_link_share_events)) {
+                    $eventRecurrings = EventRecurring::whereHas('event', function($query) use($request) {
+                        $query->where('case_id', $request->case_id)->where('is_private_event', 'no');
+                    })->get();
+                    if($eventRecurrings) {
+                        foreach($eventRecurrings as $key => $item) {
+                            $decodeStaff = encodeDecodeJson($item->event_linked_staff);
+                            if($decodeStaff->where('user_id', $request->staff_user_id)->where('is_linked', 'no')->first()) {
+                                $newArray = [];
+                                foreach($decodeStaff as $skey => $sitem) {
+                                    if($sitem->user_id == $request->staff_user_id) {
+                                        $sitem->is_linked = 'yes';
+                                    }
+                                    $newArray[] = $sitem;
+                                }
+                                $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
+                            } else {
+                                $eventLinkedStaff = [
+                                    'event_id' => $item->event_id,
+                                    'user_id' => $request->staff_user_id,
+                                    'is_linked' => 'yes',
+                                    'attending' => "no",
+                                    'comment_read_at' => Carbon::now(),
+                                    'created_by' => auth()->id(),
+                                    'is_read' => (isset($request->user_link_share_read)) ? 'yes' : 'no',
+                                ];
+                                $decodeStaff->push($eventLinkedStaff);
+                                $item->fill(['event_linked_staff' => encodeDecodeJson($decodeStaff, 'encode')])->save();
+                            }
+                        }
+                    }
+                } */
 
                 // add activity
                 $userInfo = User::find($request->staff_user_id);
@@ -3626,7 +3669,7 @@ class CaseController extends BaseController
         if(count($linkedStaff)) {
             foreach($linkedStaff as $key => $item) {
                 $user = getUserDetail($item->user_id);
-                $linkedUser[] = [
+                $linkedUser[] = (object)[
                     'user_id' => $item->user_id,
                     'full_name' => $user->full_name,
                     'user_type' => $user->user_type_text,
@@ -3639,7 +3682,7 @@ class CaseController extends BaseController
         if(count($linkedContact)) {
             foreach($linkedContact as $key => $item) {
                 $user = getUserDetail(($item->user_type == 'lead') ? $item->lead_id : $item->contact_id);
-                $linkedUser[] = [
+                $linkedUser[] = (object)[
                     'user_id' => ($item->user_type == 'lead') ? $item->lead_id : $item->contact_id,
                     'full_name' => $user->full_name,
                     'user_type' => $user->user_type_text,
@@ -4168,7 +4211,13 @@ class CaseController extends BaseController
                     'reminder_frequncy' => $request->reminder['time_unit'][$key],
                     'reminder_user_type' => $item,
                     'created_by' => $authUserId,
-                    'remind_at' => Carbon::now(),
+                    'remind_at' => $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key]),
+                    'snooze_time' => null,
+                    'snooze_type' => null,
+                    'snoozed_at' => null,
+                    'snooze_remind_at' => null,
+                    'is_dismiss' => 'no',
+                    'reminded_at' => null
                 ];
             }
             $eventRecurring->fill(['event_reminders' => encodeDecodeJson($eventReminders, 'encode')])->save();
