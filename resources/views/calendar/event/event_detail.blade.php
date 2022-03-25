@@ -147,14 +147,18 @@ body >
                                     @if(!empty($event->case))
                                     <a href="{{ route('info', $event->case->case_unique_number) }}">{{$event->case->case_title}}</a>
                                     @else
-                                    Not specified
+                                    <p class="d-inline" style="opacity: 0.7;">Not specified</p>
                                     @endif
                                 </div>
                             </div>
                             <div class="mb-2 row ">
                                 <div class="col-3"><b>Lead</b></div>
                                 <div class="detail-info  col-9">
+                                    @if(!empty($event->leadUser))
+                                    <a href="{{ route('lead_details/info', $event->leadUser->id) }}">{{$event->leadUser->full_name}}</a>
+                                    @else
                                     <p class="d-inline" style="opacity: 0.7;">Not specified</p>
+                                    @endif
                                 </div>
                             </div>
                             <div class="mb-2 row ">
@@ -177,7 +181,7 @@ body >
                                         
                                         </ul>
 
-                                        <a class="align-items-center" data-toggle="modal" data-target="#loadReminderPopup"
+                                        <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"
                                             data-placement="bottom" onclick="loadEventReminderPopup({{$event->id}}, {{ $eventRecurring->id}})" href="javascript:;">
                                             Edit
                                             Reminders</a>
@@ -197,43 +201,34 @@ body >
                                     <div class="mb-2"><b>Shared / Attending</b></div>
                                     <div>
                                         <div class="mb-2 sharing-user">
-                                            <div class="row ">
-                                                @php    
-                                                $userTypes = unserialize(USER_TYPE);
-                                                @endphp                                          
-                                                    @if(!empty($linkedUser))
-                                                        @foreach($linkedUser as $kstaff=>$vstaff)
-                                                            <div class="col-8">
-                                                                <div class="d-flex flex-row">
-                                                                    <a href="{{ route('contacts/attorneys/info', base64_encode($vstaff['user_id'])) }}"
-                                                                        class="d-flex align-items-center user-link"
-                                                                        title="{{$vstaff['user_type']}}">{{substr($vstaff['full_name'],0,15)}}
-                                                                        ({{$vstaff['user_type']}})</a>
-                                                                </div>
+                                            <div class="row ">                              
+                                                @if(!empty($linkedUser))
+                                                    @foreach($linkedUser as $kstaff=>$vstaff)
+                                                        <div class="col-8">
+                                                            <div class="d-flex flex-row">
+                                                                @if($vstaff->utype == 'staff')
+                                                                <a href="{{ route('contacts/attorneys/info', base64_encode($vstaff->user_id)) }}"
+                                                                    class="d-flex align-items-center user-link"
+                                                                    title="{{ $vstaff->user_type }}">{{ $vstaff->full_name }}
+                                                                    ({{ $vstaff->user_type }})</a>
+                                                                @elseif($vstaff->utype == 'lead')
+                                                                <a href="{{ route('lead_details/info', $vstaff->user_id) }}"
+                                                                    class="d-flex align-items-center user-link"
+                                                                    title="{{ $vstaff->user_type }}">{{ $vstaff->full_name }}
+                                                                    {{ $vstaff->user_type }}</a>
+                                                                @else
+                                                                <a href="{{ route('contacts/clients/view', $vstaff->user_id) }}"
+                                                                    class="d-flex align-items-center user-link"
+                                                                    title="{{ $vstaff->user_type }}">{{ $vstaff->full_name }}
+                                                                    {{ $vstaff->user_type }}</a>
+                                                                @endif
                                                             </div>
-                                                            <div class="col-4"><b
-                                                                    style="color: rgb(99, 108, 114);"><?php if($vstaff['attending']=='yes'){ echo "Attending"; } ?></b>
-                                                            </div>
-                                                        @endforeach
-                                                    @endif
-                                            </div>
-                                            <div class="row ">
-                                                <?php                                              
-                                                    if(!empty($linkedContactas)){
-                                                        foreach($linkedContactas as $vstaff){?>
-                                                            <div class="col-8">
-                                                                <div class="d-flex flex-row">
-                                                                    <a href="{{ route('contacts/clients/view', $vstaff->contact_id) }}"
-                                                                        class="d-flex align-items-center user-link"
-                                                                        title="{{ $vstaff->user_type }}">{{substr($vstaff->full_name,0,15)}}
-                                                                        (Client)</a>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-4"><b
-                                                                    style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
-                                                            </div>
-                                                    <?php } 
-                                                    }?>
+                                                        </div>
+                                                        <div class="col-4"><b
+                                                                style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
+                                                        </div>
+                                                    @endforeach
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -242,19 +237,20 @@ body >
                         </div>
                     </div>
 
-                    <div class="event-detail-history col-6">
+                    <div class="event-detail-history col-6 scrollbar scrollbar-primary" style="height: 400px !important;">
                         <div>
                             <div>
                                 <div id="editorArea" class="mt-3 mb-3"  style="display: none;">
                                     <form class="addComment" id="addComment" name="addComment" method="POST">
                                         @csrf
-                                        <input class="form-control" id="id" value="{{ $event->id}}" name="event_id" type="hidden">
+                                        <input class="form-control" value="{{ $event->id}}" name="event_id" type="hidden">
+                                        <input class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="hidden">
                                         <div id="editor">
-                                    
+                                            
                                         </div>
                                         <div class="row ">
                                             <div class="col-12">
-                                                <button type="submit" class="submit btn btn-primary mt-3 mb-3  float-right">Post Comment</button>
+                                                <button type="submit" class="btn btn-primary mt-3 mb-3  float-right">Post Comment</button>
                                             </div>
                                         </div>
                                     </form>
@@ -284,6 +280,130 @@ body >
 
 @section('page-js')
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+<script type="text/javascript">
+    "use strict";
+$(document).ready(function () {
+    var toolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'], // toggled buttons
+        ['blockquote', 'code-block'],
+        [{
+            'header': 1
+        }, {
+            'header': 2
+        }], // custom button values
+        [{
+            'list': 'ordered'
+        }, {
+            'list': 'bullet'
+        }],
+        
+        [{
+            'size': ['small', false, 'large', 'huge']
+        }], // custom dropdown
+        [{
+            'header': [1, 2, 3, 4, 5, 6, false]
+        }],
+
+        [{
+            'color': []
+        }, {
+            'background': []
+        }], // dropdown with defaults from theme
+        [{
+            'font': []
+        }],
+        [{
+            'align': []
+        }],
+
+        ['clean'] // remove formatting button
+    ];
+
+    var quill = new Quill('#editor', {
+        modules: {
+            toolbar: toolbarOptions
+        },
+        theme: 'snow'
+    });
+
+    afterLoader();
+
+    $('#addComment').submit(function (e) {
+        beforeLoader();
+
+        e.preventDefault();
+        var delta =quill.root.innerHTML;
+        if(delta=='<p><br></p>'){
+            toastr.error('Unable to post a blank comment', "", {
+                positionClass: "toast-top-full-width",
+                containerId: "toast-top-full-width"
+            })
+            afterLoader();
+
+        }else{
+            var dataString = $("#addComment").serialize();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/saveEventComment", // json datasource
+                data: dataString + '&delta=' + delta,
+                success: function (res) {
+                    $(this).find(":submit").prop("disabled", true);
+                    $("#innerLoader").css('display', 'block');
+                    if (res.errors != '') {
+                        afterLoader();
+
+                        return false;
+                    } else {
+                        toastr.success('Your comment was posted', "", {
+                            positionClass: "toast-top-full-width",
+                            containerId: "toast-top-full-width"
+                        });
+                        loadCommentHistory({{$event->id}}, {{$eventRecurring->id}})
+                        quill.root.innerHTML='';
+                        afterLoader();
+
+                    }
+                }
+            });
+        }
+    });
+});
+
+// Load event comment history
+loadCommentHistory({{$event->id}}, {{$eventRecurring->id}});
+function loadCommentHistory(event_id, event_recurring_id) {
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "/court_cases/loadCommentHistory",
+        data: {
+            "event_id": event_id, "event_recurring_id": event_recurring_id
+        },
+        success: function (res) {
+            $("#commentHistory").html(res);
+        }
+    })
+}
+/**
+* Load event reminder list
+*/
+loadReminderHistory({{$event->id}}, {{$eventRecurring->id}});
+function loadReminderHistory(event_id, event_recurring_id) {
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "/court_cases/loadReminderHistory",
+        data: {
+            "event_id": event_id, "event_recurring_id": event_recurring_id
+        },
+        success: function (res) {
+            $("#reminder_list").html(res);
+        }
+    })
+}
+function toggelComment(){
+    $("#linkArea").hide();
+    $("#editorArea").show();
+}
+</script>
 @endsection
 
 @endsection

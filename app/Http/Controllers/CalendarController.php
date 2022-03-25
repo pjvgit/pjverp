@@ -1421,7 +1421,7 @@ class CalendarController extends BaseController
             if(count($linkedStaff)) {
                 foreach($linkedStaff as $key => $item) {
                     $user = getUserDetail($item->user_id);
-                    $linkedUser[] = [
+                    $linkedUser[] = (object)[
                         'user_id' => $item->user_id,
                         'full_name' => $user->full_name,
                         'user_type' => $user->user_type_text,
@@ -1443,7 +1443,7 @@ class CalendarController extends BaseController
                     ];
                 }
             }
-            return view('calendar.event.event_detail', compact('event', 'eventRecurring', 'linkedUser', 'linkedContact'));
+            return view('calendar.event.event_detail', compact('event', 'eventRecurring', 'linkedUser'));
         } else {
             return redirect()->route('events/');
         }
@@ -1530,23 +1530,27 @@ class CalendarController extends BaseController
         // return $request->all();
         $request->start = $request->start ?? convertUTCToUserTime(date("Y-m-d H:i:s"), auth()->user()->user_timezone);
         $request->end = $request->end ?? convertUTCToUserTime(date("Y-m-d H:i:s"), auth()->user()->user_timezone);
-
+        $authUser = auth()->user();
+        $timezone = $authUser->user_timezone ?? 'UTC';
         $CommonController= new CommonController();
-        $CaseEvent = CaseEvent::where('created_by',Auth::User()->id);
-        if($request->event_type){
-            $event_type=$request->event_type;
-            $CaseEvent=$CaseEvent->where('event_type',$event_type);
-        }
-        if($request->case_or_lead){
-            $CaseEvent=$CaseEvent->where('case_id',$request->case_or_lead);
-        }
-        $CaseEvent=$CaseEvent->whereBetween('start_date',  [convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start)))), auth()->user()->user_timezone ?? 'UTC'), convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end)))), auth()->user()->user_timezone ?? 'UTC')]);
-        $CaseEvent=$CaseEvent->whereNull('case_events.deleted_at')->orderBy('case_events.start_date')->with('eventLinkedStaff','case','eventLinkedContact','leadUser')->get();
-        // dd($CaseEvent);
-        $newarray = array();
+        
+        $CaseEvent = EventRecurring::whereBetween('start_date', [convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start)))), $timezone), convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end)))), $timezone)]);
+        $CaseEvent = $CaseEvent->whereHas("event", function($query) use($request) {
+            if($request->event_type){
+                $query->whereIn('event_type_id', $request->event_type);
+            }
+            if($request->case_or_lead) {
+                $query->where('case_id', $request->case_or_lead);
+            }
+        })->whereJsonContains('event_linked_staff', ['user_id' => (string)$authUser->id]);
 
-        $timezone=Auth::User()->user_timezone;
-        foreach($CaseEvent as $k=>$v){
+        $CaseEvent = $CaseEvent->orderBy('start_date')->with('event', 'event.eventType')->get();
+        $CaseEvent = $CaseEvent->sortBy(function ($product, $key) {
+            return $product['start_date'].$product['event']['start_time'];
+        })->values();
+
+        $newarray = array();
+        /* foreach($CaseEvent as $k=>$v){
             if($v->event_type!=""){
             $typeEventText =  DB::table("event_type")->select('title','color_code')->where('status',"1")->where('id',$v->event_type)->first();
                 $v->etext=$typeEventText;
@@ -1573,7 +1577,54 @@ class CalendarController extends BaseController
                 $v->contactName = implode(",",$contactName);
             }
             $newarray[] = $v;
+        } */
+
+        foreach($CaseEvent as $k=>$v){
+            $event = $v->event;
+            $eventData = [];
+            $eventData["event_id"] = $event->id ?? Null;
+            $eventData["event_recurring_id"] = $v->id;
+            $eventData["event_title"] = $event->event_title ?? "<No Title>";
+            $eventData["event_description"] = $event->event_description;
+            $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : convertUTCToUserTime($v->start_date.' 00:00:00', $timezone);
+            $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : convertUTCToUserTime($v->end_date.' 00:00:00', $timezone);
+            $eventData["start_date"] = date('m/d/Y', strtotime($startDateTime));
+            $eventData["start_time"] = date('h:ia', strtotime($startDateTime));
+            $eventData["end_date"] = date('m/d/Y', strtotime($endDateTime));
+            $eventData["end_time"] = date('h:ia', strtotime($endDateTime));
+            $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->color_code : "";
+            $eventData["caseTitle"] = ($event->case) ? $event->case->case_title : '';
+            $eventData["caseNumber"] = ($event->case) ? $event->case->case_number : '';
+            $decodeStaff = encodeDecodeJson($v->event_linked_staff);
+            /* if(count($decodeStaff) > 0){
+                $staffName = $caseAttend = [];
+                foreach($decodeStaff as $i => $j){
+                    $caseAttend[$i] = ($j->attending =='yes') ? $j :'';            
+                    $staffName[$i] = getUserDetail($j->user_id)->full_name ?? '';
+                }
+                $staffName = implode(",",$staffName);
+            } */
+            // $eventData["staffName"] = $staffName ?? '';
+            $eventData["staffName"] = $decodeStaff;
+            $decodeContact = encodeDecodeJson($v->event_linked_contact_lead);
+            if(count($decodeContact) > 0){
+                $contactName = [];
+                foreach($decodeContact as $i => $j){
+                    $contactName[$i] = getUserDetail($j->contact_id)->full_name ?? '';
+                }
+                $contactName = implode(",",$contactName);
+            }
+            $eventData["contactName"] = $contactName ?? '';
+            // $eventData["contactName"] = $decodeContact;
+            $eventData["is_all_day"] = $event->is_full_day;
+            $eventData["is_read"] = $v->is_read;
+
+            $newarray[] = (object)$eventData;
         }
+        /* $newarray = collect($newarray)->sortBy(function($col) {
+            return $col['start_date'].' '.$col['start_time'];
+        })->values()->all(); */
+        // return $newarray;
         // print_r($CaseEvent);
         if(isset($request->show_sol_checkbox) && $request->show_sol_checkbox=="on"){
             $CaseEventSOL = CaseEvent::leftJoin('case_master','case_master.id','=','case_events.case_id')
