@@ -39,15 +39,18 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab2">
                             <div class="m-2">
                                 <div class="d-flex align-items-center flex-row-reverse mb-2">
+                                    @can('case_add_edit')
                                     <a class="btn btn-primary ml-1" data-toggle="modal" data-target="#importCourtCase"
                                         data-placement="bottom" href="javascript:;">Import
                                         Cases</a>
-
+                                    @endcan
+                                    @can('access_all_cases')
                                     <a data-toggle="modal" data-target="#exportCourtCase" data-placement="bottom"
                                         href="javascript:;">
                                         <button class="btn btn-outline-secondary m-1" type="button">Export
                                             Cases</button>
                                     </a>
+                                    @endcan
                                 </div>
 
                                 <div class="mb-2">
@@ -194,6 +197,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div>
+@can('case_add_edit')
 <div id="importCourtCase" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -253,6 +257,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div>
+@endcan
 <div id="showErrorLog" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -279,7 +284,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 </div>
 <style>
     .nav-tabs {
-        border-bottom: 2px solid #e1e1e1;
+        /* border-bottom: 2px solid #e1e1e1; */
     }
     #fileupload-dropzone {
         border: 2px dashed #666;
@@ -495,7 +500,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             }
         });
     });
-        
+    @can('case_add_edit')
     $('#importCasesWithOptionForm').submit(function (e) {
         $('.showError').html('');
         beforeLoader();
@@ -540,7 +545,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             }
         });
     });    
-
+    @endcan
 </script>
 @stop
 @endsection

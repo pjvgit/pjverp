@@ -1158,7 +1158,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('bills/invoices/printAccountActivity', 'BillingController@printAccountActivity')->name('bills/invoices/printAccountActivity');
     });
     });
-
+    // Import/ Export
+    Route::middleware(['permission:edit_import_export_settings'])->group(function () {
     Route::get('imports/contacts', 'ClientdashboardController@imports_contacts')->name('imports/contacts');
     Route::get('imports/court_cases', 'ClientdashboardController@imports_cases')->name('imports/court_cases');
 
@@ -1180,6 +1181,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('exports', 'ClientdashboardController@exportFullBackup')->name('exports');
     Route::post('imports/backupCases', 'ClientdashboardController@backupCases')->name('imports/backupCases');
     Route::post('imports/loadFullBackupHistory', 'ClientdashboardController@loadFullBackupHistory')->name('imports/loadFullBackupHistory');
+    });
     //Scripts
     Route::get('assignTokenToInvoice','CustomScriptController@assignTokenToInvoice')->name('assignTokenToInvoice');
 

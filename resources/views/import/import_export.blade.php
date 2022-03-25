@@ -34,6 +34,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 aria-selected="true">Full Backup</a>
                         </li>
                     </ul>
+                    @can('client_add_edit')
                     <div class="tab-content w-100" id="myTabContent">
                         <div class="tab-pane fade   {{ request()->is('imports/contacts') ? 'active show' : '' }}"
                             id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab">
@@ -84,13 +85,14 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             </div>
                         </div>
                     </div>
+                    @endcan
                 </div>
                
             </div>
         </div>
     </div>
 </div>
-
+@can('client_add_edit')
 <div id="exportContacts" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -290,9 +292,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div>
+@endcan
 <style>
     .nav-tabs {
-        border-bottom: 2px solid #e1e1e1;
+        /* border-bottom: 2px solid #e1e1e1; */
     }
     #fileupload-dropzone {
         border: 2px dashed #666;
@@ -300,6 +303,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     }
 
 </style>
+@can('client_add_edit')
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
@@ -629,4 +633,5 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
 </script>
 @stop
+@endcan
 @endsection

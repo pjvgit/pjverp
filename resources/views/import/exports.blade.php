@@ -62,7 +62,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     </button>
                                 </div>
                             </div>
-
+                            <hr>
                             @if(count($ClientFullBackup) == 0)
                                 <div class="no_items text-center">
                                     You have not created any recent backups.<br><br>
@@ -116,6 +116,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         <label for="format_mycase_csv">{{config('app.name')}} CSV</label>
                                     </div>
                                 </div>
+                                @can('access_all_cases')
                                 <div class="form-group row">
                                     <label for="inputEmail3" class="col-sm-2 col-form-label">Cases</label>
                                     <div class="col-sm-8">
@@ -128,6 +129,17 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         </div>
                                     </div>
                                 </div>
+                                @else
+                                <div class="form-group row m2">
+                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Cases</label>
+                                    <div class="col-sm-8">
+                                        <div style="line-height: 1.5em;">
+                                            <input type="radio" name="export_cases"  value="0" checked="checked">
+                                            <label for="export_cases"> Only include cases I'm linked to</label><br>
+                                        </div>
+                                    </div>
+                                </div>                                
+                                @endcan
                                 <div class="form-group row">
                                     <label for="inputEmail3" class="col-sm-2 col-form-label">Options</label>
                                     <div class="col-sm-8">
@@ -162,6 +174,12 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div>
+<style>
+    hr {
+        margin-top: 0 !important;
+        margin-bottom: 1rem !important;
+    }
+</style>
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
