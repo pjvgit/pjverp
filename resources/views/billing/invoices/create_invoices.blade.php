@@ -650,7 +650,9 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
 var start = 0;
     $(document).ready(function () {     
         $("#preloader").show();   
+        @if(count($getInvoicePendingCase) > 0)
         loadMoreData(0);
+        @endif
 
         $('#batchSaved').on('hidden.bs.modal', function () {
             window.location.reload();
@@ -1158,16 +1160,23 @@ var start = 0;
         }
     });
 
+    @if(count($getInvoicePendingCase) > 0)
     var lazyLoadingActive = 1;
     var pageLength =  '100';
     var roundPage = 1;
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() >= $(document).height()) {
-            if(lazyLoadingActive == 1)
+            console.log("lazyLoadingActive >" + lazyLoadingActive);
+            if(lazyLoadingActive == 1){
                 $("#preloader").show();
                 loadMoreData(roundPage);
+            }
         }
     });
+    @else
+        $(".open-bills-list").removeClass("m2");
+        $(".open-bills").addClass("m2");
+    @endif
 
     function loadMoreData(round){
         $("#preloader").show(); 
@@ -1261,6 +1270,7 @@ var start = 0;
                     console.log("client: "+aData.selected_user);
                     console.log("case_id: "+aData.case_id);                    
                     console.log("case_setup: "+aData.setup_billing);                    
+                    @can(['case_add_edit', 'billing_add_edit'])
                     if(aData.setup_billing == 'yes') {
                         resultHtml +='<td><div class="text-left"><a class="name" href="' + baseUrl +
                             '/bills/invoices/new?page=open&court_case_id=' + aData.ccid +'">Invoice This Case</a></div></td>';
@@ -1268,6 +1278,7 @@ var start = 0;
                         resultHtml +='<td><div class="text-left"><a class="name" data-toggle="modal" data-target="#editBillingContactPopup"\
                             data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div></td>';
                     }
+                    @endcan
                     resultHtml +='</tr>';
                     // }else{
                     //     console.log("1255 > client: "+aData.selected_user);
@@ -1284,6 +1295,7 @@ var start = 0;
                     // $("#sr_"+item).remove();
                 });
             }else{
+                lazyLoadingActive = 999;
                 $(".open-bills-list").removeClass("m2");
                 $(".open-bills").addClass("m2");
                 $(".lazy-load-data").html("<tr><td colspan='10'> No Record founds.</td></tr>");    
