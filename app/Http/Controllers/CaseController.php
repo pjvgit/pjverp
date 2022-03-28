@@ -32,13 +32,14 @@ use App\Jobs\EventCommentEmailJob;
 use App\Jobs\EventReminderEmailJob;
 use App\Traits\CaseEventTrait;
 use App\Traits\EventTrait;
+use App\Traits\UserCaseSharingTrait;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
 class CaseController extends BaseController
 {
-    use /* CaseEventTrait, */ EventTrait;
+    use /* CaseEventTrait, */ EventTrait, UserCaseSharingTrait;
     public function __construct()
     {
        
@@ -1677,14 +1678,17 @@ class CaseController extends BaseController
         $this->caseActivity($data1);
         
         // remove from task_linked_staff and case_allocation staff
-        $CaseEventData = CaseEvent::where('case_id',$CaseClientSelection->case_id)->get();
+        /* $CaseEventData = CaseEvent::where('case_id',$CaseClientSelection->case_id)->get();
         
         if(count($CaseEventData) > 0) {
             foreach ($CaseEventData as $k=>$v){
                 CaseEventLinkedStaff::where('user_id',$CaseClientSelection->selected_user)->where('event_id',$v->id)->delete();
                 CaseEventLinkedContactLead::where('contact_id',$CaseClientSelection->selected_user)->where('event_id',$v->id)->delete();
             }
-        }
+        } */
+        // Unlink client from events
+        $this->eventUnlinkClient($CaseClientSelection->case_id, $CaseClientSelection->selected_user);
+
         $TaskData = Task::where('case_id',$CaseClientSelection->case_id)->get();
         if(count($TaskData) > 0) {
             foreach ($TaskData as $k=>$v){
@@ -1779,6 +1783,11 @@ class CaseController extends BaseController
                     $CaseClientSelection->save();                    
                 }
             }            
+            // Link user to events
+            if(isset($request->user_link_share)) {
+                $this->shareEventToClient($request->case_id, $request->user_type, (isset($request->user_link_share_read)) ? 'yes' : 'no');
+            }
+
             session(['popup_success' => 'Your contact has been added']);
             return response()->json(['errors'=>'','count'=>$CaseClientSelection->id]);
             exit;
@@ -1885,23 +1894,9 @@ class CaseController extends BaseController
             $data1['staff_id']=$CaseStaffSelection->user_id;
             $this->caseActivity($data1);
             // remove from task_linked_staff and case_allocation staff
-            /* $CaseEventData = EventRecurring::whereHas('event', function($query) use($CaseStaffSelection) {
-                    $query->where('case_id',$CaseStaffSelection->case_id);
-                })->whereJsonContains('event_linked_user', ['user_id' => $CaseStaffSelection->user_id])->get();
-            if(count($CaseEventData) > 0) {
-                foreach ($CaseEventData as $key => $item) {
-                    // CaseEventLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
-                    // CaseEventLinkedContactLead::where('contact_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
-                    $decodeStaff = encodeDecodeJson($item->event_linked_staff);
-                    $newArray = [];
-                    foreach($decodeStaff as $skey => $sitem) {
-                        if($sitem->user_id != $CaseStaffSelection->user_id) {
-                            $newArray[] = $sitem;
-                        }
-                    }
-                    $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
-                }
-            } */
+            // Unlink user from event
+            $this->eventUnlinkUser($CaseStaffSelection->case_id, $CaseStaffSelection->user_id);
+            
             $TaskData = Task::where('case_id',$CaseStaffSelection->case_id)->get();
             if(count($TaskData) > 0) {
                 foreach ($TaskData as $k=>$v){
@@ -1954,9 +1949,10 @@ class CaseController extends BaseController
                 $CaseStaff->save();
 
                 // Link user with events
-                /* if(isset($request->user_link_share_events)) {
-                    $eventRecurrings = EventRecurring::whereHas('event', function($query) use($request) {
-                        $query->where('case_id', $request->case_id)->where('is_private_event', 'no');
+                if(isset($request->user_link_share_events)) {
+                    $this->shareEventToUser($request->case_id, $request->staff_user_id, (isset($request->user_link_share_read)) ? 'yes' : 'no');
+                    /* $eventRecurrings = EventRecurring::whereHas('event', function($query) use($request) {
+                        $query->where('case_id', $request->case_id)->where('is_event_private', 'no');
                     })->get();
                     if($eventRecurrings) {
                         foreach($eventRecurrings as $key => $item) {
@@ -1984,8 +1980,8 @@ class CaseController extends BaseController
                                 $item->fill(['event_linked_staff' => encodeDecodeJson($decodeStaff, 'encode')])->save();
                             }
                         }
-                    }
-                } */
+                    } */
+                }
 
                 // add activity
                 $userInfo = User::find($request->staff_user_id);

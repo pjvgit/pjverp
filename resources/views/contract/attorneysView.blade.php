@@ -1004,7 +1004,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         </div>
                         <div class="form-check mt-2">
                             <label class="form-check-label">
-                                <input type="checkbox" class="form-check-input test-mycase-confirm-checkbox" checked="">
+                                <input type="checkbox" class="form-check-input test-mycase-confirm-checkbox" checked="" name="user_link_share">
                                 <span>Add all existing case events to calendar</span></label>
                         </div>
                 </div>

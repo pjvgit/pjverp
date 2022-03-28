@@ -4,23 +4,19 @@ namespace App\Http\Controllers;
 use App\User,App\EmailTemplate,App\Countries;
 use Illuminate\Http\Request;
 use DB,Validator,Session,Mail,Storage,Image;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use App\ContractUserCase,App\CaseMaster;
 use App\DeactivatedUser,App\ClientGroup,App\UsersAdditionalInfo,App\CaseClientSelection,App\CaseStaff,App\TempUserSelection;
 use App\Firm,App\ClientActivity,App\ClientNotes;
 use Illuminate\Support\Facades\Crypt;
-use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
-use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
-use App\TaskHistory,App\LeadAdditionalInfo;
+use App\Task;
+use App\TaskActivity,App\TaskTimeEntry;
+use App\LeadAdditionalInfo;
 use App\TrustHistory,App\RequestedFund,App\Messages,App\ReplyMessages;
 use mikehaertl\wkhtmlto\Pdf;
 use ZipArchive,File;
 use App\ClientCompanyImport,App\ClientCompanyImportHistory;
 use App\DepositIntoCreditHistory;
-use App\InvoiceHistory;
-use App\InvoicePayment;
 use App\Invoices;
 use App\Traits\CreditAccountTrait;
 use Illuminate\Support\Str;
@@ -32,12 +28,13 @@ use App\Traits\TrustAccountTrait;
 use Exception;
 use App\Http\Controllers\CommonController;
 use App\RequestedFundOnlinePayment;
+use App\Traits\UserCaseSharingTrait;
 use App\UserTrustCreditFundOnlinePayment;
 use Carbon\Carbon;
 
 class ClientdashboardController extends BaseController
 {
-    use CreditAccountTrait, FundRequestTrait, TrustAccountTrait;
+    use CreditAccountTrait, FundRequestTrait, TrustAccountTrait, UserCaseSharingTrait;
     public function __construct()
     {
         // $this->middleware("auth");
@@ -235,6 +232,7 @@ class ClientdashboardController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             CaseClientSelection::where('case_id',$request->id)->where('selected_user',$request->user_delete_contact_id)->delete();
+            $this->eventUnlinkClient($request->id, $request->user_delete_contact_id);
             
             $ClientActivityHistory=[];
             $ClientActivityHistory['acrtivity_title']='unlinked contact';
@@ -313,6 +311,10 @@ class ClientdashboardController extends BaseController
                     $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
                     $this->saveClientActivity($ClientActivityHistory);
     
+                    // Link user to case events
+                    if(isset($request->user_link_share)) {
+                        $this->shareEventToUser($request->case_id, $request->client_id, (isset($request->user_link_share_read)) ? 'yes' : 'no');
+                    }
     
                     return response()->json(['errors'=>'','user_id'=>$request->client_id]);
                     exit;
@@ -327,6 +329,11 @@ class ClientdashboardController extends BaseController
                     $CaseClientSelection->case_id=$request->case_id;
                     $CaseClientSelection->selected_user=$request->client_id;
                     $CaseClientSelection->save();
+
+                    // Link user to case events
+                    if(isset($request->user_link_share)) {
+                        $this->shareEventToClient($request->case_id, $request->client_id, (isset($request->user_link_share_read)) ? 'yes' : 'no');
+                    }
                
                     $ClientActivityHistory=[];
                     $ClientActivityHistory['acrtivity_title']='linked contact';
@@ -360,7 +367,8 @@ class ClientdashboardController extends BaseController
         }
         
     }
-    public function saveStaffLinkCase(Request $request)
+    // Commented, Not in use
+    /* public function saveStaffLinkCase(Request $request)
     {
         // print_r($request->all());exit;
         $validator = \Validator::make($request->all(), [
@@ -405,7 +413,7 @@ class ClientdashboardController extends BaseController
            
         }
         
-    }
+    } */
     public function ClientActivityHistory()
     {   
         $requestData= $_REQUEST;
