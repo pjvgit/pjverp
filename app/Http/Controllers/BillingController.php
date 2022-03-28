@@ -5881,9 +5881,6 @@ class BillingController extends BaseController
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
             $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
         }        
-        if($request->payment_plan == "on" && ($request->number_installment_field == null || $request->number_installment_field == null)){
-            $rules['number_installment_field'] = 'required';
-        }         
         $request->validate($rules, [
             "invoice_number_padded.required"=>"Invoice number must be greater than 0",
             "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
@@ -5891,8 +5888,7 @@ class BillingController extends BaseController
             "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
             "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity",
             "final_total_text.gte" => "You cannot lower the amount of this invoice below $".$InvoiceSave->total_amount." because payments have already been received for that amount.",
-            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice.",
-            "number_installment_field.required"=>"Payment plans must required Amount/Installment as the invoice."
+            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice."
         ]);
         
             // print_r($request->all());exit;

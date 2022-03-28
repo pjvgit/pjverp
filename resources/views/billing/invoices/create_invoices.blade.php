@@ -1000,11 +1000,9 @@ var start = 0;
             url: baseUrl + "/bills/invoices/createInvoiceBatch", // json datasource
             data: dataString+'&case_id='+JSON.stringify(array),
             success: function (res) {
-                beforeLoader();
-                setTimeout(function () {
-                    $("#progress").modal("hide");    
-                }, 100);
+                beforeLoader();                
                 if (res.errors != '') {
+                setTimeout(function () {
                     $("#progress").modal("hide");
                     $('.showError').html('');
                     var errotHtml ='<ul>';
@@ -1021,6 +1019,7 @@ var start = 0;
                     $( "#dialog" ).modal("show");                  
                     afterLoader();
                     return false;
+                }, 1000);
                 } else {
                     $("#progress").modal("hide");
                     $("#batch_billing_form")[0].reset();

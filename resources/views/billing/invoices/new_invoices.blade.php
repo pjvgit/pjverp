@@ -3374,6 +3374,10 @@ $nonBillableAmount = 0;
                         changeCase();
                     }
                 });
+            }else{
+                if($('#bill_from_date').val != '' && $(this).val() != ''){
+                    changeCase();
+                }
             }
         });
 

@@ -3355,10 +3355,14 @@ $nonBillableAmount = 0;
                         $("#invoice_payment_plan_error").hide();
                         $("#saveInvoiceForm").submit();
                     }else{
-                        $("#invoice_payment_plan_error").show();
-                        $('html, body').animate({scrollTop:$('#invoice_payment_plan_error').position().top}, 'slow');
-                        afterLoader();
-                        return false;
+                        if($("#payment_plan").is(":checked") === false){
+                            $("#saveInvoiceForm").submit();
+                        }else{
+                            $("#invoice_payment_plan_error").show();
+                            $('html, body').animate({scrollTop:$('#invoice_payment_plan_error').position().top}, 'slow');
+                            afterLoader();
+                            return false;
+                        }
                     }
                 }else{
                     var payment_plan_balance = $("#payment_plan_balance").text();
