@@ -119,32 +119,36 @@
                     $totalUser = count($linkedUser) + count($linkedClient);
                     if($totalUser > 1) {
                         $userListHtml = "<table><tbody>";
-                        $userListHtml.="<tr><td colspan='2'><b>Staff</b></td></tr>";
-                        foreach($linkedUser as $linkuserValue){
-                            $userListHtml.="<tr><td>
-                            <span> 
-                                <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
-                                <a href=".route('contacts/attorneys/info', base64_encode($linkuserValue['user_id']))."> ".$linkuserValue['full_name']."</a>
-                            </span>
-                            </td>";
-                            if($linkuserValue['attending'] == "yes") {
-                                $userListHtml .= "<td>Attending</td></tr>";
-                            } else {
-                                $userListHtml .= "<td></td></tr>";
+                        if(count($linkedUser)) {
+                            $userListHtml.="<tr><td colspan='2'><b>Staff</b></td></tr>";
+                            foreach($linkedUser as $linkuserValue){
+                                $userListHtml.="<tr><td>
+                                <span> 
+                                    <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                    <a href=".route('contacts/attorneys/info', base64_encode($linkuserValue['user_id']))."> ".$linkuserValue['full_name']."</a>
+                                </span>
+                                </td>";
+                                if($linkuserValue['attending'] == "yes") {
+                                    $userListHtml .= "<td>Attending</td></tr>";
+                                } else {
+                                    $userListHtml .= "<td></td></tr>";
+                                }
                             }
                         }
-                        $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
-                        foreach($linkedClient as $linkuserValue){
-                            $userListHtml.="<tr><td>
-                            <span> 
-                                <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
-                                <a href=".(($linkuserValue['user_level'] == 4) ? route('contacts/companies/view', $linkuserValue['user_id']) : route('contacts/clients/view', $linkuserValue['user_id']))."> ".$linkuserValue['full_name']."</a>
-                            </span>
-                            </td>";
-                            if($linkuserValue['attending'] == "yes") {
-                                $userListHtml .= "<td>Attending</td></tr>";
-                            } else {
-                                $userListHtml .= "<td></td></tr>";
+                        if(count($linkedClient)) {
+                            $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
+                            foreach($linkedClient as $linkuserValue){
+                                $userListHtml.="<tr><td>
+                                <span> 
+                                    <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                    <a href=".(($linkuserValue['user_level'] == 4) ? route('contacts/companies/view', $linkuserValue['user_id']) : route('contacts/clients/view', $linkuserValue['user_id']))."> ".$linkuserValue['full_name']."</a>
+                                </span>
+                                </td>";
+                                if($linkuserValue['attending'] == "yes") {
+                                    $userListHtml .= "<td>Attending</td></tr>";
+                                } else {
+                                    $userListHtml .= "<td></td></tr>";
+                                }
                             }
                         }
                         $userListHtml .= "</tbody></table>";
@@ -209,7 +213,7 @@
                     <i class="fas fa-pen pr-2  align-middle"></i> 
                 </a>
                 @endcan
-                @can(['case_add_edit','delete_items'])
+                @can(['event_add_edit','delete_items'])
                 <?php 
                 if(empty($item->event->parent_event_id)  && $item->event->is_recurring == "no"){
                     ?>

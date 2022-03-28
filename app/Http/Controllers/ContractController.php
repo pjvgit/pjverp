@@ -10,15 +10,19 @@ use Illuminate\Support\Facades\Hash;
 use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractAccessPermission,App\Firm;
 use App\DeactivatedUser,App\ClientGroup,App\UsersAdditionalInfo,App\CaseClientSelection,App\CaseStaff,App\TempUserSelection,App\UserRole;
 use App\CasePracticeArea,App\CaseStage,App\CaseTaskLinkedStaff;
+use App\EventRecurring;
 use Illuminate\Support\Str;
 use App\Jobs\ProcessPodcast;
 use App\Http\Controllers\CommonController;
 use App\Rules\UniqueEmail;
+use App\Traits\UserCaseSharingTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ContractController extends BaseController
 {
+    use UserCaseSharingTrait;
     public function __construct()
     {
         // $this->middleware("auth");
@@ -249,6 +253,42 @@ class ContractController extends BaseController
             $user->rate_amount=trim(str_replace(",","",$request->default_rate));
         }
         $user->save();
+
+        // Link user with events
+        if(isset($request->sharing_setting_1)) {
+            $this->shareEventToUser($request->case_id, $request->user_id, (isset($request->sharing_setting_2)) ? 'yes' : 'no');
+            /* $eventRecurrings = EventRecurring::whereHas('event', function($query) use($request) {
+                $query->where('case_id', $request->case_id)->where('is_event_private', 'no');
+            })->get();
+            if($eventRecurrings) {
+                foreach($eventRecurrings as $key => $item) {
+                    $decodeStaff = encodeDecodeJson($item->event_linked_staff);
+                    if($decodeStaff->where('user_id', $request->user_id)->where('is_linked', 'no')->first()) {
+                        $newArray = [];
+                        foreach($decodeStaff as $skey => $sitem) {
+                            if($sitem->user_id == $request->user_id) {
+                                $sitem->is_linked = 'yes';
+                            }
+                            $newArray[] = $sitem;
+                        }
+                        $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
+                    } else {
+                        $eventLinkedStaff = [
+                            'event_id' => $item->event_id,
+                            'user_id' => $request->user_id,
+                            'is_linked' => 'yes',
+                            'attending' => "no",
+                            'comment_read_at' => Carbon::now(),
+                            'created_by' => auth()->id(),
+                            'is_read' => (isset($request->sharing_setting_2)) ? 'yes' : 'no',
+                        ];
+                        $decodeStaff->push($eventLinkedStaff);
+                        $item->fill(['event_linked_staff' => encodeDecodeJson($decodeStaff, 'encode')])->save();
+                    }
+                }
+            } */
+        }
+
         return response()->json(['errors'=>'','user_id'=>$user->id]);
         exit;
     }
@@ -1664,6 +1704,7 @@ class ContractController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             CaseStaff::where('case_id',$request->id)->where('user_id',$request->user_delete_contact_id)->delete();
+            $this->eventUnlinkUser($request->id, $request->user_delete_contact_id);
             return response()->json(['errors'=>'','user_id'=>$request->user_delete_contact_id]);
             exit;
         }
@@ -1689,6 +1730,11 @@ class ContractController extends BaseController
                     $CaseStaff->user_id=$user_id; 
                     $CaseStaff->created_by=Auth::user()->id;
                     $CaseStaff->save();
+
+                    // Link user to case events
+                    if(isset($request->user_link_share)) {
+                        $this->shareEventToUser($v, $user_id, 'no');
+                    }
 
                     //Activity tab
                     $datauser=[];

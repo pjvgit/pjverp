@@ -240,7 +240,7 @@
     </div>
     <div class="action-buttons">
         <div>
-            @can('delete_items')
+            @can(['event_add_edit','delete_items'])
             <?php if(empty($event->parent_event_id) && $event->is_recurring == "no"){ ?>
                     <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
                         data-placement="bottom" href="javascript:;"
@@ -261,6 +261,7 @@
                     </a>
             <?php } ?>
             @endcan
+            @can(['case_add_edit','event_add_edit'])
             <?php if(!empty($event->case)){?>
                 <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
                     <button class="btn  btn-outline-primary m-1" type="button" id="button" onclick="loadTimeEntryPopupByCaseWithoutRefresh('{{$event->case->id}}');">
@@ -268,6 +269,7 @@
                     </button>
                 </a>
                 <?php } ?>
+            @endcan
             @can('event_add_edit')
                 <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
                 data-placement="bottom" href="javascript:;"

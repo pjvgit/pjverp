@@ -783,7 +783,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('contacts/clients/addExistingCase', 'ClientdashboardController@addExistingCase');
     Route::post('contacts/clients/loadCaseData', 'ClientdashboardController@loadCaseData');
     Route::post('contacts/clients/saveLinkCase', 'ClientdashboardController@saveLinkCase');
-    Route::post('contacts/clients/saveStaffLinkCase', 'ClientdashboardController@saveStaffLinkCase');
+    // Not in use
+    // Route::post('contacts/clients/saveStaffLinkCase', 'ClientdashboardController@saveStaffLinkCase');
     Route::post('contacts/clients/ClientActivityHistory', 'ClientdashboardController@ClientActivityHistory');
     Route::post('contacts/clients/ClientNotes', 'ClientdashboardController@ClientNotes')->name('contacts/clients/ClientNotes');
     Route::post('contacts/clients/addNotesFromDashboard', 'ClientdashboardController@addNotesFromDashboard')->name('contacts/clients/addNotesFromDashboard');

@@ -394,7 +394,9 @@ $adjustment_token=round(microtime(true) * 1000);
                             <?php } ?>
 
                             <?php if(Route::currentRouteName()=="calendars"){?>
+                                @canany(['event_add_edit', 'event_view'])
                                 @include('case.view.calendar',['CaseMaster'])
+                                @endcanany
                             <?php } ?>
 
                             <?php if(Route::currentRouteName()=="documents"){?>

@@ -10,7 +10,6 @@ use DateInterval;
 use DatePeriod;
 use DateTime;
 use Illuminate\Support\Facades\Log;
-use phpDocumentor\Reflection\Types\Null_;
 
 trait EventTrait {
     /**
