@@ -128,6 +128,7 @@ trait EventTrait {
                         'invite' => 'yes',
                         'is_view' => 'no',
                         'created_by' => $authUserId,
+                        'contact_id' => '',
                     ];
                 }
                 $alreadyAdded[]=$request['LeadInviteClientCheckbox'][$i];
@@ -157,6 +158,7 @@ trait EventTrait {
                         'invite' => 'yes',
                         'is_view' => 'no',
                         'created_by' => $authUserId,
+                        'lead_id' => '',
                     ];
                 }
                 $alreadyAdded[]=$request['ContactInviteClientCheckbox'][$i];

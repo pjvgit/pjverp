@@ -26,6 +26,7 @@ use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit,App\InvoicePayment;
+use App\Event;
 use App\EventRecurring;
 use Exception;
 
@@ -1281,7 +1282,28 @@ class LeadController extends BaseController
                 TaskTimeEntry::where("user_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "user_id" => null]);
 
                 // update all events from lead_id to case_id
-                CaseEvent::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);
+                // CaseEvent::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);
+                $events = Event::where('lead_id', $CaseClientIs->selected_user)->get();
+                if(count($events)) {
+                    $eventRecurring = EventRecurring::whereIn('event_id', $events->pluck('id')->toArray())
+                                ->whereJsonContains('event_linked_contact_lead', ['lead_id' => (string)$CaseClientIs->selected_user])->get();
+                    if(count($eventRecurring)) {
+                        foreach($eventRecurring as $rkey => $ritem) {
+                            $updatedLinkedContact = [];
+                            $linkedContact = encodeDecodeJson($ritem->event_linked_contact_lead);
+                            foreach($linkedContact as $ckey => $citem) {
+                                if($citem->lead_id == $CaseClientIs->selected_user) {
+                                    $citem->contact_id = $CaseClientIs->selected_user;
+                                    $citem->user_type = 'contact';
+                                    $citem->lead_id = '';
+                                }
+                                $updatedLinkedContact[] = $citem;
+                            }
+                            $ritem->fill(['event_linked_contact_lead' => encodeDecodeJson($updatedLinkedContact, 'encode')])->save();
+                        }
+                    }
+                    Event::where('lead_id', $CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);
+                }
 
                 // update all task from lead_id to case_id
                 Task::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);

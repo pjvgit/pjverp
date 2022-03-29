@@ -803,6 +803,7 @@
                         });
                         errotHtml += '</ul></div>';
                         $('#showError').append(errotHtml);
+                        goBack();
                         $('#showError').show();
                         $(".innerLoader").css('display', 'none');
                         $('.submit').removeAttr("disabled");
