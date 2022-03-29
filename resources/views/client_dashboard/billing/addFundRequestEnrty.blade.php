@@ -159,7 +159,9 @@
     .retainer-request-opaque {
         opacity: .2;
     }
-
+    .ui-popup{
+        z-index: 1051 !important;
+    }
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -185,8 +187,13 @@
             allowClear: true,
             dropdownParent: $("#addRequestFund"),
         });
-        $('#addEmailToClient .close, #addEmailToClient .close-email-modal').on('click', function () {
-            $("#contact").val("").trigger('change');
+        $('#addEmailToClient .close-email-modal').on('click', function () {
+            $("#contact").val("").trigger('change').select2('open');
+        });
+        $('#addEmailToClient').on('hidden.bs.modal', function () {
+            setTimeout(function(){ 
+                $("#contact").val('').trigger('change').select2('open');
+            }, 1000);
         });
         afterLoader();
         $("#addRequestForm").validate({
@@ -247,6 +254,7 @@
                 $('.disabledArea').removeClass('retainer-request-opaque');
                 $(".disabledArea :input").prop("disabled", false);
                 $("#addEmailToClient").modal("show");
+                $("#addEmailToClient").addClass('ui-popup');
                 $("#client_id_for_email").val(contactSelectd);
                 return false;
             }
@@ -359,6 +367,7 @@
                 $('.disabledArea').removeClass('retainer-request-opaque');
                 $(".disabledArea :input").prop("disabled", false);
                 $("#addEmailToClient").modal("show");
+                $("#addEmailToClient").addClass('ui-popup');
                 $("#client_id_for_email").val(contactSelectd);
             }else{
                 $.ajax({

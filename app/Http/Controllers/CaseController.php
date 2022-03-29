@@ -302,18 +302,18 @@ class CaseController extends BaseController
                     $CaseClientSelection->save();
                     
                     // Flat fees entry
-                    // if(isset($request->billingMethod)) {
-                    //     if($request->billingMethod == "flat" || $request->billingMethod == "mixed") {
-                    //         FlatFeeEntry::create([
-                    //             'case_id' => $CaseMaster->id,
-                    //             'user_id' => Auth::user()->id,
-                    //             'entry_date' => Carbon::now(),
-                    //             'cost' =>  $request->default_rate ?? 0,
-                    //             'time_entry_billable' => 'yes',
-                    //             'created_by' => Auth::user()->id, 
-                    //         ]);
-                    //     }
-                    // }
+                    if(isset($request->billingMethod)) {
+                        if($request->billingMethod == "flat" || $request->billingMethod == "mixed") {
+                            FlatFeeEntry::create([
+                                'case_id' => $CaseMaster->id,
+                                'user_id' => Auth::user()->id,
+                                'entry_date' => Carbon::now(),
+                                'cost' =>  $request->default_rate ?? 0,
+                                'time_entry_billable' => 'yes',
+                                'created_by' => Auth::user()->id, 
+                            ]);
+                        }
+                    }
 
                     //Activity tab
                     $datauser=[];

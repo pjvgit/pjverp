@@ -118,13 +118,16 @@ class BillingController extends BaseController
             $case = $case->where("case_master.id",$requestData['c']);
         }
         if(isset($requestData['from']) && $requestData['from'] !='' && isset($requestData['to']) && $requestData['to']!=''){
-            $case = $case->whereBetween('task_time_entry.entry_date', [ date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))), date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['to']))))), auth()->user()->user_timezone ?? 'UTC')))]);
+            // $case = $case->whereBetween('task_time_entry.entry_date', [ date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))), date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['to']))))), auth()->user()->user_timezone ?? 'UTC')))]);
+            $case = $case->whereBetween('task_time_entry.entry_date', [ date('Y-m-d',strtotime(trim($requestData['from']))), date('Y-m-d',strtotime(trim($requestData['to'])))]);
         }
         if(isset($requestData['from']) && $requestData['from'] !='' && isset($requestData['to']) && $requestData['to'] ==''){
-            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))));
+            // $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))));
+            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime(trim($requestData['from']))));
         }
         if(isset($requestData['from']) && $requestData['from'] =='' && isset($requestData['to']) && $requestData['to'] !=''){
-            $case = $case->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['to']))))), auth()->user()->user_timezone ?? 'UTC'))));
+            // $case = $case->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['to']))))), auth()->user()->user_timezone ?? 'UTC'))));
+            $case = $case->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime(trim($requestData['to']))));
         }
         
         if(isset($requestData['type']) && $requestData['type']=='own'){
@@ -8158,6 +8161,81 @@ class BillingController extends BaseController
         );
         echo json_encode($json_data);  
     }
+    public function printAccountActivity(Request $request)
+    {
+        
+        $columns = array('id', 'title', 'default_description', 'flat_fees', 'firm_id','id','id','id','id','id',);
+        $requestData= $_REQUEST;
+        
+        $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")
+        ->select('account_activity.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),"users.id as uid");
+        $FetchQuery = $FetchQuery->where("account_activity.firm_id",Auth::User()->firm_name);
+        $FetchQuery = $FetchQuery->where("pay_type","client");
+
+        if(isset($requestData['account']) && $requestData['account']!=''){
+            if($requestData['account']=="trust_account"){
+                $FetchQuery = $FetchQuery->where("from_pay","trust");
+            }else{
+                $FetchQuery = $FetchQuery->where("from_pay", "!=", "trust");
+            }
+        }
+       
+        if(isset($requestData['range']) && $requestData['range']!=''){
+            $cutDate=explode("-",$requestData['range']);
+            $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[0]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[1]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $FetchQuery = $FetchQuery->whereBetween('entry_date', [$startDt,$endDt]);
+            // $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
+        }
+        $FetchQuery = $FetchQuery->orderBy("id","DESC");
+        $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
+        
+        if(isset($request->exportType)){
+            $casesCsvData=[];
+            $Path='';
+            if(count($FetchQuery) > 0){
+                $fileDestination = 'export/'.date('Y-m-d').'/'.Auth::User()->firm_name;
+                $folderPath = public_path($fileDestination);
+
+                File::deleteDirectory($folderPath);
+                if(!is_dir($folderPath)) {
+                    File::makeDirectory($folderPath, $mode = 0777, true, true);
+                }    
+                
+                if(!File::isDirectory($folderPath)){
+                    File::makeDirectory($folderPath, 0777, true, true);    
+                }
+                
+                $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Total|LegalCase ID";
+                foreach($FetchQuery as $k=>$v){
+                    $Contact = json_decode($v->contact);
+                    $Case = json_decode($v->case);
+                    if($v->case_id==null && $v->leadAdditionalInfo != null) {
+                        $case_title = $v->leadAdditionalInfo->potential_case_title ?? ($Contact->name ?? "");
+                    }else{
+                        $case_title = $Case->case_title ?? 'none';
+                    }
+                    $casesCsvData[] = date('m-d-Y', strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($v->entry_date)), auth()->user()->user_timezone ?? 'UTC')))."|".(($v->section=="request") ? "#R-".$v->related : "#".$v->related)."|".($Contact->name ?? '')."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
+                }
+
+                $file_path =  $folderPath.'/account_activities.csv';  
+                $file = fopen($file_path,"w+");
+                foreach ($casesCsvData as $exp_data){
+                //fputs($exp_data, chr(0xEF) . chr(0xBB) . chr(0xBF) );
+                // $exp_data =  mb_convert_encoding($exp_data, "ISO-8859-1", "UFT-8");
+                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
+                }   
+                fclose($file); 
+                $Path.= asset($fileDestination.'/account_activities.csv');
+                return response()->json(['errors'=>'','url'=>$Path,'msg'=>"Building File... it will downloading automaticaly"]);
+            }
+            return response()->json(['errors'=>'','url'=>$Path,'msg'=>"No Records Found..."]);
+            exit;
+        }else{
+            $filename="account_activity".time().'.pdf';
+            return view('billing.account_activity.accountActivityPdf',compact('FetchQuery','requestData'));
+        }
+     }
 
     public function trust_account_activity()
     {
@@ -8303,8 +8381,8 @@ class BillingController extends BaseController
         // exit;
     }
 
-    public function printAccountActivity(Request $request)
-     {
+    public function printAccountActivity_old(Request $request)
+    {
         
         $columns = array('id', 'title', 'default_description', 'flat_fees', 'firm_id','id','id','id','id','id',);
         $requestData= $_REQUEST;
@@ -8979,14 +9057,25 @@ class BillingController extends BaseController
 
                 //  get the flat fee entry
                 $flatFinalTotalBillable=0;   
-                if(in_array($caseClient->billing_method,["flat","mixed"])){                                 
-                    $FlatFeeEntry=FlatFeeEntry::select("id","cost","entry_date");
-                    $FlatFeeEntry=$FlatFeeEntry->where("case_id",$caseVal);
-                    $FlatFeeEntry=$FlatFeeEntry->where("status","unpaid");
+                
+                if(in_array($caseClient->billing_method,["flat","mixed"])){ 
+                    $FlatFeeEntry=FlatFeeEntry::select("flat_fee_entry.*")
+                    ->where("flat_fee_entry.case_id",$caseVal)                    
+                    ->where("flat_fee_entry.invoice_link",NULL)
+                    ->where("flat_fee_entry.status","unpaid")
+                    ->where("flat_fee_entry.remove_from_current_invoice","no")
+                    ->where(function($FlatFeeEntry) use($request){
+                        $FlatFeeEntry->where("flat_fee_entry.token_id","!=",NULL);
+                        $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
+                    });                                
+                    // $FlatFeeEntry=FlatFeeEntry::select("id","cost","entry_date");
+                    // $FlatFeeEntry=$FlatFeeEntry->where("case_id",$caseVal);
+                    // $FlatFeeEntry=$FlatFeeEntry->where("status","unpaid");
                     if(isset($request->batch['start_date']) && isset($request->batch['end_date'])){
                         $FlatFeeEntry = $FlatFeeEntry->whereBetween("entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
                     }
                     $FlatFeeEntry=$FlatFeeEntry->get();
+                    // dd($FlatFeeEntry);
                     if(count($FlatFeeEntry) > 0){
                         foreach($FlatFeeEntry as $k =>$v){
                             $flatFinalTotalBillable += str_replace(",","",number_format($v->cost, 2));
@@ -9080,13 +9169,23 @@ class BillingController extends BaseController
                     }   
 
                     if(in_array($caseClient->billing_method,["flat","mixed"])){                                 
-                        $FlatFeeEntry=FlatFeeEntry::select("id","cost","entry_date");
-                        $FlatFeeEntry=$FlatFeeEntry->where("case_id",$caseVal);
-                        $FlatFeeEntry=$FlatFeeEntry->where("status","unpaid");
-                        if(isset($request->batch['start_date']) && isset($request->batch['end_date'])){
-                            $FlatFeeEntry = $FlatFeeEntry->whereBetween("entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
-                        }
-                        $FlatFeeEntry=$FlatFeeEntry->get();
+                        // $FlatFeeEntry=FlatFeeEntry::select("id","cost","entry_date");
+                        // $FlatFeeEntry=$FlatFeeEntry->where("case_id",$caseVal);
+                        // $FlatFeeEntry=$FlatFeeEntry->where("status","unpaid");
+                        // $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")
+                        // ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+                        // ->where("flat_fee_entry.case_id",$caseVal)                    
+                        // ->where("flat_fee_entry.invoice_link",NULL)
+                        // ->where("flat_fee_entry.status","unpaid")
+                        // ->where("flat_fee_entry.remove_from_current_invoice","no")
+                        // ->where(function($FlatFeeEntry) use($request){
+                        //     $FlatFeeEntry->where("flat_fee_entry.token_id","!=",NULL);
+                        //     $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
+                        // });   
+                        // if(isset($request->batch['start_date']) && isset($request->batch['end_date'])){
+                        //     $FlatFeeEntry = $FlatFeeEntry->whereBetween("entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
+                        // }
+                        // $FlatFeeEntry=$FlatFeeEntry->get();
                         if(count($FlatFeeEntry) > 0){
                             foreach($FlatFeeEntry as $k =>$v){
                                 $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;

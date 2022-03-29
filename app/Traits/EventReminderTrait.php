@@ -39,11 +39,12 @@ trait EventReminderTrait {
         return ['users' => $users, 'attendEvent' => $attendEvent];
     }
 
-    public function getEventLinkedUserPopup($item, $notifyType, $itemEvent) {
+    public function getEventLinkedUserPopup($item, $notifyType, $itemEvent, $itemRecurring) {
         // return $notifyType;
         if($item->reminder_user_type == "attorney" || $item->reminder_user_type == "staff" || $item->reminder_user_type == "paralegal") {
-            $eventLinkedUser = $itemEvent->eventLinkedStaff->pluck('id');
-            // \Log::info('eventLinkedUser > '. $eventLinkedUser);
+            // $eventLinkedUser = $itemEvent->eventLinkedStaff->pluck('id');    
+            $itemEventLinkedStaff = encodeDecodeJson($itemRecurring->event_linked_staff);
+            $eventLinkedUser = $itemEventLinkedStaff->pluck('user_id')->toArray(); 
             if($itemEvent->case) {
                 $caseLinkedUser = $itemEvent->case->caseStaffAll->pluck('user_id');
             }

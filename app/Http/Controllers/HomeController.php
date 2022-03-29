@@ -627,7 +627,7 @@ class HomeController extends BaseController
                     })
                     // ->where('id','390')
                     ->whereJsonContains('event_reminders', ["is_dismiss" => "no"])
-                    ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
+                    ->with('event', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         $userId = auth()->id();
         $events = [];
@@ -636,11 +636,9 @@ class HomeController extends BaseController
 
                 $itemEventReminders = encodeDecodeJson($item->event_reminders);
                 foreach($itemEventReminders as $er => $ev){    
-                // \Log::info($item->event);
-                $users = $this->getEventLinkedUserPopup($ev, "popup", $item->event);
+                $users = $this->getEventLinkedUserPopup($ev, "popup", $item->event, $item);
                 // $users = User::whereId(auth::user()->id)->withoutAppends()->get();
-                if(count($users)) {
-                    
+                if(count($users)) {                    
                     $eventTime = @$item->event->start_date." ".@$item->event->start_time;
                     $currentTime = Carbon::now();
                     $addEvent = false;
@@ -825,6 +823,9 @@ class HomeController extends BaseController
 
         $view = '';
         if(count($events)) {
+            $events = array_unique($events,SORT_REGULAR);
+        }
+        if(count($events)) {
             $view = view("dashboard.popup_notification", ["result" => $events])->render();
         }
         return response()->json(["view" => $view, "appNotificaionCount" => $appNotificaionCount]);
@@ -868,7 +869,7 @@ class HomeController extends BaseController
                 if($eventRecurring) {
                     $eventReminders = [];
                     $reminders = encodeDecodeJson($eventRecurring->event_reminders);
-                    foreach($reminders[0] as $k => $v ){
+                    foreach($reminders as $k => $v ){
                         $eventReminders[$k]=$v;
                         $eventReminders['snooze_time']=$request->snooze_time;
                         $eventReminders['snooze_type']=$request->snooze_type;
