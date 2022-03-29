@@ -757,9 +757,9 @@ if(isset($_GET['view']) &&  $_GET['view']=='week'){
                                     $.map(doc.sol_result, function (r) {
                                         console.log(r);
                                         if(r.sol_satisfied == 'yes') {
-                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
+                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-success" style="width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
                                         } else {
-                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;">SOL</span>'+' ' + r.event_title;
+                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-danger" style="width: 30px;">SOL</span>'+' ' + r.event_title;
                                         }
                                         var tplain = 'SOL'+' -' + r.event_title
                                         events.push({

@@ -70,9 +70,9 @@ class CalendarController extends BaseController
             $CaseEvent = $CaseEvent->whereJsonContains('event_linked_staff', ['is_read' => 'no'])->whereJsonContains('event_linked_staff', ['user_id' => (string)auth()->id()]);
         }
         $CaseEvent = $CaseEvent/* ->whereNull('events.deleted_at') */->with('event', 'event.eventType')->get();
-        $CaseEvent = $CaseEvent->sortBy(function ($product, $key) {
+        /* $CaseEvent = $CaseEvent->sortBy(function ($product, $key) {
             return $product['start_date'].$product['event']['start_time'];
-        })->values();
+        })->values(); */
         $newarray = array();
         $authUser = auth()->user();
         $timezone = $authUser->user_timezone ?? 'UTC';
@@ -98,7 +98,7 @@ class CalendarController extends BaseController
             return $col['st'];
         })->values()->all();
         // print_r($CaseEvent);
-        if(isset($request->searchbysol) && $request->searchbysol=="true"){
+        if(isset($request->searchbysol) && $request->searchbysol=="true" && $request->taskLoad != 'unread'){
             $CaseEventSOL = Event::leftJoin('case_master','case_master.id','=','events.case_id')
             ->select("case_master.case_unique_number as case_unique_number","case_master.sol_satisfied","events.*")
             ->where('events.created_by', $authUser->id);
@@ -108,16 +108,12 @@ class CalendarController extends BaseController
         }else{
             $CaseEventSOL='';
         }
-        if(isset($request->searchbymytask) && $request->searchbymytask=="true"){
+        if(isset($request->searchbymytask) && $request->searchbymytask=="true" && $request->taskLoad != 'unread'){
             $Task = Task::whereBetween('task_due_on', [$request->start, $request->end])
                     ->whereHas('taskLinkedStaff', function($query) use($authUser) {
                         $query->where('users.id', $authUser->id);
                     });
                     // ->leftJoin('task_linked_staff','task.id','=','task_linked_staff.task_id');
-            
-            /* if($request->taskLoad == 'unread') {
-                $Task = $Task->where('task_linked_staff.is_read', 'no')->where('user_id', $authUser->id);
-            } */
             $Task=$Task->where('task_due_on',"!=",'9999-12-30');
             $Task = $Task->where("status", "0")->whereNotNull("task_due_on")/* ->select('task.*', 'task_linked_staff.is_read') */;
             $Task=$Task->whereNull('task.deleted_at')->get();
@@ -218,7 +214,7 @@ class CalendarController extends BaseController
             }
         }
         $solEvents = [];
-        if(isset($request->searchbysol) && $request->searchbysol=="true") {
+        if(isset($request->searchbysol) && $request->searchbysol=="true" && $request->taskLoad != 'unread') {
             $solEvents = Event::where('is_SOL','yes')->leftJoin('case_master','case_master.id','=','events.case_id')
                 ->where('events.created_by', $authUserId)
                 // ->where('case_master.sol_satisfied', 'no')
@@ -248,7 +244,7 @@ class CalendarController extends BaseController
             }
         }
         $tasks = [];
-        if(isset($request->searchbymytask) && $request->searchbymytask=="true"){
+        if(isset($request->searchbymytask) && $request->searchbymytask=="true" && $request->taskLoad != 'unread'){
             $tasks = Task::whereBetween('task_due_on', [$request->start, $request->end])
                     ->whereHas('taskLinkedStaff', function($query) use($authUserId) {
                         $query->where('users.id', $authUserId);
@@ -278,7 +274,7 @@ class CalendarController extends BaseController
             }
         }
         $finalData = collect($finalDataList)->sortBy(function($col) {
-            return $col->start_date;
+            return $col->start_date_time;
         })->values()->all();
         return view('calendar.partials.load_agenda_view', ["events" => $finalData])->render();          
         exit;    

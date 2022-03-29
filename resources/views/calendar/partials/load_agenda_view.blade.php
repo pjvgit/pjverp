@@ -166,11 +166,11 @@
                     <td>all day</td>
                     <td>
                         @if($item->sol_satisfied == "yes")
-                            <span class="mr-2 badge badge-success">SOL</span>
+                            <span class="mr-2 badge badge-success"><i class="fa fa-check" aria-hidden="true"></i> SOL</span>
                         @else 
                             <span class="mr-2 badge badge-danger">SOL</span>
                         @endif
-                        <i class="fa-solid fa-gavel mr-1"></i>
+                        <i class="fa fa-gavel mr-1" aria-hidden="true"></i>
                         {{ $item->event_title }}
                         <br><p class="agenda-sol-satisfied">{{ ($item->sol_satisfied == "yes") ? 'Satisfied' : 'Unsatisfied' }}</p>
                     </td>

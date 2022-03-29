@@ -1025,7 +1025,10 @@ class CaseController extends BaseController
                      $upcomingTaskList=Task::select('*')->where('case_id',$case_id)->where('status',"0")->where("task_due_on","<=",date("Y-m-d", strtotime("+30 days")))->where("task_due_on",">=",date("Y-m-d"))->get();
 
                       //In Next 365  days upcoming event counter 
-                    $eventCountNextDays=CaseEvent::select('id')->where('case_id',$case_id)->where("start_date","<=",date("Y-m-d", strtotime("+365 days")))->count();
+                    $eventCountNextDays = EventRecurring::whereHas('event', function($query) use($case_id) {
+                                        $query->where('case_id',$case_id);
+                                    })->whereDate("start_date","<=",date("Y-m-d", strtotime("+365 days")))
+                                    /* ->whereJsonContains('event_linked_staff', ['user_id' => (string)auth()->id()]) */->count();
 
                      //Upcoming event list 
                      $upcomingEventList = EventRecurring::whereHas('event', function($query) use($case_id) {
@@ -2205,7 +2208,8 @@ class CaseController extends BaseController
         // return $request->all();
         if(!isset($request->no_case_link)){
             $validator = \Validator::make($request->all(), [
-                'linked_staff_checked_share' => 'required_if:share_checkbox_nonlinked,=,null'
+                // 'linked_staff_checked_share' => 'required_if:share_checkbox_nonlinked,=,null'
+                'linked_staff_checked_share' => (!isset($request->share_checkbox_nonlinked)) ? 'required' : 'nullable'
             ]);
             if($validator->fails())
             {
