@@ -95,7 +95,7 @@ class NotificationEmailCommand extends Command
                 }               
             }
             if($val->caseFirm->parent_user_id == $val->createdBy){
-                $firmUserDetails = User::select("first_name","last_name","email","id","user_level","user_title","default_rate","default_color")
+                $firmUserDetails = User::select("first_name","last_name","email","id","user_level","user_title","default_rate","default_color","user_timezone")
                         ->where("firm_name",$val->caseFirm->id)
                         ->where("user_level","3")
                         ->where("user_status","1")
