@@ -59,7 +59,7 @@
                         <optgroup label="Court Cases">
                             <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
                             <option uType="case" <?php echo ($request->case_or_lead == $Caseval->id) ? 'selected' : ''; ?>
-                                value="{{$Caseval->id}}">{{substr($Caseval->case_title,0,100)}} <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> <?php if($Caseval->case_close_date!=NULL){  echo "[Closed]"; }?> </option>
+                                value="{{$Caseval->id}}">{{substr($Caseval->case_title,0,100)}} <?php if($Caseval->caseNumber!=''){  echo "(".$Caseval->caseNumber.")"; }?> <?php if($Caseval->case_close_date!=NULL){  echo "[Closed]"; }?> </option>
                             <?php } ?>
                         </optgroup>
                         <optgroup label="Leads">
@@ -164,102 +164,99 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @if($CaseEventSOL)
-                        @foreach ($CaseEventSOL as $key => $value)
-                        <tr class="mb-1 list-event-row">
-                            <td style="width: 80px;">{{$value->start_date}}</td>
-                            <td style="width: 150px;">All days</td>
-                            <td class="event-text-format" style="width: 300px;">
-                                <div><div class="event-text-format agenda-title">
-                                    <span class="mr-1 badge badge-secondary">Statute of Limitation</span>
-                                    <b class="word-break">{{$value->event_title}}</b><br>
-                                    {{ ($value->sol_satisfied == 'yes') ? 'Satisfied': 'Unsatisfied'}}
-                                    </div></div>
-                            </td>
-                            <td style="width: 200px;">{{ $value->event_title }} ({{$value->case_number}})</td>
-                            <td style="width: 500px;"></td>
-                        </tr>
-                        @endforeach
-                        @endif
-                        @if($Task)
-                        @foreach ($Task as $key => $value)                        
-                        <tr class="mb-1 list-event-row">
-                            <td style="width: 80px;">{{$value->task_due_on}}</td>
-                            <td style="width: 150px;">All days</td>
-                            <td class="event-text-format" style="width: 300px;">
-                                <div><div class="event-text-format agenda-title">
-                                    <span style="background-color: rgb(202, 66, 69);" class="badge badge-secondary">TASK</span>
-                                    <b class="word-break">{{$value->task_title}}</b><br>
-                                    {{ ($value->status == 1 ) ? 'Complete' : 'Incomplete'}}<br>
-                                    Priority: <?php if($value->task_priority == "1"){?> Low <?php }else if($value->task_priority == "2"){?> Medium <?php }else if($value->task_priority == "3") {?> High <?php }else{ ?> No Priority <?php } ?>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="width: 200px;">{{ ($value->case_id != '') ? $value->case_title  :  $value->first_name.' '.$value->last_name }}</td>
-                            <td style="width: 500px;"></td>
-                        </tr>
-                        @endforeach
-                        @endif
-                        @foreach ($newarray as $key => $value)
-                        <tr class="mb-1 list-event-row">
-                            <td style="width: 80px;">{{$value->start_date}}</td>
-                            <td style="width: 150px;"> @if($value->is_all_day == "no") {{ $value->start_time }} - {{ $value->end_time }} @else All Day @endif</td>
-                            <td class="event-text-format" style="width: 300px;">
-                                <div><div class="event-text-format agenda-title">
-                                    <b class="word-break">{{$value->event_title}}</b><br>
-                                    </div></div>
-                            </td>
-                            <td style="width: 200px;">{{ $value->caseTitle }} {{ ($value->caseNumber != null) ? '('.$value->caseNumber.')' : '' }}</td>
-                            <td style="width: 500px;">
-                                <?php $contactName = explode(",",$value->contactName); ?>
-                                <div>
-                                    @if($value->contactName != '' && count($contactName) > 0)
-                                    <div><b>Clients &amp; Contacts</b>
-                                    @foreach($contactName as $k => $v)
-                                    <div class="print-detail-header">
-                                        <div class="each-print-sharing-user d-flex flex-nowrap mb-1">
-                                            <div class="name-tag d-flex mr-3">
-                                                <div class="user-circle mr-1 d-inline-block" style="width: 15px; height: 15px; background-color: gray;"></div>
-                                                <div class="first-last-name-container text-truncate">{{ ucfirst($v)}}</div>
+                        @foreach ($finalData as $key => $value)
+                            @if($value->event_data_type == 'sol')
+                                <tr class="mb-1 list-event-row">
+                                    <td style="width: 80px;">{{$value->start_date}}</td>
+                                    <td style="width: 150px;">All days</td>
+                                    <td class="event-text-format" style="width: 300px;">
+                                        <div><div class="event-text-format agenda-title">
+                                            <span class="mr-1 badge badge-secondary">Statute of Limitation</span>
+                                            <b class="word-break">{{$value->event_title}}</b><br>
+                                            {{ ($value->sol_satisfied == 'yes') ? 'Satisfied': 'Unsatisfied'}}
+                                            </div></div>
+                                    </td>
+                                    <td style="width: 200px;">{{ $value->event_title }} ({{$value->caseNumber}})</td>
+                                    <td style="width: 500px;"></td>
+                                </tr>
+                            @elseif($value->event_data_type == 'task')
+                                <tr class="mb-1 list-event-row">
+                                    <td style="width: 80px;">{{$value->start_date}}</td>
+                                    <td style="width: 150px;">All days</td>
+                                    <td class="event-text-format" style="width: 300px;">
+                                        <div><div class="event-text-format agenda-title">
+                                            <span style="background-color: rgb(202, 66, 69);" class="badge badge-secondary">TASK</span>
+                                            <b class="word-break">{{$value->task_title}}</b><br>
+                                            {{ ($value->status == 1 ) ? 'Complete' : 'Incomplete'}}<br>
+                                            Priority: <?php if($value->task_priority == "1"){?> Low <?php }else if($value->task_priority == "2"){?> Medium <?php }else if($value->task_priority == "3") {?> High <?php }else{ ?> No Priority <?php } ?>
                                             </div>
                                         </div>
-                                    </div>
-                                    @endforeach
-                                    </div>
-                                    @endif
-                                    
-                                    @if(count($value->staffName) > 0)
-                                    <div><b>Staff</b>                                   
-                                    <div class="print-detail-header">
-                                    @foreach($value->staffName as $k => $v)
-                                        <div class="each-print-sharing-user d-flex flex-nowrap mb-1">
-                                            <div class="name-tag d-flex mr-3">
-                                                <?php $user = getUserDetail($v->user_id); ?>  
-                                                <div class="user-circle mr-1 d-inline-block" style="width: 15px; height: 15px; background-color: {{ $user->default_color ?? 'rgb(21, 157, 255)' }};"></div>
-                                                <div class="first-last-name-container text-truncate">{{ ucfirst($user->full_name ?? '')}}</div>
-                                                <div><b style="color: rgb(99, 108, 114); font-size: 10px;">{{ ($v->attending == 'yes') ? 'Attending' : '' }}</b></div>
+                                    </td>
+                                    <td style="width: 200px;">{{ ($value->case_id != '') ? $value->case_title  :  $value->first_name.' '.$value->last_name }}</td>
+                                    <td style="width: 500px;"></td>
+                                </tr>
+                            @else
+                                <tr class="mb-1 list-event-row">
+                                    <td style="width: 80px;">{{$value->start_date}}</td>
+                                    <td style="width: 150px;"> @if($value->is_all_day == "no") {{ $value->start_time }} - {{ $value->end_time }} @else All Day @endif</td>
+                                    <td class="event-text-format" style="width: 300px;">
+                                        <div><div class="event-text-format agenda-title">
+                                            <b class="word-break">{{$value->event_title}}</b><br>
+                                            </div></div>
+                                    </td>
+                                    <td style="width: 200px;">{{ $value->caseTitle }} {{ ($value->caseNumber != null) ? '('.$value->caseNumber.')' : '' }}</td>
+                                    <td style="width: 500px;">
+                                        <?php $contactName = explode(",",$value->contactName); ?>
+                                        <div>
+                                            @if(count($value->contactName) > 0)
+                                            <div><b>Clients &amp; Contacts</b>                                   
+                                            <div class="print-detail-header">
+                                                @foreach($value->contactName as $k => $v)
+                                                    <div class="each-print-sharing-user d-flex flex-nowrap mb-1">
+                                                        <div class="name-tag d-flex mr-3">
+                                                            <?php $user = ($v->user_type == 'lead') ? getUserDetail($v->lead_id) : getUserDetail($v->contact_id); ?>  
+                                                            <div class="user-circle mr-1 d-inline-block" style="width: 15px; height: 15px; background-color: grey;"></div>
+                                                            <div class="first-last-name-container text-truncate">{{ ucfirst($user->full_name ?? '')}}</div>
+                                                            <div><b style="color: rgb(99, 108, 114); font-size: 10px;">{{ ($v->attending == 'yes') ? 'Attending' : '' }}</b></div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                        </div>
-                                    @endforeach
-                                    </div>
-                                    </div>
+                                            @endif
+                                            
+                                            @if(count($value->staffName) > 0)
+                                            <div><b>Staff</b>                                   
+                                            <div class="print-detail-header">
+                                            @foreach($value->staffName as $k => $v)
+                                                <div class="each-print-sharing-user d-flex flex-nowrap mb-1">
+                                                    <div class="name-tag d-flex mr-3">
+                                                        <?php $user = getUserDetail($v->user_id); ?>  
+                                                        <div class="user-circle mr-1 d-inline-block" style="width: 15px; height: 15px; background-color: {{ $user->default_color ?? 'rgb(21, 157, 255)' }};"></div>
+                                                        <div class="first-last-name-container text-truncate">{{ ucfirst($user->full_name ?? '')}}</div>
+                                                        <div><b style="color: rgb(99, 108, 114); font-size: 10px;">{{ ($v->attending == 'yes') ? 'Attending' : '' }}</b></div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            </div>
+                                            </div>
 
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                        <?php if($request->show_description_checkbox == 'on' && $value->event_description != null){ ?> 
-                        <tr class="mb-1 list-event-row">
-                            <td style="width: 80px;"></td>
-                            <td style="width: 150px;"></td>
-                            <td class="event-text-format" colspan="3" style="width: 800px;">
-                                <div><div class="event-text-format agenda-title">
-                                    <b class="word-break">Description: </b></br>
-                                    {{$value->event_description}}
-                                    </div></div>
-                            </td>
-                        </tr>
-                        <?php } ?>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php if($request->show_description_checkbox == 'on' && $value->event_description != null){ ?> 
+                                <tr class="mb-1 list-event-row">
+                                    <td style="width: 80px;"></td>
+                                    <td style="width: 150px;"></td>
+                                    <td class="event-text-format" colspan="3" style="width: 800px;">
+                                        <div><div class="event-text-format agenda-title">
+                                            <b class="word-break">Description: </b></br>
+                                            {{$value->event_description}}
+                                            </div></div>
+                                    </td>
+                                </tr>
+                                <?php } ?>
+                            @endif
                         @endforeach
 
                         </tbody>

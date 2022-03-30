@@ -206,7 +206,10 @@
                                         
                                     </div>
                                     <div class="row ">
-                                        <div class="col-12">
+                                        <div class="col-md-9 mt-3">
+                                            <div class="loader-bubble loader-bubble-primary innerLoader float-right" id="commentLoader"></div>
+                                        </div>
+                                        <div class="col-md-3">
                                             <button type="submit" class="btn btn-primary mt-3 mb-3  float-right">Post Comment</button>
                                         </div>
                                     </div>
@@ -343,7 +346,7 @@ body >
         afterLoader();
 
         $('#addComment').submit(function (e) {
-            beforeLoader();
+            $("#commentLoader").css('display', 'block');
 
             e.preventDefault();
             var delta =quill.root.innerHTML;
@@ -352,8 +355,7 @@ body >
                     positionClass: "toast-top-full-width",
                     containerId: "toast-top-full-width"
                 })
-                afterLoader();
-
+                $("#commentLoader").css('display', 'none');
             }else{
                 var dataString = $("#addComment").serialize();
                 $.ajax({
@@ -362,9 +364,9 @@ body >
                     data: dataString + '&delta=' + delta,
                     success: function (res) {
                         $(this).find(":submit").prop("disabled", true);
-                        $("#innerLoader").css('display', 'block');
+                        $("#commentLoader").css('display', 'block');
                         if (res.errors != '') {
-                            afterLoader();
+                            $("#commentLoader").css('display', 'none');
 
                             return false;
                         } else {
@@ -374,7 +376,7 @@ body >
                             });
                             loadCommentHistory({{$event->id}}, {{$eventRecurring->id}})
                             quill.root.innerHTML='';
-                            afterLoader();
+                            $("#commentLoader").css('display', 'none');
 
                         }
                     }
