@@ -185,6 +185,7 @@
         if($(this).is(":checked")){
             $("#court_case_user_link_share_read").removeAttr('disabled');
         }else{
+            $("#court_case_user_link_share_read").prop("checked", false);
             $("#court_case_user_link_share_read").attr('disabled','disabled');
         }
     });

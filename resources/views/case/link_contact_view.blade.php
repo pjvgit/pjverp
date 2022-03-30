@@ -77,7 +77,14 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-      
+      $("#court_case_user_link_share").on("click", function() {
+          if($(this).is(":checked")) {
+            $("#court_case_user_link_share_read").removeAttr("disabled");
+          } else {
+            $("#court_case_user_link_share_read").prop("checked", false);
+            $("#court_case_user_link_share_read").attr("disabled", true);
+          }
+      })
   <?php if($isExists>0){?>
       $("#submit_with_user").attr("disabled", true);
     <?php }else{ ?>

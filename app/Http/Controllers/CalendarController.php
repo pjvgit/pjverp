@@ -1592,21 +1592,12 @@ class CalendarController extends BaseController
             $eventData["caseTitle"] = ($event->case) ? $event->case->case_title : '';
             $eventData["caseNumber"] = ($event->case) ? $event->case->case_number : '';
             $decodeStaff = encodeDecodeJson($v->event_linked_staff);
-            /* if(count($decodeStaff) > 0){
-                $staffName = $caseAttend = [];
-                foreach($decodeStaff as $i => $j){
-                    $caseAttend[$i] = ($j->attending =='yes') ? $j :'';            
-                    $staffName[$i] = getUserDetail($j->user_id)->full_name ?? '';
-                }
-                $staffName = implode(",",$staffName);
-            } */
-            // $eventData["staffName"] = $staffName ?? '';
             $eventData["staffName"] = $decodeStaff;
             $decodeContact = encodeDecodeJson($v->event_linked_contact_lead);
             if(count($decodeContact) > 0){
                 $contactName = [];
                 foreach($decodeContact as $i => $j){
-                    $contactName[$i] = getUserDetail($j->contact_id)->full_name ?? '';
+                    $contactName[$i] = ($j->contact_id) ? @getUserDetail($j->contact_id)->full_name ?? '' : '';
                 }
                 $contactName = implode(",",$contactName);
             }
