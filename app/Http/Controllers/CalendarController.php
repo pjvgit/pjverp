@@ -1545,7 +1545,7 @@ class CalendarController extends BaseController
             return $product['start_date'].$product['event']['start_time'];
         })->values();
 
-        $newarray = array();
+        $finalDataList = array();
         /* foreach($CaseEvent as $k=>$v){
             if($v->event_type!=""){
             $typeEventText =  DB::table("event_type")->select('title','color_code')->where('status',"1")->where('id',$v->event_type)->first();
@@ -1577,6 +1577,8 @@ class CalendarController extends BaseController
 
         foreach($CaseEvent as $k=>$v){
             $event = $v->event;
+            
+            $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : convertUTCToUserTime($v->start_date.' 00:00:00', $timezone);
             $eventData = [];
             $eventData["event_id"] = $event->id ?? Null;
             $eventData["event_recurring_id"] = $v->id;
@@ -1588,32 +1590,34 @@ class CalendarController extends BaseController
             $eventData["start_time"] = date('h:ia', strtotime($startDateTime));
             $eventData["end_date"] = date('m/d/Y', strtotime($endDateTime));
             $eventData["end_time"] = date('h:ia', strtotime($endDateTime));
+            $eventData["start_date_time"] = $startDateTime;
             $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->color_code : "";
             $eventData["caseTitle"] = ($event->case) ? $event->case->case_title : '';
             $eventData["caseNumber"] = ($event->case) ? $event->case->case_number : '';
             $decodeStaff = encodeDecodeJson($v->event_linked_staff);
             $eventData["staffName"] = $decodeStaff;
             $decodeContact = encodeDecodeJson($v->event_linked_contact_lead);
-            if(count($decodeContact) > 0){
+            /* if(count($decodeContact) > 0){
                 $contactName = [];
                 foreach($decodeContact as $i => $j){
                     $contactName[$i] = ($j->contact_id) ? @getUserDetail($j->contact_id)->full_name ?? '' : '';
                 }
                 $contactName = implode(",",$contactName);
-            }
-            $eventData["contactName"] = $contactName ?? '';
-            // $eventData["contactName"] = $decodeContact;
+            } */
+            // $eventData["contactName"] = $contactName ?? '';
+            $eventData["contactName"] = $decodeContact;
             $eventData["is_all_day"] = $event->is_full_day;
             $eventData["is_read"] = $v->is_read;
+            $eventData['event_data_type'] = 'event';
 
-            $newarray[] = (object)$eventData;
+            $finalDataList[] = (object)$eventData;
         }
         /* $newarray = collect($newarray)->sortBy(function($col) {
             return $col['start_date'].' '.$col['start_time'];
         })->values()->all(); */
         // return $newarray;
         // print_r($CaseEvent);
-        if(isset($request->show_sol_checkbox) && $request->show_sol_checkbox=="on"){
+        /* if(isset($request->show_sol_checkbox) && $request->show_sol_checkbox=="on"){
             $CaseEventSOL = CaseEvent::leftJoin('case_master','case_master.id','=','case_events.case_id')
             ->select("case_master.case_number","case_master.sol_satisfied","case_events.*")
             ->where('case_events.created_by',Auth::User()->id);
@@ -1633,12 +1637,74 @@ class CalendarController extends BaseController
             $Task=$Task->whereNull('task.deleted_at')->get();
         }else{
             $Task='';
+        } */
+
+        if(isset($request->show_sol_checkbox) && $request->show_sol_checkbox=="on") {
+            $solEvents = Event::where('is_SOL','yes')->leftJoin('case_master','case_master.id','=','events.case_id')
+                ->where('events.created_by', $authUser->id)
+                // ->where('case_master.sol_satisfied', 'no')
+                ->whereBetween('start_date', [convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start)))), $timezone), convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end)))), $timezone)]);
+            if($request->case_id != "") {
+                $solEvents = $solEvents->where('case_id',$request->case_id);
+            }
+            $solEvents = $solEvents->select("case_master.case_unique_number as case_unique_number","case_master.sol_satisfied","case_master.case_title","events.*")
+                ->whereNull('events.deleted_at')->get();
+            if(count($solEvents)) {
+                foreach($solEvents as $key => $item) {
+                    $finalDataList[] = (object)[
+                        'event_id' => $item->id,
+                        'event_title' => $item->event_title,
+                        "start_date" => $item->start_date,
+                        "start_date_time" => $item->start_date,
+                        "is_SOL" => $item->is_SOL,
+                        "case_id" => $item->case_id,
+                        "case_title" => $item->case_title ?? "",
+                        "caseNumber" => $item->case_number ?? "",
+                        "sol_satisfied" => $item->sol_satisfied,
+                        'created_by' => $item->created_by,
+                        'event_data_type' => 'sol',
+                        'is_read' => 'yes',
+                    ];
+                }
+            }
         }
+        if(isset($request->show_task_checkbox) && $request->show_task_checkbox=="on") {
+            $tasks = Task::whereBetween('task_due_on', [convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start)))), $timezone), convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end)))), $timezone)])
+                    ->whereHas('taskLinkedStaff', function($query) use($authUser) {
+                        $query->where('users.id', $authUser->id);
+                    })->where('task_due_on',"!=",'9999-12-30')
+                    ->where("status", "0")->whereNotNull("task_due_on");
+            if($request->case_id != "") {
+                $tasks = $tasks->where('case_id',$request->case_id);
+            }
+            $tasks = $tasks->whereNull('deleted_at')->with('case')->get();
+            if(count($tasks)) {
+                foreach($tasks as $key => $item) {
+                    $finalDataList[] = (object)[
+                        'task_id' => $item->id,
+                        'task_title' => $item->task_title,
+                        "start_date" => $item->task_due_on,
+                        "start_date_time" => $item->task_due_on,
+                        "task_priority" => $item->task_priority,
+                        "case_id" => $item->case_id,
+                        "case_title" => $item->case->case_title ?? "",
+                        "caseNumber" => $item->case->case_number ?? "",
+                        "status" => ($item->status == '1') ? 'Completed' : 'Incomplete',
+                        'created_by' => $item->created_by,
+                        'event_data_type' => 'task',
+                        'is_read' => 'yes',
+                    ];
+                }
+            }
+        }
+        $finalData = collect($finalDataList)->sortBy(function($col) {
+            return $col->start_date_time;
+        })->values()->all();
 
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
         $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
-        return view('calendar.print', compact('newarray','CaseEventSOL','Task','caseLeadList','CaseMasterData','allEventType','request'));
+        return view('calendar.print', compact('finalData'/* ,'CaseEventSOL','Task' */,'caseLeadList','CaseMasterData','allEventType','request'));
     }
 }
   

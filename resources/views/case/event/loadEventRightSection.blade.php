@@ -9,6 +9,11 @@
                 <td>Attend </td>
             </tr>
             <tr>
+                @php
+                    $enabledClientPortalUser = $caseCllientSelection->whereIn('id', $caseLinkeSavedInviteContact)->where('client_portal_enable', '1')->pluck('id')->toArray();
+                    $enabledClientPortalUserAttending = $caseCllientSelection->whereIn('id', $caseLinkeSavedAttendingContact)->where('client_portal_enable', '1')->pluck('id')->toArray();
+                    $linkedUserPortalDisabled = $caseCllientSelection->whereIn('id', $caseLinkeSavedInviteContact)->where('client_portal_enable', '0')->pluck('id')->toArray();
+                @endphp
                 <td><b>Select All</b></td>
                 <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" class="load-default-reminder-all" <?php if(count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
                 <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>></td>
@@ -28,10 +33,15 @@
                         data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' 
                         data-html="true" data-original-title="" style="display: none;"></i>
                     <?php } ?>
+                    <?php if(in_array($val->id, $linkedUserPortalDisabled)){?> 
+                    <i class="tooltip-alert" id="war_popover_{{ $val->id }}" data-toggle="popover"  data-placement= "bottom" data-trigger="hover"  title="" 
+                        data-content='Client Portal must be enabled for this user' 
+                        data-html="true" data-original-title=""></i>
+                    <?php } ?>
                 </td>
                 <td>
                     <label class="mb-0 loadEventRightSection">
-                        <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
+                        <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$enabledClientPortalUser)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
                         onclick="loadGrantAccessModal({{$val->id}});" data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox"
                         class="lead_client_share_all_users client-login-not-enabled handler-attached load-default-reminder">
                     </label>
@@ -39,7 +49,7 @@
                 <td>
                     <label class="mb-0">
                         <input {{ (in_array($val->id,$caseLinkeSavedInviteContact)) ? "" : "disabled" }} class="lead_client_attend_all_users {{ ($val->client_portal_enable == '0') ? 'not-enable-portal' : '' }}" id="attend_user_{{$val->id}}" name="ContactAttendClientCheckbox[]" 
-                        <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" 
+                        <?php if(in_array($val->id,$enabledClientPortalUserAttending)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" 
                         type="checkbox">
                     </label>
                 </td>

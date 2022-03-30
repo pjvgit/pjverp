@@ -249,8 +249,11 @@ body >
                                             
                                         </div>
                                         <div class="row ">
-                                            <div class="col-12">
-                                                <button type="submit" class="btn btn-primary mt-3 mb-3  float-right">Post Comment</button>
+                                            <div class="col-md-9 mt-3">
+                                                <div class="loader-bubble loader-bubble-primary innerLoader float-right" id="innerLoader"></div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="submit" class="btn btn-primary mt-3 mb-3 float-right">Post Comment</button>
                                             </div>
                                         </div>
                                     </form>
@@ -402,6 +405,16 @@ function loadReminderHistory(event_id, event_recurring_id) {
 function toggelComment(){
     $("#linkArea").hide();
     $("#editorArea").show();
+}
+
+function beforeLoader(){
+    $(".innerLoader").css('display', 'block');
+    $('.submit').prop("disabled", true);
+}
+
+function afterLoader(){
+    $(".innerLoader").css('display', 'none');
+    $('.submit').removeAttr("disabled");        
 }
 </script>
 @endsection

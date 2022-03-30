@@ -29,7 +29,7 @@
           </td>
         </tr>
         <?php }?>
-        <?php if($getUserInfo['client_portal_enable']==0){
+        <?php if($getUserInfo->user_level == '2' && $getUserInfo['client_portal_enable']==0){
           ?>
           <tr>
             <th style="border-top: 1px solid #cccccc;" class="pr-3">Case Sharing</th>
@@ -41,6 +41,27 @@
           </tr>
         <?php
         }else{?>
+		@if(count($clientList))
+			@if($clientList->where("client_portal_enable", '1')->first())
+			<tr>
+				<th style="border-top: 1px solid #cccccc;">Case Sharing</th>
+				<td style=" border-top: 1px solid #cccccc;padding-top: 12px !important;">
+					<div id="share_link">
+
+					<label id="court_case_user_link_share_label">
+						<input type="checkbox" name="user_link_share" id="court_case_user_link_share">
+						Share all existing case events and documents with selected contacts
+					</label>
+					<br>
+					<label id="court_case_user_link_share_read_label" style="color: gray;">
+						<input type="checkbox" name="user_link_share_read" id="court_case_user_link_share_read" disabled="">
+						Automatically mark all items as read
+					</label>
+					</div>
+				</td>
+			</tr>
+			@endif
+		@else
         <tr>
           <th style="border-top: 1px solid #cccccc;">Case Sharing</th>
           <td style=" border-top: 1px solid #cccccc;padding-top: 12px !important;">
@@ -58,6 +79,7 @@
             </div>
           </td>
         </tr>
+		@endif
         <?php } ?>
   </tbody>
 </table>

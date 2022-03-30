@@ -1720,7 +1720,7 @@ class CaseController extends BaseController
         $clientList = [];
         if(!empty($getUserInfo) && $getUserInfo['user_level']=="4" ){
             $clientList = UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')
-            ->select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'),"users.id","user_level")->where("users.user_level","2");
+            ->select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'),"users.id","user_level","client_portal_enable")->where("users.user_level","2");
             $clientList = $clientList->where("parent_user",Auth::user()->id);
             $clientList = $clientList->whereRaw("find_in_set($id,`multiple_compnay_id`)");
             $clientList = $clientList->get();
@@ -1788,7 +1788,16 @@ class CaseController extends BaseController
             }            
             // Link user to events
             if(isset($request->user_link_share)) {
-                $this->shareEventToClient($request->case_id, $request->user_type, (isset($request->user_link_share_read)) ? 'yes' : 'no');
+                $user = User::whereId($request->user_type)->first();
+                if($user && $user->user_level == 4) {
+                    if(count($request->client_links)) {
+                        foreach($request->client_links as $item) {
+                            $this->shareEventToClient($request->case_id, $item, (isset($request->user_link_share_read)) ? 'yes' : 'no');
+                        }
+                    }
+                } else {
+                    $this->shareEventToClient($request->case_id, $request->user_type, (isset($request->user_link_share_read)) ? 'yes' : 'no');
+                }
             }
 
             session(['popup_success' => 'Your contact has been added']);
@@ -4146,7 +4155,7 @@ class CaseController extends BaseController
         $event_recurring_id = $request->event_recurring_id;
         $eventRecurring = EventRecurring::where("id", $event_recurring_id)->where("event_id", $event_id)->first();
         if($eventRecurring) {
-            $eventReminder = encodeDecodeJson($eventRecurring->event_reminders);
+            $eventReminder = encodeDecodeJson($eventRecurring->event_reminders)->where('created_by', auth()->id());
             return view('case.event.loadReminderPopupIndex',compact('event_id', 'event_recurring_id', 'eventReminder'));     
         } else {
             return response()->json(["errors" => "Record not found"]);
@@ -4240,7 +4249,7 @@ class CaseController extends BaseController
         exit; */
         $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->first();
         if($eventRecurring) {
-            $eventReminder = encodeDecodeJson($eventRecurring->event_reminders);
+            $eventReminder = encodeDecodeJson($eventRecurring->event_reminders)->where('created_by', auth()->id());
             return view('case.event.loadReminderHistory', compact( 'eventReminder'));  
         } else {
             return response()->json(["errors" => "Record not found"]);
