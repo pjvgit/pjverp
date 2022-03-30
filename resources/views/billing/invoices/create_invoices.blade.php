@@ -1217,8 +1217,7 @@ var start = 0;
                 var contactGroup = i.split('_');
 
                 if(contactGroup[0] == 'No Billing Contact'){
-                    resultHtml +='<tr class="group" id="sr_'+contactGroup[1]+'"><td colspan="15"><a class="name" href="' + baseUrl +
-                    '/contacts/clients/'+contactGroup[1]+'">'+contactGroup[0]+'</a></td></tr>';
+                    resultHtml +='<tr class="group" id="sr_'+contactGroup[1]+'"><td colspan="15">'+contactGroup[0]+'</td></tr>';
                 }else{
                     resultHtml +='<tr class="group" id="sr_'+contactGroup[1]+'"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
                     contactGroup[1] + ')" id="checkAllClientCase"class="allSelect  mainBox_' + contactGroup[1] + ' "> <a class="name" href="' + baseUrl +
