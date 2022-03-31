@@ -347,10 +347,10 @@
                 <label for="reminders" class="col-sm-2 col-form-label">Reminders</label>
                 <div class="col">
                     <div>
-                        <div class="fieldGroup">
+                        <div class="fieldGroupEventReminder">
                         </div>
                         <div class="text-muted mb-2">You can only edit reminders that you created. Reminders assigned to you by another firm user will need to be edited by the creator.</div>
-                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-new-reminder add-more">Add a reminder</button></div>
+                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-new-reminder add-more-event-reminder">Add a reminder</button></div>
                     </div>
                 </div>
             </div>  
@@ -498,7 +498,7 @@
         // $(".hide").hide();
 
         $('#createEvent').on('click', '.remove', function () {
-            var $row = $(this).parents('.fieldGroup').remove();
+            var $row = $(this).parents('.fieldGroupEventReminder').remove();
         });
 
         $("#createEvent").validate({

@@ -25,10 +25,12 @@ if(isset($_GET['upcoming_events'])){
                             </div>
                             <input type="submit" style="display: none;" id="submit" name="search" value="true">
                         </form>
-                        @can('case_add_edit')
+                        @can('event_add_edit')
+                            @can('case_add_edit')
                         <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom"
                             href="javascript:;"> <button class="btn btn-primary btn-rounded m-1" type="button"
                                 onclick="loadAddEventPopup();">Add Event</button></a>
+                            @endcan
                         @endcan
 
                     </div>

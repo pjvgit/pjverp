@@ -2280,6 +2280,8 @@ class CaseController extends BaseController
                 $caseEvent->refresh();
                 $recurringEvent = EventRecurring::whereId($request->event_recurring_id)->first();
                 $recurringEvent->fill([
+                    "start_date" => $start_date,
+                    "end_date" => $end_date,
                     'event_reminders' => $this->getEventReminderJson($caseEvent, $request),
                     'event_linked_staff' => $this->getEventLinkedStaffJson($caseEvent, $request),
                     'event_linked_contact_lead' => $this->getEventLinkedContactLeadJson($caseEvent, $request),
@@ -2391,6 +2393,8 @@ class CaseController extends BaseController
                 $recurringEvent = EventRecurring::whereId($request->event_recurring_id)->first();
                 $recurringEvent->fill([
                     'event_id' => $caseEvent->id, 
+                    "start_date" => $start_date,
+                    "end_date" => $end_date,
                     'event_reminders' => $this->getEventReminderJson($caseEvent, $request),
                     'event_linked_staff' => $this->getEventLinkedStaffJson($caseEvent, $request),
                     'event_linked_contact_lead' => $this->getEventLinkedContactLeadJson($caseEvent, $request),

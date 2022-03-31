@@ -45,7 +45,7 @@
         <td>
             <div class="ml-2 mt-3">
             @php
-            if($item->event->start_time==NULL || $item->event->end_time==NULL && $item->event->is_all_day == "yes"){
+            if($item->event->start_time==NULL || $item->event->end_time==NULL && $item->event->is_full_day == "yes"){
                 echo "All Day";
             }else{                        
                 echo $item->event->user_start_time;
@@ -73,7 +73,7 @@
             @endif
         </td>
         <td class="c-pointer">
-            @if(!empty($item->event->eventType) && ($isAuthUserLinked || $authUser->parent_user == 0))
+            @if(!empty($item->event->eventType) && ($isAuthUserLinked || $authUser->parent_user == 0 || auth()->user()->hasPermissionTo('access_all_cases')))
             <div class="d-flex align-items-center mt-3">
                 <div class="mr-1"
                     style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$item->event->eventType->color_code }}">
@@ -84,7 +84,7 @@
             @endif
         </td>
         <td class="event-users">
-            @if(!empty($item->event_linked_staff) && ($isAuthUserLinked || $authUser->parent_user == 0))
+            @if(!empty($item->event_linked_staff) && ($isAuthUserLinked || $authUser->parent_user == 0 || auth()->user()->hasPermissionTo('access_all_cases')))
                 @php    
                     $linkedUser = [];
                     $linkedStaff = encodeDecodeJson($item->event_linked_staff);
@@ -179,60 +179,62 @@
             @if($item->event->is_event_private=='yes' && !$isAuthUserLinked)
             @else
             <div class="mt-3 float-right">
-                @if($isAuthUserLinked || $authUser->parent_user == 0)
-                <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"
-                data-placement="bottom" href="javascript:;"
-                onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->id}});">
-                <i class="fas fa-bell pr-2 align-middle"></i>
-                </a>
-
-                @canany(['commenting_add_edit', 'commenting_view'])
-                <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup"
-                data-placement="bottom" href="javascript:;"
-                onclick="loadEventComment({{$item->event_id}}, {{$item->id}});">
-                @php
-                    $commentCount = 0;
-                    if(count($eventLinkedStaff)) {
-                        $lastReadAt = $eventLinkedStaff->where('user_id', $authUser->id)->first();
-                        $comments = encodeDecodeJson($item->event_comments);
-                        if($lastReadAt)
-                            $commentCount = $comments->where("action_type", "0")->where("created_at", ">=", $lastReadAt->comment_read_at)->count();
-                    }
-                @endphp
-                <i class="fas fa-comment-alt @if(!$commentCount) pr-2 @endif"></i>
-                @if($commentCount)
-                <span class="badge badge-danger comment-count comment-count-{{ $item->id }}">{{ $commentCount }}</span>
-                @endif
-                </a>
-                @endcanany
-                @can('event_add_edit')
-                
-                <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
-                    data-placement="bottom" href="javascript:;"
-                    onclick="editEventFunction({{$item->event_id}}, {{$item->id}});">
-                    <i class="fas fa-pen pr-2  align-middle"></i> 
-                </a>
-                @endcan
-                @can(['event_add_edit','delete_items'])
-                <?php 
-                if(empty($item->event->parent_event_id)  && $item->event->is_recurring == "no"){
-                    ?>
-                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
-                    data-placement="bottom" href="javascript:;"
-                    onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'single');">
-                    <i class="fas fa-trash pr-2  align-middle"></i> </a>
-                <?php }else if($item->event->edit_recurring_pattern == "single event" && $item->event->is_recurring == "yes"){ ?>
-                    <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
-                    data-placement="bottom" href="javascript:;"
-                    onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'single');">
-                    <i class="fas fa-trash pr-2  align-middle"></i> </a>
-                <?php }else{ ?>
-                <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
-                    data-placement="bottom" href="javascript:;"
-                    onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'multiple');">
-                    <i class="fas fa-trash pr-2  align-middle"></i> </a>
-                <?php } ?>
-                @endcan
+                @if($isAuthUserLinked || $authUser->parent_user == 0 || auth()->user()->hasPermissionTo('access_all_cases'))
+                    @if($isAuthUserLinked || $authUser->parent_user == 0)
+                        <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"
+                            data-placement="bottom" href="javascript:;"
+                            onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->id}});">
+                            <i class="fas fa-bell pr-2 align-middle"></i>
+                        </a>
+                    @endif
+                    @canany(['commenting_add_edit', 'commenting_view'])
+                        <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup"
+                            data-placement="bottom" href="javascript:;"
+                            onclick="loadEventComment({{$item->event_id}}, {{$item->id}});">
+                            @php
+                                $commentCount = 0;
+                                if(count($eventLinkedStaff)) {
+                                    $lastReadAt = $eventLinkedStaff->where('user_id', $authUser->id)->first();
+                                    $comments = encodeDecodeJson($item->event_comments);
+                                    if($lastReadAt)
+                                        $commentCount = $comments->where("action_type", "0")->where("created_at", ">=", $lastReadAt->comment_read_at)->count();
+                                }
+                            @endphp
+                            <i class="fas fa-comment-alt @if(!$commentCount) pr-2 @endif"></i>
+                            @if($commentCount)
+                            <span class="badge badge-danger comment-count comment-count-{{ $item->id }}">{{ $commentCount }}</span>
+                            @endif
+                        </a>
+                    @endcanany
+                    @can('event_add_edit')
+                        @can('case_add_edit')
+                            <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
+                                data-placement="bottom" href="javascript:;"
+                                onclick="editEventFunction({{$item->event_id}}, {{$item->id}});">
+                                <i class="fas fa-pen pr-2  align-middle"></i> 
+                            </a>
+                        @endcan
+                    @endcan
+                    @can(['event_add_edit','delete_items'])
+                        <?php 
+                        if(empty($item->event->parent_event_id)  && $item->event->is_recurring == "no"){
+                            ?>
+                            <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
+                            data-placement="bottom" href="javascript:;"
+                            onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'single');">
+                            <i class="fas fa-trash pr-2  align-middle"></i> </a>
+                        <?php }else if($item->event->edit_recurring_pattern == "single event" && $item->event->is_recurring == "yes"){ ?>
+                            <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
+                            data-placement="bottom" href="javascript:;"
+                            onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'single');">
+                            <i class="fas fa-trash pr-2  align-middle"></i> </a>
+                        <?php }else{ ?>
+                        <a class="align-items-center" data-toggle="modal" data-target="#deleteEventModal"
+                            data-placement="bottom" href="javascript:;"
+                            onclick="deleteEventFunction({{$item->id}}, {{$item->event_id}},'multiple');">
+                            <i class="fas fa-trash pr-2  align-middle"></i> </a>
+                        <?php } ?>
+                    @endcan
                 @endif
             </div>
             @endif

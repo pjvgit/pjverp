@@ -386,7 +386,7 @@
                                     <?php
                                         foreach($eventReminderData as $rkey=>$rval){
                                         ?>
-                                        <div class="form-group fieldGroup">
+                                        <div class="form-group fieldGroupEventReminder">
                                             <div class="">
                                                 <div class="d-flex col-10 pl-0 align-items-center">
                                                     <div class="pl-0 col-3">
@@ -431,10 +431,10 @@
                                             </div>
                                         </div>
                                         <?php } ?>
-                                    <div class="fieldGroup">
+                                    <div class="fieldGroupEventReminder">
                                     </div>
                                     <div class="text-muted mb-2">You can only edit reminders that you created. Reminders assigned to you by another firm user will need to be edited by the creator.</div>
-                                    <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more">Add a reminder</button></div>
+                                    <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more-event-reminder">Add a reminder</button></div>
                                 </div>
                             </div>
                         </div>  
@@ -645,7 +645,7 @@
             $('body').find('.fieldGroup:last').before(fieldHTML);
         }); */
         $('#EditEventForm').on('click', '.remove', function () {
-            var $row = $(this).parents('.fieldGroup').remove();
+            var $row = $(this).parents('.fieldGroupEventReminder').remove();
             $("#is_reminder_updated").val("yes");
         });
 
@@ -895,7 +895,7 @@
     }
     
     function selectTypeload(selectdValue) {
-        var selectdValue = $("#event-frequency option:selected").val()
+        // var selectdValue = $("#event-frequency option:selected").val()
         $(".innerLoader").css('display', 'block');
         $('#repeat_dropdown').show();
         $("#repeat_daily").hide();
