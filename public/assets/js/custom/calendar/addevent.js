@@ -11,8 +11,8 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
                 $(".reminder_user_type option[value='client-lead']").show();
                 if (res.default_reminder && res.default_reminder.length > 0) {
                     $.each(res.default_reminder, function(ind, item) {
-                        $(".add-more").trigger("click");
-                        var lastNo = $(".fieldGroup").length;
+                        $(".add-more-event-reminder").trigger("click");
+                        var lastNo = $(".fieldGroupEventReminder").length;
                         // alert(lastNo);
                         $('body').find('#reminder_user_type:last').attr("ownid", lastNo);
                         $('body').find('#reminder_user_type:last').attr("id", lastNo);
@@ -35,7 +35,7 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
         var checkedLen = $('input[name="ContactInviteClientCheckbox[]"]:checked').length;
         var checkedL = $('input[name="client-share-all"]:checked').length;
         if (checkedLen <= 0 && checkedL <= 0) {
-            $(".reminder_user_type option[value='client-lead']:selected").parents('.fieldGroup').remove();
+            $(".reminder_user_type option[value='client-lead']:selected").parents('.fieldGroupEventReminder').remove();
             reminderAdded = false;
             $(".reminder_user_type option[value='client-lead']").hide();
         }
@@ -73,7 +73,7 @@ function loadGrantAccessModal(id) {
                     $("#preloader").hide();
                     $("#innerLoader").css('display', 'none');
 
-                    $(".add-more").trigger('click');
+                    $(".add-more-event-reminder").trigger('click');
                     return false;
                 }
             })
@@ -88,9 +88,9 @@ function loadGrantAccessModal(id) {
 }
 
 // For add reminder
-$(document).on("click", ".add-more, .add-new-reminder", function() {
-    var fieldHTML = '<div class="form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
-    $('body').find('.fieldGroup:last').after(fieldHTML);
+$(document).on("click", ".add-more-event-reminder, .add-new-reminder", function() {
+    var fieldHTML = '<div class="form-group fieldGroupEventReminder">' + $(".fieldGroupEventReminderCopy").html() + '</div>';
+    $('body').find('.fieldGroupEventReminder:last').after(fieldHTML);
     var checkedLen = $('input[name="ContactInviteClientCheckbox[]"]:checked').length;
     var checkedL = $('input[name="client-share-all"]:checked').length;
     if (checkedLen <= 0 && checkedL <= 0) {
@@ -151,7 +151,7 @@ function loadDefaultEventReminder() {
         type: "POST",
         url: baseUrl + "/court_cases/loadDefaultEventReminder",
         success: function(res) {
-            $('body').find('.fieldGroup:last').after(res);
+            $('body').find('.fieldGroupEventReminder:last').after(res);
         }
     });
 }

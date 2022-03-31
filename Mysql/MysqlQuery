@@ -1,6 +1,16 @@
------------------------------------- 23-MAR-2022 ------------------------------
-ALTER TABLE `task_linked_staff`
-ADD `is_read` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `is_assign`;
+------------------------------------ 31-MAR-2022 ------------------------------
+CREATE TABLE `event_user_reminders` (
+  `id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `user_id` int NULL,
+  `event_id` bigint NULL,
+  `event_recurring_id` bigint NULL,
+  `event_reminders` json NULL,
+  `created_by` int NULL,
+  `created_at` timestamp NULL,
+  `updated_by` int NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL
+);
 
 ------------------------------------ 14-MAR-2022 ------------------------------
 ALTER TABLE `all_history`

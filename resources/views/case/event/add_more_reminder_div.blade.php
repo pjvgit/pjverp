@@ -1,4 +1,4 @@
-<div class="fieldGroupCopy copy hide add_more_reminder_div" style="display: none;">
+<div class="fieldGroupEventReminderCopy copy hide add_more_reminder_div" style="display: none;">
     <div class="">
         <div class="d-flex col-10 pl-0 align-items-center">
             <div class="pl-0 col-3">
