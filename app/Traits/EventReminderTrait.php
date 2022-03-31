@@ -43,13 +43,20 @@ trait EventReminderTrait {
         // return $notifyType;
         if($item->reminder_user_type == "attorney" || $item->reminder_user_type == "staff" || $item->reminder_user_type == "paralegal") {
             // $eventLinkedUser = $itemEvent->eventLinkedStaff->pluck('id');    
+            $userType = ($item->reminder_user_type == "attorney") ? 1 : (($item->reminder_user_type == "staff") ? 3 : 2);
+            
             $itemEventLinkedStaff = encodeDecodeJson($itemRecurring->event_linked_staff);
             $eventLinkedUser = $itemEventLinkedStaff->pluck('user_id')->toArray(); 
+            
             if($itemEvent->case) {
-                $caseLinkedUser = $itemEvent->case->caseStaffAll->pluck('user_id');
+                $caseLinkedUser = $itemEvent->case->caseStaffDetails->where('user_type', $userType)->pluck('id');
             }
-            $userType = ($item->reminder_user_type == "attorney") ? 1 : (($item->reminder_user_type == "staff") ? 3 : 2);
-            $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser ?? [])->where("user_type", $userType)->withoutAppends()->get();
+            \Log::info('caseLinkedUser >' . $caseLinkedUser);
+            $users = User::where(function ($qry) use ($eventLinkedUser, $caseLinkedUser){
+                $qry->whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser ?? []);
+            })
+            ->where("user_type", $userType)->withoutAppends()->get();
+            // $users = User::whereIn("id", $eventLinkedUser)->where("user_type", $userType)->withoutAppends()->get();
             $attendEvent = $itemEvent->eventLinkedStaff->pluck("pivot.attending", 'id')->toArray();
 
         } else if($item->reminder_user_type == "client-lead") {

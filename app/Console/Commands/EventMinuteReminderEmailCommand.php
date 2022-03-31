@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\CaseEventReminder;
+use App\EventRecurring;
 use App\Jobs\EventReminderEmailJob;
 use App\Traits\EventReminderTrait;
 use App\User;
@@ -43,6 +43,62 @@ class EventMinuteReminderEmailCommand extends Command
      * @return int
      */
     public function handle()
+    {
+        $result = EventRecurring::whereJsonContains('event_reminders', ['reminder_type' => 'email'])
+                    ->whereJsonContains('event_reminders', ['reminder_frequncy' => "minute"])
+                    ->whereJsonContains('event_reminders', ['remind_at' => date("Y-m-d")])
+                    ->whereJsonContains('event_reminders', ['reminded_at' => null])
+                    ->whereHas("event", function($query) {
+                        $query->where("is_SOL", "no");
+                    })
+                    ->with('event', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
+                    ->get();        
+        if($result) {
+            foreach($result as $key => $item) {
+                Log::info("Event id :". $item->id);
+                // return $firmDetail = firmDetail($item->event)
+                Log::info("reminder_id > ".$item->id);
+                $users = $attendEvent = [];
+                $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->event->start_date.' '. $item->event->start_time, $useritem->user_timezone ?? 'UTC');
+                $remindTime = '';
+                $itemEventReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email');
+                foreach($itemEventReminders as $er => $ev){ 
+                    $remindTime = Carbon::parse($dueDateTime)->subMinutes($ev->reminer_number); // time getting from event table
+                    
+                    $response = $this->getEventLinkedUserPopup($ev, "email", $item->event, $item);
+                    if($response["users"]){
+                        foreach ($response["users"] as $k =>$v){
+                            $users[] = $v;        
+                        }
+                    }
+                    if($response["attendEvent"]){
+                        foreach ($response["attendEvent"] as $k =>$v){
+                            $attendEvent[] = $v;        
+                        }
+                    }
+                }
+                if(count($users)) {
+                    // Log::info("user found:".$users);
+                    $currentTime = Carbon::now()->format('Y-m-d H:i');
+                    $date1 = Carbon::createFromFormat('Y-m-d H:i', $currentTime);
+                    Log::info("carbon now:". $date1);                    
+                    $date2 = Carbon::createFromFormat('Y-m-d H:i', Carbon::parse($remindTime)->format('Y-m-d H:i'));
+                    Log::info("remind at:". $date2);
+                    if($date1->eq($date2)) {
+                        Log::info("EventMinuteReminderEmailCommand : minute time true");
+                        dispatch(new EventReminderEmailJob($item, $users, $attendEvent));
+                    } else {
+                        Log::info("EventMinuteReminderEmailCommand : event minute time not match");
+                    }
+                } else {
+                    Log::info("EventMinuteReminderEmailCommand : user not found");
+                }
+            }
+            Log::info("Minute Event Reminder Email Command Ended :". date('Y-m-d H:i:s'));
+        }
+    }
+
+    public function handle_old()
     {
         $result = CaseEventReminder::where("reminder_type", "email")
                     ->where("reminder_frequncy", "minute")/* ->where("event_id", "38439") */

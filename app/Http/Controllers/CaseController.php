@@ -307,6 +307,7 @@ class CaseController extends BaseController
                             FlatFeeEntry::create([
                                 'case_id' => $CaseMaster->id,
                                 'user_id' => Auth::user()->id,
+                                'firm_id' => Auth::user()->firm_name,
                                 'entry_date' => Carbon::now(),
                                 'cost' =>  $request->default_rate ?? 0,
                                 'time_entry_billable' => 'yes',

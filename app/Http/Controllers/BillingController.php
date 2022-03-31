@@ -5659,7 +5659,8 @@ class BillingController extends BaseController
     {
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
-        if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
+        // if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
+        if(empty($findInvoice))
         {
             return view('pages.404');
         }else{
