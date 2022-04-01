@@ -11,12 +11,12 @@ function popupNotification() {
         type: 'GET',
         success: function(result) {
             if (result.view != "") {
-                if (typeof $.cookie('is_popup_dismissed') === 'undefined') {
+                // if (typeof $.cookie('is_popup_dismissed') === 'undefined') {
                     $("#notify_modal_body").html(result.view);
                     $("#notification_popup").modal('show');
-                } else {
-                    console.log("cookie set");
-                }
+                // } else {
+                //     console.log("cookie set");
+                // }
             } else {
                 $("#notification_popup").modal('hide');
                 if(result.appNotificaionCount.eventCount){
@@ -55,14 +55,92 @@ function popupNotification() {
  * Snooze popup notification
  */
 $(document).on("click", ".snooze-time", function() {
+    // var snoozeTime = $(this).val();
+    // var snoozeType = $(this).attr("data-snooze-type");
+    // var reminderId = $(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id');
+    // var reminderType = $(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-type');
+    // $.ajax({
+    //     url: baseUrl + "/update/popup/notification",
+    //     type: 'GET',
+    //     data: { 'reminder_id': reminderId, 'snooze_time': snoozeTime, 'snooze_type': snoozeType, 'reminder_type': reminderType },
+    //     success: function(data) {
+    //         if (data.status == "success") {
+    //             popupNotification();
+    //         }
+    //     },
+    // });
+
     var snoozeTime = $(this).val();
     var snoozeType = $(this).attr("data-snooze-type");
-    var reminderId = $(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id');
-    var reminderType = $(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-type');
+    var reminderEventId = [],
+        reminderTaskId = [],
+        solReminderId = [];
+    $(document).find("#popup_reminder_table tbody tr").each(function() {
+        if ($(this).attr('data-reminder-type') == "event") {
+            reminderEventId.push($(this).attr('data-reminder-id'));
+        } else if ($(this).attr('data-reminder-type') == "task") {
+            reminderTaskId.push($(this).attr('data-reminder-id'));
+        } else {
+            solReminderId.push($(this).attr('data-reminder-id'));
+        }
+    });
+    
+    $.ajax({
+        url: baseUrl + "/update/popup/notification",
+        type: 'GET',
+        data: {'snooze_all' : 'yes', 'reminder_event_id': reminderEventId, 'reminder_task_id': reminderTaskId, 'sol_reminder_id': solReminderId, 'snooze_time': snoozeTime, 'snooze_type': snoozeType },
+        success: function(data) {
+            if (data.status == "success") {
+                popupNotification();
+            }
+        },
+    });
+    
+});
+
+/**
+ * single snooze-button popup notification
+ */
+ $(document).on("click", ".snooze-button", function() {
+    var snoozeTime = 10;
+    var snoozeType = $(this).attr("data-snooze-type");
+    var reminderId = $(this).attr('data-reminder-id');
+    var reminderType = $(this).attr('data-reminder-type');
     $.ajax({
         url: baseUrl + "/update/popup/notification",
         type: 'GET',
         data: { 'reminder_id': reminderId, 'snooze_time': snoozeTime, 'snooze_type': snoozeType, 'reminder_type': reminderType },
+        success: function(data) {
+            if (data.status == "success") {
+                popupNotification();
+            }
+        },
+    });
+});
+
+/**
+ * single dismiss-button popup notification
+ */
+ $(document).on("click", ".dismiss-button", function() {
+    var disVal = $(this).attr('data-reminder-id');
+    var disType = $(this).attr('data-reminder-type');
+
+    var reminderEventId = [],
+        reminderTaskId = [],
+        solReminderId = [];
+    
+    if (disType == "event") {
+        reminderEventId.push(disVal);
+    } else if (disType == "task") { 
+        reminderTaskId.push(disVal);
+    } else {
+        solReminderId.push(disVal); 
+    }    
+
+    $.ajax({
+        url: baseUrl + "/update/popup/notification",
+        type: 'GET',
+        data: { 'reminder_event_id': reminderEventId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId },
         success: function(data) {
             if (data.status == "success") {
                 popupNotification();

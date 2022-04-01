@@ -382,7 +382,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" tabindex="-1" data-
 </div>
 
 <div id="notification_popup" class="modal fade bd-example-modal-lg" role="dialog" >
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalCenterTitle">Upcoming Reminders</h5>

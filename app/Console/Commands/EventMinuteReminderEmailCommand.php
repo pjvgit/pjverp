@@ -59,7 +59,7 @@ class EventMinuteReminderEmailCommand extends Command
                 // return $firmDetail = firmDetail($item->event)
                 Log::info("reminder_id > ".$item->id);
                 $users = $attendEvent = [];
-                $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->event->start_date.' '. $item->event->start_time, $useritem->user_timezone ?? 'UTC');
+                $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->start_date.' '. $item->event->start_time, $useritem->user_timezone ?? 'UTC');
                 $remindTime = '';
                 $itemEventReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email');
                 foreach($itemEventReminders as $er => $ev){ 

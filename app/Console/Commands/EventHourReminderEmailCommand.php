@@ -60,7 +60,7 @@ class EventHourReminderEmailCommand extends Command
                 // Log::info("reminder_id > ".$item->id);
                 $users = $attendEvent = [];
                 $remindTime = '';
-                $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->event->start_date.' '. $item->event->start_time, $useritem->user_timezone ?? 'UTC');
+                $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->start_date.' '. $item->event->start_time, $useritem->user_timezone ?? 'UTC');
                 $itemEventReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email');
                 foreach($itemEventReminders as $er => $ev){  
                     $remindTime = Carbon::parse($dueDateTime)->subHours($ev->reminer_number); // time getting from event table                  
@@ -77,7 +77,7 @@ class EventHourReminderEmailCommand extends Command
                     }
                 }
                 if(count($users)) {
-                    $eventStartTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time);
+                    $eventStartTime = Carbon::parse($item->start_date.' '.$item->event->start_time);
                     $currentTime = Carbon::now()->format('Y-m-d H:i');
                     $date1 = Carbon::createFromFormat('Y-m-d H:i', $currentTime);
                     $date2 = Carbon::createFromFormat('Y-m-d H:i', Carbon::parse($remindTime)->format('Y-m-d H:i'));

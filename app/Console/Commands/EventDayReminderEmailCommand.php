@@ -61,7 +61,7 @@ class EventDayReminderEmailCommand extends Command
                 $remindTime = '';
                 $itemEventReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email');
 
-                $eventStartDate = Carbon::parse($item->event->start_date);
+                $eventStartDate = Carbon::parse($item->start_date);
                 foreach($itemEventReminders as $er => $ev){                    
                     if($ev->reminder_frequncy == "week") {
                         $remindTime = $eventStartDate->subWeeks($ev->reminer_number)->format('Y-m-d');
