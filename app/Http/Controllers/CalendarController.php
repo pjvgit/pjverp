@@ -27,8 +27,9 @@ class CalendarController extends BaseController
     }
     public function index()
     {
-        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-        $EventType = EventType::where('status','1')->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
+        $authUser = auth()->user();
+        $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1")->get();
+        $EventType = EventType::where('status','1')->where('firm_id',$authUser->firm_name)->orderBy("status_order","ASC")->get();
         // $staffData = User::select("first_name","last_name","id","user_level","default_color")->where('user_level',3)->where("firm_name",Auth::user()->firm_name)->get();
         $staffData = firmUserList();
 

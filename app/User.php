@@ -404,4 +404,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(CaseClientSelection::class, 'selected_user');
     }
+
+    /**
+     * Do not add this attribute to append array, if required please set append dynamically
+     */
+    public function getUserCasePermissionTextAttribute(){
+        if($this->hasPermissionTo('access_only_linked_cases')) {
+            return 'Only linked cases';
+        } else {
+            return 'All firm cases';
+        }
+    }
 }

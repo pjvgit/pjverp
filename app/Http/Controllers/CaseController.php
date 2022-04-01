@@ -4358,12 +4358,35 @@ class CaseController extends BaseController
         $case_id=$request->case_id;
         $event_id=$request->event_id;
         $nonLinkedSaved=[];
+        $companyLinkedUsers=[];
         $caseLinkeSavedAttendingContact=$caseLinkeSavedInviteContact=[];
         $from='';
         //Client List
-        $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
-
-
+        $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+                ->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
+                ->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
+        $newArray = []; $companyClientIds = [];
+        foreach($caseCllientSelection as $k=>$v) {
+            if($v->user_level == '4') {
+                $newArray[] = $v;
+                $companyContacts = $v->companyContactList($v->user_id, $v->case_id);
+                if($companyContacts) {
+                    foreach($companyContacts as $ck => $cv) {
+                        $contact = $caseCllientSelection->where('id', $cv->cid)->first();
+                        $contact['is_company_contact'] = "yes";
+                        $newArray[] = $contact;
+                        array_push($companyClientIds, $cv->cid);
+                    }  
+                }
+                array_push($companyClientIds, $v->uid);
+            } else {   
+                if(!in_array($v->id, $companyClientIds)) {
+                    $v['is_company_contact']="no";
+                    $newArray[] = $v;
+                }
+            }
+        }
+        $caseCllientSelection = collect($newArray);
         //Non linked staff List
         $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
         $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->whereIn("user_status",["1",'2'])->whereNotIn('id',$caseNoneLinkedStaffList)->get();
@@ -4406,7 +4429,7 @@ class CaseController extends BaseController
             $from="edit";
         }
        
-        return view('case.event.loadEventRightSection',compact('caseCllientSelection','loadFirmUser','case_id','caseLinkedStaffList','caseLinkeSaved','caseLinkeSavedAttending','from','caseLinkeSavedAttendingContact','caseLinkeSavedInviteContact','caseNonLinkeSavedAttending','caseNonLinkeSaved'));     
+        return view('case.event.loadEventRightSection',compact('caseCllientSelection','loadFirmUser','case_id','caseLinkedStaffList','caseLinkeSaved','caseLinkeSavedAttending','from','caseLinkeSavedAttendingContact','caseLinkeSavedInviteContact','caseNonLinkeSavedAttending','caseNonLinkeSaved','companyLinkedUsers'));     
         exit;    
    }
    public function loadLeadRightSection(Request $request)

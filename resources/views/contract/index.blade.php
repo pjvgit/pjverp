@@ -202,7 +202,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 @can('edit_firm_user_permission')
                     editIcon = '<a data-toggle="modal"  data-target="#loadPermission" data-placement="bottom" href="javascript:;"  onclick="loadPermission('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i></a>';
                 @endcan
-                $('td:eq(3)', nRow).html('All firm cases  '+editIcon);    
+                $('td:eq(3)', nRow).html(aData.user_case_permission_text +' '+ editIcon);    
                 $('td:eq(4)', nRow).html('<div class="text-center"><a href="'+baseUrl+'/contacts/attorneys/'+ aData.decode_id +'/cases" >'+aData.staff_cases_count+'</a></div>'); 
                 $('td:eq(5)', nRow).html("<a data-toggle='modal'  data-target='#ShowColorPicker' data-placement='bottom' href='javascript:;'  onclick='loadPicker("+aData.id+")' ccode='"+aData.default_color+"' ><div style='background-color:"+aData.default_color+";width: 22px;height: 22px;'>&nbsp;</div></a>"); 
                 

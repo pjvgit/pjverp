@@ -114,4 +114,12 @@
 
     <?php } ?>  
     });
+
+$("input[name='client_links[]']").click(function() {
+	if($("input[name='client_links[]']:checked").length > 0) {
+        $("#court_case_user_link_share").attr("disabled", false);
+	} else {
+        $("#court_case_user_link_share").attr("disabled", true);
+	}
+});
  </script>

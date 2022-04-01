@@ -131,6 +131,11 @@
                                 <?php } ?>
                             </div>
                         </div>
+                        @php
+                            $eventLinkedStaff = encodeDecodeJson($eventRecurring->event_linked_staff);
+                            $isAuthUserLinked = $eventLinkedStaff->where('user_id', auth()->id())->first();
+                        @endphp
+                        @if($isAuthUserLinked)
                         <div class="mb-2 row ">
                             <div class="col-3"><b>Reminders</b></div>
                             <div class="detail-info  col-9">
@@ -147,6 +152,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                         @if($event->is_event_private == 'yes')
                         <div class="mb-2 row ">
                             <div class="col-3"><b>Privacy</b></div>
