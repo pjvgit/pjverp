@@ -207,13 +207,23 @@
                         </a>
                     @endcanany
                     @can('event_add_edit')
-                        @can('case_add_edit')
-                            <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
-                                data-placement="bottom" href="javascript:;"
-                                onclick="editEventFunction({{$item->event_id}}, {{$item->id}});">
-                                <i class="fas fa-pen pr-2  align-middle"></i> 
-                            </a>
-                        @endcan
+                        @if(Route::currentRouteName() == 'calendars')
+                            @can('case_add_edit')
+                                <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
+                                    data-placement="bottom" href="javascript:;"
+                                    onclick="editEventFunction({{$item->event_id}}, {{$item->id}});">
+                                    <i class="fas fa-pen pr-2  align-middle"></i> 
+                                </a>
+                            @endcan
+                        @else
+                            @canany(['lead_add_edit', 'lead_view'])
+                                <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
+                                    data-placement="bottom" href="javascript:;"
+                                    onclick="editEventFunction({{$item->event_id}}, {{$item->id}});">
+                                    <i class="fas fa-pen pr-2  align-middle"></i> 
+                                </a>
+                            @endcanany
+                        @endif
                     @endcan
                     @can(['event_add_edit','delete_items'])
                         <?php 

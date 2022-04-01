@@ -1,4 +1,8 @@
-
+<style>
+.sharing-list .indent {
+    text-indent: 20px;
+}
+</style>
 <form class="createEvent" id="createEvent" name="createEvent" method="POST">
     @csrf
     <div class="row" bladefilename="resources/views/case/event/loadAddEvent.blade.php">

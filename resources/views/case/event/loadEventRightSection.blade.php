@@ -1,7 +1,7 @@
 <div class="sharing-table clients-table" bladename="resources/views/case/event/loadEventRightSection.blade.php">
     <div class="table-responsive">
         <?php 
-        if(!$caseCllientSelection->isEmpty()){?>
+        if(!empty($caseCllientSelection)){?>
         <table class="table table-lg" id="CaseClientSection">
             <tr style="background-color:#FBFBFC;">
                 <td><b>Contact & Leads </b></td>
@@ -20,7 +20,10 @@
             </tr>
             <?php 
             foreach($caseCllientSelection as $key=>$val){?>
-            <tr class="sharing-user">
+            @if($val->user_level == '4')
+            <tr class="sharing-user sharing-company"><td colspan="3">{{$val->first_name}} {{$val->last_name}}</td></tr>
+            @else
+            <tr class="sharing-user @if($val->is_company_contact == 'yes') indent @endif">
                 <td class="d-flex no-border">
                     <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
                     <a class="event-name d-flex align-items-center pop" tabindex="0" role="button" href="javascript:;" data-toggle="popover" title=""
@@ -39,6 +42,7 @@
                         data-html="true" data-original-title=""></i>
                     <?php } ?>
                 </td>
+                
                 <td>
                     <label class="mb-0 loadEventRightSection">
                         <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$enabledClientPortalUser)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
@@ -54,6 +58,7 @@
                     </label>
                 </td>
             </tr>
+            @endif
             <?php } ?>
         </table>
     <?php } ?>
