@@ -17,7 +17,7 @@ class TaskReminder extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy', 'snooze_time', 'snooze_type', 'snoozed_at', 'is_dismiss' , 'remind_at', 'snooze_remind_at', 'reminded_at'
+        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy', 'snooze_time', 'snooze_type', 'snoozed_at', 'is_dismiss' , 'remind_at', 'snooze_remind_at', 'reminded_at', 'staff_remind_detail' 
     ];    
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){
@@ -65,7 +65,7 @@ class TaskReminder extends Authenticatable
         else if($this->snooze_type == "day")
             $remindTime = Carbon::parse($snoozedTime)->addDays($this->snooze_time)->format('Y-m-d H:i');
         else if($this->snooze_type == "week")
-            $remindTime = Carbon::parse($snoozedTime)->addDays($this->snooze_time)->format('Y-m-d H:i');
+            $remindTime = Carbon::parse($snoozedTime)->addDays($this->snooze_time * 7)->format('Y-m-d H:i');
         else
             $remindTime = Carbon::parse($snoozedTime)->addMinutes($this->snooze_time)->format('Y-m-d H:i');
         $this->attributes['snooze_remind_at'] = $remindTime;

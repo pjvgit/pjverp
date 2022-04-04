@@ -8990,7 +8990,7 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            
+            \Log::info("createInvoiceBatch start ....");
             if(isset($request->discounts['amount']) && count($request->discounts['amount'])<0){
                 $customeError=[];
                 for($i=0;$i<count($request->discounts['amount']);$i++){
@@ -9058,43 +9058,39 @@ class BillingController extends BaseController
 
                 //  get the flat fee entry
                 $flatFinalTotalBillable=0;   
-                
-                if(in_array($caseClient->billing_method,["flat","mixed"])){ 
+                $FlatFeeEntryData=[];
+                if(in_array($caseClient->billing_method,["flat","mixed"])){
                     $FlatFeeEntry=FlatFeeEntry::select("flat_fee_entry.*")
-                    ->where("flat_fee_entry.case_id",$caseVal)                    
-                    ->where("flat_fee_entry.invoice_link",NULL)
-                    ->where("flat_fee_entry.status","unpaid")
-                    ->where("flat_fee_entry.remove_from_current_invoice","no")
-                    ->where(function($FlatFeeEntry) use($request){
-                        $FlatFeeEntry->where("flat_fee_entry.token_id","!=",NULL);
-                        $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
-                    });                                
-                    // $FlatFeeEntry=FlatFeeEntry::select("id","cost","entry_date");
-                    // $FlatFeeEntry=$FlatFeeEntry->where("case_id",$caseVal);
-                    // $FlatFeeEntry=$FlatFeeEntry->where("status","unpaid");
-                    if(isset($request->batch['start_date']) && isset($request->batch['end_date'])){
-                        $FlatFeeEntry = $FlatFeeEntry->whereBetween("entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
-                    }
+                    ->where("flat_fee_entry.case_id",$caseVal);
                     $FlatFeeEntry=$FlatFeeEntry->get();
                     // dd($FlatFeeEntry);
                     if(count($FlatFeeEntry) > 0){
+                        $flatTotalBillable = 0;
                         foreach($FlatFeeEntry as $k =>$v){
-                            $flatFinalTotalBillable += str_replace(",","",number_format($v->cost, 2));
-                        }
-                    }else{                              
-                        $flatTotalBillable = 0;          
-                        $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
-                        foreach($flatFeeData as $TK=>$TE){
-                            if($TE->status == 'paid'){
-                                $flatTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
+                            if($v->status == 'paid'){
+                                $flatFinalTotalBillable += str_replace(",","",number_format($v->cost, 2));
+                            }else{                                
+                                $FlatFeeEntryData[] = $v;
                             }
                         }
                         $flatFinalTotalBillable = ($caseClient->billing_amount - $flatTotalBillable);
-                        $flatFinalTotalBillable = ($flatFinalTotalBillable > 0 ) ?  $flatFinalTotalBillable : 0;                        
+                        $flatFinalTotalBillable = ($flatFinalTotalBillable >= 0 ) ?  $flatFinalTotalBillable : 0;                        
+                    }else{                              
+                        // $flatTotalBillable = 0;          
+                        // $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
+                        // foreach($flatFeeData as $TK=>$TE){
+                        //     if($TE->status == 'paid'){
+                        //         $FlatFeeEntryData[] = $TE;
+                        //         $flatTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
+                        //     }
+                        // }
+                        // $flatFinalTotalBillable = ($caseClient->billing_amount - $flatTotalBillable);
+                        // $flatFinalTotalBillable = ($flatFinalTotalBillable > 0 ) ?  $flatFinalTotalBillable : 0;                        
                     }    
                 }
                 $subTotal=$flatFinalTotalBillable+$timeEntryTotal+$expenseEntryTotal;
-                
+                \Log::info("subTotal : ".$subTotal);
+                // dd($FlatFeeEntryData);
                 if($subTotal > 0){
                     $InvoiceSave=new Invoices;
                     $InvoiceSave->id=$request->invoice_number_padded;
@@ -9127,7 +9123,7 @@ class BillingController extends BaseController
                     $InvoiceSave->firm_id = auth()->user()->firm_name;
                     $InvoiceSave->save();
 
-
+                    \Log::info("InvoiceSave : ".$InvoiceSave->id);
                     $invoiceHistory=[];
                     $invoiceHistory['invoice_id']=$InvoiceSave->id;
                     $invoiceHistory['acrtivity_title']='Invoice Created';
@@ -9169,6 +9165,23 @@ class BillingController extends BaseController
                         }
                     }   
 
+                    if(!empty($FlatFeeEntryData)){
+                        if(count($FlatFeeEntryData) > 0){
+                            foreach($FlatFeeEntryData as $k =>$v){
+                                $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                                $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                                $FlatFeeEntryForInvoice->flat_fee_entry_id=$v->id;
+                                $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                                $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                                $FlatFeeEntryForInvoice->save();
+                                DB::table('flat_fee_entry')->where("id",$v->id)->update([
+                                    'status'=>'paid',
+                                    'invoice_link'=>$InvoiceSave->id
+                                ]);
+                            }
+                        }
+                    }
+
                     if(in_array($caseClient->billing_method,["flat","mixed"])){                                 
                         // $FlatFeeEntry=FlatFeeEntry::select("id","cost","entry_date");
                         // $FlatFeeEntry=$FlatFeeEntry->where("case_id",$caseVal);
@@ -9187,49 +9200,51 @@ class BillingController extends BaseController
                         //     $FlatFeeEntry = $FlatFeeEntry->whereBetween("entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
                         // }
                         // $FlatFeeEntry=$FlatFeeEntry->get();
-                        if(count($FlatFeeEntry) > 0){
-                            foreach($FlatFeeEntry as $k =>$v){
-                                $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
-                                $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
-                                $FlatFeeEntryForInvoice->flat_fee_entry_id=$v->id;
-                                $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
-                                $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                                $FlatFeeEntryForInvoice->save();
-                                DB::table('flat_fee_entry')->where("id",$v->id)->update([
-                                    'status'=>'paid',
-                                    'invoice_link'=>$InvoiceSave->id
-                                ]);
-                            }
-                        }else{                              
-                            $flatTotalBillable1 = 0;          
-                            $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
-                            foreach($flatFeeData as $TK=>$TE){
-                                if($TE->status == 'paid'){
-                                    $flatTotalBillable1+=str_replace(",","",number_format($TE['cost'], 2));
-                                }
-                            }
-                            $flatFinalTotalBillable1 = ($caseClient->billing_amount - $flatTotalBillable1);
-                            $flatFinalTotalBillable1 = ($flatFinalTotalBillable1 > 0 ) ?  $flatFinalTotalBillable1 : 0;                        
-                            if($flatFinalTotalBillable1 > 0){
-                                $flatFeeEntry = FlatFeeEntry::create([
-                                    'case_id' => $caseVal,
-                                    'user_id' => auth()->id(),
-                                    'entry_date' => Carbon::now(),
-                                    'cost' =>  $flatFinalTotalBillable1,
-                                    'time_entry_billable' => 'yes',
-                                    'status'=>'paid',
-                                    'invoice_link' => $InvoiceSave->id,
-                                    'firm_id' => Auth::User()->firm_name,
-                                    'created_by' => auth()->id(), 
-                                ]);
-                                $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
-                                $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
-                                $FlatFeeEntryForInvoice->flat_fee_entry_id=$flatFeeEntry->id;
-                                $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
-                                $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                                $FlatFeeEntryForInvoice->save();
-                            }
-                        }    
+                        // \Log::info("FlatFeeEntryData : ");
+                        // \Log::info($FlatFeeEntryData);
+                        // if(count($FlatFeeEntryData) > 0){
+                        //     foreach($FlatFeeEntryData as $k =>$v){
+                        //         $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                        //         $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                        //         $FlatFeeEntryForInvoice->flat_fee_entry_id=$v->id;
+                        //         $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                        //         $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                        //         $FlatFeeEntryForInvoice->save();
+                        //         DB::table('flat_fee_entry')->where("id",$v->id)->update([
+                        //             'status'=>'paid',
+                        //             'invoice_link'=>$InvoiceSave->id
+                        //         ]);
+                        //     }
+                        // }else{                              
+                        //     $flatTotalBillable1 = 0;          
+                        //     $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
+                        //     foreach($flatFeeData as $TK=>$TE){
+                        //         if($TE->status == 'paid'){
+                        //             $flatTotalBillable1+=str_replace(",","",number_format($TE['cost'], 2));
+                        //         }
+                        //     }
+                        //     $flatFinalTotalBillable1 = ($caseClient->billing_amount - $flatTotalBillable1);
+                        //     $flatFinalTotalBillable1 = ($flatFinalTotalBillable1 >= 0 ) ?  $flatFinalTotalBillable1 : 0;                        
+                        //     if($flatFinalTotalBillable1 > 0){
+                        //         $flatFeeEntry = FlatFeeEntry::create([
+                        //             'case_id' => $caseVal,
+                        //             'user_id' => auth()->id(),
+                        //             'entry_date' => Carbon::now(),
+                        //             'cost' =>  $flatFinalTotalBillable1,
+                        //             'time_entry_billable' => 'yes',
+                        //             'status'=>'paid',
+                        //             'invoice_link' => $InvoiceSave->id,
+                        //             'firm_id' => Auth::User()->firm_name,
+                        //             'created_by' => auth()->id(), 
+                        //         ]);
+                        //         $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                        //         $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                        //         $FlatFeeEntryForInvoice->flat_fee_entry_id=$flatFeeEntry->id;
+                        //         $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                        //         $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                        //         $FlatFeeEntryForInvoice->save();
+                        //     }
+                        // }    
                     }           
 
                     // print_r($request->all());

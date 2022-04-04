@@ -910,7 +910,11 @@ class CaseController extends BaseController
             if(isset($request->case_statute)) { 
                 $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_statute)))), auth()->user()->user_timezone ?? 'UTC');
                 $CaseMaster->case_statute_date=date('Y-m-d',strtotime($var)); 
-                }else{ $CaseMaster->case_statute_date=NULL;}
+            }else{ 
+                $CaseMaster->case_statute_date=NULL;
+                // remove events also from
+                Event::where('case_id',$CaseMaster->id)->where('is_SOL', 'yes')->delete();
+            }
             if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1"; 
                 

@@ -1,3 +1,10 @@
+------------------------------------ 04-APR-2022 ------------------------------
+ALTER TABLE `task_reminder`
+ADD `staff_remind_detail` json NULL AFTER `reminded_at`;
+
+ALTER TABLE `case_sol_reminder`
+ADD `staff_remind_detail` json NULL AFTER `reminded_at`;
+
 ------------------------------------ 31-MAR-2022 ------------------------------
 CREATE TABLE `event_user_reminders` (
   `id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,

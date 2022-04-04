@@ -47,6 +47,7 @@
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right ">
+                <button type="button" tabindex="0" value="5" data-snooze-type="min" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze All 5 mins</button>
                 <button type="button" tabindex="0" value="10" data-snooze-type="min" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze All 10 mins</button>
                 <button type="button" tabindex="0" value="15" data-snooze-type="min" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze All 15 mins</button>
                 <button type="button" tabindex="0" value="30" data-snooze-type="min" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze All 30 mins</button>
@@ -65,5 +66,4 @@
 </div>
 <script>
 $("#snoozeDropdown").trigger("click");
-$("#dismissDropdown").trigger("click");
 </script>

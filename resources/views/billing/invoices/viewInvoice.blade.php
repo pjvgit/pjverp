@@ -79,8 +79,7 @@
                         </a>
                         @can('billing_add_edit')
                         @if($findInvoice->status != "Forwarded")
-                        <a id="delete-bill" class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"
-                            data-target="#deleteInvoicePopup" data-placement="bottom" href="javascript:;">
+                        <a id="delete-bill" class="btn btn-lg btn-link px-2 text-black-50" href="javascript:;">
                             <i class="fas fa-trash test-delete-bill" data-bill-id="12211253" data-toggle="tooltip"
                                 data-placement="top" title="" data-original-title="Delete"
                                 onclick="deleteInvoice('{{$findInvoice->id}}', '/bills/invoices?type=all')"></i>
