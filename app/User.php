@@ -40,63 +40,7 @@ class User extends Authenticatable
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     } 
-    /* public function getAdditioninfoAttribute(){
-        $ContractCaseUpdate =  UsersAdditionalInfo::join('client_group','users_additional_info.contact_group_id','=','client_group.id')
-        ->select("client_group.group_name")
-        ->where('client_group.status',"1")
-        ->where('users_additional_info.user_id',$this->id)
-        ->limit(1)
-        ->first();
-        if(!empty($ContractCaseUpdate)){
-            $returnData=$ContractCaseUpdate->group_name;
-        }else{
-            $ContractCaseUpdate =  LeadAdditionalInfo::join('client_group','lead_additional_info.contact_group_id','=','client_group.id')
-            ->select("client_group.group_name")
-            ->where('client_group.status',"1")
-            ->where('lead_additional_info.user_id',$this->id)
-            ->limit(1)
-            ->first();
-            if(!empty($ContractCaseUpdate)){
-                $returnData=$ContractCaseUpdate->group_name;
-            }else{
-                $returnData="-";
-            }
-           
-        }
-        return json_encode($returnData); 
-    } */
-    /* public function getCreatedbyAttribute(){
-        $CommonController= new CommonController();
-        $creatdByData =  UsersAdditionalInfo::join("users","users_additional_info.created_by","=","users.id")
-        ->select("users.id as uid",DB::raw('CONCAT(users.first_name, " ",users.last_name) as created_by_name'),'users_additional_info.created_at as cdt','users_additional_info.client_portal_enable')
-        ->where('users_additional_info.user_id',$this->id)
-        ->limit(1)
-        ->first();
-        
-        if(!empty($creatdByData)){
-            $timezone=(Auth::User()->user_timezone)??'UTC';
-            $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($creatdByData->cdt)),$timezone);
-            $creatdByData->newFormateCreatedAt=date('M j, Y h:i A',strtotime($convertedDate));
-
-            $creatdByData->decode_user_id=base64_encode($creatdByData->uid);
-        }else{
-            $creatdByData =  LeadAdditionalInfo::join("users","lead_additional_info.created_by","=","users.id")
-            ->select("users.id as uid",DB::raw('CONCAT(users.first_name, " ",users.last_name) as created_by_name'),'lead_additional_info.created_at as cdt')
-            ->where('lead_additional_info.user_id',$this->id)
-            ->limit(1)
-            ->first();
-
-            if(!empty($creatdByData)){
-                 $timezone=(Auth::User()->user_timezone)??'UTC';
-                $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($creatdByData->cdt)),$timezone);
-                $creatdByData->newFormateCreatedAt=date('M j, Y h:i A',strtotime($convertedDate));
-
-                $creatdByData->decode_user_id=base64_encode($creatdByData->uid);
-            }
-        }
-        return json_encode($creatdByData); 
-    } */
-
+    
     /**
      * Get user's last login detail, Do not add this attribute to append list, if required please set append dynamically
      */
@@ -119,14 +63,6 @@ class User extends Authenticatable
         }
     }
     
-    /* public function getCaselistAttribute(){        
-        $CaseClientSelection = CaseClientSelection::select("case_id")->where("selected_user",$this->id)->get()->pluck('case_id');
-        $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
-        $case = $case->whereIn("case_master.id",$CaseClientSelection);
-        $case = $case->where("case_master.is_entry_done","1")->get(); 
-        return json_encode($case); 
-        
-    } */
     /**
      * Do not add this attribute to append array, if required please set append dynamically
      */
@@ -169,18 +105,6 @@ class User extends Authenticatable
         return $Title;
 
     }
-
-    /**
-     * Get users active cases count
-     */
-    /* public function getActiveCaseCounterAttribute(){
-        $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id");
-        $case = $case->where("case_staff.user_id",$this->id);
-        $case = $case->where("case_master.is_entry_done","1");
-        $case = $case->where("case_master.case_close_date",null);
-        $totalData=$case->count();
-        return $totalData;
-    } */
 
     /**
      * The staffCases that belong to the User
@@ -300,14 +224,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(DepositIntoCreditHistory::class, 'user_id')->orderBy("payment_date", "desc")->orderBy("created_at", "desc");
     }
-
-    /**
-     * Get user full address attribute
-     */
-    /* public function getFullAddressAttribute()
-    {
-        return $this->apt_unit.', '.$this->street.', '.$this->city.', '.$this->state.', '.$this->postal_code.', '.$this->country;
-    } */
 
     /**
      * Get all of the companyContactList for the User

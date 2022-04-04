@@ -77,17 +77,6 @@ class Event extends Model
     }
 
     /**
-     * Delete event child tables record
-     */
-    public function deleteChildTableRecords($eventIds)
-    {
-        CaseEventLinkedStaff::whereIn("event_id", $eventIds)->forceDelete();
-        CaseEventLinkedContactLead::whereIn("event_id", $eventIds)->forceDelete();
-        // CaseEventReminder::whereIn("event_id", $eventIds)->forceDelete();
-        CaseEventComment::whereIn("event_id", $eventIds)->forceDelete();
-    }
-
-    /**
      * Get the case that owns the CaseEvent
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

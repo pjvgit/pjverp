@@ -649,6 +649,13 @@
             $("#is_reminder_updated").val("yes");
         });
 
+        $(".fieldGroupEventReminder select").change(function() {
+            $("#is_reminder_updated").val("yes");
+        });
+        $(".fieldGroupEventReminder input").on('input', function() {
+            $("#is_reminder_updated").val("yes");
+        });
+
         $("#EditEventForm").validate({
             rules: {
                 case_or_lead: {
