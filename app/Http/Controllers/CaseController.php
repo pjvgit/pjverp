@@ -2201,12 +2201,12 @@ class CaseController extends BaseController
                 "event_id" => $caseEvent->id,
                 "start_date" => $start_date,
                 "end_date" => $end_date,
-                // "event_reminders" => $this->getEventReminderJson($caseEvent, $request),
+                "event_reminders" => $this->getEventReminderJson($caseEvent, $request),
                 "event_linked_staff" => $this->getEventLinkedStaffJson($caseEvent, $request),
                 "event_linked_contact_lead" => $this->getEventLinkedContactLeadJson($caseEvent, $request),
             ]);  
 
-            if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
+            /* if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
                 EventUserReminder::create([
                     'user_id' => $authUser->id,
                     'event_id' => $caseEvent->id,
@@ -2214,7 +2214,7 @@ class CaseController extends BaseController
                     'event_reminders' =>$this->getEventReminderJson($caseEvent, $request),
                     'created_by' => $authUser->id,
                 ]);
-            }
+            } */
 
             $this->saveEventRecentActivity($request, $caseEvent->id, $eventRecurring->id, 'add');
         } else {  
@@ -2430,15 +2430,7 @@ class CaseController extends BaseController
 
                 // Update user's event reminders
                 if($request->is_reminder_updated == 'yes') {
-                    $eventUserReminders = EventUserReminder::where('event_recurring_id', $request->event_recurring_id)->get();
-                    Log::info("event reminders: ".$eventUserReminders);
-                    foreach($eventUserReminders as $rkey => $ritem) {
-                        if($ritem->user_id == auth()->id()) {
-                            $this->updateEventUserReminder($caseEvent, $recurringEvent, $request);
-                        } else {
-                            $ritem->fill(['event_id' => $caseEvent->id])->save();
-                        }
-                    }
+                    $this->updateEventUserReminder($caseEvent, $recurringEvent, $request);
                 }
                     
                 $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
@@ -4285,8 +4277,8 @@ class CaseController extends BaseController
         $event_recurring_id = $request->event_recurring_id;
         $eventRecurring = EventRecurring::where("id", $event_recurring_id)->where("event_id", $event_id)->first();
         if($eventRecurring) {
-            $eventUserReminder = EventUserReminder::where('event_id', $event_id)->where('event_recurring_id', $event_recurring_id)->where('user_id', auth()->id())->first();
-            $eventReminder = encodeDecodeJson(@$eventUserReminder->event_reminders);
+            // $eventUserReminder = EventUserReminder::where('event_id', $event_id)->where('event_recurring_id', $event_recurring_id)->where('user_id', auth()->id())->first();
+            $eventReminder = encodeDecodeJson(@$eventRecurring->event_reminders)[auth()->id()] ?? [];
             return view('case.event.loadReminderPopupIndex',compact('event_id', 'event_recurring_id', 'eventReminder'));     
         }
         return response()->json(["errors" => "Record not found"]);
@@ -4346,6 +4338,7 @@ class CaseController extends BaseController
             foreach($request->reminder['user_type'] as $key => $item) {
                 $eventReminders[] = [
                     'event_id' => $request->event_id,
+                    'user_id' => $authUserId,
                     'reminder_type' => $request->reminder['type'][$key],
                     'reminer_number' => $request->reminder['number'][$key],
                     'reminder_frequncy' => $request->reminder['time_unit'][$key],
@@ -4360,17 +4353,25 @@ class CaseController extends BaseController
                     'reminded_at' => null
                 ];
             }
-            $allRecurringEvent = EventRecurring::where('event_id', $request->event_id)->get();
-            if($allRecurringEvent) {
-                foreach($allRecurringEvent as $key => $item) {
-                    EventUserReminder::updateOrCreate([
-                        'event_id' => $request->event_id,
-                        'event_recurring_id' => $item->id,
-                        'user_id' => $authUserId,
-                    ], [
-                        'event_reminders' => encodeDecodeJson($eventReminders, 'encode')
-                    ]);
+            $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
+            $newArray = [];
+            if(count($decodeReminder)) {
+                foreach($decodeReminder as $rkey => $ritem) {
+                    if($rkey == $authUserId) {
+                        $newArray[$authUserId] = $eventReminders;
+                    } else {
+                        $newArray[$rkey] = $ritem;
+                    }
                 }
+                if(!isset($newArray[$authUserId])) {
+                    $newArray[$authUserId] = $eventReminders;
+                }
+            } else {
+                $newArray[$authUserId] = $eventReminders;
+            }
+            $allRecurrings = EventRecurring::where('event_id', $request->event_id)->get();
+            foreach($allRecurrings as $key => $item) {
+                $item->fill(['event_reminders' => encodeDecodeJson($newArray, 'encode')])->save();
             }
             return response()->json(['errors'=>'','msg'=>'Reminders successfully updated']);
         } else {
@@ -4503,16 +4504,19 @@ class CaseController extends BaseController
         //Client List
         $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
                 ->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
-                ->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
+                ->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","users.id as user_id","users_additional_info.client_portal_enable")
+                ->where("case_client_selection.case_id",$case_id)->orderBy('user_level', 'desc')->get();
         $newArray = []; $companyClientIds = [];
         foreach($caseCllientSelection as $k=>$v) {
             if($v->user_level == '4') {
+                $v['is_company'] = "yes";
                 $newArray[] = $v;
                 $companyContacts = $v->companyContactList($v->user_id, $v->case_id);
                 if($companyContacts) {
                     foreach($companyContacts as $ck => $cv) {
                         $contact = $caseCllientSelection->where('id', $cv->cid)->first();
                         $contact['is_company_contact'] = "yes";
+                        $contact['is_company'] = "yes";
                         $newArray[] = $contact;
                         array_push($companyClientIds, $cv->cid);
                     }  
@@ -4521,11 +4525,12 @@ class CaseController extends BaseController
             } else {   
                 if(!in_array($v->user_id, $companyClientIds)) {
                     $v['is_company_contact']="no";
+                    $v['is_company']="no";
                     $newArray[] = $v;
                 }
             }
         }
-        $caseCllientSelection = collect($newArray);
+        $caseCllientSelection = collect($newArray)->sortBy('is_company');
         //Non linked staff List
         $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
         $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->whereIn("user_status",["1",'2'])->whereNotIn('id',$caseNoneLinkedStaffList)->get();
