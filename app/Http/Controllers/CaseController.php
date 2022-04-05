@@ -311,7 +311,8 @@ class CaseController extends BaseController
                                 'firm_id' => Auth::user()->firm_name,
                                 'entry_date' => Carbon::now(),
                                 'cost' =>  $request->default_rate ?? 0,
-                                'time_entry_billable' => 'yes',
+                                'time_entry_billable' => 'yes',                        
+                                'token_id' => round(microtime(true) * 1000),
                                 'created_by' => Auth::user()->id, 
                             ]);
                         }
@@ -1289,7 +1290,8 @@ class CaseController extends BaseController
                         'user_id' => auth()->id(),
                         'entry_date' => Carbon::now(),
                         'cost' =>  $remainFlatFee,
-                        'time_entry_billable' => 'yes',
+                        'time_entry_billable' => 'yes',                        
+                        'token_id' => round(microtime(true) * 1000),
                         'firm_id' => Auth::User()->firm_name,
                         'created_by' => auth()->id(),
                     ]);

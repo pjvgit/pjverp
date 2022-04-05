@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\EventRecurring;
+use App\EventUserReminder;
 use App\Jobs\EventReminderEmailJob;
 use App\Traits\EventReminderTrait;
 use App\User;
@@ -44,14 +44,15 @@ class EventMinuteReminderEmailCommand extends Command
      */
     public function handle()
     {
-        $result = EventRecurring::whereJsonContains('event_reminders', ['reminder_type' => 'email'])
+        Log::info("Minute Event Reminder Email Command Started :". date('Y-m-d H:i:s'));
+        $result = EventUserReminder::whereJsonContains('event_reminders', ['reminder_type' => 'email'])
                     ->whereJsonContains('event_reminders', ['reminder_frequncy' => "minute"])
                     ->whereJsonContains('event_reminders', ['remind_at' => date("Y-m-d")])
                     ->whereJsonContains('event_reminders', ['reminded_at' => null])
                     ->whereHas("event", function($query) {
                         $query->where("is_SOL", "no");
                     })
-                    ->with('event', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
+                    ->with('event', 'eventRecurrings', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();        
         if($result) {
             foreach($result as $key => $item) {
@@ -59,7 +60,7 @@ class EventMinuteReminderEmailCommand extends Command
                 // return $firmDetail = firmDetail($item->event)
                 Log::info("reminder_id > ".$item->id);
                 $users = $attendEvent = [];
-                $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->start_date.' '. $item->event->start_time, $useritem->user_timezone ?? 'UTC');
+                $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->eventRecurrings->start_date.' '. $item->event->start_time, $useritem->user_timezone ?? 'UTC');
                 $remindTime = '';
                 $itemEventReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email');
                 foreach($itemEventReminders as $er => $ev){ 
@@ -139,3 +140,4 @@ class EventMinuteReminderEmailCommand extends Command
         }
     }
 }
+// sudo php artisan eventminute:reminderemail

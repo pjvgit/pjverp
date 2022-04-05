@@ -237,8 +237,8 @@
                                 value="">
                         </div>
                     </div>
-                    <div class="pl-3 col-1">
-                        <div class="">
+                    <div class="col-1 pr-3">
+                        <div class="text-center">
                             <input type="checkbox" name="billable[1]" class="billable-field form-check-input"
                                 checked="checked">
                         </div>
@@ -320,8 +320,8 @@
                         </div>
                     </div>
 
-                    <div class="pl-3 col-1">
-                        <div class="">
+                    <div class="col-1 pr-3">
+                        <div class="text-center">
                             <input type="checkbox" name="billable[]" class="billable-field form-check-input"
                                 checked="checked">
                         </div>

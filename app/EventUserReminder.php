@@ -20,4 +20,9 @@ class EventUserReminder extends Model
     {
         return $this->belongsTo(Event::class, 'event_id');
     }
+    
+    public function eventRecurrings()
+    {
+        return $this->belongsTo(EventRecurring::class, 'event_recurring_id');
+    }
 }

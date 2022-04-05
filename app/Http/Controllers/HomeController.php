@@ -28,6 +28,8 @@ use App\Traits\TaskReminderTrait;
 use App\UserInterestedModule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\EventUserReminder;
+
 class HomeController extends BaseController
 {
     use TaskReminderTrait;
@@ -620,22 +622,23 @@ class HomeController extends BaseController
      */
     public function popupNotification()
     {
-        $result = EventRecurring::whereJsonContains('event_reminders', ['reminder_type' => 'popup'])
+        $result = EventUserReminder::whereJsonContains('event_reminders', ['reminder_type' => 'popup'])
                     ->where(function($query) {
                         $query->whereJsonContains('event_reminders', ['remind_at' => date("Y-m-d")])
                         ->orWhereJsonContains('event_reminders', ["snooze_remind_at" => date("Y-m-d")]);
                     })
-                    ->with('event', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
+                    ->with('event','eventRecurrings', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         $userId = auth()->id();
         $events = [];
+        
         if($result) {
             foreach($result as $key => $item) {
-                // \Log::info("reminder_id > ".$item->id);
+                \Log::info("reminder_id > ".$item->id);
                 // \Log::info("User Info : ". auth()->user()->user_title);
                 $itemEventReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'popup');
                 foreach($itemEventReminders as $er => $ev){
-                    // \Log::info("reminder_user_type : ".$ev->reminder_user_type) ;      
+                    \Log::info("reminder_user_type : ".$ev->reminder_user_type) ;      
                     
                     // $users = User::whereId(auth::user()->id)->withoutAppends()->get();
                     $users = [];
@@ -648,15 +651,15 @@ class HomeController extends BaseController
                                 $users[] = $response;
                             }
                         }                        
-                    }                    
+                    }         
+                    // dd($users);           
                     if(isset($users) && count($users)) {  
 
-                        $eventTime = @$item->start_date." ".@$item->event->start_time;
+                        $eventTime = @$item->eventRecurrings->start_date." ".@$item->event->start_time;
                         $currentTime = Carbon::now();
                         $addEvent = false;
-                        // \Log::info("ev->reminder_frequncy > ".$ev->reminder_frequncy);
-                        // \Log::info(json_encode($ev->staff_remind_detail));
-                        // \Log::info("Current time > ".date('Y-m-d h:i:s') .' > for login user > '. auth()->id());
+                        \Log::info("ev->reminder_frequncy > ".$ev->reminder_frequncy);
+                        \Log::info("Current time > ".date('Y-m-d h:i:s') .' > for login user > '. auth()->id());
                         $staffRemindDetail = (isset($ev->staff_remind_detail)) ? collect($ev->staff_remind_detail)->where('user_id',auth()->id())->toArray() : [];
                         $snoozeExits = false;
                         $is_dismiss = true;
@@ -678,10 +681,10 @@ class HomeController extends BaseController
                         }else {
                             // \Log::info("Event show...");
                             if($is_dismiss && !$snoozeExits){                            
-                            $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->start_date.' '. $item->event->start_time);   
+                            $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $item->eventRecurrings->start_date.' '. $item->event->start_time);   
                             // \Log::info($dueDateTime);
                             if($ev->reminder_frequncy == "week" || $ev->reminder_frequncy == "day") {
-                                // $eventStartDate = Carbon::parse($item->start_date);
+                                // $eventStartDate = Carbon::parse($item->eventRecurrings->start_date);
                                 if($ev->reminder_frequncy == "week") {
                                     $remindTime = $dueDateTime->subWeeks($ev->reminer_number)->format('Y-m-d H:i:s');
                                 } else {
@@ -720,7 +723,7 @@ class HomeController extends BaseController
                                 "event_id" => $item->event_id,
                                 "task_id" => "",
                                 "reminder_id" => $item->id,
-                                "date_time" => date('M d - h:ia', strtotime(convertUTCToUserTime(@$item->start_date." ".@$item->event->start_time, auth()->user()->user_timezone))) ?? "",
+                                "date_time" => date('M d - h:ia', strtotime(convertUTCToUserTime(@$item->eventRecurrings->start_date." ".@$item->event->start_time, auth()->user()->user_timezone))) ?? "",
                                 "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
                                 "type" => "event",
                                 "name" => $item->event->event_title ?? "-",
@@ -743,7 +746,7 @@ class HomeController extends BaseController
                         $query->whereDate("remind_at", Carbon::now()) 
                         ->orWhereDate("snooze_remind_at", Carbon::now());
                     })   
-                    ->where("is_dismiss", "no")
+                    // ->where("is_dismiss", "no")
                     // ->where("task_id", 90)
                     ->with('task', 'task.taskLinkedStaff', 'task.case', 'task.lead', 'task.case.caseStaffAll', 'task.lead.userLeadAdditionalInfo')
                     ->get();
@@ -794,7 +797,7 @@ class HomeController extends BaseController
                         $query->whereDate("remind_at", Carbon::now()) 
                         ->orWhereDate("snooze_remind_at", Carbon::now());
                     })   
-                    ->where("is_dismiss", "no")
+                    // ->where("is_dismiss", "no")
                     ->with('case', 'case.caseStaffAll', 'case.caseCreatedByUser')
                     ->get();
         if($result) {
@@ -910,16 +913,23 @@ class HomeController extends BaseController
         if($request->is_dismiss) {
             if($request->reminder_event_id){
                 foreach($request->reminder_event_id as $reminder=>$reminder_event_id){
-                    $eventRecurring = EventRecurring::where("id", $reminder_event_id)->first();
+                    $eventRecurring = EventUserReminder::where("id", $reminder_event_id)->first();
                     $eventReminders = [];
                     $reminders = encodeDecodeJson($eventRecurring->event_reminders);
                     if(count($reminders)) {
                         $newArray = [];
                         foreach($reminders as $skey => $sitem) {
-                            $staffReminders = (isset($reminders[0]->staff_remind_detail)) ? collect($reminders[0]->staff_remind_detail)->where('user_id',auth()->id())->toArray() : [];
-                            $countOfRecord = count((isset($reminders[0]->staff_remind_detail)) ? collect($reminders[0]->staff_remind_detail) : []);
+                            // \Log::info("sitem");
+                            // \Log::info($sitem);
+                            $staffReminders = (isset($sitem->staff_remind_detail)) ? collect($sitem->staff_remind_detail)->where('user_id',auth()->id())->toArray() : [];
+                            $countOfRecord = count((isset($sitem->staff_remind_detail)) ? collect($sitem->staff_remind_detail) : []);
+                            // \Log::info("staffReminders");
+                            // \Log::info($staffReminders);
                             if(!empty($staffReminders)){
                                 $indexKey = (array_key_last($staffReminders));
+                                // \Log::info("indexKey");
+                                // \Log::info($indexKey);
+                                // \Log::info($sitem->staff_remind_detail);
                                 $sitem->staff_remind_detail[$indexKey]->is_dismiss = $request->is_dismiss;
                             }else{
                                 // dd($countOfRecord);
@@ -937,6 +947,7 @@ class HomeController extends BaseController
                             }                            
                             $newArray[] = $sitem;
                         }
+                        // dd($newArray);
                         $eventRecurring->fill(['event_reminders' => encodeDecodeJson($newArray, 'encode')])->save();
                     }
                 }
@@ -1006,14 +1017,14 @@ class HomeController extends BaseController
                 \Log::info('Snooze start');
                 if($request->reminder_event_id){
                     foreach($request->reminder_event_id as $reminder=>$reminder_event_id){
-                        $eventRecurring = EventRecurring::where("id", $reminder_event_id)->first();
+                        $eventRecurring = EventUserReminder::where("id", $reminder_event_id)->first();
                         $eventReminders = [];
                         $reminders = encodeDecodeJson($eventRecurring->event_reminders);
                         if(count($reminders)) {
                             $newArray = [];
                             foreach($reminders as $skey => $sitem) {
-                                $staffReminders = (isset($reminders[0]->staff_remind_detail)) ? collect($reminders[0]->staff_remind_detail)->where('user_id',auth()->id())->toArray() : [];
-                                $countOfRecord = count((isset($reminders[0]->staff_remind_detail)) ? collect($reminders[0]->staff_remind_detail) : []);
+                                $staffReminders = (isset($sitem->staff_remind_detail)) ? collect($sitem->staff_remind_detail)->where('user_id',auth()->id())->toArray() : [];
+                                $countOfRecord = count((isset($sitem->staff_remind_detail)) ? collect($sitem->staff_remind_detail) : []);
                                 
                                 if(!empty($staffReminders)){
                                     $indexKey = (array_key_last($staffReminders));
@@ -1052,33 +1063,120 @@ class HomeController extends BaseController
                     }
                     // CaseEventReminder::whereIn('id', $request->reminder_event_id)->update(["is_dismiss" => $request->is_dismiss]);
                 }
-                if($request->reminder_task_id){
-                    TaskReminder::whereIn('id', $request->reminder_task_id)->update([
-                        "snooze_time" => $request->snooze_time,
-                        "snooze_type" => $request->snooze_type,
-                        "snoozed_at" => Carbon::now(),
-                        "snooze_remind_at" => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00')
-                    ]);
-                }
-                if($request->sol_reminder_id){
-                    CaseSolReminder::whereIn('id', $request->sol_reminder_id)->update([
-                        "snooze_time" => $request->snooze_time,
-                        "snooze_type" => $request->snooze_type,
-                        "snoozed_at" => Carbon::now(),
-                        "snooze_remind_at" => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00')
-                    ]);
-                }    
+                
+                if($request->reminder_task_id) {
+                    foreach($request->reminder_task_id as $reminder=>$reminder_id){
+                        $reminder = TaskReminder::whereId($reminder_id)->first();
+                        if($reminder) {
+                            $newArray = [];                    
+                            $countOfRecord = count(collect($reminder->staff_remind_detail));
+                            if($countOfRecord == 0){
+                                $newArray = [array(
+                                    'user_id' => Auth::user()->id,
+                                    'is_dismiss' => 'no',
+                                    'snooze_time' => $request->snooze_time,
+                                    'snooze_type' => $request->snooze_type,
+                                    'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
+                                    'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                )];
+                            }else{
+                                foreach(collect($reminder->staff_remind_detail) as $staff => $item){    
+                                    $oldArray = json_decode($item);
+                                    // dd($oldArray);
+                                    $indexKey = 0;
+                                    foreach($oldArray as $key => $value){                                        
+                                        if(Auth::user()->id != $value->user_id){
+                                            $indexKey = $key+1;
+                                        }
+                                        $newArray[$key] = $value;
+                                    }
+                                    // dd($indexKey);
+                                    $newArray[$indexKey] = array(
+                                        'user_id' => Auth::user()->id,
+                                        'is_dismiss' => 'no',
+                                        'snooze_time' => $request->snooze_time,
+                                        'snooze_type' => $request->snooze_type,
+                                        'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
+                                        'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                    );                                
+                                }
+                            }
+                            // dd($newArray);
+                        $reminder->fill(['staff_remind_detail' => encodeDecodeJson($newArray, 'encode')])->save();
+                        }   
+                    }  
+                }  
+                if($request->sol_reminder_id) {
+                    foreach($request->sol_reminder_id as $reminder=>$reminder_id){
+                        $reminder = CaseSolReminder::whereId($reminder_id)->first();
+                        if($reminder) {
+                        $newArray = [];                    
+                            $countOfRecord = count(collect($reminder->staff_remind_detail));
+                            if($countOfRecord == 0){
+                                $newArray = [array(
+                                    'user_id' => Auth::user()->id,
+                                    'is_dismiss' => 'no',
+                                    'snooze_time' => $request->snooze_time,
+                                    'snooze_type' => $request->snooze_type,
+                                    'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
+                                    'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                )];
+                            }else{
+                                foreach(collect($reminder->staff_remind_detail) as $staff => $item){    
+                                    $oldArray = json_decode($item);
+                                    // dd($oldArray);
+                                    $indexKey = 0;
+                                    foreach($oldArray as $key => $value){                                        
+                                        if(Auth::user()->id != $value->user_id){
+                                            $indexKey = $key+1;
+                                        }
+                                        $newArray[$key] = $value;
+                                    }
+                                    // dd($indexKey);
+                                    $newArray[$indexKey] = array(
+                                        'user_id' => Auth::user()->id,
+                                        'is_dismiss' => 'no',
+                                        'snooze_time' => $request->snooze_time,
+                                        'snooze_type' => $request->snooze_type,
+                                        'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
+                                        'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                    );                                
+                                }
+                            }
+                            // dd($newArray);
+                        $reminder->fill(['staff_remind_detail' => encodeDecodeJson($newArray, 'encode')])->save();
+                        }   
+                    }  
+                }               
+                
+                // if($request->reminder_task_id){
+                    
+                //     // TaskReminder::whereIn('id', $request->reminder_task_id)->update([
+                //     //     "snooze_time" => $request->snooze_time,
+                //     //     "snooze_type" => $request->snooze_type,
+                //     //     "snoozed_at" => Carbon::now(),
+                //     //     "snooze_remind_at" => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00')
+                //     // ]);
+                // }
+                // if($request->sol_reminder_id){
+                //     CaseSolReminder::whereIn('id', $request->sol_reminder_id)->update([
+                //         "snooze_time" => $request->snooze_time,
+                //         "snooze_type" => $request->snooze_type,
+                //         "snoozed_at" => Carbon::now(),
+                //         "snooze_remind_at" => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00')
+                //     ]);
+                // }    
             }else{           
             if($request->reminder_type == "event") {
-                $eventRecurring = EventRecurring::where("id", $request->reminder_id)->first();
+                $eventRecurring = EventUserReminder::where("id", $request->reminder_id)->first();
                 if($eventRecurring) {
                     $eventReminders = [];
                     $reminders = encodeDecodeJson($eventRecurring->event_reminders);
                     if(count($reminders)) {
                         $newArray = [];
                         foreach($reminders as $skey => $sitem) {
-                            $staffReminders = (isset($reminders[0]->staff_remind_detail)) ? collect($reminders[0]->staff_remind_detail)->where('user_id',auth()->id())->toArray() : [];
-                            $countOfRecord = count((isset($reminders[0]->staff_remind_detail)) ? collect($reminders[0]->staff_remind_detail) : []);
+                            $staffReminders = (isset($sitem->staff_remind_detail)) ? collect($sitem->staff_remind_detail)->where('user_id',auth()->id())->toArray() : [];
+                            $countOfRecord = count((isset($sitem->staff_remind_detail)) ? collect($sitem->staff_remind_detail) : []);
 
                             if(!empty($staffReminders)){
                                 $indexKey = (array_key_last($staffReminders));
@@ -1137,18 +1235,21 @@ class HomeController extends BaseController
                                 $oldArray = json_decode($item);
                                 // dd($oldArray);
                                 $indexKey = 0;
-                                foreach($oldArray as $key => $value){
-                                    if(Auth::user()->id == $value->user_id){
-                                        $indexKey = $key;
+                                foreach($oldArray as $key => $value){                                        
+                                    if(Auth::user()->id != $value->user_id){
+                                        $indexKey = $key+1;
                                     }
                                     $newArray[$key] = $value;
                                 }
-                                $newArray[$indexKey]->user_id = Auth::user()->id;
-                                $newArray[$indexKey]->is_dismiss = 'no';
-                                $newArray[$indexKey]->snooze_time = $request->snooze_time;
-                                $newArray[$indexKey]->snooze_type = $request->snooze_type;
-                                $newArray[$indexKey]->snoozed_at = Carbon::now()->format('Y-m-d H:i:00');
-                                $newArray[$indexKey]->snooze_remind_at = Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00');                       
+                                // dd($indexKey);
+                                $newArray[$indexKey] = array(
+                                    'user_id' => Auth::user()->id,
+                                    'is_dismiss' => 'no',
+                                    'snooze_time' => $request->snooze_time,
+                                    'snooze_type' => $request->snooze_type,
+                                    'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
+                                    'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                );                                
                             }
                         }
                         // dd($newArray);

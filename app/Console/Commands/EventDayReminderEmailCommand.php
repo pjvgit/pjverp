@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\EventRecurring;
+use App\EventUserReminder;
 use App\Jobs\EventReminderEmailJob;
 use App\Traits\EventReminderTrait;
 use App\User;
@@ -44,13 +44,13 @@ class EventDayReminderEmailCommand extends Command
      */
     public function handle()
     {
-        $result = EventRecurring::whereJsonContains('event_reminders', ['reminder_type' => 'email'])
+        $result = EventUserReminder::whereJsonContains('event_reminders', ['reminder_type' => 'email'])
                     // ->whereJsonContains('event_reminders', ['remind_at' => "2022-03-30"])
                     ->whereJsonContains('event_reminders', ['reminded_at' => null])
                     ->whereHas("event", function($query) {
                         $query->where("is_SOL", "no");
                     })
-                    ->with('event', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
+                    ->with('event','eventRecurrings', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();        
         if($result) {
             foreach($result as $key => $item) {
@@ -61,7 +61,7 @@ class EventDayReminderEmailCommand extends Command
                 $remindTime = '';
                 $itemEventReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email');
 
-                $eventStartDate = Carbon::parse($item->start_date);
+                $eventStartDate = Carbon::parse($item->eventRecurrings->start_date);
                 foreach($itemEventReminders as $er => $ev){                    
                     if($ev->reminder_frequncy == "week") {
                         $remindTime = $eventStartDate->subWeeks($ev->reminer_number)->format('Y-m-d');
@@ -143,3 +143,4 @@ class EventDayReminderEmailCommand extends Command
         }
     }
 }
+//sudo php artisan eventday:reminderemail

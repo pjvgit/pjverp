@@ -81,3 +81,4 @@ class TaskReminderEmailCommand extends Command
         }
     }
 }
+//sudo php artisan taskday:reminderemail

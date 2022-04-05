@@ -45,7 +45,7 @@ trait EventReminderTrait {
             // $eventLinkedUser = $itemEvent->eventLinkedStaff->pluck('id');    
             $userType = ($item->reminder_user_type == "attorney") ? 1 : (($item->reminder_user_type == "staff") ? 3 : 2);
             
-            $itemEventLinkedStaff = encodeDecodeJson($itemRecurring->event_linked_staff);
+            $itemEventLinkedStaff = encodeDecodeJson($itemRecurring->eventRecurrings->event_linked_staff);
             $eventLinkedUser = $itemEventLinkedStaff->pluck('user_id')->toArray(); 
             
             if($itemEvent->case) {
