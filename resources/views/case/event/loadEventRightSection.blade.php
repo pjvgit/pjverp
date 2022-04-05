@@ -23,8 +23,8 @@
             @if($val->user_level == '4')
             <tr class="sharing-user sharing-company"><td colspan="3">{{$val->first_name}} {{$val->last_name}}</td></tr>
             @else
-            <tr class="sharing-user @if($val->is_company_contact == 'yes') indent @endif">
-                <td class="d-flex no-border">
+            <tr class="sharing-user">
+                <td class="d-flex no-border @if($val->is_company_contact == 'yes') indent @endif">
                     <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
                     <a class="event-name d-flex align-items-center pop" tabindex="0" role="button" href="javascript:;" data-toggle="popover" title=""
                         data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number. </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{ route('contacts/clients/view', $val->user_id) }}'>Edit Info</a>" data-html="true">

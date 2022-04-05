@@ -1,5 +1,10 @@
 
 
+ <style>
+    .sharing-list .indent {
+        text-indent: 20px;
+    }
+    </style>
  <?php
 //  $CommonController= new App\Http\Controllers\CommonController();
 //  $convertedStartDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($evetData->start_date .$evetData->start_time)),Auth::User()->user_timezone);
