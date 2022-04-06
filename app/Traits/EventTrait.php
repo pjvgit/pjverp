@@ -22,7 +22,7 @@ trait EventTrait {
         $authUserId = auth()->id();
         if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
             for($i=0; $i < count($request['reminder_user_type'])-1; $i++) {
-                $eventReminders[$authUserId][] = [
+                $eventReminders[] = [
                     'event_id' => $caseEvent->id,
                     'user_id' => $authUserId,
                     'reminder_type' => $request['reminder_type'][$i],
@@ -40,7 +40,7 @@ trait EventTrait {
                 ];
             }
         }
-        return encodeDecodeJson($eventReminders, 'encode');
+        return $eventReminders;
     }
 
     /**
@@ -289,15 +289,11 @@ trait EventTrait {
                 "event_id" => $caseEvent->id,
                 "start_date" => $date,
                 "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                "event_reminders" => $this->getEventReminderJson($caseEvent, $request),
+                "event_reminders" => $this->getUpdateEventReminderJson($caseEvent, $request),
                 "event_linked_staff" => $eventLinkStaff,
                 "event_linked_contact_lead" => $eventLinkClient,
                 "event_comments" => $eventHistory
             ]);
-
-            if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
-                $this->saveEventUserReminder($caseEvent, $eventRecurring, $request);
-            }
         }
         return $eventRecurring ?? Null;
     }
@@ -319,15 +315,11 @@ trait EventTrait {
                     "event_id" => $caseEvent->id,
                     "start_date" => $date,
                     "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                    "event_reminders" => $this->getEventReminderJson($caseEvent, $request),
+                    "event_reminders" => $this->getUpdateEventReminderJson($caseEvent, $request),
                     "event_linked_staff" => $eventLinkStaff,
                     "event_linked_contact_lead" => $eventLinkClient,
                     "event_comments" => $eventHistory
                 ]);
-
-                if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
-                    $this->saveEventUserReminder($caseEvent, $eventRecurring, $request);
-                }
             }
         }
         return $eventRecurring ?? Null;
@@ -371,15 +363,11 @@ trait EventTrait {
                     "event_id" => $caseEvent->id,
                     "start_date" => $date->format('Y-m-d'),
                     "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date->format('Y-m-d'),
-                    "event_reminders" => $this->getEventReminderJson($caseEvent, $request),
+                    "event_reminders" => $this->getUpdateEventReminderJson($caseEvent, $request),
                     "event_linked_staff" => $eventLinkStaff,
                     "event_linked_contact_lead" => $eventLinkClient,
                     "event_comments" => $eventHistory
                 ]);
-
-                if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
-                    $this->saveEventUserReminder($caseEvent, $eventRecurring, $request);
-                }
             }
         }
         return $eventRecurring ?? Null;
@@ -401,15 +389,11 @@ trait EventTrait {
                 "event_id" => $caseEvent->id,
                 "start_date" => $date,
                 "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                "event_reminders" => $this->getEventReminderJson($caseEvent, $request),
+                "event_reminders" => $this->getUpdateEventReminderJson($caseEvent, $request),
                 "event_linked_staff" => $eventLinkStaff,
                 "event_linked_contact_lead" => $eventLinkClient,
                 "event_comments" => $eventHistory
             ]);
-
-            if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
-                $this->saveEventUserReminder($caseEvent, $eventRecurring, $request);
-            }
         }
         return $eventRecurring ?? Null;
     }
@@ -443,15 +427,11 @@ trait EventTrait {
                 "event_id" => $caseEvent->id,
                 "start_date" => date('Y-m-d', $date1),
                 "end_date" => ($days > 0) ? Carbon::parse($date1)->addDays($days)->format('Y-m-d') : date('Y-m-d', $date1),
-                "event_reminders" => $this->getEventReminderJson($caseEvent, $request),
+                "event_reminders" => $this->getUpdateEventReminderJson($caseEvent, $request),
                 "event_linked_staff" => $eventLinkStaff,
                 "event_linked_contact_lead" => $eventLinkClient,
                 "event_comments" => $eventHistory
             ]);
-
-            if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
-                $this->saveEventUserReminder($caseEvent, $eventRecurring, $request);
-            }
         }
         return $eventRecurring ?? Null;
     }
@@ -554,63 +534,27 @@ trait EventTrait {
     }
 
     /**
-     * Save event user reminders
+     * Update event user reminders json
      */
-    public function saveEventUserReminder($caseEvent, $eventRecurring, $request)
-    {
-        $authUserId = auth()->id();
-        $request->start_date = $eventRecurring->start_date;
-        $request->start_time = $caseEvent->start_time;
-        EventUserReminder::create([
-            'user_id' => $authUserId,
-            'event_id' => $caseEvent->id,
-            'event_recurring_id' => $eventRecurring->id,
-            'event_reminders' =>$this->getEventReminderJson($caseEvent, $request),
-            'created_by' => $authUserId,
-        ]);
-    }
-
-    /**
-     * Update event user reminders
-     */
-    public function updateEventUserReminder($caseEvent, $eventRecurring, $request)
-    {
-        $authUserId = auth()->id();
-        $request->start_date = $eventRecurring->start_date;
-        $eventUserReminders = EventUserReminder::where('event_recurring_id', $eventRecurring->id)->get();
-        foreach($eventUserReminders as $rkey => $ritem) {
-            if($ritem->user_id == $authUserId) {
-                EventUserReminder::updateOrCreate([
-                    'user_id' => $authUserId,
-                    'event_id' => $request->event_id,
-                    'event_recurring_id' => $eventRecurring->id,
-                ], [
-                    'event_id' => $caseEvent->id,
-                    'event_reminders' =>$this->getEventReminderJson($caseEvent, $request),
-                    'created_by' => $authUserId,
-                    'updated_by' => $authUserId,
-                ]);
-            } else {
-                $ritem->fill(['event_id' => $caseEvent->id])->save();
-            }
-        }
-    }
-
-    public function getUpdateEventReminderJson($caseEvent, $eventRecurring, $request)
+    public function getUpdateEventReminderJson($caseEvent, $request, $eventRecurring = null)
     {
         $authUserId = auth()->id();
         $eventReminders = $this->getEventReminderJson($caseEvent, $request);
-        $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
-        $newArray = [];
-        if(count($decodeReminder)) {
-            foreach($decodeReminder as $rkey => $ritem) {
-                if($rkey == $authUserId) {
-                    $newArray[$authUserId] = $eventReminders;
-                } else {
-                    $newArray[$rkey] = $ritem;
+        if($eventRecurring) {
+            $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
+            $newArray = [];
+            if(count($decodeReminder)) {
+                foreach($decodeReminder as $rkey => $ritem) {
+                    if($rkey == $authUserId) {
+                        $newArray[$authUserId] = $eventReminders;
+                    } else {
+                        $newArray[$rkey] = $ritem;
+                    }
                 }
-            }
-            if(!isset($newArray[$authUserId])) {
+                if(!isset($newArray[$authUserId])) {
+                    $newArray[$authUserId] = $eventReminders;
+                }
+            } else {
                 $newArray[$authUserId] = $eventReminders;
             }
         } else {

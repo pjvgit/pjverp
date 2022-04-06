@@ -969,6 +969,7 @@ class ClientdashboardController extends BaseController
                     // $pDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',@$data->payment_date.' 00:00:00',auth()->user()->user_timezone ?? 'UTC');
                     $pDate = Carbon::createFromFormat('Y-m-d', $data->payment_date, "UTC");
                     $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
+                    return $pDate->format("M d, Y");
                     if ($pDate->isToday()) {
                         return "Today";
                     } else if($pDate->isYesterday()) {

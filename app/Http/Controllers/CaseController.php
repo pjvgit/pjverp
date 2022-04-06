@@ -2201,20 +2201,10 @@ class CaseController extends BaseController
                 "event_id" => $caseEvent->id,
                 "start_date" => $start_date,
                 "end_date" => $end_date,
-                "event_reminders" => $this->getEventReminderJson($caseEvent, $request),
+                "event_reminders" => $this->getUpdateEventReminderJson($caseEvent, $request),
                 "event_linked_staff" => $this->getEventLinkedStaffJson($caseEvent, $request),
                 "event_linked_contact_lead" => $this->getEventLinkedContactLeadJson($caseEvent, $request),
             ]);  
-
-            /* if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
-                EventUserReminder::create([
-                    'user_id' => $authUser->id,
-                    'event_id' => $caseEvent->id,
-                    'event_recurring_id' => $eventRecurring->id,
-                    'event_reminders' =>$this->getEventReminderJson($caseEvent, $request),
-                    'created_by' => $authUser->id,
-                ]);
-            } */
 
             $this->saveEventRecentActivity($request, $caseEvent->id, $eventRecurring->id, 'add');
         } else {  
@@ -2299,15 +2289,11 @@ class CaseController extends BaseController
                 $recurringEvent->fill([
                     "start_date" => $start_date,
                     "end_date" => $end_date,
-                    // 'event_reminders' => $this->getEventReminderJson($caseEvent, $request),
+                    'event_reminders' => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $recurringEvent) : $recurringEvent->event_reminders,
                     'event_linked_staff' => $this->getEventLinkedStaffJson($caseEvent, $request),
                     'event_linked_contact_lead' => $this->getEventLinkedContactLeadJson($caseEvent, $request),
                     'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $recurringEvent),
                 ])->save();
-                // Update user's event reminders
-                if($request->is_reminder_updated == 'yes') {
-                    $this->updateEventUserReminder($caseEvent, $recurringEvent, $request);
-                }
 
                 $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
 
@@ -2339,18 +2325,12 @@ class CaseController extends BaseController
                     "event_id" => $caseEvent->id,
                     "start_date" => $start_date,
                     "end_date" => $end_date,
-                    // 'event_reminders' => $this->getEventReminderJson($caseEvent, $request),
+                    'event_reminders' => $this->getUpdateEventReminderJson($caseEvent, $request),
                     'event_linked_staff' => $this->getEventLinkedStaffJson($caseEvent, $request),
                     'event_linked_contact_lead' => $this->getEventLinkedContactLeadJson($caseEvent, $request),
                     'event_comments' => $this->getAddEventHistoryJson($caseEvent->id),
                     "created_by" => $authUser->id,
                 ]);
-
-                // Update user's event reminders
-                if($request->is_reminder_updated == 'yes') {
-                    $this->updateEventUserReminder($caseEvent, $recurringEvent, $request);
-                }
-
                 // Delete old events
                 Event::whereIn("id", $oldEventIds)->forceDelete();
 
@@ -2422,16 +2402,11 @@ class CaseController extends BaseController
                     'event_id' => $caseEvent->id, 
                     "start_date" => $start_date,
                     "end_date" => $end_date,
-                    // 'event_reminders' => $this->getEventReminderJson($caseEvent, $request),
+                    'event_reminders' => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $recurringEvent) : $recurringEvent->event_reminders,
                     'event_linked_staff' => $this->getEventLinkedStaffJson($caseEvent, $request),
                     'event_linked_contact_lead' => $this->getEventLinkedContactLeadJson($caseEvent, $request),
                     'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $recurringEvent),
                 ])->save();
-
-                // Update user's event reminders
-                if($request->is_reminder_updated == 'yes') {
-                    $this->updateEventUserReminder($caseEvent, $recurringEvent, $request);
-                }
                     
                 $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
 
@@ -2557,16 +2532,11 @@ class CaseController extends BaseController
                                         "event_id" => $caseEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        // "event_reminders" => $eventReminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
                                     ])->save();
-
-                                    // Update user's event reminders
-                                    if($request->is_reminder_updated == 'yes') {
-                                        $this->updateEventUserReminder($caseEvent, $eventRecurring, $request);
-                                    }
                                 }
                             }
                         }                    
@@ -2601,7 +2571,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveDailyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                             $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
                             $eventLinkedClient = $this->getEventLinkedContactLeadJson($oldEvent, $request);
                             $period = \Carbon\CarbonPeriod::create($start_date, date("Y-m-d", $recurringEndDate));
@@ -2613,16 +2582,11 @@ class CaseController extends BaseController
                                         "event_id" => $oldEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        // "event_reminders" => $eventReminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
                                     ])->save();
-
-                                    // Update user's event reminders
-                                    if($request->is_reminder_updated == 'yes') {
-                                        $this->updateEventUserReminder($oldEvent, $eventRecurring, $request);
-                                    }
                                 }
                             }
                         }
@@ -2664,7 +2628,6 @@ class CaseController extends BaseController
                             "created_by" => $authUser->id,
                         ]);
 
-                        // $eventReminders = $this->getEventReminderJson($caseEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
                         $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
                         $period = \Carbon\CarbonPeriod::create($start_date, date("Y-m-d", $recurringEndDate));
@@ -2677,15 +2640,11 @@ class CaseController extends BaseController
                                         "event_id" => $caseEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        // "event_reminders" => $eventReminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
                                     ])->save();
-                                    // Update user's event reminders
-                                    if($request->is_reminder_updated == 'yes') {
-                                        $this->updateEventUserReminder($caseEvent, $eventRecurring, $request);
-                                    }
                                 }
                             }
                         }
@@ -2715,7 +2674,6 @@ class CaseController extends BaseController
                             "updated_by" => $authUser->id,
                         ])->save();
                         
-                        // $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
                         $eventLinkedClient = $this->getEventLinkedContactLeadJson($oldEvent, $request);
                         $period = \Carbon\CarbonPeriod::create($start_date, date("Y-m-d", $recurringEndDate));
@@ -2728,16 +2686,11 @@ class CaseController extends BaseController
                                         "event_id" => $oldEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        // "event_reminders" => $eventReminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
                                     ])->save();
-
-                                    // Update user's event reminders
-                                    if($request->is_reminder_updated == 'yes') {
-                                        $this->updateEventUserReminder($oldEvent, $eventRecurring, $request);
-                                    }
                                 }
                             }
                         }
@@ -2785,7 +2738,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($caseEvent, $caseEvent->start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($caseEvent, $request);
                             $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
                             $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
                             $days = $this->getDatesDiffDays($request);
@@ -2819,15 +2771,11 @@ class CaseController extends BaseController
                                             "event_id" => $caseEvent->id,
                                             "start_date" => $date->format('Y-m-d'),
                                             "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date->format('Y-m-d'),
-                                            // "event_reminders" => $eventReminders,
+                                            "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                             "event_linked_staff" => $eventLinkedStaff,
                                             "event_linked_contact_lead" => $eventLinkedClient,
                                             'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
                                         ])->save();
-                                        // Update user's event reminders
-                                        if($request->is_reminder_updated == 'yes') {
-                                            $this->updateEventUserReminder($caseEvent, $eventRecurring, $request);
-                                        }
                                     }
                                 }
                             }
@@ -2863,7 +2811,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($oldEvent, $oldEvent->start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                             $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
                             $eventLinkedClient = $this->getEventLinkedContactLeadJson($oldEvent, $request);
                             $days = $this->getDatesDiffDays($request);
@@ -2897,16 +2844,11 @@ class CaseController extends BaseController
                                             "event_id" => $oldEvent->id,
                                             "start_date" => $date->format('Y-m-d'),
                                             "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date->format('Y-m-d'),
-                                            // "event_reminders" => $eventReminders,
+                                            "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                             "event_linked_staff" => $eventLinkedStaff,
                                             "event_linked_contact_lead" => $eventLinkedClient,
                                             'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
                                         ])->save();
-
-                                        // Update user's event reminders
-                                        if($request->is_reminder_updated == 'yes') {
-                                            $this->updateEventUserReminder($oldEvent, $eventRecurring, $request);
-                                        }
                                     }
                                 }
                             }
@@ -2953,7 +2895,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveWeeklyRecurringEvent($caseEvent, $caseEvent->start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($caseEvent, $request);
                             $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
                             $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
                             $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
@@ -2965,16 +2906,11 @@ class CaseController extends BaseController
                                         "event_id" => $caseEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        // "event_reminders" => $eventReminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
                                     ])->save();
-
-                                    // Update user's event reminders
-                                    if($request->is_reminder_updated == 'yes') {
-                                        $this->updateEventUserReminder($caseEvent, $eventRecurring, $request);
-                                    }
                                 }
                             }
                         }
@@ -3007,7 +2943,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveWeeklyRecurringEvent($oldEvent, $oldEvent->start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                             $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
                             $eventLinkedClient = $this->getEventLinkedContactLeadJson($oldEvent, $request);
                             $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
@@ -3019,16 +2954,11 @@ class CaseController extends BaseController
                                         "event_id" => $oldEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        // "event_reminders" => $eventReminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
                                     ])->save();
-
-                                    // Update user's event reminders
-                                    if($request->is_reminder_updated == 'yes') {
-                                        $this->updateEventUserReminder($oldEvent, $eventRecurring, $request);
-                                    }
                                 }
                             }
                         }
@@ -3075,7 +3005,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                         } else {    
-                            // $eventReminders = $this->getEventReminderJson($caseEvent, $request);
                             $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
                             $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
                             $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', date("Y-m-d", $recurringEndDate));
@@ -3099,15 +3028,11 @@ class CaseController extends BaseController
                                         "event_id" => $caseEvent->id,
                                         "start_date" => date('Y-m-d', $date1),
                                         "end_date" => ($days > 0) ? Carbon::parse($date1)->addDays($days)->format('Y-m-d') : date('Y-m-d', $date1),
-                                        // "event_reminders" => $eventReminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
                                     ])->save();
-                                    // Update user's event reminders
-                                    if($request->is_reminder_updated == 'yes') {
-                                        $this->updateEventUserReminder($caseEvent, $eventRecurring, $request);
-                                    }
                                 }
                             }
                         }                    
@@ -3143,7 +3068,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveMonthlyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($oldEvent, $request);
                             $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
                             $eventLinkedClient = $this->getEventLinkedContactLeadJson($oldEvent, $request);
                             $period = \Carbon\CarbonPeriod::create($start_date, date("Y-m-d", $recurringEndDate));
@@ -3155,15 +3079,11 @@ class CaseController extends BaseController
                                         "event_id" => $oldEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        // "event_reminders" => $eventReminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
                                     ])->save();
-                                    // Update user's event reminders
-                                    if($request->is_reminder_updated == 'yes') {
-                                        $this->updateEventUserReminder($oldEvent, $eventRecurring, $request);
-                                    }
                                 }
                             }
                         }
@@ -3334,7 +3254,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
                             $eventRecurring = $this->saveDailyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($eitem, $request);
                             $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                             $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
@@ -3342,16 +3261,11 @@ class CaseController extends BaseController
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    // 'event_reminders' => $eventReminders,
+                                    'event_reminders' => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     'event_linked_staff' => $eventLinkStaff,
                                     'event_linked_contact_lead' => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
-
-                                // Update user's event reminders
-                                if($request->is_reminder_updated == 'yes') {
-                                    $this->updateEventUserReminder($eitem, $ritem, $request);
-                                }
                             }
                         }
 
@@ -3389,23 +3303,17 @@ class CaseController extends BaseController
                             $eventRecurring = $this->saveBusinessDayRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
-                            // $eventReminders = $this->getEventReminderJson($eitem, $request);
                             $eventLinkStaff = $this->geteventLinkedStaffJson($eitem, $request);
                             $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                             $days = $this->getDatesDiffDays($request);
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    // 'event_reminders' => $eventReminders,
+                                    'event_reminders' => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     'event_linked_staff' => $eventLinkStaff,
                                     'event_linked_contact_lead' => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
-
-                                // Update user's event reminders
-                                if($request->is_reminder_updated == 'yes') {
-                                    $this->updateEventUserReminder($eitem, $ritem, $request);
-                                }
                             }
                         }
 
@@ -3441,22 +3349,16 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($eitem, $request);
                             $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                             $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
-                                    // "event_reminders" => $eventReminders,
+                                    "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     "event_linked_staff" => $eventLinkStaff,
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
-
-                                // Update user's event reminders
-                                if($request->is_reminder_updated == 'yes') {
-                                    $this->updateEventUserReminder($eitem, $ritem, $request);
-                                }
                             }
                         }
                         $eitem->fill([
@@ -3493,7 +3395,6 @@ class CaseController extends BaseController
                             EventRecurring::where("event_id", $eitem->id)->forcedelete();
                             $eventRecurring = $this->saveWeeklyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
-                            // $eventReminders = $this->getEventReminderJson($eitem, $request);
                             $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                             $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
@@ -3501,16 +3402,11 @@ class CaseController extends BaseController
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    // "event_reminders" => $eventReminders,
+                                    "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     "event_linked_staff" => $eventLinkStaff,
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
-
-                                // Update user's event reminders
-                                if($request->is_reminder_updated == 'yes') {
-                                    $this->updateEventUserReminder($eitem, $ritem, $request);
-                                }
                             }
                         }
                         $eitem->fill([
@@ -3540,7 +3436,6 @@ class CaseController extends BaseController
                 } else if($request->event_frequency == 'MONTHLY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        // $eventReminders = $this->getEventReminderJson($eitem, $request);
                         $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                         $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                         if($request->monthly_frequency != $eitem->monthly_frequency || $request->event_interval_month != $eitem->event_interval_month || isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate) {
@@ -3553,16 +3448,11 @@ class CaseController extends BaseController
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    // "event_reminders" => $eventReminders,
+                                    "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     "event_linked_staff" => $eventLinkStaff,
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
-
-                                // Update user's event reminders
-                                if($request->is_reminder_updated == 'yes') {
-                                    $this->updateEventUserReminder($eitem, $ritem, $request);
-                                }
                             }
                         }
 
@@ -3688,8 +3578,11 @@ class CaseController extends BaseController
                 ->where("users.user_type","5")->where("users.user_level","5")->where("firm_id", $authUser->firm_name)
                 ->where("lead_additional_info.is_converted","no")->get();
             $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->first();
-            $eventUserReminder = EventUserReminder::where("event_id", $request->evnt_id)->where("event_recurring_id", $request->event_recurring_id)->where("user_id", auth()->id())->first();
-            $eventReminderData = ($eventUserReminder) ? encodeDecodeJson($eventUserReminder->event_reminders) : [];
+            $eventReminderData = [];
+            if($eventRecurring) {
+                $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
+                $eventReminderData = (isset($decodeReminder[auth()->id()])) ? $decodeReminder[auth()->id()] : [];
+            }
             $fromPageRoute = $request->from_page_route ?? Null;
             return view('case.event.loadEditEvent',compact(/* 'CaseMasterClient', */'CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','eventRecurring', 'fromPageRoute'));          
     }
@@ -4392,11 +4285,8 @@ class CaseController extends BaseController
         exit; */
         $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->first();
         if($eventRecurring) {
-            $eventUserReminder = EventUserReminder::where('event_id', $request->event_id)->where('event_recurring_id', $request->event_recurring_id)->where('user_id', auth()->id())->first();
-            if($eventUserReminder) {
-                $eventReminder = encodeDecodeJson($eventUserReminder->event_reminders);
-                return view('case.event.loadReminderHistory', compact( 'eventReminder'));  
-            }
+            $eventReminder = encodeDecodeJson($eventRecurring->event_reminders)[auth()->id()] ?? [];
+            return view('case.event.loadReminderHistory', compact( 'eventReminder'));  
         }
         return response()->json(["errors" => "Record not found"]);
     }
