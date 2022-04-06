@@ -3373,6 +3373,12 @@ $nonBillableAmount = 0;
                         $('#adjustment_delete').val('1');
                         changeCase();
                     }
+                }, function (dismiss) {
+                    $("#bill_from_date").prop("disabled", true);
+                    $("#bill_to_date").prop("disabled", true);
+                    $('#bill_from_date').val('');            
+                    $('#bill_to_date').val(''); 
+                    $("input:checkbox#range_check_box").prop("checked",false);                    
                 });
             }else{
                 if($('#bill_from_date').val != '' && $(this).val() != ''){
@@ -4328,7 +4334,9 @@ $nonBillableAmount = 0;
         if ($(this).is(":checked")) {
             $('#bill_from_date').removeAttr("disabled");
             $('#bill_to_date').removeAttr("disabled");
-            $('#adjustment_delete').val('1');
+            if(localStorage.getItem("showWarning") > 0){
+                $('#adjustment_delete').val('1');
+            }
         } else {
             $("#bill_from_date").prop("disabled", true);
             $("#bill_to_date").prop("disabled", true);

@@ -37,8 +37,8 @@
             locale: {
                 applyLabel: 'Select'
             },
-            // startDate: '01/01/2020',
-            startDate: moment().subtract(1, 'month').startOf('month'),
+            startDate: '01/01/2020',
+            // startDate: moment().subtract(1, 'month').startOf('month'),
             endDate: moment(),
             ranges: {
                 'All Days': ['01/01/2020', moment()],

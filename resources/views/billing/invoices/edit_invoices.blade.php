@@ -2800,7 +2800,17 @@ $nonBillableAmount = 0;
                         $('#adjustment_delete').val('1');
                         changeCase();
                     }
+                }, function (dismiss) {
+                    $("#bill_from_date").prop("disabled", true);
+                    $("#bill_to_date").prop("disabled", true);
+                    $('#bill_from_date').val('');            
+                    $('#bill_to_date').val(''); 
+                    $("input:checkbox#range_check_box").prop("checked",false);   
                 });
+            }else{
+                if($('#bill_from_date').val != '' && $(this).val() != ''){
+                    changeCase();
+                }
             }
         });
 
@@ -4706,28 +4716,11 @@ function allowPaymentPlan(){
 <?php } ?>
 $("input:checkbox#range_check_box").click(function () {
     if ($(this).is(":checked")) {
-        swal({
-            title: 'warning',
-            text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#0CC27E',
-            cancelButtonColor: '#FF586B',
-            cancelButtonText: 'Close',
-            confirmButtonText: 'Proceed',
-            confirmButtonClass: 'btn btn-success',
-            cancelButtonClass: 'btn btn-danger  mr-2',
-            buttonsStyling: false,
-            reverseButtons: true
-        }).then(function () {
-            $(function () {
-                $('#bill_from_date').removeAttr("disabled");
-                $('#bill_to_date').removeAttr("disabled");
-                $('#adjustment_delete').val('1');
-            });
-        }, function (dismiss) {
-            $("#range_check_box").prop('checked', false);
-        }); 
+        $('#bill_from_date').removeAttr("disabled");
+        $('#bill_to_date').removeAttr("disabled");
+        if(localStorage.getItem("showWarning") > 0){
+            $('#adjustment_delete').val('1');
+        }         
     } else {
         $("#bill_from_date").attr("disabled", true);
         $("#bill_to_date").attr("disabled", true);

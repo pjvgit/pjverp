@@ -2629,8 +2629,10 @@ class BillingController extends BaseController
                 ->where("flat_fee_entry.is_primary_flat_fee","no")
                 ->where("flat_fee_entry.remove_from_current_invoice","no")
                 ->where("flat_fee_entry.token_id","!=",'9999999')
+                ->orWhereNull("flat_fee_entry.token_id")
                 ->delete();
             }else{
+                \Log::info("2634 calling.... tempInvoiceToken : ".$tempInvoiceToken." and request->token : ".$request->token);
                 $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
                 ->where("flat_fee_entry.user_id",auth()->id())
                 ->where("flat_fee_entry.invoice_link",NULL)
@@ -2711,11 +2713,11 @@ class BillingController extends BaseController
                 $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
             });
             
-            if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [$startDt,$endDt]);
-            }
+            // if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
+            //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+            //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+            //     $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [$startDt,$endDt]);
+            // }
             $FlatFeeEntry=$FlatFeeEntry->get();
             
             //Get the Adjustment list            
@@ -4055,9 +4057,9 @@ class BillingController extends BaseController
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
             $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
         }       
-        if($request->payment_plan == "on" && ($request->number_installment_field == null || $request->amount_per_installment_field == null)){
-            $rules['number_installment_field'] = 'required';
-        }       
+        // if($request->payment_plan == "on" && ($request->number_installment_field == null || $request->amount_per_installment_field == null)){
+        //     $rules['number_installment_field'] = 'required';
+        // }       
         $request->validate($rules,
         [
             "invoice_number_padded.unique"=>"Invoice number is already taken",
@@ -4269,8 +4271,8 @@ class BillingController extends BaseController
                 $InvoicePaymentPlan=new InvoicePaymentPlan;
                 $InvoicePaymentPlan->invoice_id=$InvoiceSave->id;                    
                 $InvoicePaymentPlan->start_date=date('Y-m-d',strtotime($request->start_date));
-                $InvoicePaymentPlan->per_installment_amt=str_replace(",","",$request->amount_per_installment_field);                    
-                $InvoicePaymentPlan->no_of_installment=$request->number_installment_field;                    
+                $InvoicePaymentPlan->per_installment_amt=str_replace(",","",($request->amount_per_installment_field ?? $request->new_payment_plans[0]['amount']));                    
+                $InvoicePaymentPlan->no_of_installment=$request->number_installment_field ?? count($request->new_payment_plans);                    
                 $InvoicePaymentPlan->repeat_by=$request->installment_frequency_field;
                 if(isset($request->with_first_payment)){                    
                     $InvoicePaymentPlan->is_set_first_installment=$request->with_first_payment;                    
@@ -5746,23 +5748,26 @@ class BillingController extends BaseController
             $TimeEntry=$TimeEntry->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd");
             $TimeEntry=$TimeEntry->where("time_entry_for_invoice.invoice_id",$invoiceID);
             // ->where("task_time_entry.remove_from_current_invoice","no")
-            // if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
-            //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-            //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-            //     $TimeEntry=$TimeEntry->whereBetween('task_time_entry.entry_date', [$startDt,$endDt]);
-            // }
+            if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $TimeEntry=$TimeEntry->whereBetween('task_time_entry.entry_date', [$startDt,$endDt]);
+            }
             $TimeEntry=$TimeEntry->get();
         
             //Get the Expense Entry list
             $ExpenseEntry=ExpenseForInvoice::leftJoin("expense_entry","expense_for_invoice.expense_entry_id","=","expense_entry.id");
-            $ExpenseEntry=$ExpenseEntry->leftJoin("users","users.id","=","expense_entry.user_id")->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")->where("expense_entry.case_id",$case_id);
+            $ExpenseEntry=$ExpenseEntry->leftJoin("users","users.id","=","expense_entry.user_id")
+            ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
+            ->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")
+            ->where("expense_entry.case_id",$case_id);
             // ->where("expense_entry.remove_from_current_invoice","no")
             $ExpenseEntry=$ExpenseEntry->where("expense_for_invoice.invoice_id",$invoiceID);
-            // if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
-            //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-            //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-            //     $ExpenseEntry=$ExpenseEntry->whereBetween('expense_entry.entry_date', [$startDt,$endDt]);
-            // }
+            if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $ExpenseEntry=$ExpenseEntry->whereBetween('expense_entry.entry_date', [$startDt,$endDt]);
+            }
             $ExpenseEntry=$ExpenseEntry->get();
             
             //Get the Adjustment list
@@ -5996,6 +6001,12 @@ class BillingController extends BaseController
             //Time entry referance
             if(!empty($request->timeEntrySelectedArray)){
                 TimeEntryForInvoice::where("invoice_id",$InvoiceSave->id)->delete();
+                TaskTimeEntry::where("case_id",$request->court_case_id)
+                ->where("invoice_link",$InvoiceSave->id)
+                ->update([
+                    'status'=>'unpaid',
+                    'invoice_link'=>null
+                ]);
                 foreach($request->timeEntrySelectedArray as $k=>$v){
                     $TimeEntryForInvoice=new TimeEntryForInvoice;
                     $TimeEntryForInvoice->invoice_id=$InvoiceSave->id;                    
@@ -6010,10 +6021,25 @@ class BillingController extends BaseController
                         ]);
                     // }
                 }
+            }else{
+                TimeEntryForInvoice::where("invoice_id",$InvoiceSave->id)->delete();
+                TaskTimeEntry::where("case_id",$request->court_case_id)
+                ->where("invoice_link",$InvoiceSave->id)
+                ->update([
+                    'status'=>'unpaid',
+                    'invoice_link'=>null
+                ]);
             }
+
             //Expense entry referance
             if(!empty($request->expenseEntrySelectedArray)){
                 ExpenseForInvoice::where("invoice_id",$InvoiceSave->id)->delete();
+                ExpenseEntry::where("case_id",$request->court_case_id)
+                ->where("invoice_link",$InvoiceSave->id)
+                ->update([
+                    'status'=>'unpaid',
+                    'invoice_link'=>null
+                ]);
                 foreach($request->expenseEntrySelectedArray as $k=>$v){
                     $ExpenseEntryForInvoice=new ExpenseForInvoice;
                     $ExpenseEntryForInvoice->invoice_id=$InvoiceSave->id;                    
@@ -6028,6 +6054,14 @@ class BillingController extends BaseController
                         ]);
                     // }
                 }
+            }else{
+                ExpenseForInvoice::where("invoice_id",$InvoiceSave->id)->delete();
+                ExpenseEntry::where("case_id",$request->court_case_id)
+                ->where("invoice_link",$InvoiceSave->id)
+                ->update([
+                    'status'=>'unpaid',
+                    'invoice_link'=>null
+                ]);
             }
 
             //Invoice Shared With Client
@@ -6080,13 +6114,14 @@ class BillingController extends BaseController
             }
 
             if(isset($request->payment_plan)){
-                if(isset($request->amount_per_installment_field) && isset($request->number_installment_field)){
+                // if(isset($request->amount_per_installment_field) && isset($request->number_installment_field)){
+                if(count($request->new_payment_plans) > 0){
                     InvoicePaymentPlan::where("invoice_id",$InvoiceSave->id)->delete();
                     $InvoicePaymentPlan=new InvoicePaymentPlan;
                     $InvoicePaymentPlan->invoice_id=$InvoiceSave->id;                    
                     $InvoicePaymentPlan->start_date=date('Y-m-d',strtotime($request->start_date));
-                    $InvoicePaymentPlan->per_installment_amt=str_replace(",","",$request->amount_per_installment_field);                    
-                    $InvoicePaymentPlan->no_of_installment=$request->number_installment_field;                    
+                    $InvoicePaymentPlan->per_installment_amt=str_replace(",","",($request->amount_per_installment_field ?? $request->new_payment_plans[0]['amount']));                    
+                    $InvoicePaymentPlan->no_of_installment=$request->number_installment_field ?? count($request->new_payment_plans);                    
                     $InvoicePaymentPlan->repeat_by=$request->installment_frequency_field;
                     if(isset($request->with_first_payment)){                    
                         $InvoicePaymentPlan->is_set_first_installment=$request->with_first_payment;                    
@@ -9029,10 +9064,12 @@ class BillingController extends BaseController
                 $timeEntryTotal=0;
                 if(!$TimeEntry->isEmpty()){
                     foreach($TimeEntry as $k=>$v){
-                        if($v->rate_type=="flat"){
-                            $timeEntryTotal+=$v->entry_rate;
-                        }else{
-                            $timeEntryTotal+=($v->entry_rate*$v->duration);
+                        if($v->time_entry_billable == 'yes'){
+                            if($v->rate_type=="flat"){
+                                $timeEntryTotal+=$v->entry_rate;
+                            }else{
+                                $timeEntryTotal+=($v->entry_rate*$v->duration);
+                            }
                         }
                     }
                 }
@@ -9051,14 +9088,15 @@ class BillingController extends BaseController
                 $expenseEntryTotal=0;
                 if(!$ExpenseEntry->isEmpty()){
                     foreach($ExpenseEntry as $k=>$v){
-                        $expenseEntryTotal+=($v->cost*$v->duration);
+                        if($v->time_entry_billable == 'yes'){
+                            $expenseEntryTotal+=($v->cost*$v->duration);
+                        }
                     }
                 }
 
-
                 //  get the flat fee entry
                 $flatFinalTotalBillable=0;   
-                $FlatFeeEntryData=[];
+                $FlatFeeEntryData=$RemainFlatFeeEntryData = [];
                 if(in_array($caseClient->billing_method,["flat","mixed"])){
                     $FlatFeeEntry=FlatFeeEntry::select("flat_fee_entry.*")
                     ->where("flat_fee_entry.case_id",$caseVal);
@@ -9069,12 +9107,29 @@ class BillingController extends BaseController
                         foreach($FlatFeeEntry as $k =>$v){
                             if($v->status == 'paid'){
                                 $flatFinalTotalBillable += str_replace(",","",number_format($v->cost, 2));
-                            }else{                                
+                            }else{
                                 $FlatFeeEntryData[] = $v;
+                                $flatTotalBillable = $v->cost;
                             }
                         }
-                        $flatFinalTotalBillable = ($caseClient->billing_amount - $flatTotalBillable);
+                        // dd($caseClient->billing_amount .'-'. $flatFinalTotalBillable);
+                        $flatFinalTotalBillable = ($caseClient->billing_amount - $flatFinalTotalBillable);
                         $flatFinalTotalBillable = ($flatFinalTotalBillable >= 0 ) ?  $flatFinalTotalBillable : 0;                        
+                        // dd($flatTotalBillable .'-->'.$flatFinalTotalBillable);
+                        if($flatFinalTotalBillable > 0 && $flatTotalBillable == 0){
+                            $flatFeeNewEntry = FlatFeeEntry::create([
+                                'case_id' => $caseVal,
+                                'user_id' => auth()->id(),
+                                'entry_date' => Carbon::now(),
+                                'cost' =>  $flatFinalTotalBillable,
+                                'time_entry_billable' => 'yes',
+                                'status'=>'paid',
+                                'firm_id' => Auth::User()->firm_name,
+                                'token_id' => round(microtime(true) * 1000),
+                                'created_by' => auth()->id(), 
+                            ]);
+                            $RemainFlatFeeEntryData[] = $flatFeeNewEntry;
+                        }
                     }else{                              
                         // $flatTotalBillable = 0;          
                         // $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
@@ -9090,7 +9145,9 @@ class BillingController extends BaseController
                 }
                 $subTotal=$flatFinalTotalBillable+$timeEntryTotal+$expenseEntryTotal;
                 \Log::info("subTotal : ".$subTotal);
+                // dd($subTotal);
                 // dd($FlatFeeEntryData);
+                // dd($RemainFlatFeeEntryData);
                 if($subTotal > 0){
                     $InvoiceSave=new Invoices;
                     $InvoiceSave->id=$request->invoice_number_padded;
@@ -9178,6 +9235,23 @@ class BillingController extends BaseController
                                     'status'=>'paid',
                                     'invoice_link'=>$InvoiceSave->id
                                 ]);
+                            }
+                        }
+                    }else{
+                        if(!empty($RemainFlatFeeEntryData)){
+                            if(count($RemainFlatFeeEntryData) > 0){
+                                foreach($RemainFlatFeeEntryData as $k =>$v){
+                                    $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                                    $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                                    $FlatFeeEntryForInvoice->flat_fee_entry_id=$v->id;
+                                    $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                                    $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                                    $FlatFeeEntryForInvoice->save();
+                                    DB::table('flat_fee_entry')->where("id",$v->id)->update([
+                                        'status'=>'paid',
+                                        'invoice_link'=>$InvoiceSave->id
+                                    ]);
+                                }
                             }
                         }
                     }
