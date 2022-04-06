@@ -9693,6 +9693,7 @@ class BillingController extends BaseController
     }
     public function saveDepositIntoTrustPopup(Request $request)
     {
+        // return convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone);
         // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
         if(isset($request->applied_to) && $request->applied_to!=0){
@@ -9739,13 +9740,13 @@ class BillingController extends BaseController
             DB::table('users_additional_info')->where('user_id',$request->trust_account)->increment('trust_account_balance', $request['amount']);
 
             $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
-            
+            $authUserTimezone = auth()->user()->user_timezone;
             $TrustInvoice=new TrustHistory;
             $TrustInvoice->client_id=$request->trust_account;
             $TrustInvoice->payment_method=$request->payment_method;
             $TrustInvoice->amount_paid=$request->amount;
             $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
-            $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone);
+            $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), $authUserTimezone);
             $TrustInvoice->notes=$request->notes;
             $TrustInvoice->fund_type='diposit';
             $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
@@ -9764,6 +9765,7 @@ class BillingController extends BaseController
 
             // Account activity
             $request->request->add(["payment_type" => 'deposit']);
+            $request->request->add(["payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), $authUserTimezone)]);
             $request->request->add(["trust_history_id" => $TrustInvoice->id]);
             $this->updateTrustAccountActivity($request);
 
