@@ -201,6 +201,7 @@ class CalendarController extends BaseController
                     "edit_recurring_pattern" => $item->event->edit_recurring_pattern,
                     "event_linked_staff" => encodeDecodeJson($item->event_linked_staff),
                     "event_linked_contact_lead" => encodeDecodeJson($item->event_linked_contact_lead),
+                    "event_comments" => $item->event_comments,
                     "is_SOL" => "no",
                     "sol_satisfied" => "no",
                     "case_id" => $item->event->case_id,

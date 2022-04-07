@@ -576,6 +576,7 @@ if(isset($_GET['view']) &&  $_GET['view']=='week'){
                 }
                 var today = moment().day();
             $('#calendarq').fullCalendar({
+                // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
                 lazyFetching:false,
                 firstDay: 0,
                 timezone: "@if(auth()->user()->user_timezone) {{auth()->user()->user_timezone}} @else 'UTC' @endif",

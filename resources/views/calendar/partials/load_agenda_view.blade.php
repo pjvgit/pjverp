@@ -44,14 +44,14 @@
                     </td>
                     <td class="event-users">
                         @php
-                            $isAuthUserLinked = $item->event_linked_staff->where('user_id', $authUser->id)->first();
+                            $eventLinkedStaff = encodeDecodeJson($item->event_linked_staff);
+                            $isAuthUserLinked = $eventLinkedStaff->where('user_id', $authUser->id)->first();
                         @endphp
-                        @if(!empty($item->event_linked_staff) && ($isAuthUserLinked || $authUser->parent_user == 0))
+                        @if(!empty($item->event_linked_staff) && ($isAuthUserLinked))
                             @php    
                                 $linkedUser = [];
-                                $linkedStaff = encodeDecodeJson($item->event_linked_staff);
-                                if(count($linkedStaff)) {
-                                    foreach($linkedStaff as $skey => $sitem) {
+                                if(count($eventLinkedStaff)) {
+                                    foreach($eventLinkedStaff as $skey => $sitem) {
                                         $user = getUserDetail($sitem->user_id);
                                         $linkedUser[] = [
                                             'user_id' => $sitem->user_id,
@@ -130,8 +130,26 @@
                                 <button type="button" class="mark-as-read-button float-right m-1 btn btn-secondary" onclick="markEventAsRead({{ $item->event_id }});">Mark as Read</button>
                             @else
                                 <div class="">
+                                    @if($isAuthUserLinked)
                                     <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup" data-placement="bottom" href="javascript:;" onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->event_recurring_id}});"> <i class="fas fa-bell pr-2 align-middle"></i> </a>
-                                    <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup" data-placement="bottom" href="javascript:;" onclick="loadEventComment({{$item->event_id}}, {{$item->event_recurring_id}}, 'events');"> <i class="fas fa-comment-alt pr-2 align-middle"></i> </a>
+                                    @endif
+                                    @canany(['commenting_add_edit', 'commenting_view'])
+                                    <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup" data-placement="bottom" href="javascript:;" onclick="loadEventComment({{$item->event_id}}, {{$item->event_recurring_id}}, 'events');">
+                                        @php
+                                            $commentCount = 0;
+                                            if(count($eventLinkedStaff)) {
+                                                $lastReadAt = $eventLinkedStaff->where('user_id', $authUser->id)->first();
+                                                $comments = encodeDecodeJson($item->event_comments);
+                                                if($lastReadAt)
+                                                    $commentCount = $comments->where("action_type", "0")->where("created_at", ">=", $lastReadAt->comment_read_at)->count();
+                                            }
+                                        @endphp
+                                        <i class="fas fa-comment-alt @if(!$commentCount) pr-2 @endif"></i>
+                                        @if($commentCount)
+                                        <span class="badge badge-danger comment-count comment-count-{{ $item->event_recurring_id }}">{{ $commentCount }}</span>
+                                        @endif
+                                    </a>
+                                    @endcanany
                                     @can('event_add_edit')
                                     <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->event_id}}, {{$item->event_recurring_id}}, 'events');">
                                         <i class="fas fa-pen pr-2  align-middle"></i> 

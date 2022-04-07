@@ -4600,7 +4600,7 @@ class BillingController extends BaseController
             
             $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoiceID)->get();
 
-            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
+            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->with('invoicePayment')->get();
 
 
             $SharedInvoiceCount=SharedInvoice::Where("invoice_id",$invoiceID)->count();
@@ -9839,7 +9839,6 @@ class BillingController extends BaseController
 
             // Account activity
             $request->request->add(["payment_type" => 'deposit']);
-            $request->request->add(["payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), $authUserTimezone)]);
             $request->request->add(["trust_history_id" => $TrustInvoice->id]);
             $this->updateTrustAccountActivity($request);
 
@@ -11098,7 +11097,7 @@ class BillingController extends BaseController
      */
     public function invoiceActivityHistory(Request $request)
     {
-        $InvoiceHistory=InvoiceHistory::where("invoice_id",$request->id)->orderBy("id","DESC")->get();
+        $InvoiceHistory=InvoiceHistory::where("invoice_id",$request->id)->orderBy("id","DESC")->with('invoicePayment')->get();
         $lastEntry= $InvoiceHistory->first();
         return view("billing.invoices.partials.load_invoice_activity_history", ["InvoiceHistory" => $InvoiceHistory, 'lastEntry' => $lastEntry])->render();
     }
