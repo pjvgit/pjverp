@@ -60,7 +60,8 @@
                 { data: 'id'}
             ],
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
-                $('td:eq(3)', nRow).html('<div class="text-center nowrap"><a data-toggle="modal"  data-target="#loadMessagesEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadMessagesEntryPopup('+aData.id+');"><i class="fas fa-eye p-2"></i></a></div>');
+                var is_global = (aData.is_global == 0) ? '<i class="fas fa-eye p-2"></i>' : '';
+                $('td:eq(3)', nRow).html('<div class="text-center nowrap"><a data-toggle="modal"  data-target="#loadMessagesEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadMessagesEntryPopup('+aData.id+');">'+is_global+'</a></div>');
             }
         });
     });

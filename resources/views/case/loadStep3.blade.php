@@ -52,7 +52,7 @@
         </div>
         <div class="form-group row float-right">
             <button type="submit"  class="btn btn-primary ladda-button example-button m-1" data-style="expand-right">
-                <span class="ladda-label">Continue to staff</span>
+                <span class="ladda-label">Continue to Staff</span>
             </button>
         </div>
         <div class="form-group row">

@@ -10193,7 +10193,8 @@ class BillingController extends BaseController
         $getChildUsers=$this->getParentAndChildUserIds();
 
         $FinalArra=[];$monthTotal=$monthHours=0;
-        $startDate=date('Y-m-d',strtotime($request->start));
+        // $startDate=date('Y-m-d',strtotime($request->start));
+        $startDate = Carbon::parse($request->start)->addMonth(1)->format('Y-m-01');   
         $endDate=date('Y-m-d',strtotime($request->end));
         $monthTimeEntryData = TaskTimeEntry::select('task_time_entry.*')
         ->whereIn('created_by',$getChildUsers);

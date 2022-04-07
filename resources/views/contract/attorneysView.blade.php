@@ -844,7 +844,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 </div>
                                                 <div class="form-group row float-right">
                                                     <button type="button"  class="btn btn-primary ladda-button example-button m-1" data-style="expand-right" onclick="StatusLoadStep4();">
-                                                        <span class="ladda-label">Continue to staff</span>
+                                                        <span class="ladda-label">Continue to Staff</span>
                                                     </button>
                                                 </div>
                                                 <div class="form-group row">

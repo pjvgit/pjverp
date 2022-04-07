@@ -267,68 +267,97 @@ console.log("localStorage > counter : " + localStorage.getItem("counter"));
 console.log("localStorage > pauseCounter : " + localStorage.getItem("pauseCounter"));
 console.log("localStorage > smart_timer_created_by : " + smart_timer_created_by);
 
-
-// if (localStorage.getItem("counter") > 0 && smart_timer_id != null && smart_timer_created_by == $("#auth_login_user_id").val()) {
-//     totalSeconds = localStorage.getItem("counter");
-//     totalSeconds = totalSeconds - 1;
-//     $("#smart_timer_id").val(smart_timer_id);
-//     if (localStorage.getItem("pauseCounter") != 'yes') {
-//         $(".logoutTimerAlert").show();
-//         intervalId = setInterval(timerstart, 1000);
-//     } else {
-//         $(".logoutTimerAlert").hide();
-//         timerstart();
-//         $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
-//         $(".timerAction").removeClass("fa-pause").addClass("fa-play");
-//         $(".timerAction").attr('id', 'startCounter');
-//     }
-// } else {
-    $.ajax({
-        url: baseUrl + "/checkTimerExits",
-        type: 'GET',
-        data: {},
-        success: function(data) {
-            if (data.status == "success" && data.smartTimer.id > 0) {
-                localStorage.setItem("pauseCounter", 'no');
-                localStorage.setItem("smart_timer_created_by", data.smartTimer.user_id);
-                localStorage.setItem("smart_timer_id", data.smartTimer.id);
-                totalSeconds = data.runningSeconds;                
-                hour = Math.floor(totalSeconds / 3600);
-                minute = Math.floor((totalSeconds - hour * 3600) / 60);
-                seconds = totalSeconds - (hour * 3600 + minute * 60);
-                $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
-                $("#smart_timer_id").val(data.smartTimer.id);
-                $("#timer_case_id").val(data.smartTimer.case_id);
-                $("#timer_text_field").val(data.smartTimer.comments);
-                if (data.smartTimer.stopped_at != null) {
-                    if (data.smartTimer.is_pause == 0) {
-                        $(".logoutTimerAlert").show();
-                        $(".js-timer-root .text-nowrap").html('');
-                        localStorage.setItem("pauseCounter", 'yes');
-                        intervalId = setInterval(timerstart, 1000);
-                    } else {
-                        $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
-                        $(".timerAction").removeClass("fa-pause").addClass("fa-play");
-                        $(".timerAction").attr('id', 'startCounter');
-                    }
+$.ajax({
+    url: baseUrl + "/checkTimerExits",
+    type: 'GET',
+    data: {},
+    success: function(data) {
+        if (data.status == "success" && data.smartTimer.id > 0) {
+            localStorage.setItem("smart_timer_created_by", data.smartTimer.user_id);
+            localStorage.setItem("smart_timer_id", data.smartTimer.id);
+            localStorage.setItem("deleteTimer", '');
+            totalSeconds = data.runningSeconds;                
+            hour = Math.floor(totalSeconds / 3600);
+            minute = Math.floor((totalSeconds - hour * 3600) / 60);
+            seconds = totalSeconds - (hour * 3600 + minute * 60);
+            $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
+            $("#smart_timer_id").val(data.smartTimer.id);
+            $("#timer_case_id").val(data.smartTimer.case_id);
+            $("#timer_text_field").val(data.smartTimer.comments);
+            if (data.smartTimer.stopped_at != null) {
+                if (data.smartTimer.is_pause == 0) {
+                    $(".logoutTimerAlert").show();
+                    $(".js-timer-root .text-nowrap").html('');
+                    localStorage.setItem("pauseCounter", 'yes');
+                    intervalId = setInterval(timerstart, 1000);
                 } else {
-                    if (data.smartTimer.is_pause == 0) {
-                        $(".logoutTimerAlert").show();
-                        $(".js-timer-root .text-nowrap").html('');
-                        localStorage.setItem("pauseCounter", 'yes');
-                        intervalId = setInterval(timerstart, 1000);
-                    } else {
-                        $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
-                        $(".timerAction").removeClass("fa-pause").addClass("fa-play");
-                        $(".timerAction").attr('id', 'startCounter');
-                    }
+                    $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+                    $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                    $(".timerAction").attr('id', 'startCounter');
+                    localStorage.setItem("pauseCounter", 'no');
                 }
             } else {
-                removeLocalStorage();
+                if (data.smartTimer.is_pause == 0) {
+                    $(".logoutTimerAlert").show();
+                    $(".js-timer-root .text-nowrap").html('');
+                    localStorage.setItem("pauseCounter", 'yes');
+                    intervalId = setInterval(timerstart, 1000);
+                } else {
+                    $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+                    $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                    $(".timerAction").attr('id', 'startCounter');
+                    localStorage.setItem("pauseCounter", 'no');
+                }
+            }
+        } else {
+            removeLocalStorage();
+        }
+    }
+});
+
+$(window).on('storage', function (e) {
+    var storageEvent = e.originalEvent;
+    if(localStorage.getItem("smart_timer_id") != null) {
+        console.log("storage > smart_timer_id >" + localStorage.getItem("smart_timer_id"));
+        console.log("storage > event > key > " + storageEvent.key);
+        if ((storageEvent.key == 'pauseCounter')) {
+            if(storageEvent.oldValue == 'yes'){
+                console.log('storage > Pause Timer');
+                $(".timerCounter").hide();
+                $(".logoutTimerAlert").hide();
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    localStorage.setItem("pauseCounter", 'no');
+                    intervalId = null;
+                }
+                $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                $(".timerAction").attr('id', 'startCounter');
+                $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+            }else{    
+            // Event detected, do some really useful thing here ;)
+                console.log('storage > Resume Timer');
+                $(".timerCounter").hide();
+                $(".logoutTimerAlert").show();
+                if (!intervalId) {
+                    localStorage.setItem("pauseCounter", 'yes');
+                    intervalId = setInterval(timerstart, 1000);
+                }
+                $(".timerAction").removeClass("fa-play").addClass("fa-pause");
+                $(".timerAction").attr('id', 'pauseCounter');
             }
         }
-    });
-// }
+    }else{
+        clearInterval(intervalId);
+        totalSeconds = 0;
+        $(".timerCounter").hide();
+        $(".logoutTimerAlert").hide();
+        $("#smart_timer_id").val('');
+        $("#timer_case_id").val('');
+        $(".js-timer-root .text-nowrap").html("");
+        $(".js-timer-root .time-status").html("");
+        $(".js-timer-root .text-nowrap").html("Start Timer");
+    }
+});
 
 if (smart_timer_created_by == null) {
     removeLocalStorage();
@@ -495,6 +524,8 @@ function resumeTimer() {
         success: function(data) {
             if (data.status == "error") {
                 removeLocalStorage();
+            }else{
+
             }
         },
     });
@@ -532,8 +563,8 @@ function browserClose() {
 }
 
 function removeLocalStorage() {
-    localStorage.setItem("counter", "0");
-    localStorage.setItem("pauseCounter", 'no');
+    localStorage.removeItem("counter");
+    localStorage.removeItem("pauseCounter");
     localStorage.removeItem("smart_timer_id");
     localStorage.removeItem("timer_case_id");
     localStorage.removeItem("smart_timer_created_by");
