@@ -387,8 +387,10 @@
                         <div class="form-group row">
                             <label for="reminders" class="col-sm-2 col-form-label">Reminders</label>
                             <div class="col">
+                                <p><b>Note:</b> You must be linked to this Event in order to create reminders.</p>
                                 <div>
                                     <?php
+                                    if(!empty($isAuthUserLinked)) {
                                         foreach($eventReminderData as $rkey=>$rval){
                                         ?>
                                         <div class="form-group fieldGroupEventReminder">
@@ -435,7 +437,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <?php } ?>
+                                    <?php } } ?>
                                     <div class="fieldGroupEventReminder">
                                     </div>
                                     <div class="text-muted mb-2">You can only edit reminders that you created. Reminders assigned to you by another firm user will need to be edited by the creator.</div>

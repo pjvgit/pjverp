@@ -86,7 +86,7 @@
                             {{ ucfirst($value->acrtivity_title) }}
                         </td>
                         <td class="invoice-history-row-date">
-                            {{$value->added_date}}
+                            {{ ($value->invoicePayment) ? date('M j, Y', strtotime($value->invoicePayment->payment_date)) : $value->added_date}}
                         </td>
                         <td class="invoice-history-row-pay-type">
                             <?php  $Displayval='<i class="table-cell-placeholder"></i>';
@@ -236,7 +236,7 @@
                             {{ ucfirst($value->acrtivity_title) }}
                         </td>
                         <td class="invoice-history-row-date">
-                            {{$value->added_date}}
+                            {{ ($value->invoicePayment) ? date('M j, Y', strtotime($value->invoicePayment->payment_date)) : $value->added_date}}
                         </td>
                         <td class="invoice-history-row-pay-type">
                             <?php 

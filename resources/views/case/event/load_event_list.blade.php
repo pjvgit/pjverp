@@ -73,7 +73,7 @@
             @endif
         </td>
         <td class="c-pointer">
-            @if(!empty($item->event->eventType) && ($isAuthUserLinked || $authUser->parent_user == 0 || auth()->user()->hasPermissionTo('access_all_cases')))
+            @if(!empty($item->event->eventType) && ($isAuthUserLinked || auth()->user()->hasPermissionTo('access_all_cases')))
             <div class="d-flex align-items-center mt-3">
                 <div class="mr-1"
                     style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$item->event->eventType->color_code }}">
@@ -84,7 +84,7 @@
             @endif
         </td>
         <td class="event-users">
-            @if(!empty($item->event_linked_staff) && ($isAuthUserLinked || $authUser->parent_user == 0 || auth()->user()->hasPermissionTo('access_all_cases')))
+            @if(!empty($item->event_linked_staff) && ($isAuthUserLinked || auth()->user()->hasPermissionTo('access_all_cases')))
                 @php    
                     $linkedUser = [];
                     $linkedStaff = encodeDecodeJson($item->event_linked_staff);
@@ -179,8 +179,8 @@
             @if($item->event->is_event_private=='yes' && !$isAuthUserLinked)
             @else
             <div class="mt-3 float-right">
-                @if($isAuthUserLinked || $authUser->parent_user == 0 || auth()->user()->hasPermissionTo('access_all_cases'))
-                    @if($isAuthUserLinked || $authUser->parent_user == 0)
+                @if($isAuthUserLinked || auth()->user()->hasPermissionTo('access_all_cases'))
+                    @if($isAuthUserLinked)
                         <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"
                             data-placement="bottom" href="javascript:;"
                             onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->id}});">

@@ -136,4 +136,14 @@ class InvoiceHistory extends Authenticatable
     {
         return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
+
+    /**
+     * Get the invoicePayment that owns the InvoiceHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoicePayment()
+    {
+        return $this->belongsTo(InvoicePayment::class, 'invoice_payment_id');
+    }
 }

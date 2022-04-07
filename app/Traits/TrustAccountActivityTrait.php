@@ -66,7 +66,7 @@ trait TrustAccountActivityTrait {
         }else{
             $activityHistory['total_amount'] = $request->amount;
         }
-        $activityHistory['entry_date']= $request->payment_date ?? date('Y-m-d');
+        $activityHistory['entry_date']= ($request->payment_date) ? convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), $authUser->user_timezone) : date('Y-m-d');
         $activityHistory['payment_method']=($request->payment_type == "refund payment deposit" || $request->payment_type == "refund payment") ? "Refund" : $request->payment_method ?? 'Trust';
         $activityHistory['payment_type']=$request->payment_type;
         $activityHistory['invoice_history_id']=$request->invoice_history_id ?? NULL;
@@ -137,7 +137,7 @@ trait TrustAccountActivityTrait {
         }else{
             $activityHistory['total_amount']=$request->amount;
         }
-        $activityHistory['entry_date']=date('Y-m-d');
+        $activityHistory['entry_date']= ($request->payment_date) ? convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), $authUser->user_timezone) : date('Y-m-d');
         $activityHistory['payment_method']=($request->payment_type == "refund payment deposit" || $request->payment_type == "refund payment" || $request->payment_type == "refund deposit") ? "Refund" : $request->payment_method ?? 'Trust';
         $activityHistory['payment_type']=$request->payment_type;
         $activityHistory['invoice_history_id']=$request->invoice_history_id ?? NULL;

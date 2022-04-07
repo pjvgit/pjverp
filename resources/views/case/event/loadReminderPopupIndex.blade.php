@@ -148,9 +148,9 @@
         $('#editReminderIndex').submit(function (e) {
             e.preventDefault();
             // $("#submit").attr("disabled", true);
-            $("#innerLoader").css('display', 'block');
+            $("#preloader").css('display', 'block');
             if (!$('#editReminderIndex').valid()) {
-                $("#innerLoader").css('display', 'none');
+                $("#preloader").css('display', 'none');
                 $('#submit').removeAttr("disabled");
                 return false;
             }
@@ -162,7 +162,7 @@
                 data: dataString,
                 success: function (res) {
                   
-                    $("#innerLoader").css('display', 'block');
+                    $("#preloader").css('display', 'block');
                     if (res.errors != '') {
                         $('#showError').html('');
                         var errotHtml =
@@ -173,7 +173,7 @@
                         errotHtml += '</ul></div>';
                         $('#showError').append(errotHtml);
                         $('#showError').show();
-                        $("#innerLoader").css('display', 'none');
+                        $("#preloader").css('display', 'none');
                         $('#submit').removeAttr("disabled");
                         return false;
                     } else {    
@@ -182,7 +182,7 @@
                                 containerId: "toast-top-full-width"
                             });
                         $("#loadEventReminderPopup").modal('hide');
-                        $("#innerLoader").css('display', 'none');
+                        $("#preloader").css('display', 'none');
                         loadReminderHistory($("#event_id").val(), $("#event_recurring_id").val());
                     }
                 }
