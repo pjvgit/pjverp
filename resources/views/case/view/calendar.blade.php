@@ -306,5 +306,15 @@ if(isset($_GET['upcoming_events'])){
         return false;  
     }
     $('#hiddenLable').hide();
+
+    document.onreadystatechange = function() {
+        if (document.readyState !== "complete") {
+            document.querySelector(
+                "#preLoader").style.display = "show";
+        } else {
+            document.querySelector(
+                "#preLoader").style.display = "none";
+        }
+    };
 </script>
 @stop
