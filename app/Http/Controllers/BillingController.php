@@ -2116,6 +2116,48 @@ class BillingController extends BaseController
                 InvoiceInstallment::where("invoice_id", $Invoices->id)->delete();
                 InvoicePayment::where("invoice_id",$Invoices->id)->delete();
 
+                // remove all flat fee entry and create new one if no any paid entry found for case
+                if($Invoices->case_id > 0){
+                    $CaseMasterData = CaseMaster::where('id', $Invoices->case_id)->select('billing_amount','billing_method')->first();
+                    if(!empty($CaseMasterData) && ($CaseMasterData->billing_method == 'flat' || $CaseMasterData->billing_method == 'mixed')){
+                        $FlatFeeEntry=FlatFeeEntry::where("case_id",$Invoices->case_id)->get();
+                        if(count($FlatFeeEntry) > 0){
+                            $paidFlatFee = 0;
+                            foreach($FlatFeeEntry as $k =>$v){
+                                if($v->status == 'paid'){
+                                    $paidFlatFee += str_replace(",","",number_format($v->cost, 2));
+                                }
+                            }
+                            \Log::info("Delete Invoice of ".$Invoices->id." for case ".$Invoices->case_id." when billing_amount is ".$CaseMasterData->billing_amount." and paid flat fee total is :".$paidFlatFee);
+                            if($paidFlatFee == 0){
+                                FlatFeeEntry::where("case_id",$Invoices->case_id)->delete();
+                                FlatFeeEntry::create([
+                                    'case_id' => $Invoices->case_id,
+                                    'user_id' => Auth::user()->id,
+                                    'firm_id' => Auth::user()->firm_name,
+                                    'entry_date' => Carbon::now(),
+                                    'cost' =>  $CaseMasterData->billing_amount,
+                                    'time_entry_billable' => 'yes',                        
+                                    'token_id' => round(microtime(true) * 1000),
+                                    'created_by' => Auth::user()->id, 
+                                ]);
+                            }                            
+                        }else{
+                            FlatFeeEntry::create([
+                                'case_id' => $Invoices->case_id,
+                                'user_id' => Auth::user()->id,
+                                'firm_id' => Auth::user()->firm_name,
+                                'entry_date' => Carbon::now(),
+                                'cost' =>  $CaseMasterData->billing_amount,
+                                'time_entry_billable' => 'yes',                        
+                                'token_id' => round(microtime(true) * 1000),
+                                'created_by' => Auth::user()->id, 
+                            ]);
+                        }
+                    }
+                }
+                // remove all flat fee entry and create new one if no any paid entry found for case
+
                 // send mail to case staff
                 $userCaseStaffList = $request->userCaseStaffList;
                 if(!empty($userCaseStaffList)){
@@ -7652,6 +7694,48 @@ class BillingController extends BaseController
                         InvoiceInstallment::where("invoice_id",$v1)->delete();
                         InvoicePayment::where("invoice_id",$v1)->delete();
 
+                        // remove all flat fee entry and create new one if no any paid entry found for case
+                        if($Invoices->case_id > 0){
+                            $CaseMasterData = CaseMaster::where('id', $Invoices->case_id)->select('billing_amount','billing_method')->first();
+                            if(!empty($CaseMasterData) && ($CaseMasterData->billing_method == 'flat' || $CaseMasterData->billing_method == 'mixed')){
+                                $FlatFeeEntry=FlatFeeEntry::where("case_id",$Invoices->case_id)->get();
+                                if(count($FlatFeeEntry) > 0){
+                                    $paidFlatFee = 0;
+                                    foreach($FlatFeeEntry as $k =>$v){
+                                        if($v->status == 'paid'){
+                                            $paidFlatFee += str_replace(",","",number_format($v->cost, 2));
+                                        }
+                                    }
+                                    \Log::info("Delete Invoice of ".$Invoices->id." for case ".$Invoices->case_id." when billing_amount is ".$CaseMasterData->billing_amount." and paid flat fee total is :".$paidFlatFee);
+                                    if($paidFlatFee == 0){
+                                        FlatFeeEntry::where("case_id",$Invoices->case_id)->delete();
+                                        FlatFeeEntry::create([
+                                            'case_id' => $Invoices->case_id,
+                                            'user_id' => Auth::user()->id,
+                                            'firm_id' => Auth::user()->firm_name,
+                                            'entry_date' => Carbon::now(),
+                                            'cost' =>  $CaseMasterData->billing_amount,
+                                            'time_entry_billable' => 'yes',                        
+                                            'token_id' => round(microtime(true) * 1000),
+                                            'created_by' => Auth::user()->id, 
+                                        ]);
+                                    }                            
+                                }else{
+                                    FlatFeeEntry::create([
+                                        'case_id' => $Invoices->case_id,
+                                        'user_id' => Auth::user()->id,
+                                        'firm_id' => Auth::user()->firm_name,
+                                        'entry_date' => Carbon::now(),
+                                        'cost' =>  $CaseMasterData->billing_amount,
+                                        'time_entry_billable' => 'yes',                        
+                                        'token_id' => round(microtime(true) * 1000),
+                                        'created_by' => Auth::user()->id, 
+                                    ]);
+                                }
+                            }
+                        }
+                        // remove all flat fee entry and create new one if no any paid entry found for case
+                        
                         // Delete Invoice
                         $Invoices->delete();
                     } else {

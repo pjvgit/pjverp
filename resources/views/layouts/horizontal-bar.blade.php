@@ -389,7 +389,7 @@
                                     </div>
                                 </div>
                                 <div class="timerCounter" style="display: none;">
-                                    <div class="timer-panel mb-5" style="margin-left: -190px;background-color: #efeaf5;">
+                                    <div class="timer-panel mb-5" style="margin-left: 0px;background-color: #efeaf5;">
                                         <div class="timer-row d-flex design-set pt-3">
                                             <div class="pl-0">
                                                 <a href="javascript:void(0);">
@@ -398,10 +398,12 @@
                                             </div>
                                             <input type="hidden" name="smart_timer_id" id="smart_timer_id" value="">
                                             <input type="hidden" name="pause_smart_timer_id" id="pause_smart_timer_id" value="">
+                                            <div class="timer-actions-button">
                                             <span class="timer-secondary-actions d-flex" style="margin-left: 24px;">
                                                 <a href="javascript:void(0);" onclick="deleteTimer();" class="btn btn-link timer-delete-action">Delete</a>
                                                 <a href="javascript:void(0);" onclick="saveTimer();" class="btn btn-secondary timer-save-action float-none set-designn">Save</a>
                                             </span>
+                                            </div>
                                         </div>
                                         <div class="input-row">
                                             <label>
