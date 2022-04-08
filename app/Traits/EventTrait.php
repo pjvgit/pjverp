@@ -536,48 +536,6 @@ trait EventTrait {
     /**
      * Update event user reminders json
      */
-    public function getUpdateEventReminderJson1($caseEvent, $request, $eventRecurring = null)
-    {
-        $authUserId = auth()->id();
-        if(in_array($authUserId, $request['linked_staff_checked_share'])) {
-            $eventReminders = $this->getEventReminderJson($caseEvent, $request);
-            if($eventRecurring) {
-                $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
-                $newArray = [];
-                if(count($decodeReminder)) {
-                    foreach($decodeReminder as $rkey => $ritem) {
-                        if($rkey == $authUserId) {
-                            $newArray[$authUserId] = $eventReminders;
-                        } else {
-                            $newArray[$rkey] = $ritem;
-                        }
-                    }
-                    if(!isset($newArray[$authUserId])) {
-                        $newArray[$authUserId] = $eventReminders;
-                    }
-                } else {
-                    $newArray[$authUserId] = $eventReminders;
-                }
-            } else {
-                $newArray[$authUserId] = $eventReminders;
-            }
-            return encodeDecodeJson($newArray, 'encode');
-        } else {
-            $newArray = [];
-            if($eventRecurring) {
-                $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
-                if(count($decodeReminder)) {
-                    foreach($decodeReminder as $rkey => $ritem) {
-                        if($rkey != $authUserId) {
-                            $newArray[$rkey] = $ritem;
-                        }
-                    }
-                }
-            }
-            return encodeDecodeJson($newArray, 'encode');
-        }
-    }
-
     public function getUpdateEventReminderJson($caseEvent, $request, $eventRecurring = null)
     {
         $authUserId = auth()->id();

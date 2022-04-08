@@ -39,22 +39,24 @@
 $dt = new DateTime('now', new DateTimeZone(@$user->user_timezone));
 $abbreviation = $dt->format('T');
 @endphp
-{{ date('D, M jS Y, h:ia', strtotime(convertUTCToUserTime(@$event->start_date." ".@$event->start_time, @$user->user_timezone))) }} — {{date('h:ia',strtotime(convertUTCToUserTime(@$event->end_date." ".@$event->end_time, @$user->user_timezone)))}} {{ @$abbreviation }}
+{{ date('D, M jS Y, h:ia', strtotime(convertUTCToUserTime(@$eventRecurring->start_date." ".@$event->start_time, @$user->user_timezone))) }} — {{date('h:ia',strtotime(convertUTCToUserTime(@$eventRecurring->end_date." ".@$event->end_time, @$user->user_timezone)))}} {{ @$abbreviation }}
 </td>
 </tr>
 <tr>
 <td style="padding: 10px;font-weight:600;">Attendance Required:</td>
 <td style="padding: 10px;">	{{ @$attendEvent }}</td>
 </tr>
+@if($event->event_location_id)
 <tr>
 <td style="padding: 10px;font-weight:600;">Location:</td>
 <td style="padding: 10px;">	{{ @$event->eventLocation->full_address }}</td>
 </tr>
+@endif
 </table>
 @if($user->user_level == 3)
-<a href="{{ route('events/detail', @$event->decode_id) }}" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
+<a href="{{ route('events/detail', @$eventRecurring->decode_id) }}" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
 @else
-<a href="{{ route('client/events/detail', @$event->decode_id) }}" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
+<a href="{{ route('client/events/detail', @$eventRecurring->decode_id) }}" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
 @endif
 <br>
 <p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;padding-top: 10px;">For additional details about the event, please log in to your <a href="{{route('login')}}">Account</a>.
