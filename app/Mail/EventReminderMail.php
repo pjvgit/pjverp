@@ -11,18 +11,19 @@ use Illuminate\Support\Facades\Log;
 class EventReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
-    protected $event, $firm, $user, $attendEvent;
+    protected $event, $firm, $user, $attendEvent, $eventRecurring;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($event, $firm, $user, $attendEvent)
+    public function __construct($event, $firm, $user, $attendEvent, $eventRecurring)
     {
         $this->event = $event;
         $this->firm = $firm;
         $this->user = $user;
         $this->attendEvent = $attendEvent;
+        $this->eventRecurring = $eventRecurring;
     }
 
     /**
@@ -36,6 +37,6 @@ class EventReminderMail extends Mailable
         return $this
             // ->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))
             ->subject("Reminder: Upcoming Event")
-            ->markdown('emails.event_reminder_email', ['event' => $this->event, 'firm' => $this->firm, 'user' => $this->user, 'attendEvent' => $this->attendEvent]);
+            ->markdown('emails.event_reminder_email', ['event' => $this->event, 'firm' => $this->firm, 'user' => $this->user, 'attendEvent' => $this->attendEvent, 'eventRecurring' => $this->eventRecurring]);
     }
 }
