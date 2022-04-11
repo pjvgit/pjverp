@@ -59,9 +59,10 @@ class EventMinuteReminderEmailCommand extends Command
         if($result) {
             foreach($result as $key => $item) {
                 Log::info("Event recurring id :". $item->id);
-                $users = $attendEvent = []; $newArray = [];
+                $attendEvent = []; $newArray = [];
                 $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email')->where('remind_at', date('Y-m-d'))->where('reminder_frequncy', "minute");
                 foreach($decodeReminders as $rkey => $ritem) {
+                    $users = [];
                     $response = $this->getEventLinkedUser($ritem, "email", $item->event, $item);
                     Log::info("event hour reminder users: ". $response["users"]);
                     if($response["users"]){
@@ -88,7 +89,6 @@ class EventMinuteReminderEmailCommand extends Command
                 }
                 $decodeReminders = encodeDecodeJson($item->event_reminders);
                 if($decodeReminders) {
-                    $newArray = [];
                     foreach($decodeReminders as $ritem) {
                         if($ritem->reminder_type == 'email' && $ritem->remind_at == date('Y-m-d') && $ritem->reminder_frequncy == 'minute') {
                         } else {
