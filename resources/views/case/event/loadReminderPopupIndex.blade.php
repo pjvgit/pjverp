@@ -1,6 +1,6 @@
 <form class="editReminderIndexIndex" id="editReminderIndex" name="editReminderIndex" method="POST">
-    <input class="form-control" id="event_id" value="{{ $event_id}}" name="event_id" type="hidden">
-    <input class="form-control" id="event_recurring_id" value="{{ $event_recurring_id}}" name="event_recurring_id" type="hidden">
+    <input class="form-control" id="event_id" value="{{ $event_id}}" name="event_id" type="text">
+    <input class="form-control" id="event_recurring_id" value="{{ $event_recurring_id}}" name="event_recurring_id" type="text">
     @csrf
     <div class="row"  bladefile="resources\views\case\event\loadReminderPopupIndex.blade.php">
     <div class="col-md-12">

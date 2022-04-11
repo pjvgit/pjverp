@@ -36,6 +36,7 @@ use App\Traits\UserCaseSharingTrait;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
+use SebastianBergmann\Environment\Console;
 
 class CaseController extends BaseController
 {
@@ -2288,7 +2289,7 @@ class CaseController extends BaseController
                 $recurringEvent->fill([
                     "start_date" => $start_date,
                     "end_date" => $end_date,
-                    'event_reminders' => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($caseEvent, $request, $recurringEvent) : $recurringEvent->event_reminders,
+                    'event_reminders' => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $recurringEvent) : $recurringEvent->event_reminders,
                     'event_linked_staff' => $this->getEventLinkedStaffJson($caseEvent, $request),
                     'event_linked_contact_lead' => $this->getEventLinkedContactLeadJson($caseEvent, $request),
                     'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $recurringEvent),
@@ -2400,7 +2401,7 @@ class CaseController extends BaseController
                     'event_id' => $caseEvent->id, 
                     "start_date" => $start_date,
                     "end_date" => $end_date,
-                    'event_reminders' => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($caseEvent, $request, $recurringEvent) : $recurringEvent->event_reminders,
+                    'event_reminders' => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $recurringEvent) : $recurringEvent->event_reminders,
                     'event_linked_staff' => $this->getEventLinkedStaffJson($caseEvent, $request),
                     'event_linked_contact_lead' => $this->getEventLinkedContactLeadJson($caseEvent, $request),
                     'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $recurringEvent),
@@ -2528,7 +2529,7 @@ class CaseController extends BaseController
                                         "event_id" => $caseEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
@@ -2577,7 +2578,7 @@ class CaseController extends BaseController
                                         "event_id" => $oldEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
@@ -2635,7 +2636,7 @@ class CaseController extends BaseController
                                         "event_id" => $caseEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
@@ -2681,7 +2682,7 @@ class CaseController extends BaseController
                                         "event_id" => $oldEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
@@ -2765,7 +2766,7 @@ class CaseController extends BaseController
                                             "event_id" => $caseEvent->id,
                                             "start_date" => $date->format('Y-m-d'),
                                             "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date->format('Y-m-d'),
-                                            "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                            "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                             "event_linked_staff" => $eventLinkedStaff,
                                             "event_linked_contact_lead" => $eventLinkedClient,
                                             'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
@@ -2837,7 +2838,7 @@ class CaseController extends BaseController
                                             "event_id" => $oldEvent->id,
                                             "start_date" => $date->format('Y-m-d'),
                                             "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date->format('Y-m-d'),
-                                            "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                            "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                             "event_linked_staff" => $eventLinkedStaff,
                                             "event_linked_contact_lead" => $eventLinkedClient,
                                             'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
@@ -2898,7 +2899,7 @@ class CaseController extends BaseController
                                         "event_id" => $caseEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
@@ -2945,7 +2946,7 @@ class CaseController extends BaseController
                                         "event_id" => $oldEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
@@ -3019,7 +3020,7 @@ class CaseController extends BaseController
                                         "event_id" => $caseEvent->id,
                                         "start_date" => date('Y-m-d', $date1),
                                         "end_date" => ($days > 0) ? Carbon::parse($date1)->addDays($days)->format('Y-m-d') : date('Y-m-d', $date1),
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
@@ -3069,7 +3070,7 @@ class CaseController extends BaseController
                                         "event_id" => $oldEvent->id,
                                         "start_date" => $date,
                                         "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                                         "event_linked_staff" => $eventLinkedStaff,
                                         "event_linked_contact_lead" => $eventLinkedClient,
                                         'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
@@ -3249,7 +3250,7 @@ class CaseController extends BaseController
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    'event_reminders' => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
+                                    'event_reminders' => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     'event_linked_staff' => $eventLinkStaff,
                                     'event_linked_contact_lead' => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
@@ -3296,7 +3297,7 @@ class CaseController extends BaseController
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    'event_reminders' => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
+                                    'event_reminders' => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     'event_linked_staff' => $eventLinkStaff,
                                     'event_linked_contact_lead' => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
@@ -3340,7 +3341,7 @@ class CaseController extends BaseController
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
-                                    "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
+                                    "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     "event_linked_staff" => $eventLinkStaff,
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
@@ -3387,7 +3388,7 @@ class CaseController extends BaseController
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
+                                    "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     "event_linked_staff" => $eventLinkStaff,
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
@@ -3432,7 +3433,7 @@ class CaseController extends BaseController
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
-                                    "event_reminders" => ($request->is_reminder_updated == 'yes' && in_array($authUserId, $request['linked_staff_checked_share'])) ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
+                                    "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     "event_linked_staff" => $eventLinkStaff,
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
@@ -4239,12 +4240,15 @@ class CaseController extends BaseController
                     return $item->created_by != $authUserId;
                 })->values()->toArray();
             }
+            Log::info('old event reminders: '.encodeDecodeJson($newArray, 'encode'));
             if(count($eventReminders)) {
                 foreach($eventReminders as $ritem) {
                     array_push($newArray, $ritem);
                 }
             }
+            Log::info('new event reminders: '.encodeDecodeJson($newArray, 'encode'));
             $allRecurrings = EventRecurring::where('event_id', $request->event_id)->get();
+            Log::info('all recurrings: '.$allRecurrings);
             foreach($allRecurrings as $key => $item) {
                 $item->fill(['event_reminders' => encodeDecodeJson($newArray, 'encode')])->save();
             }
