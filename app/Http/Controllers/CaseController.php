@@ -4244,7 +4244,8 @@ class CaseController extends BaseController
                         'snoozed_at' => null,
                         'snooze_remind_at' => null,
                         'is_dismiss' => 'no',
-                        'reminded_at' => null
+                        'reminded_at' => null,
+                        'dispatched_at' => null,
                     ];
                 }
             }

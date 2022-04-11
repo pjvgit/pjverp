@@ -49,6 +49,7 @@ class EventDayReminderEmailCommand extends Command
                     ->whereJsonContains('event_reminders->reminder_frequncy', ['day', 'week'])
                     ->whereJsonContains('event_reminders', ['remind_at' => date('Y-m-d')])
                     ->whereJsonContains('event_reminders', ['reminded_at' => null])
+                    ->whereJsonContains('event_reminders', ['dispatched_at' => null])
                     ->whereHas("event", function($query) {
                         $query->where("is_SOL", "no");
                     })
@@ -59,7 +60,7 @@ class EventDayReminderEmailCommand extends Command
             foreach($result as $key => $item) {
                 Log::info("Event recurring id :". $item->id);
                 $users = $attendEvent = [];
-                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email');
+                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'email')->where('remind_at', date('Y-m-d'))->whereIn('reminder_frequncy', ['day', 'week']);
                 foreach($decodeReminders as $rkey => $ritem){
                     $response = $this->getEventLinkedUser($ritem, "email", $item->event, $item);
                     Log::info("event day reminder users: ". $response["users"]);
@@ -87,6 +88,18 @@ class EventDayReminderEmailCommand extends Command
                         Log::info("dispatchDate > ". $dispatchDate);
                         dispatch(new EventReminderEmailJob($item, $useritem, $attendEvent, "day"))->delay($dispatchDate);
                     }
+                    
+                    $decodeReminders = encodeDecodeJson($item->event_reminders);
+                    if($decodeReminders) {
+                        $newArray = [];
+                        foreach($decodeReminders as $ritem) {
+                            if($ritem->reminder_type == 'email' && $ritem->remind_at == date('Y-m-d') && in_array($ritem->reminder_frequncy, ['day','week'])) {
+                                $ritem->dispatched_at = Carbon::now();
+                            }
+                            $newArray[] = $ritem;
+                        }
+                    }
+                    EventRecurring::whereId($item->id)->update(["event_reminders" => encodeDecodeJson($newArray, 'encode')]);
                 } else {
                     Log::info("EventDayReminderEmailCommand > user not found");
                 }

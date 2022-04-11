@@ -47,16 +47,18 @@ class EventHourReminderEmailCommand extends Command
                     ->whereJsonContains('event_reminders', ['reminder_frequncy' => "hour"])
                     ->whereJsonContains('event_reminders', ['remind_at' => date("Y-m-d")])
                     ->whereJsonContains('event_reminders', ['reminded_at' => null])
+                    ->whereJsonContains('event_reminders', ['dispatched_at' => null])
                     ->whereHas("event", function($query) {
                         $query->where("is_SOL", "no");
                     })
+                    // ->whereId(59940)
                     ->with('event', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll')
                     ->get();        
         if($result) {
             foreach($result as $key => $item) {
                 Log::info("Event recurring id :". $item->id);
-                $users = $attendEvent = [];
-                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email')->where('reminder_frequncy', "hour");
+                $users = $attendEvent = []; $newArray = [];
+                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email')->where('remind_at', date('Y-m-d'))->where('reminder_frequncy', "hour");
                 foreach($decodeReminders as $rkey => $ritem) {
                     $response = $this->getEventLinkedUser($ritem, "email", $item->event, $item);
                     Log::info("event hour reminder users: ". $response["users"]);
@@ -79,7 +81,20 @@ class EventHourReminderEmailCommand extends Command
                         Log::info("EventHourReminderEmailCommand : hour time true");
                         dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->delay($dispatchDate);
                     }
+                    $ritem->dispatched_at = Carbon::now();
+                    $newArray[] = $ritem;
                 }
+                $decodeReminders = encodeDecodeJson($item->event_reminders);
+                if($decodeReminders) {
+                    $newArray = [];
+                    foreach($decodeReminders as $ritem) {
+                        if($ritem->reminder_type == 'email' && $ritem->remind_at == date('Y-m-d') && $ritem->reminder_frequncy == 'hour') {
+                        } else {
+                            $newArray[] = $ritem;
+                        }
+                    }
+                }
+                EventRecurring::whereId($item->id)->update(["event_reminders" => encodeDecodeJson($newArray, 'encode')]);
             }
         } 
     }
