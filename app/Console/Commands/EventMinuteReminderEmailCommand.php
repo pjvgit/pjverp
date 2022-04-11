@@ -82,7 +82,7 @@ class EventMinuteReminderEmailCommand extends Command
                         $dispatchDate = Carbon::createFromFormat('Y-m-d H:i', $remindTime);
                         Log::info("minute event remind time: ". $dispatchDate);
                         Log::info("EventMinuteReminderEmailCommand : minute time true");
-                        dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->delay($dispatchDate);
+                        dispatch(new EventReminderEmailJob($item, $users, $attendEvent, 'minute'))->delay($dispatchDate);
                     }
                     $ritem->dispatched_at = Carbon::now();
                     $newArray[] = $ritem;

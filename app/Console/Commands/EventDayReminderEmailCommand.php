@@ -80,7 +80,7 @@ class EventDayReminderEmailCommand extends Command
                         Log::info("user_timezone > " . $useritem->user_timezone);
                         $remindDate = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info("event day remind date:" . $remindDate);
-                        $timestamp = $remindDate->format('Y-m-d').' 15:30:00';
+                        $timestamp = $remindDate->format('Y-m-d').' 05:00:00';
                         Log::info("remind time stamp: ". $timestamp);
                         $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $useritem->user_timezone ?? 'UTC');
                         $dispatchDate->setTimezone('UTC');
