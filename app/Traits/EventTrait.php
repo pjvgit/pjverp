@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use App\Event;
 use App\EventRecurring;
-use App\EventUserReminder;
 use App\Http\Controllers\CommonController;
 use Carbon\Carbon;
 use DateInterval;

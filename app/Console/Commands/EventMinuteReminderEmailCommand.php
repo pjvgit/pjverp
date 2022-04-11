@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\EventRecurring;
-use App\EventUserReminder;
 use App\Jobs\EventReminderEmailJob;
 use App\Traits\EventReminderTrait;
 use App\User;
@@ -77,11 +76,11 @@ class EventMinuteReminderEmailCommand extends Command
                     }
                     if(count($users)) {
                         $eventStartTime = Carbon::parse($item->start_date.' '.$item->event->start_time);
-                        Log::info("hour event start time: ". $eventStartTime);
+                        Log::info("minute event start time: ". $eventStartTime);
                         $remindTime = Carbon::parse($eventStartTime)->subMinutes($ritem->reminer_number)->format('Y-m-d H:i');
                         $dispatchDate = Carbon::createFromFormat('Y-m-d H:i', $remindTime);
                         Log::info("minute event remind time: ". $dispatchDate);
-                        Log::info("EventHourReminderEmailCommand : hour time true");
+                        Log::info("EventMinuteReminderEmailCommand : minute time true");
                         dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->delay($dispatchDate);
                     }
                     $ritem->dispatched_at = Carbon::now();

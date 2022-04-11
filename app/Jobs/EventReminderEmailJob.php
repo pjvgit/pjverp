@@ -53,11 +53,11 @@ class EventReminderEmailJob implements ShouldQueue
                     Mail::to($item->email)->send((new EventReminderMail($event, $firmDetail, $item, $attendEvent, $this->eventRecurring)));
                 }
             }
-            $decodeReminders = encodeDecodeJson($this->eventRecurring->event_reminders)->where('reminder_type', 'email')->where('remind_at', date('Y-m-d'));
+            $decodeReminders = encodeDecodeJson($this->eventRecurring->event_reminders);
             if($decodeReminders) {
                 $newArray = [];
                 foreach($decodeReminders as $ritem) {
-                    if($ritem->reminder_type == 'email' && $ritem->remind_at == date('Y-m-d')) {
+                    if($ritem->reminder_type == 'email' && $ritem->remind_at == date('Y-m-d') && $ritem->reminder_frequncy == $this->reminderFrequency) {
                         $ritem->reminded_at = Carbon::now();
                     }
                     $newArray[] = $ritem;

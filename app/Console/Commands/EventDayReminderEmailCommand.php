@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\EventRecurring;
-use App\EventUserReminder;
 use App\Jobs\EventReminderEmailJob;
 use App\Traits\EventReminderTrait;
 use App\User;

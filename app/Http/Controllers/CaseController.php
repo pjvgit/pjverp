@@ -19,7 +19,6 @@ use App\Invoices,App\TaskTimeEntry,App\CaseEventLinkedContactLead;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
 use App\Event;
 use App\EventRecurring;
-use App\EventUserReminder;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
 use App\FirmEventReminder;
@@ -2300,7 +2299,6 @@ class CaseController extends BaseController
             } else if($caseEvent && $caseEvent->is_recurring == 'yes' && !isset($request->recuring_event)) {
                 $oldEventIds = Event::where("parent_event_id", $caseEvent->id)->orWhere("id", $caseEvent->id)->pluck('id')->toArray();
                 EventRecurring::whereIn("event_id", $oldEventIds)->forceDelete();
-                EventUserReminder::whereIn("event_id", $oldEventIds)->forceDelete();
 
                 $caseEvent = Event::create([
                     "event_title" => $request->event_name,
@@ -2472,7 +2470,6 @@ class CaseController extends BaseController
                     'is_no_end_date' => 'no',
                     'recurring_event_end_date' => $lastRecurringEvent->start_date,
                 ])->save();
-                EventUserReminder::whereIn("event_id", $events->pluck("id")->toArray())->orWhere("event_id", $request->event_id)->where("event_recurring_id", ">=", $request->event_recurring_id)->forceDelete();
                 EventRecurring::whereIn("event_id", $events->pluck("id")->toArray())->orWhere("event_id", $request->event_id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                 $events->forceDelete();
 
@@ -2519,7 +2516,6 @@ class CaseController extends BaseController
                         $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
                         $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
                         if($oldEvent->event_interval_day != $request->event_interval_day) {
-                            EventUserReminder::where("event_id", $oldEvent->id)->where("event_recurring_id", ">=", $request->event_recurring_id)->forceDelete();
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                         } else {
@@ -2567,7 +2563,6 @@ class CaseController extends BaseController
                         ])->save();
                         
                         if($oldEvent->event_interval_day != $request->event_interval_day) {
-                            EventUserReminder::where("event_id", $oldEvent->id)->where("event_recurring_id", ">=", $request->event_recurring_id)->forceDelete();
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveDailyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
                         } else {
@@ -2734,7 +2729,6 @@ class CaseController extends BaseController
                         ]);
 
                         if(array_diff( $request->custom, $oldEvent->custom_event_weekdays ) ) {
-                            EventUserReminder::where("event_id", $oldEvent->id)->where("event_recurring_id", ">=", $request->event_recurring_id)->forceDelete();
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($caseEvent, $caseEvent->start_date, $request, $recurringEndDate);
                         } else {
@@ -2807,7 +2801,6 @@ class CaseController extends BaseController
                         ])->save();
 
                         if(array_diff( $request->custom, $oldEvent->custom_event_weekdays ) ) {
-                            EventUserReminder::where("event_id", $oldEvent->id)->where("event_recurring_id", ">=", $request->event_recurring_id)->forceDelete();
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($oldEvent, $oldEvent->start_date, $request, $recurringEndDate);
                         } else {
@@ -2891,7 +2884,6 @@ class CaseController extends BaseController
                         ]);
 
                         if(isset($request->updated_start_date)) {
-                            EventUserReminder::where("event_id", $oldEvent->id)->where("event_recurring_id", ">=", $request->event_recurring_id)->forceDelete();
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveWeeklyRecurringEvent($caseEvent, $caseEvent->start_date, $request, $recurringEndDate);
                         } else {
@@ -2939,7 +2931,6 @@ class CaseController extends BaseController
                             "updated_by" => $authUser->id,
                         ])->save();
                         if(isset($request->updated_start_date)) {
-                            EventUserReminder::where("event_id", $oldEvent->id)->where("event_rcurrieng_id", ">=", $request->event_recurring_id)->forceDelete();
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveWeeklyRecurringEvent($oldEvent, $oldEvent->start_date, $request, $recurringEndDate);
                         } else {
@@ -3064,7 +3055,6 @@ class CaseController extends BaseController
                         ])->save();
                         
                         if($oldEvent->event_interval_month != $request->event_interval_month) {
-                            EventUserReminder::where("event_id", $oldEvent->id)->where("event_recurring_id", ">=", $request->event_recurring_id)->forceDelete();
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveMonthlyRecurringEvent($oldEvent, $start_date, $request, $recurringEndDate);
                         } else {
@@ -3238,7 +3228,6 @@ class CaseController extends BaseController
             $caseEvent = Event::find($request->event_id);
             if($caseEvent->event_recurring_type != $request->event_frequency) {
                 $oldEventIds = Event::where("parent_event_id", $caseEvent->id)->orWhere("id", $caseEvent->id)->pluck('id')->toArray();
-                EventUserReminder::whereIn('event_id', $oldEventIds)->forceDelete();
                 EventRecurring::whereIn("event_id", $oldEventIds)->forceDelete();
                 Event::whereIn("id", $oldEventIds)->forceDelete();
 
@@ -3250,7 +3239,6 @@ class CaseController extends BaseController
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if($eitem->event_interval_day != $request->event_interval_day || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date)) {
-                            EventUserReminder::where('event_id', $eitem->id)->forceDelete();
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
                             $eventRecurring = $this->saveDailyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3298,7 +3286,6 @@ class CaseController extends BaseController
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if($eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date)) {
-                            EventUserReminder::where('event_id', $eitem->id)->forceDelete();
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
                             $eventRecurring = $this->saveBusinessDayRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3345,7 +3332,6 @@ class CaseController extends BaseController
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if(array_diff( $request->custom, $eitem->custom_event_weekdays )  || $eitem->is_no_end_date != $isNoEndDate ) {
-                            EventUserReminder::where('event_id', $eitem->id)->forceDelete();
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3391,7 +3377,6 @@ class CaseController extends BaseController
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if(isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate) {
-                            EventUserReminder::where('event_id', $eitem->id)->forceDelete();
                             EventRecurring::where("event_id", $eitem->id)->forcedelete();
                             $eventRecurring = $this->saveWeeklyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3439,7 +3424,6 @@ class CaseController extends BaseController
                         $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                         $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                         if($request->monthly_frequency != $eitem->monthly_frequency || $request->event_interval_month != $eitem->event_interval_month || isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate) {
-                            EventUserReminder::where('event_id', $eitem->id)->forceDelete();
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
                             $eventRecurring = $this->saveMonthlyRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
