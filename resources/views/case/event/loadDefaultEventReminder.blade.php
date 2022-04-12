@@ -6,7 +6,7 @@
             <div class="pl-0 col-3">
                 <div>
                     <div class="">
-                        <select id="reminder_user_type" onchange="chngeTy(this)" name="reminder_user_type[]" class="reminder_user_type form-control custom-select  ">
+                        <select id="reminder_user_type" onchange="changeEventReminderUserType(this)" name="reminder_user_type[]" class="reminder_user_type form-control custom-select  ">
                             @forelse (reminderUserType() as $key => $item)
                             <option value="{{ $key }}" >{{ $item }}</option>
                             @empty

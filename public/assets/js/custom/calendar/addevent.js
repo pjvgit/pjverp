@@ -33,8 +33,11 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
         });
     } else {
         var checkedLen = $('input[name="ContactInviteClientCheckbox[]"]:checked').length;
-        var checkedL = $('input[name="client-share-all"]:checked').length;
-        if (checkedLen <= 0 && checkedL <= 0) {
+        // var checkedL = $('input[name="client-share-all"]:checked').length;
+        // if (checkedLen <= 0 && checkedL <= 0) {
+        if (checkedLen > 0) {
+            $(".reminder_user_type option[value='client-lead']").show();
+        } else {
             $(".reminder_user_type option[value='client-lead']:selected").parents('.fieldGroupEventReminder').remove();
             reminderAdded = false;
             $(".reminder_user_type option[value='client-lead']").hide();
@@ -43,7 +46,7 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
 });
 
 // CHange reminder type based on reminder user type
-function chngeTy(sel) {
+function changeEventReminderUserType(sel) {
     if (sel.value == 'client-lead') {
         $("#reminder_type_" + sel.id + " option[value='popup']").hide();
     } else {
@@ -92,8 +95,9 @@ $(document).on("click", ".add-more-event-reminder, .add-new-reminder", function(
     var fieldHTML = '<div class="form-group fieldGroupEventReminder">' + $(".fieldGroupEventReminderCopy").html() + '</div>';
     $('body').find('.fieldGroupEventReminder:last').after(fieldHTML);
     var checkedLen = $('input[name="ContactInviteClientCheckbox[]"]:checked').length;
-    var checkedL = $('input[name="client-share-all"]:checked').length;
-    if (checkedLen <= 0 && checkedL <= 0) {
+    if (checkedLen > 0) {
+        $(".reminder_user_type option[value='client-lead']").show();
+    } else {
         $(".reminder_user_type option[value='client-lead']").hide();
     }
     $("#is_reminder_updated").val("yes");

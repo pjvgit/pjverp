@@ -123,24 +123,27 @@ $(document).on("click", ".snooze-time", function() {
  */
  $(document).on("click", ".dismiss-button", function() {
     var disVal = $(this).attr('data-reminder-id');
+    var recurringId = $(this).attr('data-event-recurring-id');
     var disType = $(this).attr('data-reminder-type');
 
-    var reminderEventId = [],
+    var reminderId = [],
         reminderTaskId = [],
-        solReminderId = [];
+        solReminderId = [],
+        eventRecurringId = [];
     
     if (disType == "event") {
-        reminderEventId.push(disVal);
+        reminderId.push(disVal);
+        eventRecurringId.push(recurringId);
     } else if (disType == "task") { 
         reminderTaskId.push(disVal);
     } else {
         solReminderId.push(disVal); 
     }    
-
+    console.log("event recurring id: "+ eventRecurringId);
     $.ajax({
         url: baseUrl + "/update/popup/notification",
         type: 'GET',
-        data: { 'reminder_event_id': reminderEventId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId },
+        data: { 'reminder_id': reminderId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId, 'event_recurring_id': eventRecurringId },
         success: function(data) {
             if (data.status == "success") {
                 popupNotification();
@@ -154,13 +157,15 @@ $(document).on("click", ".snooze-time", function() {
  */
 $(document).on("click", ".dismiss-notification", function() {
     var disVal = $(this).val();
-    var reminderEventId = [],
+    var reminderId = [],
         reminderTaskId = [],
-        solReminderId = [];
+        solReminderId = [],
+        eventRecurringId = [];
     if (disVal == "dismiss-all") {
         $(document).find("#popup_reminder_table tbody tr").each(function() {
             if ($(this).attr('data-reminder-type') == "event") {
-                reminderEventId.push($(this).attr('data-reminder-id'));
+                reminderId.push($(this).attr('data-reminder-id'));
+                eventRecurringId.push($(this).attr('data-event-recurring-id'));
             } else if ($(this).attr('data-reminder-type') == "task") {
                 reminderTaskId.push($(this).attr('data-reminder-id'));
             } else {
@@ -169,7 +174,8 @@ $(document).on("click", ".dismiss-notification", function() {
         })
     } else {
         if ($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-type') == "event") {
-            reminderEventId.push($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id'));
+            reminderId.push($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id'));
+            eventRecurringId.push($(document).find("#popup_reminder_table tbody tr:first").attr('data-event-recurring-id'));
         } else if ($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-type') == "task") {
             reminderTaskId.push($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id'));
         } else {
@@ -180,7 +186,7 @@ $(document).on("click", ".dismiss-notification", function() {
     $.ajax({
         url: baseUrl + "/update/popup/notification",
         type: 'GET',
-        data: { 'reminder_event_id': reminderEventId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId },
+        data: { 'reminder_id': reminderId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId, 'event_recurring_id': eventRecurringId },
         success: function(data) {
             if (data.status == "success") {
                 popupNotification();

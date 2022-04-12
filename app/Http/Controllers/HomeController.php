@@ -635,21 +635,10 @@ class HomeController extends BaseController
         if($result) {
             foreach($result as $key => $item) {
                 \Log::info("popup event recurring id > ".$item->id);
-                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'popup')->where('remind_at', date("Y-m-d"));
+                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'popup')->where('remind_at', date("Y-m-d"))->where('is_dismiss', 'no');
                 foreach($decodeReminders as $rkey => $ritem){
-                    $users = [];
-                    // $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'popup');
-                    // foreach($decodeReminders as $er => $ev){                    
-                        $response = $this->getEventLinkedUser($ritem, "popup", $item->event, $item);
-                        foreach ($response as $key => $val){
-                            if(auth()->user()->id == $val->id){    
-                                $users[] = $response;
-                            }
-                        }                        
-                    // }         
-                    // dd($users);           
+                    $users = $this->getEventLinkedUser($ritem, "popup", $item->event, $item);
                     if(isset($users) && count($users)) {  
-
                         $eventStartTime = Carbon::parse($item->start_date.' '.$item->event->start_time);
                         $currentTime = Carbon::now();
                         $addEvent = false;
@@ -658,7 +647,7 @@ class HomeController extends BaseController
                                 $addEvent = true;
                             }
                         } else {
-                            $remindTime = Carbon::parse($ritem->remind_at);
+                            $remindTime = Carbon::parse($ritem->popup_remind_time);
                             if($ritem->reminder_frequncy == "week" || $ritem->reminder_frequncy == "day") {
                                 $addEvent = true;
                             } else if($ritem->reminder_frequncy == "hour") {
@@ -676,13 +665,13 @@ class HomeController extends BaseController
                         }
                         if($addEvent) {
                             $events[] = [
-                                "event_id" => $item->event_id,
+                                "event_recurring_id" => $item->id,
                                 "task_id" => "",
-                                "reminder_id" => $item->id,
+                                "reminder_id" => $ritem->reminder_id,
                                 "date_time" => date('M d - h:ia', strtotime(convertUTCToUserTime(@$eventStartTime, auth()->user()->user_timezone))) ?? "",
                                 "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
                                 "type" => "event",
-                                "name" => $item->event->event_title ?? "-",
+                                "name" => $item->event->event_title. ' : '.$ritem->reminer_number.'='.$ritem->reminder_frequncy.' : '.$ritem->reminder_id ?? "-",
                                 "case_id" => $item->event->case_id ?? "",
                                 "case_unique_number" => $item->event->case->case_unique_number ?? "",
                                 "lead_id" => $item->event->lead_id ?? "",
@@ -728,7 +717,7 @@ class HomeController extends BaseController
                     }
                     if($addTask) {
                         $events[] = [
-                            "event_id" => "",
+                            "event_recurring_id" => "",
                             "task_id" => $item->task_id,
                             "reminder_id" => $item->id,
                             "date_time" => date('M d Y', strtotime(@$item->task->task_due_on)) ?? "",
@@ -788,7 +777,7 @@ class HomeController extends BaseController
                     if($addTask) {
                         $isSetisfied = ($item->case->sol_satisfied == 'yes') ? '(Satisfied)' : '(Unsatisfied)';
                         $events[] = [
-                            "event_id" => "",
+                            "event_recurring_id" => "",
                             "task_id" => "",
                             "reminder_id" => $item->id,
                             "date_time" => date('M d Y', strtotime(@$item->case->case_statute_date)) ?? "",
@@ -866,48 +855,46 @@ class HomeController extends BaseController
     public function updatePopupNotification(Request $request)
     {
         // return $request->all();
+        $authUserId = auth()->id();
         if($request->is_dismiss) {
-            if($request->reminder_event_id){
-                foreach($request->reminder_event_id as $reminder=>$reminder_event_id){
-                    $eventRecurring = EventUserReminder::where("id", $reminder_event_id)->first();
-                    $eventReminders = [];
-                    $reminders = encodeDecodeJson($eventRecurring->event_reminders);
-                    if(count($reminders)) {
+            if($request->reminder_id && $request->event_recurring_id) {
+                foreach($request->event_recurring_id as $key => $item) {
+                    $eventRecurring = EventRecurring::whereId($item)->first();
+                    $decodeReminders = encodeDecodeJson($eventRecurring->event_reminders);
+                    if(count($decodeReminders)) {
                         $newArray = [];
-                        foreach($reminders as $skey => $sitem) {
-                            // \Log::info("sitem");
-                            // \Log::info($sitem);
-                            $staffReminders = (isset($sitem->staff_remind_detail)) ? collect($sitem->staff_remind_detail)->where('user_id',auth()->id())->toArray() : [];
-                            $countOfRecord = count((isset($sitem->staff_remind_detail)) ? collect($sitem->staff_remind_detail) : []);
-                            // \Log::info("staffReminders");
-                            // \Log::info($staffReminders);
-                            if(!empty($staffReminders)){
-                                $indexKey = (array_key_last($staffReminders));
-                                // \Log::info("indexKey");
-                                // \Log::info($indexKey);
-                                // \Log::info($sitem->staff_remind_detail);
-                                $sitem->staff_remind_detail[$indexKey]->is_dismiss = $request->is_dismiss;
-                            }else{
-                                // dd($countOfRecord);
-                                if($countOfRecord == 0){
-                                    $sitem->staff_remind_detail = [array(
-                                        'user_id' => Auth::user()->id,
-                                        'is_dismiss' => $request->is_dismiss
-                                    )];
-                                }else{
-                                    $sitem->staff_remind_detail[$countOfRecord] = array(
-                                        'user_id' => Auth::user()->id,
-                                        'is_dismiss' => $request->is_dismiss,
-                                    );
+                        foreach($decodeReminders as $skey => $sitem) {
+                            if($request->reminder_id[$key] == $sitem->reminder_id) {
+                                if($sitem->reminder_user_type == "me") {
+                                    $sitem->is_dismiss = 'yes';
+                                    $newArray[] = $sitem;
+                                } else if(in_array($sitem->reminder_user_type, ["attorney","staff","paralegal"])) {
+                                    $remindDetail[] = [
+                                        'user_id' => $authUserId,
+                                        'snooze_time' => null,
+                                        'snooze_type' => null,
+                                        'snoozed_at' => null,
+                                        'snooze_remind_at' => null,
+                                        'is_dismiss' => 'yes',
+                                        'reminded_at' => Carbon::now(),
+                                    ];
+                                    if(isset($sitem->user_popup_remind_detail)) {
+                                        foreach($sitem->user_popup_remind_detail as $upkey => $upitem) {
+                                            // dd($upitem);
+                                            array_push($remindDetail, $upitem);
+                                        }
+                                        // return $remindDetail;
+                                    }
+                                    $sitem->user_popup_remind_detail = $remindDetail;
+                                    $newArray[] = $sitem;
                                 }
-                            }                            
-                            $newArray[] = $sitem;
+                            } else {
+                                $newArray[] = $sitem;
+                            }
                         }
-                        // dd($newArray);
                         $eventRecurring->fill(['event_reminders' => encodeDecodeJson($newArray, 'encode')])->save();
                     }
                 }
-                // CaseEventReminder::whereIn('id', $request->reminder_event_id)->update(["is_dismiss" => $request->is_dismiss]);
             }
             if($request->sol_reminder_id  || $request->reminder_task_id) {               
                 if($request->sol_reminder_id){

@@ -4209,13 +4209,17 @@ class CaseController extends BaseController
         // return $request->all();
         $authUserId = auth()->id();
         $eventReminders = [];
-        $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->first();
+        $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->with('event')->first();
         if($eventRecurring) {
             $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders) ?? [];
             if(isset($request->reminder['user_type'])) {
-                $request->start_date = $eventRecurring->start_date;
+                $request->request->add(['start_date' => $eventRecurring->start_date]);
+                $request->request->add(['start_time' => $eventRecurring->event->start_time]);
+                $reminderNo = $decodeReminder->last()->reminder_id ?? 0;
                 foreach($request->reminder['user_type'] as $key => $item) {
+                    $reminderNo++;
                     $eventReminders[] = [
+                        'reminder_id' => $reminderNo,
                         'event_id' => $request->event_id,
                         'user_id' => $authUserId,
                         'reminder_type' => $request->reminder['type'][$key],
@@ -4224,6 +4228,7 @@ class CaseController extends BaseController
                         'reminder_user_type' => $item,
                         'created_by' => $authUserId,
                         'remind_at' => $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key]),
+                        'popup_remind_time' => $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key], 'time'),
                         'snooze_time' => null,
                         'snooze_type' => null,
                         'snoozed_at' => null,
