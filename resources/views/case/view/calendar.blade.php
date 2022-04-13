@@ -307,7 +307,7 @@ if(isset($_GET['upcoming_events'])){
     }
     $('#hiddenLable').hide();
 
-    document.onreadystatechange = function() {
+    /* document.onreadystatechange = function() {
         if (document.readyState !== "complete") {
             document.querySelector(
                 "#preLoader").style.display = "show";
@@ -315,6 +315,6 @@ if(isset($_GET['upcoming_events'])){
             document.querySelector(
                 "#preLoader").style.display = "none";
         }
-    };
+    }; */
 </script>
 @stop

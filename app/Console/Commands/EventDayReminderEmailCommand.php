@@ -59,7 +59,7 @@ class EventDayReminderEmailCommand extends Command
             foreach($result as $key => $item) {
                 Log::info("Event recurring id :". $item->id);
                 $users = $attendEvent = [];
-                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'email')->where('remind_at', date('Y-m-d'))->whereIn('reminder_frequncy', ['day', 'week']);
+                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'email')->where('remind_at', date('Y-m-d'))->whereIn('reminder_frequncy', ['day', 'week'])->whereNull('dispatched_at')->whereNull('reminded_at');
                 foreach($decodeReminders as $rkey => $ritem){
                     $response = $this->getEventLinkedUser($ritem, "email", $item->event, $item);
                     Log::info("event day reminder users: ". $response["users"]);
@@ -80,11 +80,11 @@ class EventDayReminderEmailCommand extends Command
                         Log::info("user_timezone > " . $useritem->user_timezone);
                         $remindDate = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info("event day remind date:" . $remindDate);
-                        $timestamp = $remindDate->format('Y-m-d').' 05:00:00';
-                        Log::info("remind time stamp: ". $timestamp);
-                        $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $useritem->user_timezone ?? 'UTC');
+                        $timestamp = $remindDate->format('Y-m-d').' 05:00';
+                        Log::info("day remind time stamp: ". $timestamp);
+                        $dispatchDate = Carbon::createFromFormat('Y-m-d H:i', $timestamp, $useritem->user_timezone ?? 'UTC');
                         $dispatchDate->setTimezone('UTC');
-                        Log::info("dispatchDate > ". $dispatchDate);
+                        Log::info("day dispatchDate > ". $dispatchDate);
                         dispatch(new EventReminderEmailJob($item, $useritem, $attendEvent, "day"))->delay($dispatchDate);
                     }
                     
@@ -97,8 +97,8 @@ class EventDayReminderEmailCommand extends Command
                             }
                             $newArray[] = $ritem;
                         }
+                        EventRecurring::whereId($item->id)->update(["event_reminders" => encodeDecodeJson($newArray, 'encode')]);
                     }
-                    EventRecurring::whereId($item->id)->update(["event_reminders" => encodeDecodeJson($newArray, 'encode')]);
                 } else {
                     Log::info("EventDayReminderEmailCommand > user not found");
                 }

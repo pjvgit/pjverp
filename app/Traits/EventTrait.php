@@ -10,12 +10,13 @@ use DateInterval;
 use DatePeriod;
 use DateTime;
 use Illuminate\Support\Facades\Log;
+use SebastianBergmann\Environment\Console;
 
 trait EventTrait {
     /**
      * Get event reminders json
      */
-    public function getEventReminderJson($caseEvent, $request)
+    public function getEventReminderJson($caseEvent, $request, $caseLinkedStaff)
     {
         $eventReminders = [];
         $authUserId = auth()->id();
@@ -39,6 +40,7 @@ trait EventTrait {
                     'is_dismiss' => 'no',
                     'reminded_at' => null,
                     'dispatched_at' => null,
+                    'case_user_id' => (!in_array($request['reminder_user_type'][$i], ['me','client-lead'])) ? $caseLinkedStaff : null,
                 ];
             }
         }
@@ -539,11 +541,12 @@ trait EventTrait {
     /**
      * Update event user reminders json
      */
-    public function getUpdateEventReminderJson($caseEvent, $request, $eventRecurring = null)
+    public function getUpdateEventReminderJson($caseEvent, $request, $eventRecurring = null, $caseLinkedStaff)
     {
+        Log::info("Case linked users: ". $caseLinkedStaff);
         $authUserId = auth()->id();
         $newArray = [];
-        $eventReminders = $this->getEventReminderJson($caseEvent, $request);
+        $eventReminders = $this->getEventReminderJson($caseEvent, $request, $caseLinkedStaff);
         if($eventRecurring) {
             $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
             if(count($decodeReminder)) {

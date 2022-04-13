@@ -1233,7 +1233,6 @@ function MarkAsChanged(){
     $(this).addClass("changed");
 }
 $(":input").blur(MarkAsChanged).change(MarkAsChanged);
-$(":select").change(MarkAsChanged).change(MarkAsChanged);
 $(":checkbox").change(MarkAsChanged).change(MarkAsChanged);
 $("input[type=button]").click(function(){
     $(":input:not(.changed)").attr("disabled", "disabled");

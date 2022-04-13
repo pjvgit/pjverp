@@ -378,7 +378,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     // Inner tabs
     Route::get('court_cases/{id}/info','CaseController@showCaseDetails')->name('info');
     Route::get('court_cases/{id}/recent_activity','CaseController@showCaseDetails')->name('recent_activity');
-    Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
+    // Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
     Route::get('court_cases/{id}/documents','CaseController@showCaseDetails')->name('documents');
     Route::get('court_cases/{id}/tasks','CaseController@showCaseDetails')->name('tasks');
     Route::get('court_cases/{id}/notes','CaseController@showCaseDetails')->name('notes');
@@ -1264,7 +1264,7 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::get('bills/request/{id}', 'BillingController@showFundRequest')->name('client/bills/request/detail');
 
     // For events
-    Route::get('events', 'EventController@index')->name('client/events');
+    // Route::get('events', 'EventController@index')->name('client/events');
     Route::get('events/{id}', 'EventController@show')->name('client/events/detail');
     Route::post('events/save/comment', 'EventController@saveComment')->name('client/events/save/comment');
     Route::get('events/comment/history', 'EventController@eventCommentHistory')->name('client/events/comment/history');

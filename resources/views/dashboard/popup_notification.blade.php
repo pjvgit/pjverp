@@ -29,7 +29,7 @@
                     </td>
                     <td class="align-middle">{{ $item['location'] }}</td>
                     <td class="align-middle">{{ $item['priority'] }}</td>
-                    <td class="align-middle"><button type="button" class="snooze-button text-nowrap btn btn-link" data-snooze-type="min" data-reminder-id="{{ $item['reminder_id'] }}" data-reminder-type="{{ $item['type']}}" >Snooze 10min</button></td>
+                    <td class="align-middle"><button type="button" class="snooze-button text-nowrap btn btn-link" data-snooze-type="min" data-reminder-id="{{ $item['reminder_id'] }}" data-event-recurring-id="{{ $item['event_recurring_id'] }}" data-reminder-type="{{ $item['type']}}" >Snooze 10min</button></td>
                     <td class="align-middle"><button type="button" class="dismiss-button btn btn-link" data-reminder-id="{{ $item['reminder_id'] }}" data-event-recurring-id="{{ $item['event_recurring_id'] }}" data-reminder-type="{{ $item['type']}}" >Dismiss</button></td>
                 </tr>
             @empty

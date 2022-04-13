@@ -362,7 +362,13 @@
                 $("#attend_user_"+userId).prop('disabled', true);
                 $("#attend_user_"+userId).prop('checked', false);
                 $("#SelectAllLeadAttend").prop('checked', false);
-            }            
+            }       
+            alert($('.lead_client_share_all_users:checked').length);
+            if($('.lead_client_share_all_users:checked').length) {
+                $(".reminder_user_type").children("option[value='client-lead']").show();
+            } else {
+                $(".reminder_user_type").children("option[value='client-lead']").hide();
+            }
         });
         $("#SelectAllLeadAttend").click(function () {
             // $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));

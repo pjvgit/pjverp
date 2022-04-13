@@ -652,7 +652,6 @@ class HomeController extends BaseController
                                 $addEvent = true;
                             } else if($ritem->reminder_frequncy == "hour") {
                                 if(Carbon::parse($currentTime)->gte($remindTime) && Carbon::parse($eventStartTime)->gt(Carbon::parse($currentTime))) {
-                                    // Log::info("event hour true");
                                     $addEvent = true;
                                 }
                             } else if($ritem->reminder_frequncy == "minute") {
@@ -662,6 +661,12 @@ class HomeController extends BaseController
                                     $addEvent = true;
                                 }
                             } else { }
+                            if(isset($ritem->user_popup_remind_detail)) {
+                                $isExist = collect($ritem->user_popup_remind_detail)->where('user_id', auth()->id())->first();
+                                if($isExist && $isExist->is_dismiss == 'yes') {
+                                    $addEvent = false;
+                                }
+                            }
                         }
                         if($addEvent) {
                             $events[] = [
@@ -880,10 +885,8 @@ class HomeController extends BaseController
                                     ];
                                     if(isset($sitem->user_popup_remind_detail)) {
                                         foreach($sitem->user_popup_remind_detail as $upkey => $upitem) {
-                                            // dd($upitem);
                                             array_push($remindDetail, $upitem);
                                         }
-                                        // return $remindDetail;
                                     }
                                     $sitem->user_popup_remind_detail = $remindDetail;
                                     $newArray[] = $sitem;
@@ -958,8 +961,48 @@ class HomeController extends BaseController
             }
             if($request->snooze_all){
                 \Log::info('Snooze start');
-                if($request->reminder_event_id){
-                    foreach($request->reminder_event_id as $reminder=>$reminder_event_id){
+                if($request->event_reminder_id && $request->event_recurring_id) {
+                    foreach($request->event_recurring_id as $key => $item) {
+                        $eventRecurring = EventRecurring::whereId($item)->first();
+                        $decodeReminders = encodeDecodeJson($eventRecurring->event_reminders);
+                        if(count($decodeReminders)) {
+                            $newArray = [];
+                            foreach($decodeReminders as $skey => $sitem) {
+                                if($request->reminder_id[$key] == $sitem->reminder_id) {
+                                    if($sitem->reminder_user_type == "me") {
+                                        $sitem->snooze_time = $request->snooze_time;
+                                        $sitem->snooze_type = $request->snooze_type;
+                                        $sitem->snoozed_at = Carbon::now();
+                                        $sitem->snooze_remind_at = Carbon::now();
+                                        $sitem->is_dismiss = 'no';
+                                        $sitem->reminded_at = Carbon::now();
+                                        $newArray[] = $sitem;
+                                    } else if(in_array($sitem->reminder_user_type, ["attorney","staff","paralegal"])) {
+                                        $remindDetail[] = [
+                                            'user_id' => $authUserId,
+                                            "snooze_time" => $request->snooze_time,
+                                            "snooze_type" => $request->snooze_type,
+                                            "snoozed_at" => Carbon::now(),
+                                            "snooze_remind_at" => Carbon::now(),
+                                            'is_dismiss' => 'no',
+                                            'reminded_at' => Carbon::now(),
+                                        ];
+                                        if(isset($sitem->user_popup_remind_detail)) {
+                                            foreach($sitem->user_popup_remind_detail as $upkey => $upitem) {
+                                                array_push($remindDetail, $upitem);
+                                            }
+                                        }
+                                        $sitem->user_popup_remind_detail = $remindDetail;
+                                        $newArray[] = $sitem;
+                                    }
+                                } else {
+                                    $newArray[] = $sitem;
+                                }
+                            }
+                            $eventRecurring->fill(['event_reminders' => encodeDecodeJson($newArray, 'encode')])->save();
+                        }
+                    }
+                    foreach($request->event_reminder_id as $reminder=>$reminder_event_id){
                         $eventRecurring = EventUserReminder::where("id", $reminder_event_id)->first();
                         $eventReminders = [];
                         $reminders = encodeDecodeJson($eventRecurring->event_reminders);
