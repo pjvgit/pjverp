@@ -562,5 +562,22 @@ trait EventTrait {
         }
         return encodeDecodeJson($newArray, 'encode');
     }
+
+    /**
+     * Get event reminder snooze remind at attribute
+     */
+    public function getSnoozeRemindAtAttribute($request)
+    {
+        $snoozedTime = Carbon::now();
+        if($request->snooze_type == "hour")
+            $remindTime = Carbon::parse($snoozedTime)->addHours($request->snooze_time)->format('Y-m-d H:i');
+        else if($request->snooze_type == "day")
+            $remindTime = Carbon::parse($snoozedTime)->addDays($request->snooze_time)->format('Y-m-d H:i');
+        else if($request->snooze_type == "week")
+            $remindTime = Carbon::parse($snoozedTime)->addDays($request->snooze_time)->format('Y-m-d H:i');
+        else
+            $remindTime = Carbon::parse($snoozedTime)->addMinutes($request->snooze_time)->format('Y-m-d H:i');
+        return $remindTime;
+    }
 }
  

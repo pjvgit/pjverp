@@ -18,7 +18,7 @@
                                     <div class="d-flex col-10 pl-0 align-items-center">
                                         <div class="pl-0 col-3">
                                             <div>
-                                                <input type="hidden" name="reminder[id][]" value="{{ $rkey }}">
+                                                <input type="hidden" name="reminder[id][]" value="{{ $rval->reminder_id }}">
                                                 <div class="">
                                                     {{-- <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  "> --}}
                                                     <select id="reminder_user_type" name="reminder[user_type][]" class="form-control custom-select  ">

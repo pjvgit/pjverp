@@ -1,8 +1,8 @@
-// popupNotification();
+popupNotification();
 
 // Schedule the next request when the current one's complete
 setInterval(function() {
-    // popupNotification();
+    popupNotification();
 }, (1000 * 60 * 1));
 
 function popupNotification() {
@@ -57,12 +57,14 @@ function popupNotification() {
 $(document).on("click", ".snooze-time", function() {
     var snoozeTime = $(this).val();
     var snoozeType = $(this).attr("data-snooze-type");
-    var reminderEventId = [],
+    var eventReminderId = [],
         reminderTaskId = [],
-        solReminderId = [];
+        solReminderId = [],
+        eventRecurringId = [];
     $(document).find("#popup_reminder_table tbody tr").each(function() {
         if ($(this).attr('data-reminder-type') == "event") {
-            reminderEventId.push($(this).attr('data-reminder-id'));
+            eventReminderId.push($(this).attr('data-reminder-id'));
+            eventRecurringId.push($(this).attr('data-event-recurring-id'));
         } else if ($(this).attr('data-reminder-type') == "task") {
             reminderTaskId.push($(this).attr('data-reminder-id'));
         } else {
@@ -73,7 +75,7 @@ $(document).on("click", ".snooze-time", function() {
     $.ajax({
         url: baseUrl + "/update/popup/notification",
         type: 'GET',
-        data: {'snooze_all' : 'yes', 'reminder_event_id': reminderEventId, 'reminder_task_id': reminderTaskId, 'sol_reminder_id': solReminderId, 'snooze_time': snoozeTime, 'snooze_type': snoozeType },
+        data: { 'event_reminder_id': eventReminderId, 'reminder_task_id': reminderTaskId, 'sol_reminder_id': solReminderId, 'snooze_time': snoozeTime, 'snooze_type': snoozeType, 'event_recurring_id': eventRecurringId },
         success: function(data) {
             if (data.status == "success") {
                 popupNotification();
