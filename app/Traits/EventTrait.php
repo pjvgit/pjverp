@@ -16,32 +16,43 @@ trait EventTrait {
     /**
      * Get event reminders json
      */
-    public function getEventReminderJson($caseEvent, $request, $caseLinkedStaff)
+    public function getEventReminderJson($caseEvent, $request, $caseLinkedStaff, $oldDecodeReminders = null)
     {
         $eventReminders = [];
         $authUserId = auth()->id();
+        $reminderNo = (isset($oldDecodeReminders)) ? $oldDecodeReminders->last()->reminder_id : 0;
         if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
             for($i=0; $i < count($request['reminder_user_type'])-1; $i++) {
-                $eventReminders[] = [
-                    'reminder_id' => $i + 1,
-                    'event_id' => $caseEvent->id,
-                    'user_id' => $authUserId,
-                    'reminder_type' => $request['reminder_type'][$i],
-                    'reminer_number' => $request['reminder_number'][$i],
-                    'reminder_frequncy' => $request['reminder_time_unit'][$i],
-                    'reminder_user_type' => $request['reminder_user_type'][$i],
-                    'created_by' => $authUserId,
-                    'remind_at' => $this->getRemindAtAttribute($request, $request['reminder_time_unit'][$i], $request['reminder_number'][$i]),
-                    'popup_remind_time' => $this->getRemindAtAttribute($request, $request['reminder_time_unit'][$i], $request['reminder_number'][$i], 'time'),
-                    'snooze_time' => null,
-                    'snooze_type' => null,
-                    'snoozed_at' => null,
-                    'snooze_remind_at' => null,
-                    'is_dismiss' => 'no',
-                    'reminded_at' => null,
-                    'dispatched_at' => null,
-                    'case_user_id' => (!in_array($request['reminder_user_type'][$i], ['me','client-lead'])) ? $caseLinkedStaff : null,
-                ];
+                $isExist = $oldDecodeReminders->where('reminder_id', @$request['reminder_id'][$i])->where('created_by', $authUserId)->first();
+                if($isExist) {
+                    $isExist->reminder_type = ($isExist->reminder_type != $request['reminder_type'][$i]) ? $request['reminder_type'][$i] : $isExist->reminder_type;
+                    $isExist->reminer_number = ($isExist->reminer_number != $request['reminder_number'][$i]) ? $request['reminder_number'][$i] : $isExist->reminer_number;
+                    $isExist->reminder_frequncy = ($isExist->reminder_frequncy != $request['reminder_time_unit'][$i]) ? $request['reminder_time_unit'][$i] : $isExist->reminder_frequncy;
+                    $isExist->reminder_user_type = ($isExist->reminder_user_type != $request['reminder_user_type'][$i]) ? $request['reminder_user_type'][$i] : $isExist->reminder_user_type;
+                    $eventReminders[] = $isExist;
+                } else {
+                    $reminderNo++;
+                    $eventReminders[] = [
+                        'reminder_id' => $reminderNo,
+                        'event_id' => $caseEvent->id,
+                        'user_id' => $authUserId,
+                        'reminder_type' => $request['reminder_type'][$i],
+                        'reminer_number' => $request['reminder_number'][$i],
+                        'reminder_frequncy' => $request['reminder_time_unit'][$i],
+                        'reminder_user_type' => $request['reminder_user_type'][$i],
+                        'created_by' => $authUserId,
+                        'remind_at' => $this->getRemindAtAttribute($request, $request['reminder_time_unit'][$i], $request['reminder_number'][$i]),
+                        'popup_remind_time' => $this->getRemindAtAttribute($request, $request['reminder_time_unit'][$i], $request['reminder_number'][$i], 'time'),
+                        'snooze_time' => null,
+                        'snooze_type' => null,
+                        'snoozed_at' => null,
+                        'snooze_remind_at' => null,
+                        'is_dismiss' => 'no',
+                        'reminded_at' => null,
+                        'dispatched_at' => null,
+                        'case_user_id' => (!in_array($request['reminder_user_type'][$i], ['me','client-lead'])) ? $caseLinkedStaff : null,
+                    ];
+                }
             }
         }
         return $eventReminders;
@@ -535,7 +546,7 @@ trait EventTrait {
             $remindDate = Carbon::now()->format('Y-m-d');
             $remindTime = Carbon::now()->format('Y-m-d H:i:s');
         }
-        return ($responseType == 'time') ? $remindTime : $remindDate;
+        return ($responseType == 'time') ? convertTimeToUTCzone($remindTime, auth()->user()->user_timezone) : $remindDate;
     }
 
     /**
@@ -546,9 +557,9 @@ trait EventTrait {
         Log::info("Case linked users: ". $caseLinkedStaff);
         $authUserId = auth()->id();
         $newArray = [];
-        $eventReminders = $this->getEventReminderJson($caseEvent, $request, $caseLinkedStaff);
         if($eventRecurring) {
             $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
+            $eventReminders = $this->getEventReminderJson($caseEvent, $request, $caseLinkedStaff, $decodeReminder);
             if(count($decodeReminder)) {
                 $newArray = $decodeReminder->filter(function($item) use($authUserId) {
                     return $item->created_by != $authUserId;
@@ -558,6 +569,7 @@ trait EventTrait {
                 array_push($newArray, $ritem);
             }
         } else {
+            $eventReminders = $this->getEventReminderJson($caseEvent, $request, $caseLinkedStaff);
             $newArray = $eventReminders;
         }
         return encodeDecodeJson($newArray, 'encode');

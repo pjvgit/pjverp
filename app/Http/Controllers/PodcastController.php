@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\EventReminderEmailJob;
 use App\Jobs\ProcessPodcast;
 use Illuminate\Http\Request;
 
@@ -26,6 +25,5 @@ class PodcastController extends Controller
     {
         // ProcessPodcast::dispatch();
         dispatch(new ProcessPodcast())->delay(now()->addSeconds(5));;
-        // dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->onConnection('database');
     }
 }

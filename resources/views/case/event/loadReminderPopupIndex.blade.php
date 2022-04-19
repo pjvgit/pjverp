@@ -18,10 +18,10 @@
                                     <div class="d-flex col-10 pl-0 align-items-center">
                                         <div class="pl-0 col-3">
                                             <div>
-                                                <input type="hidden" name="reminder[id][]" value="{{ $rval->reminder_id }}">
+                                                <input type="text" name="reminder[id][]" value="{{ $rval->reminder_id }}">
                                                 <div class="">
                                                     {{-- <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  "> --}}
-                                                    <select id="reminder_user_type" name="reminder[user_type][]" class="form-control custom-select  ">
+                                                    <select id="reminder_user_type_{{ $rval->reminder_id }}" name="reminder[user_type][]" class="form-control custom-select  ">
                                                         @forelse (reminderUserType() as $key => $item)
                                                         <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? "selected" : "" }}>{{ $item }}</option>
                                                         @empty
@@ -34,7 +34,7 @@
                                             <div>
                                                 <div class="">
                                                     {{-- <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false"> --}}
-                                                    <select id="reminder_type" name="reminder[type][]" class="form-control custom-select valid" aria-invalid="false">
+                                                    <select id="reminder_type_{{ $rval->reminder_id }}" name="reminder[type][]" class="form-control custom-select valid" aria-invalid="false">
                                                         @foreach(getEventReminderTpe() as $k =>$v)
                                                                 <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
                                                         @endforeach
@@ -46,7 +46,7 @@
                                             <div>
                                                 <div class="">
                                                     {{-- <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  "> --}}
-                                                    <select id="reminder_time_unit" name="reminder[time_unit][]" class="form-control custom-select  ">
+                                                    <select id="reminder_time_unit_{{ $rval->reminder_id }}" name="reminder[time_unit][]" class="form-control custom-select  ">
                                                         <option <?php if($rval->reminder_frequncy=="minute"){ echo "selected=selected"; } ?> value="minute">minutes</option>
                                                         <option <?php if($rval->reminder_frequncy=="hour"){ echo "selected=selected"; } ?> value="hour">hours</option>
                                                         <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>

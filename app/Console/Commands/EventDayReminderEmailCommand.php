@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\EventRecurring;
 use App\Jobs\EventReminderEmailJob;
 use App\Traits\EventReminderTrait;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -45,7 +44,10 @@ class EventDayReminderEmailCommand extends Command
     public function handle()
     {
         $result = EventRecurring::whereJsonContains('event_reminders', ['reminder_type' => 'email'])
-                    ->whereJsonContains('event_reminders->reminder_frequncy', ['day', 'week'])
+                    ->where(function($query) {
+                        $query->whereJsonContains('event_reminders', ['reminder_frequncy' => 'day'])
+                            ->orWhereJsonContains('event_reminders', ['reminder_frequncy' => 'week']);
+                    })
                     ->whereJsonContains('event_reminders', ['remind_at' => date('Y-m-d')])
                     ->whereJsonContains('event_reminders', ['reminded_at' => null])
                     ->whereJsonContains('event_reminders', ['dispatched_at' => null])

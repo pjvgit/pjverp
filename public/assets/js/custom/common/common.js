@@ -144,7 +144,7 @@ $(document).on("click", ".snooze-time", function() {
     $.ajax({
         url: baseUrl + "/update/popup/notification",
         type: 'GET',
-        data: { 'reminder_id': reminderId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId, 'event_recurring_id': eventRecurringId },
+        data: { 'event_reminder_id': reminderId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId, 'event_recurring_id': eventRecurringId },
         success: function(data) {
             if (data.status == "success") {
                 popupNotification();
@@ -187,7 +187,7 @@ $(document).on("click", ".dismiss-notification", function() {
     $.ajax({
         url: baseUrl + "/update/popup/notification",
         type: 'GET',
-        data: { 'reminder_id': reminderId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId, 'event_recurring_id': eventRecurringId },
+        data: { 'event_reminder_id': reminderId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId, 'event_recurring_id': eventRecurringId },
         success: function(data) {
             if (data.status == "success") {
                 popupNotification();

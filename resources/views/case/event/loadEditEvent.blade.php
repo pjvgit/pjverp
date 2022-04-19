@@ -395,6 +395,7 @@
                                         ?>
                                         <div class="form-group fieldGroupEventReminder">
                                             <div class="">
+                                                <input type="text" name="reminder_id[]" value="{{ $rval->reminder_id }}">
                                                 <div class="d-flex col-10 pl-0 align-items-center">
                                                     <div class="pl-0 col-3">
                                                         <div>
@@ -652,6 +653,7 @@
             $('body').find('.fieldGroup:last').before(fieldHTML);
         }); */
         $('#EditEventForm').on('click', '.remove', function () {
+            alert();
             var $row = $(this).parents('.fieldGroupEventReminder').remove();
             $("#is_reminder_updated").val("yes");
         });

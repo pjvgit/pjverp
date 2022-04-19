@@ -47,7 +47,6 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
 
 // CHange reminder type based on reminder user type
 function changeEventReminderUserType(sel) {
-    alert(sel.value);
     if (sel.value == 'client-lead') {
         $("#reminder_type_" + sel.id + " option[value='popup']").hide();
     } else {
@@ -96,14 +95,14 @@ $('body').on("click", ".add-more-event-reminder, .add-new-reminder", function() 
     var modalId = $(this).parents('div.modal').attr("id");
     var fieldHTML = '<div class="form-group fieldGroupEventReminder">' + $(".fieldGroupEventReminderCopy").html() + '</div>';
     $('#'+modalId).find('.fieldGroupEventReminder:last').after(fieldHTML);
-    setTimeout(function(){
+    // setTimeout(function(){
         var checkedLen = $('#'+modalId+' input[name="ContactInviteClientCheckbox[]"]:checked').length;
         if (checkedLen > 0) {
-            $("#"+modalId+" .reminder_user_type").children("option[value='client-lead']").show();
+            $("#"+modalId+" select.reminder_user_type").children("option[value='client-lead']").show();
         } else {
-            $("#"+modalId+".reminder_user_type").children("option[value='client-lead']").hide();
+            $("#"+modalId+" select.reminder_user_type").children("option[value='client-lead']").hide();
         }
-    },2000); 
+    // },2000); 
     $("#is_reminder_updated").val("yes");
 });
 
