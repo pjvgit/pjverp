@@ -4,10 +4,10 @@
             <div class="pl-0 col-3">
                 <div>
                     <div class="">
-                        <select id="reminder_user_type" name="reminder_user_type[]"
-                            class="form-control custom-select  "  onchange="changeEventReminderUserType(this)">
+                        <select {{-- id="reminder_user_type" --}} name="reminder_user_type[]"
+                            class="form-control custom-select reminder_user_type"  onchange="changeEventReminderUserType(this)">
                             @forelse (reminderUserType() as $key => $item)
-                            <option value="{{ $key }}" {{-- @if($key == 'client-lead') style="display: none;" @endif --}}>{{ $item }}</option>
+                            <option value="{{ $key }}" @if($key == 'client-lead') style="display: none;" @endif>{{ $item }}</option>
                             @empty
                             @endforelse
                         </select>
@@ -17,8 +17,8 @@
             <div class="pl-0 col-3">
                 <div>
                     <div class="">
-                        <select id="reminder_type" name="reminder_type[]"
-                            class="form-control custom-select  ">
+                        <select {{-- id="reminder_type" --}} name="reminder_type[]"
+                            class="form-control custom-select reminder_type">
                             @foreach(getEventReminderTpe() as $k =>$v)
                                 <option value="{{$k}}">{{$v}}</option>
                             @endforeach
@@ -29,8 +29,8 @@
             <div class="col-4">
                 <div>
                     <div class="">
-                        <select id="reminder_time_unit" name="reminder_time_unit[]"
-                            class="form-control custom-select  ">
+                        <select {{-- id="reminder_time_unit" --}} name="reminder_time_unit[]"
+                            class="form-control custom-select reminder_time_unit">
                             <option value="minute">minutes</option>
                             <option value="hour">hours</option>
                             <option value="day">days</option>

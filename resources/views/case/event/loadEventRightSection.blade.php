@@ -363,7 +363,6 @@
                 $("#attend_user_"+userId).prop('checked', false);
                 $("#SelectAllLeadAttend").prop('checked', false);
             }       
-            alert($('.lead_client_share_all_users:checked').length);
             if($('.lead_client_share_all_users:checked').length) {
                 $(".reminder_user_type").children("option[value='client-lead']").show();
             } else {

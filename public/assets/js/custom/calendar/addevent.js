@@ -2,6 +2,7 @@
 var reminderAdded = false;
 $(document).on("change", ".load-default-reminder, .load-default-reminder-all", function() {
     // alert(reminderAdded);
+    var modalId = $(this).parents('section.sharing-list').parents('div.modal').attr("id");
     if ($(this).is(":checked") && !reminderAdded) {
         $.ajax({
             type: "POST",
@@ -13,12 +14,11 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
                     $.each(res.default_reminder, function(ind, item) {
                         $(".add-more-event-reminder").trigger("click");
                         var lastNo = $(".fieldGroupEventReminder").length;
-                        // alert(lastNo);
-                        $('body').find('#reminder_user_type:last').attr("ownid", lastNo);
-                        $('body').find('#reminder_user_type:last').attr("id", lastNo);
-                        $('body').find('#reminder_type:last').attr("id", "reminder_type_" + lastNo);
-                        $('body').find('#reminder_number:last').attr("id", "reminder_number_" + lastNo);
-                        $('body').find('#reminder_time_unit:last').attr("id", "reminder_time_unit_" + lastNo);
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_user_type').attr("ownid", lastNo);
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_user_type').attr("id", lastNo);
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_type').attr("id", "reminder_type_" + lastNo);
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder-number').attr("id", "reminder_number_" + lastNo);
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_time_unit').attr("id", "reminder_time_unit_" + lastNo);
 
                         $('body').find("#" + lastNo + " option[value='client-lead']").show();
                         $('body').find('#' + lastNo).val(item.reminder_user_type);
@@ -48,9 +48,12 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
 // CHange reminder type based on reminder user type
 function changeEventReminderUserType(sel) {
     if (sel.value == 'client-lead') {
-        $("#reminder_type_" + sel.id + " option[value='popup']").hide();
+        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type option[value='popup']").hide();
+        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type").val('email');
+        // $("#reminder_type_" + sel.id + " option[value='popup']").hide();
     } else {
-        $("#reminder_type_" + sel.id + " option[value='popup']").show();
+        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type option[value='popup']").show();
+        // $("#reminder_type_" + sel.id + " option[value='popup']").show();
     }
 }
 
@@ -60,7 +63,6 @@ function changeEventReminderUserType(sel) {
  */
 function loadGrantAccessModal(id) {
     if ($("#cleintUSER_" + id).prop('checked') == true && $("#cleintUSER_" + id).attr("data-client_portal_enable") == 0) {
-        // alert(id);
         $("#cleintUSER_" + id).prop('checked', false);
         $("#loadGrantAccessModal").modal();
         $("#innerLoader").css('display', 'none');
@@ -109,42 +111,42 @@ $('body').on("click", ".add-more-event-reminder, .add-new-reminder", function() 
 /**
  * Change/select recurring event type
  */
-function selectType() {
+function selectType(selectdValue = null, modalId) {
     $(".innerLoader").css('display', 'block');
-    var selectdValue = $("#event-frequency option:selected").val() // or
+    // var selectdValue = $("#event-frequency option:selected").val() // or
     if (selectdValue == 'DAILY') {
-        $("#repeat_daily").show();
-        $("#repeat_custom").hide();
-        $(".repeat_yearly").hide();
-        $(".repeat_monthly").hide();
+        $("#"+modalId+" #repeat_daily").show();
+        $("#"+modalId+" #repeat_custom").hide();
+        $("#"+modalId+" .repeat_yearly").hide();
+        $("#"+modalId+" .repeat_monthly").hide();
     } else if (selectdValue == 'CUSTOM') {
-        $("#repeat_custom").show();
-        $("#repeat_daily").hide();
-        $(".repeat_monthly").hide();
-        $(".repeat_yearly").hide();
+        $("#"+modalId+" #repeat_custom").show();
+        $("#"+modalId+" #repeat_daily").hide();
+        $("#"+modalId+" .repeat_monthly").hide();
+        $("#"+modalId+" .repeat_yearly").hide();
     } else if (selectdValue == 'MONTHLY') {
-        $(".repeat_yearly").hide();
-        $(".repeat_monthly").show();
-        $("#repeat_custom").hide();
-        $("#repeat_daily").hide();
+        $("#"+modalId+" .repeat_yearly").hide();
+        $("#"+modalId+" .repeat_monthly").show();
+        $("#"+modalId+" #repeat_custom").hide();
+        $("#"+modalId+" #repeat_daily").hide();
         updateMonthlyWeeklyOptions();
     } else if (selectdValue == 'YEARLY') {
-        $(".repeat_yearly").show();
-        $(".repeat_monthly").hide();
-        $("#repeat_custom").hide();
-        $("#repeat_daily").hide();
+        $("#"+modalId+" .repeat_yearly").show();
+        $("#"+modalId+" .repeat_monthly").hide();
+        $("#"+modalId+" #repeat_custom").hide();
+        $("#"+modalId+" #repeat_daily").hide();
         updateMonthlyWeeklyOptions();
     } else if (selectdValue == 'WEEKLY') {
         updateMonthlyWeeklyOptions();
-        $("#repeat_daily").hide();
-        $("#repeat_custom").hide();
-        $(".repeat_monthly").hide();
-        $(".repeat_yearly").hide();
+        $("#"+modalId+" #repeat_daily").hide();
+        $("#"+modalId+" #repeat_custom").hide();
+        $("#"+modalId+" .repeat_monthly").hide();
+        $("#"+modalId+" .repeat_yearly").hide();
     } else {
-        $("#repeat_daily").hide();
-        $("#repeat_custom").hide();
-        $(".repeat_monthly").hide();
-        $(".repeat_yearly").hide();
+        $("#"+modalId+" #repeat_daily").hide();
+        $("#"+modalId+" #repeat_custom").hide();
+        $("#"+modalId+" .repeat_monthly").hide();
+        $("#"+modalId+" .repeat_yearly").hide();
     }
     $(".innerLoader").css('display', 'none');
 }

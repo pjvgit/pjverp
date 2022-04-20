@@ -16,7 +16,7 @@ trait EventTrait {
     /**
      * Get event reminders json
      */
-    public function getEventReminderJson($caseEvent, $request, $caseLinkedStaff, $oldDecodeReminders = null)
+    public function getEventReminderJson($caseEvent, $request, $oldDecodeReminders = null)
     {
         $eventReminders = [];
         $authUserId = auth()->id();
@@ -57,7 +57,6 @@ trait EventTrait {
                         'is_dismiss' => 'no',
                         'reminded_at' => null,
                         'dispatched_at' => null,
-                        'case_user_id' => (!in_array($request['reminder_user_type'][$i], ['me','client-lead'])) ? $caseLinkedStaff : null,
                     ];
                 }
             }
@@ -306,7 +305,7 @@ trait EventTrait {
         $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', date("Y-m-d", $recurringEndDate));
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {
-            $request->start_date = $date;
+            $request->start_date = $date->format('Y-m-d');
             $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => $date,
@@ -332,7 +331,7 @@ trait EventTrait {
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {          
             if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
-                $request->start_date = $date;
+                $request->start_date = $date->format('Y-m-d');
                 $eventRecurring = EventRecurring::insert([
                     "event_id" => $caseEvent->id,
                     "start_date" => $date,
@@ -380,7 +379,7 @@ trait EventTrait {
             }
             $dayOfWeek = $date->format('l');
             if(in_array($dayOfWeek, $request->custom)) {    
-                $request->start_date = $date;   
+                $request->start_date = $date->format('Y-m-d');   
                 $eventRecurring = EventRecurring::create([
                     "event_id" => $caseEvent->id,
                     "start_date" => $date->format('Y-m-d'),
@@ -406,7 +405,7 @@ trait EventTrait {
         $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {              
-            $request->start_date = $date;
+            $request->start_date = $date->format('Y-m-d');
             $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => $date,
@@ -444,7 +443,7 @@ trait EventTrait {
             } else { 
                 $date1 = strtotime($date);
             }            
-            $request->start_date = $date;
+            $request->start_date = date('Y-m-d', $date1);
             $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => date('Y-m-d', $date1),
@@ -559,14 +558,14 @@ trait EventTrait {
     /**
      * Update event user reminders json
      */
-    public function getUpdateEventReminderJson($caseEvent, $request, $eventRecurring = null, $caseLinkedStaff)
+    public function getUpdateEventReminderJson($caseEvent, $request, $eventRecurring = null)
     {
-        Log::info("Case linked users: ". $caseLinkedStaff);
         $authUserId = auth()->id();
         $newArray = [];
         if($eventRecurring) {
+            $request->start_date = $eventRecurring->start_date;
             $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
-            $eventReminders = $this->getEventReminderJson($caseEvent, $request, $caseLinkedStaff, $decodeReminder);
+            $eventReminders = $this->getEventReminderJson($caseEvent, $request, $decodeReminder);
             if(count($decodeReminder)) {
                 $newArray = $decodeReminder->filter(function($item) use($authUserId) {
                     return $item->created_by != $authUserId;
@@ -576,7 +575,7 @@ trait EventTrait {
                 array_push($newArray, $ritem);
             }
         } else {
-            $eventReminders = $this->getEventReminderJson($caseEvent, $request, $caseLinkedStaff);
+            $eventReminders = $this->getEventReminderJson($caseEvent, $request);
             $newArray = $eventReminders;
         }
         return encodeDecodeJson($newArray, 'encode');

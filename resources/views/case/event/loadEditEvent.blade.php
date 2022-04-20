@@ -26,6 +26,7 @@
             @csrf
             <input class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="text" id="event_recurring_id">
             <input class="form-control" value="no" name="is_reminder_updated" type="text" id="is_reminder_updated">
+            <input class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" type="text" id="edit_recurring_pattern">
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8">
@@ -167,7 +168,7 @@
                         <div class="form-group row" id="repeat_dropdown">
                             <label for="inputEmail3" class="col-sm-2 col-form-label">Frequency</label>
                             <div class="col-md-3 form-group mb-3">
-                                <select onchange="selectType()" id="event-frequency" name="event_frequency"
+                                <select onchange="selectType(this.value, 'loadEditEventPopup')" id="event-frequency" name="event_frequency"
                                     class="form-control custom-select  ">
                                     <option <?php if($evetData->event_recurring_type=='DAILY'){?> selected=selected <?php } ?>  value="DAILY">Daily</option>
                                     <option <?php if($evetData->event_recurring_type=='EVERY_BUSINESS_DAY'){?> selected=selected <?php } ?>   value="EVERY_BUSINESS_DAY">Every Business Day</option>
@@ -1115,7 +1116,7 @@
             $('.submit').removeAttr("disabled");
             return false;
         }
-        if(!$("#recuring_event").is(":checked")) {
+        if(!$("#recuring_event").is(":checked") || $("#edit_recurring_pattern").val() == "single event") {
             $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
             $(".submit").trigger("click");
         } else if($("#recuring_event").is(":checked") && "{{ $evetData->is_recurring }}" == 'no') {
@@ -1194,7 +1195,8 @@
             selectTypeload('{{$evetData->event_recurring_type}}');
             $("#endondiv").show();
     <?php }else{  ?>
-            selectType();
+            selectType(null, 'loadEditEventPopup');
+            $("#event-frequency").hide();
             $("#endondiv").hide();
     <?php } ?>
 

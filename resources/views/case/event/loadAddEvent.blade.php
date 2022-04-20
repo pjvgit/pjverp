@@ -147,7 +147,7 @@
             <div class="form-group row" id="repeat_dropdown">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Frequency</label>
                 <div class="col-md-3 form-group mb-3">
-                    <select onchange="selectType()" id="event-frequency" name="event_frequency"
+                    <select onchange="selectType(this.value, 'loadAddEventPopup')" id="event-frequency" name="event_frequency"
                         class="form-control custom-select  ">
                         <option value="DAILY">Daily</option>
                         <option value="EVERY_BUSINESS_DAY" selected="selected">Every Business Day</option>
