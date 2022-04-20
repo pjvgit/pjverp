@@ -22,11 +22,11 @@
         
 
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
-            <input class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id" type="text">
             @csrf
-            <input class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="text" id="event_recurring_id">
-            <input class="form-control" value="no" name="is_reminder_updated" type="text" id="is_reminder_updated">
-            <input class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" type="text" id="edit_recurring_pattern">
+            <input type="text" class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id">
+            <input type="text" class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" id="event_recurring_id">
+            <input type="hidden" class="form-control" value="no" name="is_reminder_updated" id="is_reminder_updated">
+            <input type="hidden" class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" id="edit_recurring_pattern">
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8">
@@ -396,12 +396,12 @@
                                         ?>
                                         <div class="form-group fieldGroupEventReminder">
                                             <div class="">
-                                                <input type="text" name="reminder_id[]" value="{{ $rval->reminder_id }}">
+                                                <input type="hidden" name="reminder_id[]" value="{{ $rval->reminder_id }}">
                                                 <div class="d-flex col-10 pl-0 align-items-center">
                                                     <div class="pl-0 col-3">
                                                         <div>
                                                             <div class="">
-                                                                <select id="{{ $rkey + 1 }}" name="reminder_user_type[]" class="form-control custom-select reminder_user_type">
+                                                                <select id="{{ $rkey + 1 }}" name="reminder_user_type[]" class="form-control custom-select reminder_user_type" onchange="changeEventReminderUserType(this)">
                                                                     @forelse (reminderUserType() as $key => $item)
                                                                     <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? "selected" : "" }}>{{ $item }}</option>
                                                                     @empty
@@ -413,7 +413,7 @@
                                                     <div class="pl-0 col-3">
                                                         <div>
                                                             <div class="">
-                                                                <select id="reminder_type_{{ $rkey + 1 }}" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
+                                                                <select id="reminder_type_{{ $rkey + 1 }}" name="reminder_type[]" class="form-control custom-select reminder_type" aria-invalid="false">
                                                                     @foreach(getEventReminderTpe() as $k =>$v)
                                                                         <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
                                                                     @endforeach
@@ -424,7 +424,7 @@
                                                     <div class="col-4">
                                                         <div>
                                                             <div class="">
-                                                                <select id="reminder_time_unit_{{ $rkey + 1 }}" name="reminder_time_unit[]" class="form-control custom-select  ">
+                                                                <select id="reminder_time_unit_{{ $rkey + 1 }}" name="reminder_time_unit[]" class="form-control custom-select reminder_time_unit">
                                                                     <option <?php if($rval->reminder_frequncy=="minute"){ echo "selected=selected"; } ?> value="minute">minutes</option>
                                                                     <option <?php if($rval->reminder_frequncy=="hour"){ echo "selected=selected"; } ?> value="hour">hours</option>
                                                                     <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>

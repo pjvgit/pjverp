@@ -5,7 +5,7 @@
                 <div>
                     <div class="">
                         <select {{-- id="reminder_user_type" --}} name="reminder_user_type[]"
-                            class="form-control custom-select reminder_user_type"  onchange="changeEventReminderUserType(this)">
+                            class="form-control custom-select reminder_user_type" onchange="changeEventReminderUserType(this)">
                             @forelse (reminderUserType() as $key => $item)
                             <option value="{{ $key }}" @if($key == 'client-lead') style="display: none;" @endif>{{ $item }}</option>
                             @empty
