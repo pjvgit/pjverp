@@ -35,6 +35,7 @@ trait EventTrait {
                         $isExist->popup_remind_time = $this->getRemindAtAttribute($request, $request['reminder_time_unit'][$i], $request['reminder_number'][$i], 'time');
                         $isExist->is_dismiss = 'no';
                         $isExist->snooze_remind_at = null;
+                        $isExist->dispatched_at = null;
                     }
                     $eventReminders[] = $isExist;
                 } else {

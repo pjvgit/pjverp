@@ -4227,6 +4227,7 @@ class CaseController extends BaseController
                             $isExist->popup_remind_time = $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key], 'time');
                             $isExist->is_dismiss = 'no';
                             $isExist->snooze_remind_at = null;
+                            $isExist->dispatched_at = null;
                         }
                         $eventReminders[] = $isExist;
                     } else {
