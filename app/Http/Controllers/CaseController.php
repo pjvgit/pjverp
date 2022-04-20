@@ -4210,10 +4210,16 @@ class CaseController extends BaseController
                 foreach($request->reminder['user_type'] as $key => $item) {
                     $isExist = $decodeReminder->where('reminder_id', @$request->reminder['id'][$key])->where('created_by', $authUserId)->first();
                     if($isExist) {
-                        $isExist->reminder_type = ($isExist->reminder_type != $request->reminder['type'][$key]) ? $request->reminder['type'][$key] : $isExist->reminder_type;
-                        $isExist->reminer_number = ($isExist->reminer_number != $request->reminder['number'][$key]) ? $request->reminder['number'][$key] : $isExist->reminer_number;
-                        $isExist->reminder_frequncy = ($isExist->reminder_frequncy != $request->reminder['time_unit'][$key]) ? $request->reminder['time_unit'][$key] : $isExist->reminder_frequncy;
-                        $isExist->reminder_user_type = ($isExist->reminder_user_type != $item) ? $item : $isExist->reminder_user_type;
+                        if($isExist->reminder_type != $request->reminder['type'][$key] || $isExist->reminer_number != $request->reminder['number'][$key] || $isExist->reminder_frequncy != $request->reminder['time_unit'][$key] || $isExist->reminder_user_type != $item) {
+                            $isExist->reminder_type = $request->reminder['type'][$key];
+                            $isExist->reminer_number = $request->reminder['number'][$key];
+                            $isExist->reminder_frequncy = $request->reminder['time_unit'][$key];
+                            $isExist->reminder_user_type = $item;
+                            $isExist->remind_at = $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key]);
+                            $isExist->popup_remind_time = $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key], 'time');
+                            $isExist->is_dismiss = 'no';
+                            $isExist->snooze_remind_at = null;
+                        }
                         $eventReminders[] = $isExist;
                     } else {
                         $reminderNo++;

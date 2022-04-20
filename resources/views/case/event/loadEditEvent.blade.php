@@ -653,7 +653,6 @@
             $('body').find('.fieldGroup:last').before(fieldHTML);
         }); */
         $('#EditEventForm').on('click', '.remove', function () {
-            alert();
             var $row = $(this).parents('.fieldGroupEventReminder').remove();
             $("#is_reminder_updated").val("yes");
         });
@@ -662,6 +661,9 @@
             $("#is_reminder_updated").val("yes");
         });
         $(".fieldGroupEventReminder input").on('input', function() {
+            $("#is_reminder_updated").val("yes");
+        });
+        $(".input-date, .input-time").on('input change', function() {
             $("#is_reminder_updated").val("yes");
         });
 

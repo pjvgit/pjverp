@@ -23,12 +23,19 @@ trait EventTrait {
         $reminderNo = (isset($oldDecodeReminders)) ? $oldDecodeReminders->last()->reminder_id : 0;
         if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
             for($i=0; $i < count($request['reminder_user_type'])-1; $i++) {
-                $isExist = $oldDecodeReminders->where('reminder_id', @$request['reminder_id'][$i])->where('created_by', $authUserId)->first();
+                $isExist = ($oldDecodeReminders) ? $oldDecodeReminders->where('reminder_id', @$request['reminder_id'][$i])->where('created_by', $authUserId)->first() : '';
                 if($isExist) {
-                    $isExist->reminder_type = ($isExist->reminder_type != $request['reminder_type'][$i]) ? $request['reminder_type'][$i] : $isExist->reminder_type;
-                    $isExist->reminer_number = ($isExist->reminer_number != $request['reminder_number'][$i]) ? $request['reminder_number'][$i] : $isExist->reminer_number;
-                    $isExist->reminder_frequncy = ($isExist->reminder_frequncy != $request['reminder_time_unit'][$i]) ? $request['reminder_time_unit'][$i] : $isExist->reminder_frequncy;
-                    $isExist->reminder_user_type = ($isExist->reminder_user_type != $request['reminder_user_type'][$i]) ? $request['reminder_user_type'][$i] : $isExist->reminder_user_type;
+                    Log::info("updated start date: ". $request->updated_start_date);
+                    if($isExist->reminder_type != $request['reminder_type'][$i] || $isExist->reminer_number != $request['reminder_number'][$i] || $isExist->reminder_frequncy != $request['reminder_time_unit'][$i] || $isExist->reminder_user_type != $request['reminder_user_type'][$i] || isset($request->updated_start_date) || isset($request->updated_start_time)) {
+                        $isExist->reminder_type = $request['reminder_type'][$i];
+                        $isExist->reminer_number = $request['reminder_number'][$i];
+                        $isExist->reminder_frequncy = $request['reminder_time_unit'][$i];
+                        $isExist->reminder_user_type = $request['reminder_user_type'][$i];
+                        $isExist->remind_at = $this->getRemindAtAttribute($request, $request['reminder_time_unit'][$i], $request['reminder_number'][$i]);
+                        $isExist->popup_remind_time = $this->getRemindAtAttribute($request, $request['reminder_time_unit'][$i], $request['reminder_number'][$i], 'time');
+                        $isExist->is_dismiss = 'no';
+                        $isExist->snooze_remind_at = null;
+                    }
                     $eventReminders[] = $isExist;
                 } else {
                     $reminderNo++;

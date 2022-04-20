@@ -56,7 +56,8 @@ class EventDayReminderEmailCommand extends Command
                     })
                     // ->whereId(59939)
                     ->with('event', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll')
-                    ->get();        
+                    ->get();   
+        Log::info("day reminder total found: ". count($result));
         if($result) {
             foreach($result as $key => $item) {
                 Log::info("Event recurring id :". $item->id);
