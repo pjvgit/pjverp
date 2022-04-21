@@ -4228,6 +4228,7 @@ class CaseController extends BaseController
                             $isExist->is_dismiss = 'no';
                             $isExist->snooze_remind_at = null;
                             $isExist->dispatched_at = null;
+                            $isExist->reminded_at = null;
                         }
                         $eventReminders[] = $isExist;
                     } else {

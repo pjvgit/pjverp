@@ -49,7 +49,7 @@ class EventDayReminderEmailCommand extends Command
                             ->orWhereJsonContains('event_reminders', ['reminder_frequncy' => 'week']);
                     })
                     ->whereJsonContains('event_reminders', ['remind_at' => date('Y-m-d')])
-                    ->whereJsonContains('event_reminders', ['reminded_at' => null])
+                    // ->whereJsonContains('event_reminders', ['reminded_at' => null])
                     ->whereJsonContains('event_reminders', ['dispatched_at' => null])
                     ->whereHas("event", function($query) {
                         $query->where("is_SOL", "no");
@@ -62,7 +62,7 @@ class EventDayReminderEmailCommand extends Command
             foreach($result as $key => $item) {
                 Log::info("Event recurring id :". $item->id);
                 $users = $attendEvent = [];
-                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'email')->where('remind_at', date('Y-m-d'))->whereIn('reminder_frequncy', ['day', 'week'])->whereNull('dispatched_at')->whereNull('reminded_at');
+                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'email')->where('remind_at', date('Y-m-d'))->whereIn('reminder_frequncy', ['day', 'week'])->whereNull('dispatched_at');
                 foreach($decodeReminders as $rkey => $ritem){
                     $response = $this->getEventLinkedUser($ritem, "email", $item->event, $item);
                     Log::info("event day reminder users: ". $response["users"]);
