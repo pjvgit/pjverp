@@ -13,7 +13,7 @@
 <div style=" max-width:540px;margin:0px auto;padding:20px">
 <p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;padding-top: 20px;">Hi {{ @$user->first_name }},
 </p>
-<p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;padding-top: 0px;">This is a reminder that you have an upcoming event.
+<p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;padding-top: 0px;">This email is to inform you of an upcoming event for your case with {{ @$firm->firm_name }}.
 </p>
 <table  style="margin-bottom: 20px; max-width: 540px;border-collapse: collapse; background-color: #ffff;">
 <tr>
@@ -21,33 +21,52 @@
 <td style="padding: 10px;">{{ @$event->event_title }}</td>
 </tr>
 <tr>
-<td style="padding: 10px;font-weight:600;">Case/Lead Name:</td>
-<td style="padding: 10px;">
-@if($event->case_id)
-<a href="{{ route('info', $event->case->case_unique_number) }}">{{ @$event->case->case_title }}</a>
-@elseif($event->lead_id)
-<a href="{{ url('leads/case_details/info', $event->lead_id) }}">{{ @$event->leadUser->full_name }}</a>
-@else
-<p class="d-inline" style="opacity: 0.7;">Not specified</p>
-@endif
-</td>
-</tr>
-<tr>
 <td style="padding: 10px;font-weight:600;">Date/Time:</td>
 <td style="padding: 10px;">
 @php
 $userTimezone = $user->user_timezone ?? 'UTC';
-$dt = new DateTime('now', new DateTimeZone(@$user->user_timezone));
+$dt = new DateTime('now', new DateTimeZone($userTimezone));
 $abbreviation = $dt->format('T');
 if($event->is_full_day == 'no') {
     $startDateTime= convertUTCToUserTime($eventRecurring->start_date.' '.$event->start_time, $userTimezone);
     $endDateTime= convertUTCToUserTime($eventRecurring->end_date.' '.$event->end_time, $userTimezone);
 }
+$endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('F d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "";
 @endphp
+
+@if(isset($event) && $event->event_recurring_type!=NULL)
+@if($event->event_recurring_type=='DAILY')
+{{ ($event->event_interval_day > 1) ? "Every ".$event->event_interval_day." days" : "Daily" }} {{ $endOnDate }}
+@elseif($event->event_recurring_type=='EVERY_BUSINESS_DAY')
+Weekly {{ $endOnDate }} on Weekdays
+@elseif($event->event_recurring_type=='CUSTOM')
+{{ ($event->event_interval_week > 1) ? "Every ".$event->event_interval_week." weeks" : "Weekly" }} {{ $endOnDate }} on {{ implode(", ", $event->custom_event_weekdays) }}
+@elseif($event->event_recurring_type=='WEEKLY')
+Weekly {{ $endOnDate }} on {{ date('l', strtotime($eventRecurring->start_date))."s" }}
+@elseif($event->event_recurring_type=='MONTHLY')
+{{ ($event->event_interval_month > 1) ? "Every ".$event->event_interval_month." months " : "Monthly" }} {{ $endOnDate }}
+@if($event->monthly_frequency == "MONTHLY_ON_DAY")
+{{ "on the ".date("jS", strtotime($eventRecurring->user_start_date))." day of the month" }}
+@elseif($event->monthly_frequency == "MONTHLY_ON_THE")
+@php
+$day = ceil(date('j', strtotime($eventRecurring->start_date)) / 7);
+@endphp
+{{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".date('l', strtotime($eventRecurring->start_date)) }}
+@else
+@endif
+</div>
+@endif
+@if($event->is_full_day == 'no')
+from {{ date('h:iA',strtotime($startDateTime)) }} to {{date('h:iA',strtotime($endDateTime))}} {{ @$abbreviation }}
+@else
+all day
+@endif
+@else
 @if($event->is_full_day == 'no')
 {{date('M D, Y h:iA',strtotime($startDateTime))}} — {{date('h:iA',strtotime($endDateTime))}} {{ @$abbreviation }}
 @else
 {{ date('M D, Y',strtotime($eventRecurring->start_date)) }}, All day
+@endif
 @endif
 </td>
 </tr>
@@ -62,14 +81,6 @@ if($event->is_full_day == 'no') {
 </tr>
 @endif
 </table>
-@if($user->user_level == 3)
-<a href="{{ route('events/detail', @$eventRecurring->decode_id) }}" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
-@else
-<a href="{{ route('client/events/detail', @$eventRecurring->decode_id) }}" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
-@endif
-<br>
-<p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;padding-top: 10px;">For additional details about the event, please log in to your <a href="{{route('login')}}">Account</a>.
-</p>
 <p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;">Thank you,<br>
 {{ @$firm->firm_name }}
 </p>

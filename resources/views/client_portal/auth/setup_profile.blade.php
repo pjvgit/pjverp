@@ -38,7 +38,7 @@
                                     $timezoneData = unserialize(getTimezoneList()); //
                                 @endphp
                                 @forelse(array_flip($timezoneData) as $key=>$val)
-                                    <option value="{{$key}}">{{$val}}</option>
+                                    <option value="{{$key}}" {{ ($key == "America/Mexico_City") ? 'selected' : '' }} >{{$val}}</option>
                                 @empty
                                 @endforelse
                             </select>

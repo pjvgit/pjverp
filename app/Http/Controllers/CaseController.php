@@ -23,6 +23,7 @@ use App\FirmEventReminder;
 use App\FlatFeeEntry,App\Messages,App\UserPreferanceReminder;
 use Illuminate\Support\Str;
 use App\Jobs\EventCommentEmailJob;
+use App\Jobs\LeadEventInvitationEmailJob;
 use App\Traits\CaseEventTrait;
 use App\Traits\EventTrait;
 use App\Traits\UserCaseSharingTrait;
@@ -2196,6 +2197,14 @@ class CaseController extends BaseController
             ]);  
 
             $this->saveEventRecentActivity($request, $caseEvent->id, $eventRecurring->id, 'add');
+
+            if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent, 'add');
+                /* $leadUser = User::whereId($request->text_lead_id)->first();
+                if($leadUser && $leadUser->email) {
+                    dispatch(new LeadEventInvitationEmailJob($eventRecurring, $caseEvent, $leadUser));
+                } */
+            }
         } else {  
             $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
             $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
@@ -2211,6 +2220,7 @@ class CaseController extends BaseController
      */
     public function saveEditEventPage(Request $request)
     {
+        // return $request->custom;
         // return $request->all();
         if(!isset($request->no_case_link)){
             $validator = \Validator::make($request->all(), [
@@ -2286,6 +2296,9 @@ class CaseController extends BaseController
                 ])->save();
 
                 $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
+                if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                    $this->sendLeadUserInviteEmail($request->text_lead_id, $recurringEvent, $caseEvent);
+                }
 
             } else if($caseEvent && $caseEvent->is_recurring == 'yes' && !isset($request->recuring_event)) {
                 $oldEventIds = Event::where("parent_event_id", $caseEvent->id)->orWhere("id", $caseEvent->id)->pluck('id')->toArray();
@@ -2324,6 +2337,9 @@ class CaseController extends BaseController
                 Event::whereIn("id", $oldEventIds)->forceDelete();
 
                 $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
+                if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                    $this->sendLeadUserInviteEmail($request->text_lead_id, $recurringEvent, $caseEvent);
+                }
 
             } else if($caseEvent && $caseEvent->is_recurring == 'yes' && isset($request->recuring_event)) {
                 if($caseEvent->edit_recurring_pattern == 'single event' && $caseEvent->parent_event_id != '') {
@@ -2398,6 +2414,9 @@ class CaseController extends BaseController
                 ])->save();
                     
                 $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
+                if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                    $this->sendLeadUserInviteEmail($request->text_lead_id, $recurringEvent, $caseEvent);
+                }
 
             } else if($caseEvent && $caseEvent->is_recurring == 'no' && isset($request->recuring_event)) {
                 $caseEvent->fill([
@@ -2416,6 +2435,7 @@ class CaseController extends BaseController
                     "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
                     "event_recurring_type" => $request->event_frequency,
                     "event_interval_day" => $request->event_interval_day,
+                    "custom_event_weekdays" => $request->custom,
                     "event_interval_month" => $request->event_interval_month,
                     "event_interval_year" => $request->event_interval_year,
                     "monthly_frequency" => $request->monthly_frequency,
@@ -2444,6 +2464,9 @@ class CaseController extends BaseController
                     $recurringEvent = $this->saveYearlyRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate);
                 } */
                 $this->saveEventRecentActivity($request, $caseEvent->id, @$recurringEvent->id);
+                if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                    $this->sendLeadUserInviteEmail($request->text_lead_id, $recurringEvent, $caseEvent);
+                }
             }
         } elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS') {
             $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
@@ -2526,7 +2549,10 @@ class CaseController extends BaseController
                                     ])->save();
                                 }
                             }
-                        }                    
+                        }  
+                        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                            $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                        }                  
                     } else {
                         $oldEvent->fill([
                             "event_title" => $request->event_name,
@@ -2576,7 +2602,10 @@ class CaseController extends BaseController
                                     ])->save();
                                 }
                             }
-                        }
+                        } 
+                        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                            $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $oldEvent);
+                        }  
                     }
                     $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
                 } else if($request->event_frequency == 'EVERY_BUSINESS_DAY') { 
@@ -2635,7 +2664,10 @@ class CaseController extends BaseController
                                     ])->save();
                                 }
                             }
-                        }
+                        } 
+                        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                            $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                        }  
                     } else {
                         $oldEvent->fill([
                             "event_title" => $request->event_name,
@@ -2682,6 +2714,9 @@ class CaseController extends BaseController
                                     ])->save();
                                 }
                             }
+                        } 
+                        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                            $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $oldEvent);
                         }
                     }
                     $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
@@ -2768,6 +2803,9 @@ class CaseController extends BaseController
                                     }
                                 }
                             }
+                            if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                                $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                            }
                         }  
                     } else {
                         $oldEvent->fill([
@@ -2842,6 +2880,9 @@ class CaseController extends BaseController
                                 }
                             }
                         }
+                        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                            $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $oldEvent);
+                        }
                     }
                     $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
                 } else if($request->event_frequency == 'WEEKLY') { 
@@ -2903,6 +2944,9 @@ class CaseController extends BaseController
                                 }
                             }
                         }
+                        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                            $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                        }
                     } else {
                         $oldEvent->fill([
                             "event_title" => $request->event_name,
@@ -2950,6 +2994,9 @@ class CaseController extends BaseController
                                     ])->save();
                                 }
                             }
+                        }
+                        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                            $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $oldEvent);
                         }
                     }
                     $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
@@ -3025,6 +3072,9 @@ class CaseController extends BaseController
                                     ])->save();
                                 }
                             }
+                            if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                                $this->sendLeadUserInviteEmail($request->text_lead_id, @$eventRecurring, $caseEvent);
+                            }
                         }                    
                     } else {
                         $oldEvent->fill([
@@ -3076,6 +3126,9 @@ class CaseController extends BaseController
                                     ])->save();
                                 }
                             }
+                        }
+                        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                            $this->sendLeadUserInviteEmail($request->text_lead_id, @$eventRecurring, $oldEvent);
                         }
                     }
                     $this->saveEventRecentActivity($request, $oldEvent->id, @$eventRecurring->id);
@@ -3254,6 +3307,7 @@ class CaseController extends BaseController
                                     'event_linked_contact_lead' => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
+                                $eventRecurring = $ritem;
                             }
                         }
 
@@ -3281,6 +3335,9 @@ class CaseController extends BaseController
                         ])->save();
                     }
                     $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
+                    if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                        $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                    }
 
                 } else if($request->event_frequency == 'EVERY_BUSINESS_DAY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
@@ -3301,6 +3358,7 @@ class CaseController extends BaseController
                                     'event_linked_contact_lead' => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
+                                $eventRecurring = $ritem;
                             }
                         }
 
@@ -3328,6 +3386,9 @@ class CaseController extends BaseController
                         ])->save();
                     }
                     $this->saveEventRecentActivity($request, $request->event_id, $request->event_recurring_id);
+                    if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                        $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                    }
                 } else if($request->event_frequency == 'CUSTOM') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
@@ -3345,6 +3406,7 @@ class CaseController extends BaseController
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
+                                $eventRecurring = $ritem;
                             }
                         }
                         $eitem->fill([
@@ -3373,6 +3435,9 @@ class CaseController extends BaseController
                         ])->save();
                     }             
                     $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
+                    if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                        $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                    }
                 } else if($request->event_frequency == 'WEEKLY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
@@ -3392,6 +3457,7 @@ class CaseController extends BaseController
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
+                                $eventRecurring = $ritem;
                             }
                         }
                         $eitem->fill([
@@ -3418,6 +3484,9 @@ class CaseController extends BaseController
                         ])->save();
                     }
                     $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
+                    if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                        $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                    }
                 } else if($request->event_frequency == 'MONTHLY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
@@ -3437,6 +3506,7 @@ class CaseController extends BaseController
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
+                                $eventRecurring = $ritem;
                             }
                         }
 
@@ -3466,6 +3536,9 @@ class CaseController extends BaseController
                         ])->save();
                     }
                     $this->saveEventRecentActivity($request, $request->event_id, $eventRecurring->id ?? $request->event_recurring_id);
+                    if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                        $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
+                    }
                 }
                 // Commented. As per client's requirement
                 /* else if($request->event_frequency == 'YEARLY') {

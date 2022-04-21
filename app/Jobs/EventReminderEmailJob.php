@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\CaseEventReminder;
 use App\EventRecurring;
 use App\Mail\EventReminderMail;
 use Carbon\Carbon;

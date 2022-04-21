@@ -5,6 +5,8 @@ namespace App\Traits;
 use App\Event;
 use App\EventRecurring;
 use App\Http\Controllers\CommonController;
+use App\Jobs\LeadEventInvitationEmailJob;
+use App\User;
 use Carbon\Carbon;
 use DateInterval;
 use DatePeriod;
@@ -279,6 +281,14 @@ trait EventTrait {
         } */
 
         $this->saveEventRecentActivity($request, $caseEvent->id, @$eventRecurring->id, 'add');
+
+        if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+            $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent, 'add');
+            /* $leadUser = User::whereId($request->text_lead_id)->first();
+            if($leadUser && $leadUser->email) {
+                dispatch(new LeadEventInvitationEmailJob($eventRecurring, $caseEvent, $leadUser));
+            } */
+        }
     }
 
     /**
@@ -598,6 +608,18 @@ trait EventTrait {
         else
             $remindTime = Carbon::parse($snoozedTime)->addMinutes($request->snooze_time)->format('Y-m-d H:i');
         return $remindTime;
+    }
+
+    /**
+     * Send invitation email to lead user for event
+     */
+    public function sendLeadUserInviteEmail($leadId, $eventRecurring, $caseEvent, $eventAction = 'edit')
+    {
+        $leadUser = User::whereId($leadId)->first();
+        $isUserLinked = encodeDecodeJson($eventRecurring->event_linked_contact_lead)->where('lead_id', $leadId)->first();
+        if($isUserLinked && $leadUser && $leadUser->email) {
+            dispatch(new LeadEventInvitationEmailJob($eventRecurring, $caseEvent, $leadUser, $eventAction));
+        }
     }
 }
  

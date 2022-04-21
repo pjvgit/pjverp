@@ -48,7 +48,7 @@
                             $timezoneData = unserialize(TIME_ZONE_DATA); //
 
                             foreach(array_flip($timezoneData) as $key=>$val){?>
-                            <option value="{{$key}}">{{$val}}</option>
+                            <option value="{{$key}}" {{ ($key == "America/Mexico_City") ? 'selected' : '' }}>{{$val}}</option>
                             <?php }?>
                           </select>
                           @if ($errors->has('user_timezone'))

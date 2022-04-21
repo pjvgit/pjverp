@@ -1196,7 +1196,7 @@
             $("#endondiv").show();
     <?php }else{  ?>
             selectType(null, 'loadEditEventPopup');
-            $("#event-frequency").hide();
+            $("#repeat_dropdown").hide();
             $("#endondiv").hide();
     <?php } ?>
 

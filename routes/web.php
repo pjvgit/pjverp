@@ -1264,7 +1264,7 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::get('bills/request/{id}', 'BillingController@showFundRequest')->name('client/bills/request/detail');
 
     // For events
-    // Route::get('events', 'EventController@index')->name('client/events');
+    Route::get('events', 'EventController@index')->name('client/events');
     Route::get('events/{id}', 'EventController@show')->name('client/events/detail');
     Route::post('events/save/comment', 'EventController@saveComment')->name('client/events/save/comment');
     Route::get('events/comment/history', 'EventController@eventCommentHistory')->name('client/events/comment/history');
