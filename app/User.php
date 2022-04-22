@@ -263,8 +263,8 @@ class User extends Authenticatable
      */
     public function getUserFirms()
     {
-        $firmPortal = User::where('users.email', $this->email)->where('users.user_status', '1')->where('user_level', '3')->count();
-        $clientPortal = User::where('users.email', $this->email)->where('users.user_status', '1')->where('user_level', '2')
+        $firmPortal = User::where('users.email', $this->email)->where('users.user_status', '1')->where('user_level', '3')->where('verified', '1')->count();
+        $clientPortal = User::where('users.email', $this->email)->where('users.user_status', '1')->where('user_level', '2')->where('verified', '1')
                         ->whereHas("userAdditionalInfo", function($query) {
                             $query->where("client_portal_enable", '1');
                         })->count();

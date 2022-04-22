@@ -630,11 +630,11 @@ class HomeController extends BaseController
         if($result) {
             foreach($result as $key => $item) {
                 \Log::info("popup event recurring id > ".$item->id);
-                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'popup')
-                        // ->where('remind_at', date("Y-m-d"))->orWhere('snooze_remind_at', date("Y-m-d"))
-                        ->where('is_dismiss', 'no');
+                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'popup')->where('is_dismiss', 'no');
                 foreach($decodeReminders as $rkey => $ritem){
-                    if(Carbon::parse($ritem->remind_at)->isToday() || Carbon::parse($ritem->snooze_remind_at)->isToday()) {
+                    $parseRemindAt = (isset($ritem->remind_at)) ? Carbon::parse($ritem->remind_at)->isToday() : false;
+                    $parseSnoozeRemindAt = (isset($ritem->snooze_remind_at)) ? Carbon::parse($ritem->snooze_remind_at)->isToday() : false;
+                    if($parseRemindAt || $parseSnoozeRemindAt) {
                     $users = $this->getEventLinkedUser($ritem, "popup", $item->event, $item);
                     if(isset($users) && count($users)) {  
                         $eventStartTime = Carbon::parse($item->start_date.' '.$item->event->start_time);
@@ -700,7 +700,6 @@ class HomeController extends BaseController
                                 }
                             }
                         }
-                        Log::info("add event flag: ". $addEvent);
                         if($addEvent) {
                             $events[] = [
                                 "event_recurring_id" => $item->id,

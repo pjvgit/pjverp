@@ -5,7 +5,7 @@
 	<section class="detail-view" id="task_detail_view">
 		<div class="detail-view__header task-view-header">check CP activity
 			<div class="u-hidden-md-down">
-				<button class="btn btn-primary">Upload Document</button>
+				{{-- <button class="btn btn-primary">Upload Document</button> --}}
 			</div>
 		</div>
 		<div class="task-detail">

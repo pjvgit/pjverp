@@ -4280,68 +4280,67 @@ class CaseController extends BaseController
     {
         // return $request->all();
         $authUserId = auth()->id();
-        $eventReminders = [];
-        $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->with('event')->first();
-        if($eventRecurring) {
-            $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders) ?? [];
-            if(isset($request->reminder['user_type'])) {
-                $request->request->add(['start_date' => $eventRecurring->start_date]);
-                $request->request->add(['start_time' => $eventRecurring->event->start_time]);
-                $reminderNo = $decodeReminder->last()->reminder_id ?? 0;
-                foreach($request->reminder['user_type'] as $key => $item) {
-                    $isExist = $decodeReminder->where('reminder_id', @$request->reminder['id'][$key])->where('created_by', $authUserId)->first();
-                    if($isExist) {
-                        if($isExist->reminder_type != $request->reminder['type'][$key] || $isExist->reminer_number != $request->reminder['number'][$key] || $isExist->reminder_frequncy != $request->reminder['time_unit'][$key] || $isExist->reminder_user_type != $item) {
-                            $isExist->reminder_type = $request->reminder['type'][$key];
-                            $isExist->reminer_number = $request->reminder['number'][$key];
-                            $isExist->reminder_frequncy = $request->reminder['time_unit'][$key];
-                            $isExist->reminder_user_type = $item;
-                            $isExist->remind_at = $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key]);
-                            $isExist->popup_remind_time = $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key], 'time');
-                            $isExist->is_dismiss = 'no';
-                            $isExist->snooze_remind_at = null;
-                            $isExist->dispatched_at = null;
-                            $isExist->reminded_at = null;
+        $allRecurrings = EventRecurring::where('event_id', $request->event_id)->get();
+        if($allRecurrings) {
+            foreach($allRecurrings as $erkey => $eventRecurring) {
+                $eventReminders = [];
+                $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders) ?? [];
+                if(isset($request->reminder['user_type'])) {
+                    $request->request->add(['start_date' => $eventRecurring->start_date]);
+                    $request->request->add(['start_time' => $eventRecurring->event->start_time]);
+                    $reminderNo = $decodeReminder->last()->reminder_id ?? 0;
+                    foreach($request->reminder['user_type'] as $key => $item) {
+                        $isExist = $decodeReminder->where('reminder_id', @$request->reminder['id'][$key])->where('created_by', $authUserId)->first();
+                        if($isExist) {
+                            if($isExist->reminder_type != $request->reminder['type'][$key] || $isExist->reminer_number != $request->reminder['number'][$key] || $isExist->reminder_frequncy != $request->reminder['time_unit'][$key] || $isExist->reminder_user_type != $item) {
+                                $isExist->reminder_type = $request->reminder['type'][$key];
+                                $isExist->reminer_number = $request->reminder['number'][$key];
+                                $isExist->reminder_frequncy = $request->reminder['time_unit'][$key];
+                                $isExist->reminder_user_type = $item;
+                                $isExist->remind_at = $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key]);
+                                $isExist->popup_remind_time = $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key], 'time');
+                                $isExist->is_dismiss = 'no';
+                                $isExist->snooze_remind_at = null;
+                                $isExist->dispatched_at = null;
+                                $isExist->reminded_at = null;
+                            }
+                            $eventReminders[] = $isExist;
+                        } else {
+                            $reminderNo++;
+                            $eventReminders[] = [
+                                'reminder_id' => $reminderNo,
+                                'event_id' => $request->event_id,
+                                'user_id' => $authUserId,
+                                'reminder_type' => $request->reminder['type'][$key],
+                                'reminer_number' => $request->reminder['number'][$key],
+                                'reminder_frequncy' => $request->reminder['time_unit'][$key],
+                                'reminder_user_type' => $item,
+                                'created_by' => $authUserId,
+                                'remind_at' => $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key]),
+                                'popup_remind_time' => $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key], 'time'),
+                                'snooze_time' => null,
+                                'snooze_type' => null,
+                                'snoozed_at' => null,
+                                'snooze_remind_at' => null,
+                                'is_dismiss' => 'no',
+                                'reminded_at' => null,
+                                'dispatched_at' => null,
+                            ];
                         }
-                        $eventReminders[] = $isExist;
-                    } else {
-                        $reminderNo++;
-                        $eventReminders[] = [
-                            'reminder_id' => $reminderNo,
-                            'event_id' => $request->event_id,
-                            'user_id' => $authUserId,
-                            'reminder_type' => $request->reminder['type'][$key],
-                            'reminer_number' => $request->reminder['number'][$key],
-                            'reminder_frequncy' => $request->reminder['time_unit'][$key],
-                            'reminder_user_type' => $item,
-                            'created_by' => $authUserId,
-                            'remind_at' => $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key]),
-                            'popup_remind_time' => $this->getRemindAtAttribute($request, $request->reminder['time_unit'][$key], $request->reminder['number'][$key], 'time'),
-                            'snooze_time' => null,
-                            'snooze_type' => null,
-                            'snoozed_at' => null,
-                            'snooze_remind_at' => null,
-                            'is_dismiss' => 'no',
-                            'reminded_at' => null,
-                            'dispatched_at' => null,
-                        ];
                     }
                 }
-            }
-            $newArray = [];
-            if(count($decodeReminder)) {
-                $newArray = $decodeReminder->filter(function($item) use($authUserId) {
-                    return $item->created_by != $authUserId;
-                })->values()->toArray();
-            }
-            if(count($eventReminders)) {
-                foreach($eventReminders as $ritem) {
-                    array_push($newArray, $ritem);
+                $newArray = [];
+                if(count($decodeReminder)) {
+                    $newArray = $decodeReminder->filter(function($item) use($authUserId) {
+                        return $item->created_by != $authUserId;
+                    })->values()->toArray();
                 }
-            }
-            $allRecurrings = EventRecurring::where('event_id', $request->event_id)->get();
-            foreach($allRecurrings as $key => $item) {
-                $item->fill(['event_reminders' => encodeDecodeJson($newArray, 'encode')])->save();
+                if(count($eventReminders)) {
+                    foreach($eventReminders as $ritem) {
+                        array_push($newArray, $ritem);
+                    }
+                }
+                $eventRecurring->fill(['event_reminders' => encodeDecodeJson($newArray, 'encode')])->save();
             }
             return response()->json(['errors'=>'','msg'=>'Reminders successfully updated']);
         } else {

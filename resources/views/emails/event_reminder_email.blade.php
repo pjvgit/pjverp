@@ -45,9 +45,9 @@ if($event->is_full_day == 'no') {
 }
 @endphp
 @if($event->is_full_day == 'no')
-{{date('M D, Y h:iA',strtotime($startDateTime))}} — {{date('h:iA',strtotime($endDateTime))}} {{ @$abbreviation }}
+{{date('M d, Y h:iA',strtotime($startDateTime))}} — {{date('h:iA',strtotime($endDateTime))}} {{ @$abbreviation }}
 @else
-{{ date('M D, Y',strtotime($eventRecurring->start_date)) }}, All day
+{{ date('M d, Y',strtotime($eventRecurring->start_date)) }}, All day
 @endif
 </td>
 </tr>

@@ -21,6 +21,8 @@ use App\InvoiceSetting;
 use App\InvoiceTempInfo;
 use App\Jobs\InvoiceReminderEmailJob;
 use App\Jobs\OnlinePaymentEmailJob;
+use App\Jobs\ShareInvoiceClientEmailJob;
+use App\Jobs\ShareInvoiceJob;
 use App\RequestedFundOnlinePayment;
 use App\Traits\CreditAccountTrait;
 use App\Traits\InvoiceTrait;
@@ -4277,14 +4279,14 @@ class BillingController extends BaseController
                     $invoiceHistory['created_by']=Auth::User()->id;
                     $invoiceHistory['created_at']=date('Y-m-d H:i:s');
                     $this->invoiceHistory($invoiceHistory);
-
-                    $firmData=Firm::find(Auth::User()->firm_name);       
+      
                     $findUSer=User::find($v);
                     $getTemplateData = EmailTemplate::find(20);
-                    $email=$findUSer['email'];
-                    $token=BASE_URL."bills/invoices/view/".base64_encode($InvoiceSave->id);
+                    // $token=BASE_URL."bills/invoices/view/".base64_encode($InvoiceSave->id);
 
-                    $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
+                    dispatch(new ShareInvoiceClientEmailJob($InvoiceSave, $findUSer, $getTemplateData));
+
+                    /* $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
                     $mail_body = $getTemplateData->content;
                     $mail_body = str_replace('{name}', $fullName,$mail_body);
                     $mail_body = str_replace('{email}', $email,$mail_body);
@@ -4304,7 +4306,7 @@ class BillingController extends BaseController
                         "full_name" => $fullName,
                         "mail_body" => $mail_body
                         ];
-                    $sendEmail = $this->sendMail($userEmail);
+                    $sendEmail = $this->sendMail($userEmail); */
                 }
             }
 
@@ -4865,8 +4867,10 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $Invoices=Invoices::find($request->invoice_id);
+            $getTemplateData = EmailTemplate::find(20);
             if(!empty($Invoices)  && $request->invoice_shared){
                 foreach($request->invoice_shared as $k=>$v){
+                    $findUSer=User::find($k);
                     $SharedInvoice=SharedInvoice::where("user_id",$k)->Where("invoice_id",$request->invoice_id)->count();
                     if($SharedInvoice<=0){
                         $SharedInvoice=new SharedInvoice;
@@ -4888,11 +4892,11 @@ class BillingController extends BaseController
                         $invoiceHistory['created_by']=Auth::User()->id;
                         $invoiceHistory['created_at']=date('Y-m-d H:i:s');
                         $this->invoiceHistory($invoiceHistory);
+       
 
-                        $firmData=Firm::find(Auth::User()->firm_name);       
-                        $findUSer=User::find($k);
-                        $getTemplateData = EmailTemplate::find(13);
-                        $email=$findUSer['email'];
+                        dispatch(new ShareInvoiceClientEmailJob($Invoices, $findUSer, $getTemplateData));
+
+                        /* $email=$findUSer['email'];
                         $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
                         $mail_body = $getTemplateData->content;
                         $mail_body = str_replace('{email}', $email,$mail_body);
@@ -4911,7 +4915,7 @@ class BillingController extends BaseController
                             "full_name" => $fullName,
                             "mail_body" => $mail_body
                             ];
-                        $sendEmail = $this->sendMail($userEmail);
+                        $sendEmail = $this->sendMail($userEmail); */
 
                         //Add history
                         $data=[];
@@ -4939,7 +4943,11 @@ class BillingController extends BaseController
                         $CommonController= new CommonController();
                         $CommonController->addMultipleHistory($data);
                     } else {
-                        SharedInvoice::where("user_id",$k)->Where("invoice_id",$request->invoice_id)->update(['is_shared' => "yes"]);
+                        $isShared = SharedInvoice::where("user_id",$k)->Where("invoice_id",$request->invoice_id)->where('is_shared', 'no')->first();
+                        if($isShared) {
+                            $isShared->fill(['is_shared' => "yes"])->save();
+                            dispatch(new ShareInvoiceClientEmailJob($Invoices, $findUSer, $getTemplateData));
+                        }
                     }
                 }
                 $notSharedUser = SharedInvoice::Where("invoice_id", $request->invoice_id)->whereNotIn("user_id", array_values($request->invoice_shared))
@@ -5849,7 +5857,7 @@ class BillingController extends BaseController
             // }
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->get();
 
-            $SharedInvoice=SharedInvoice::select("*")->where("invoice_id",$invoiceID)->get()->pluck('user_id')->toArray();
+            $SharedInvoice=SharedInvoice::where("invoice_id",$invoiceID)->where("is_shared", "yes")->pluck('user_id')->toArray();
 
             $adjustment_token=$request->token;
 
@@ -6109,7 +6117,9 @@ class BillingController extends BaseController
             //Invoice Shared With Client
             if(!empty($request->portalAccess)){
                 $sharedList=[];
+                $getTemplateData = EmailTemplate::find(20);
                 foreach($request->portalAccess as $k=>$v){
+                    $findUSer=User::find($v);
                     $alreadyShared=SharedInvoice::where("user_id",$v)->where("invoice_id",$InvoiceSave->id)->count();
                     if($alreadyShared<=0){
                         $SharedInvoice=new SharedInvoice;
@@ -6118,6 +6128,8 @@ class BillingController extends BaseController
                         $SharedInvoice->created_by=Auth::User()->id; 
                         $SharedInvoice->created_at=date('Y-m-d h:i:s'); 
                         $SharedInvoice->save();
+
+                        dispatch(new ShareInvoiceClientEmailJob($InvoiceSave, $findUSer, $getTemplateData));
                         
                         $invoiceHistory=[];
                         $invoiceHistory['invoice_id']=$InvoiceSave->id;
@@ -6130,7 +6142,6 @@ class BillingController extends BaseController
                         $invoiceHistory['created_by']=Auth::User()->id;
                         $invoiceHistory['created_at']=date('Y-m-d H:i:s');
                         $this->invoiceHistory($invoiceHistory);
-                    
                     }
                     $sharedList[]=$v;
                 }
@@ -6153,6 +6164,8 @@ class BillingController extends BaseController
                     }
                 }
 
+            } else {
+                SharedInvoice::where("invoice_id", $InvoiceSave->id)->forceDelete();
             }
 
             if(isset($request->payment_plan)){
@@ -6269,34 +6282,7 @@ class BillingController extends BaseController
             // Apply trust and credit funds
             if(!empty($request->trust)) {
                 foreach($request->trust as $key => $item) {
-                    // $appliedTrust = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
                     $trustHistoryLast = TrustHistory::where("client_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
-                    /* $trustData = [
-                        'invoice_id' => $InvoiceSave->id,
-                        'client_id' => @$item['client_id'] ?? NUll,
-                        'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
-                        'account_type' => 'trust',
-                        'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
-                    ]; */
-                    /* if($appliedTrust) {
-                        if(@$appliedTrust->show_trust_account_history != 'trust account history' && @$item['show_trust_account_history'] == 'trust account history') {
-                            $trustData['history_last_id'] = @$trustHistoryLast->id;
-                            $trustData['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        } else if(@$appliedTrust->show_trust_account_history != 'trust account summary' && @$item['show_trust_account_history'] == 'trust account summary') {
-                            $trustData['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        }
-                        $appliedTrust->fill($trustData + [
-                            'updated_by' => auth()->id(),
-                        ])->save();
-                    } else { */
-                        /* if($item['show_trust_account_history'] == 'trust account history') {
-                            $trustData['history_last_id'] = @$trustHistoryLast->id;
-                            $trustData['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        } else if($item['show_trust_account_history'] == 'trust account summary') {
-                            $trustData['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        } else {
-                            $trustData['show_trust_account_history'] = @$item['show_trust_account_history'] ?? "dont show";
-                        } */
                         InvoiceApplyTrustCreditFund::updateOrCreate([
                             'invoice_id' => $InvoiceSave->id,
                             'client_id' => @$item['client_id'] ?? NUll,
@@ -6309,40 +6295,11 @@ class BillingController extends BaseController
                                 'created_by' => auth()->id(),
                                 'updated_by' => auth()->id(),
                         ]);
-                    // }
                 }
             }
             if(!empty($request->credit)) {
                 foreach($request->credit as $key => $item) {
-                    // $appliedCredit = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
                     $creditHistoryLast = DepositIntoCreditHistory::where("user_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
-                    /* $creditData = [
-                        'invoice_id' => $InvoiceSave->id,
-                        'client_id' => @$item['client_id'] ?? NUll,
-                        'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
-                        'account_type' => 'credit',
-                        'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
-                    ]; */
-                    /* if($appliedCredit) {
-                        if(@$appliedCredit->show_credit_account_history != 'credit account history' && @$item['show_credit_account_history'] == 'credit account history') {
-                            $creditData['history_last_id'] = @$creditHistoryLast->id;
-                            $creditData['total_balance'] = @$creditHistoryLast->total_balance;
-                        } else if(@$appliedCredit->show_credit_account_history != 'credit account summary' && @$item['show_credit_account_history'] == 'credit account summary') {
-                            $creditData['total_balance'] = @$creditHistoryLast->total_balance;
-                        }
-                        $appliedCredit->fill($creditData + [
-                            'updated_by' => auth()->id(),
-                        ])->save();
-                    } else { */
-                        /* if($item['show_credit_account_history'] == 'credit account history') {
-                            $creditData['history_last_id'] = @$creditHistoryLast->id;
-                            $creditData['total_balance'] = @$creditHistoryLast->total_balance;
-                        } else if($item['show_credit_account_history'] == 'credit account summary') {
-                            $creditData['total_balance'] = @$creditHistoryLast->total_balance;
-                        } else {
-                            $creditData['show_credit_account_history'] = @$item['show_credit_account_history'] ?? "dont show";
-                        } */
-                        // return $creditData;
                         InvoiceApplyTrustCreditFund::updateOrCreate([
                             'invoice_id' => $InvoiceSave->id,
                             'client_id' => @$item['client_id'] ?? NUll,
@@ -6355,7 +6312,6 @@ class BillingController extends BaseController
                                 'created_by' => auth()->id(),
                                 'updated_by' => auth()->id(),
                         ]);
-                    // }
                 }
             }
 
@@ -9458,7 +9414,7 @@ class BillingController extends BaseController
                                 // $token=url('activate_account/bills=&web_token='.$InvoiceSave->invoice_unique_token);
                                 $token = route("client/bills/detail", $InvoiceSave->decode_id);
                                 $clientData=User::find($vselected_user);                                
-                                \App\Jobs\ShareInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $clientData['email'], $token, $request->message, $firmData, $getTemplateData);
+                                \App\Jobs\ShareInvoiceJob::dispatch(sprintf('%06d', @$InvoiceSave['id']), $clientData['email'], $token, $request->message, $firmData, $getTemplateData);
                                 
                                 $SharedInvoice=new SharedInvoice;
                                 $SharedInvoice->invoice_id=$InvoiceSave->id;                    

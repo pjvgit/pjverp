@@ -54,18 +54,11 @@ class UserController extends BaseController
             $password=$request->password;
             if (Auth::guard('web')->attempt(['email' => $email, 'password' => $password])) {
                 Auth::logoutOtherDevices($password);
-                // checkSmartTimer on or off
-                // $SmartTimer = SmartTimer::where("user_id", auth::user()->id)->latest('id')->first();
-                // if(!empty($SmartTimer) && $SmartTimer->is_pause == 0){
-                //     $startTime1 = Carbon::parse($SmartTimer->started_at);
-                //     $finishTime1 = Carbon::now();
-                //     $duration = $finishTime1->diffInSeconds($startTime1);
-                //     $duration = $duration - $SmartTimer->paused_seconds - 10;
-                //     $SmartTimer->paused_at = $duration;
-                //     $SmartTimer->is_pause = 1;
-                //     $SmartTimer->save();
-                // }
                 $user = User::find(Auth::User()->id);
+                $url = redirect()->intended()->getTargetUrl();
+                if(strpos($url, 'client/bills/') !== false) { 
+                    return redirect($url);
+                }
                 if($user->getUserFirms() > 1) {
                     return redirect()->intended(route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode')));
                 } else if($user->user_level == '2' && $user->userAdditionalInfo->client_portal_enable == '1') {

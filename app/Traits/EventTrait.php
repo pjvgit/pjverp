@@ -22,7 +22,8 @@ trait EventTrait {
     {
         $eventReminders = [];
         $authUserId = auth()->id();
-        $reminderNo = (isset($oldDecodeReminders)) ? $oldDecodeReminders->last()->reminder_id : 0;
+        $lastReminder = (isset($oldDecodeReminders)) ? $oldDecodeReminders->last() : null;
+        $reminderNo = (isset($lastReminder)) ? $lastReminder->reminder_id : 0;
         if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
             for($i=0; $i < count($request['reminder_user_type'])-1; $i++) {
                 $isExist = ($oldDecodeReminders) ? $oldDecodeReminders->where('reminder_id', @$request['reminder_id'][$i])->where('created_by', $authUserId)->first() : '';
@@ -548,18 +549,18 @@ trait EventTrait {
         $eventStartTime = Carbon::parse($request->start_date.' '.$request->start_time);
         if($reminder_frequncy == "week" || $reminder_frequncy == "day") {
             if($reminder_frequncy == "week") {
-                $remindDate = $eventStartTime->subWeeks($reminder_number)->format('Y-m-d');
-                $remindTime = $eventStartTime->subWeeks($reminder_number)->format('Y-m-d H:i:s');
+                $remindDate = $eventStartTime->copy()->subWeeks($reminder_number)->format('Y-m-d');
+                $remindTime = $eventStartTime->copy()->subWeeks($reminder_number)->format('Y-m-d H:i:s');
             } else {
-                $remindDate = $eventStartTime->subDays($reminder_number)->format('Y-m-d');
-                $remindTime = $eventStartTime->subDays($reminder_number)->format('Y-m-d H:i:s');
+                $remindDate = $eventStartTime->copy()->subDays($reminder_number)->format('Y-m-d');
+                $remindTime = $eventStartTime->copy()->subDays($reminder_number)->format('Y-m-d H:i:s');
             }
         } else if($reminder_frequncy == "hour") {
-            $remindTime = $eventStartTime->subHours($reminder_number)->format('Y-m-d H:i:s');
-            $remindDate = $eventStartTime->subHours($reminder_number)->format('Y-m-d');
+            $remindTime = $eventStartTime->copy()->subHours($reminder_number)->format('Y-m-d H:i:s');
+            $remindDate = $eventStartTime->copy()->subHours($reminder_number)->format('Y-m-d');
         } else if($reminder_frequncy == "minute") {
-            $remindTime = $eventStartTime->subMinutes($reminder_number)->format('Y-m-d H:i:s');
-            $remindDate = $eventStartTime->subMinutes($reminder_number)->format('Y-m-d');
+            $remindTime = $eventStartTime->copy()->subMinutes($reminder_number)->format('Y-m-d H:i:s');
+            $remindDate = $eventStartTime->copy()->subMinutes($reminder_number)->format('Y-m-d');
         } else {
             $remindDate = Carbon::now()->format('Y-m-d');
             $remindTime = Carbon::now()->format('Y-m-d H:i:s');

@@ -12,12 +12,13 @@ trait EventReminderTrait {
         $decodeStaff = encodeDecodeJson($eventRecurring->event_linked_staff);
         if($item->reminder_user_type == "attorney" || $item->reminder_user_type == "staff" || $item->reminder_user_type == "paralegal") {
             $eventLinkedUser = $decodeStaff->pluck('user_id')->toArray();
+            $caseLinkedUser = [];
             if($event->case) {
                 $caseLinkedUser = $event->case->caseStaffAll->pluck('user_id')->toArray();
             }
             $userType = ($item->reminder_user_type == "attorney") ? 1 : (($item->reminder_user_type == "staff") ? 3 : 2);
             $users = User::where(function ($qry) use ($eventLinkedUser, $caseLinkedUser){
-                        $qry->whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser ?? []);
+                        $qry->whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser);
                     })->where("user_type", $userType)->withoutAppends()->get();
             $attendEvent = $decodeStaff->pluck("attending", 'user_id')->toArray();
         } else if($item->reminder_user_type == "client-lead") {
