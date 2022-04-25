@@ -1,4 +1,8 @@
 ------------------------------------ 04-APR-2022 ------------------------------
+ALTER TABLE `invoices`
+ADD `invoice_reminders` json NULL;
+
+------------------------------------ 04-APR-2022 ------------------------------
 ALTER TABLE `task_reminder`
 ADD `staff_remind_detail` json NULL AFTER `reminded_at`;
 

@@ -4386,13 +4386,37 @@ class BillingController extends BaseController
                     'request_funds_preferences_default_msg' => $preferenceSetting->request_funds_preferences_default_msg,
                 ];
                 if($preferenceSetting->reminderSchedule) {
+                    $emailReminders = [];
+                    $dueDate = ($request->bill_due_date) ? date('Y-m-d',strtotime($request->bill_due_date)) : NULL;
+                    if($InvoiceSave->invoiceFirstInstallment) {
+                        $dueDate = $InvoiceSave->invoiceFirstInstallment->due_date;
+                    }
                     foreach($preferenceSetting->reminderSchedule as $key => $item) {
                         $jsonData['reminder'][] = [
                             'remind_type' => $item->remind_type,
                             'days' => $item->days,
                             'is_reminded' => "no",
                         ];
+                        $remindAt = null;
+                        if($dueDate) {
+                            if($item->remind_type == 'due in') {
+                                $remindAt = Carbon::parse($dueDate)->subDays($item->days)->format('Y-m-d');
+                            } else if($item->remind_type == 'overdue by') {
+                                $remindAt = Carbon::parse($dueDate)->addDays($item->days)->format('Y-m-d');
+                            } else {
+                                $remindAt = Carbon::parse($dueDate)->format('Y-m-d');
+                            }
+                        }
+                        $emailReminders[] = [
+                            'remind_type' => $item->remind_type,
+                            'days' => $item->days,
+                            'is_reminded' => 'no',
+                            'dispatched_at' => null,
+                            'remind_at' => $remindAt,
+                        ];
                     }
+                    $InvoiceSave->invoice_reminders = encodeDecodeJson($emailReminders, 'encode');
+                    $InvoiceSave->save();
                 }
             }
             if($customizationSetting) {
@@ -5960,7 +5984,7 @@ class BillingController extends BaseController
             }else{
                 $InvoiceSave->payment_term=$request->payment_terms;
             }
-            $InvoiceSave->due_date=($request->bill_due_date) ? date('Y-m-d',strtotime($request->bill_due_date)) : NULL;   
+            // $InvoiceSave->due_date=($request->bill_due_date) ? date('Y-m-d',strtotime($request->bill_due_date)) : NULL;   
             if(isset($request->automated_reminders)){
                 $InvoiceSave->automated_reminder="yes";
             }else{
@@ -6000,12 +6024,15 @@ class BillingController extends BaseController
                 }                       
             }
 
-            // Check if invouce due date changed then update invoice settings
-            if($request->bill_due_date && strtotime($request->bill_invoice_date) != strtotime($InvoiceSave->due_date)) {
-                // Update invoice settings
-                $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
+            // Check if invouce due date changed then update invoice reminders
+            if($request->bill_due_date && date('Y-m-d', strtotime($request->bill_due_date)) != $InvoiceSave->due_date) {
+                // Update invoice reminders
+                // $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave, $request->bill_invoice_date) ?? $InvoiceSave->invoice_setting;
+                $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $request->bill_due_date) ?? $InvoiceSave->invoice_reminders;
+ 
             }
 
+            $InvoiceSave->due_date=($request->bill_due_date) ? date('Y-m-d',strtotime($request->bill_due_date)) : NULL;  
             $InvoiceSave->is_sent = ($request->bill_sent_status == "Sent") ? "yes" : "no";
             $InvoiceSave->firm_id = auth()->user()->firm_name; 
             $InvoiceSave->updated_by=Auth::User()->id; 
@@ -6211,13 +6238,16 @@ class BillingController extends BaseController
                         $InvoiceInstallment->save();
                     }
                     // Update invoice settings
-                    $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
+                    // $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
+                    $invoieFirstPaymentPlan = $InvoiceSave->invoiceFirstInstallment;
+                    $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $invoieFirstPaymentPlan->due_date) ?? $InvoiceSave->invoice_reminders;
                 }
             }else{
                 InvoicePaymentPlan::where("invoice_id",$InvoiceSave->id)->delete();
                 InvoiceInstallment::where("invoice_id",$InvoiceSave->id)->delete();
                 // Update invoice settings
-                $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
+                // $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
+                $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $InvoiceSave->due_date) ?? $InvoiceSave->invoice_reminders;
             }
 
             if(!empty($request->forwarded_invoices)) {

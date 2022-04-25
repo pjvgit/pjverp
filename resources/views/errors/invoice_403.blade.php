@@ -32,8 +32,7 @@ div.show_red_box {
                         <img src='{{ asset("images/exclaimation_red.jpg") }}'>
                     </td>
                     <td style="color: #737373; font-weight: bold;">
-                        {{-- Access to this invoice is no longer allowed because the invoice has been unshared or removed by a linked firm user. --}}
-                        No cuenta con los privilegios suficientes para ver la página solicitada. Puede pedir cambio de privilegios a cualquier usuario del Despacho que tenga permiso para editarlos.
+                        Access to this invoice is no longer allowed because the invoice has been unshared or removed by a linked firm user.
                     </td>
                     </tr>
                 </tbody>

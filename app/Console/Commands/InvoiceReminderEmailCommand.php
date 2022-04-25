@@ -53,6 +53,7 @@ class InvoiceReminderEmailCommand extends Command
                     }) */
                     // ->whereId(176)
                     ->whereNotNull('invoice_setting')
+                    ->whereJsonContains('invoice_reminders', ['remind_at' => date('Y-m-d')])
                     ->with("case", "invoiceSharedUser", "invoiceFirstInstallment", "firmDetail")
                     ->get();
         if($result) {
@@ -112,9 +113,9 @@ class InvoiceReminderEmailCommand extends Command
                 Log::info("remind date: ".$remindDate.', emailTemplateId: '.$emailTemplateId);
                 
                 $emailTemplate = EmailTemplate::whereId($emailTemplateId)->first();
-                if($emailTemplate && $remindDate) {
+                if($emailTemplate/*  && $remindDate */) {
                     $remindDate = \Carbon\Carbon::createFromFormat('Y-m-d', $remindDate->format('Y-m-d'));
-                    if($remindDate->eq($currentDate)) {
+                    // if($remindDate->eq($currentDate)) {
                         if(count($item->invoiceSharedUser)) {
                             foreach($item->invoiceSharedUser as $userkey => $useritem) {
                                 Log::info($useritem->user_timezone."=".$remindDate);
@@ -132,32 +133,12 @@ class InvoiceReminderEmailCommand extends Command
                                 dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))->delay($dispatchDate);
                                 // }
                             }
-
-                            // Update invoice settings
-                            /* Log::info("invoice setting before: ".$item->invoice_setting);
-                            if($item->invoice_setting && $remindType && $days) {
-                                $invoiceSetting = $item->invoice_setting;
-                                foreach($invoiceSetting['reminder'] as $key1 => $item1) {
-                                    $is_reminded = $item1['is_reminded'] ?? "no";
-                                    if($remindType == $item1['remind_type'] && $days == $item1['days']) {
-                                        $is_reminded = "yes";
-                                    }
-                                    $jsonData['reminder'][] = [
-                                        'remind_type' => $item1['remind_type'],
-                                        'days' => $item1['days'],
-                                        'is_reminded' => $is_reminded,
-                                    ];
-                                }
-                                $invoiceSetting['reminder'] = $jsonData['reminder'];
-                                $item->fill(['invoice_setting' => $invoiceSetting])->save();
-                                Log::info("invoice setting after: ".$item->id.' = '.$item->invoice_setting);
-                            } */
                         } else {
                             Log::info("no billing client:". $item->id);
                         }
-                    } else {
+                    /* } else {
                         Log::info("invoice remind date: ".$remindDate);
-                    }
+                    } */
                 } else {
                     Log::info("invoice email template: ".$emailTemplateId);
                 }

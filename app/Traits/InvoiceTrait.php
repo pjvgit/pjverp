@@ -8,6 +8,7 @@ use App\Http\Controllers\CommonController;
 use App\InvoicePayment;
 use App\TrustHistory;
 use App\UsersAdditionalInfo;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -107,20 +108,40 @@ trait InvoiceTrait {
     /**
      * Update invoice reminder settings
      */
-    public function updateInvoiceSetting($InvoiceSave)
+    public function updateInvoiceSetting($InvoiceSave, $due_date)
     {
         // Update invoice settings
         if($InvoiceSave->invoice_setting) {
             $invoiceSetting = $InvoiceSave->invoice_setting;
+            $emailReminders = [];
+            $dueDate = ($due_date) ? date('Y-m-d',strtotime($due_date)) : NULL;
+            Log::info("invoice due date: ". $dueDate);
             foreach($invoiceSetting['reminder'] as $key => $item) {
-                $jsonData['reminder'][] = [
+                /* $jsonData['reminder'][] = [
                     'remind_type' => $item['remind_type'],
                     'days' => $item['days'],
                     'is_reminded' => "no",
+                ]; */
+
+                $remindAt = null;
+                if($dueDate) {
+                    if($item['remind_type'] == 'due in') {
+                        $remindAt = Carbon::parse($dueDate)->subDays($item['days'])->format('Y-m-d');
+                    } else if($item['remind_type'] == 'overdue by') {
+                        $remindAt = Carbon::parse($dueDate)->addDays($item['days'])->format('Y-m-d');
+                    } else {
+                        $remindAt = Carbon::parse($dueDate)->format('Y-m-d');
+                    }
+                }
+                $emailReminders[] = [
+                    'remind_type' => $item['remind_type'],
+                    'days' => $item['days'],
+                    'is_reminded' => 'no',
+                    'dispatched_at' => null,
+                    'remind_at' => $remindAt,
                 ];
             }
-            $invoiceSetting['reminder'] = $jsonData['reminder'];
-            return $invoiceSetting;
+            return encodeDecodeJson($emailReminders, 'encode');
         }
         return '';
     }
