@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Invoices;
 use App\Mail\InvoiceReminderMail;
 use App\SharedInvoice;
 use Carbon\Carbon;
@@ -50,7 +51,7 @@ class InvoiceReminderEmailJob implements ShouldQueue
 
         // Update invoice settings
         if($this->invoice->invoice_setting && $this->remindType && $this->days >= 0) {
-            $invoiceSetting = $this->invoice->invoice_setting;
+            /* $invoiceSetting = $this->invoice->invoice_setting;
             foreach($invoiceSetting['reminder'] as $key => $item) {
                 $is_reminded = $item['is_reminded'] ?? "no";
                 if($this->remindType == $item['remind_type'] && $this->days == $item['days']) {
@@ -61,10 +62,21 @@ class InvoiceReminderEmailJob implements ShouldQueue
                     'days' => $item['days'],
                     'is_reminded' => $is_reminded,
                 ];
+            } */
+            $decodeReminders = encodeDecodeJson($this->invoice->invoice_reminders);
+            if($decodeReminders) {
+                $newArray = [];
+                foreach($decodeReminders as $ritem) {
+                    if($ritem->remind_at == date('Y-m-d')) {
+                        $ritem->reminded_at = Carbon::now();
+                    }
+                    $newArray[] = $ritem;
+                }
+                Invoices::whereId($this->invoice->id)->update(["invoice_reminders" => encodeDecodeJson($newArray, 'encode')]);
             }
             Log::info("invoice setting updated");
-            $invoiceSetting['reminder'] = $jsonData['reminder'];
-            $this->invoice->fill(['invoice_setting' => $invoiceSetting])->save();
+            // $invoiceSetting['reminder'] = $jsonData['reminder'];
+            // $this->invoice->fill(['invoice_setting' => $invoiceSetting])->save();
         }
     }
 }

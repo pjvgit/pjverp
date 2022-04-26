@@ -71,10 +71,53 @@ class InvoiceReminderEmailCommand extends Command
                 $emailTemplateId = ''; $remindDate = ""; $remindType = ""; $days = 0;
                 if($dueDate) {
                     $currentDate = \Carbon\Carbon::createFromFormat('Y-m-d', $currentDate);
-                    $dueDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dueDate);
-                    $remindSetting = collect($item->invoice_setting['reminder'] ?? []);
-
-                    if($dueDate->eq($currentDate)) { // For present due date
+                    $decodeReminders = encodeDecodeJson($item->invoice_reminders);
+                    $currentReminders = $decodeReminders->where('remind_at', date('Y-m-d'));
+                    if($currentReminders) {
+                        foreach($currentReminders as $ritem) {
+                            if($ritem->remind_type == "due in") {
+                                $emailTemplateId = 24;
+                            } else if($ritem->remind_type == "overdue by") {
+                                $emailTemplateId = 25;
+                            } else {
+                                $emailTemplateId = 23;
+                            }
+                            $remindType = $ritem->remind_type;
+                            $days = $ritem->days;
+                
+                            $emailTemplate = EmailTemplate::whereId($emailTemplateId)->first();
+                            if($emailTemplate) {
+                                if(count($item->invoiceSharedUser)) {
+                                    foreach($item->invoiceSharedUser as $userkey => $useritem) {
+                                        $remindDate = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
+                                        Log::info($useritem->user_timezone."=".$remindDate);
+                                        $timestamp = $remindDate->format('Y-m-d').' 05:00';
+                                        $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $useritem->user_timezone ?? 'UTC');
+                                        $dispatchDate->setTimezone('UTC');
+                                        Log::info("invoice reminder dispatch date: ". $dispatchDate);
+                                        dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))->delay($dispatchDate);
+                                    }
+                                } else {
+                                    Log::info("no billing client:". $item->id);
+                                }
+                            } else {
+                                Log::info("invoice email template: ".$emailTemplateId);
+                            }
+                        }
+                    }
+                    
+                    $decodeReminders = encodeDecodeJson($item->invoice_reminders);
+                    if($decodeReminders) {
+                        $newArray = [];
+                        foreach($decodeReminders as $ritem) {
+                            if($ritem->remind_at == date('Y-m-d')) {
+                                $ritem->dispatched_at = Carbon::now();
+                            }
+                            $newArray[] = $ritem;
+                        }
+                        Invoices::whereId($item->id)->update(["invoice_reminders" => encodeDecodeJson($newArray, 'encode')]);
+                    }
+                    /* if($dueDate->eq($currentDate)) { // For present due date
                         $onDue = $remindSetting->where("remind_type", "on the due date")->where('is_reminded', 'no');
                         if($onDue->count()) {
                             $remindDate = $currentDate;
@@ -108,40 +151,9 @@ class InvoiceReminderEmailCommand extends Command
                         }
                     } else {
                         $remindDate = "";
-                    }
-                }
-                Log::info("remind date: ".$remindDate.', emailTemplateId: '.$emailTemplateId);
-                
-                $emailTemplate = EmailTemplate::whereId($emailTemplateId)->first();
-                if($emailTemplate/*  && $remindDate */) {
-                    $remindDate = \Carbon\Carbon::createFromFormat('Y-m-d', $remindDate->format('Y-m-d'));
-                    // if($remindDate->eq($currentDate)) {
-                        if(count($item->invoiceSharedUser)) {
-                            foreach($item->invoiceSharedUser as $userkey => $useritem) {
-                                Log::info($useritem->user_timezone."=".$remindDate);
-                                /* $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
-                                if ($date->hour === 05) { 
-                                    Log::info("invoice day time true");
-                                    dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days));
-                                }
-                                if($item->id == 247) { */
-                                // Set job dispatch time
-                                $timestamp = $remindDate->format('Y-m-d').' 05:00:00';
-                                $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $useritem->user_timezone ?? 'UTC');
-                                $dispatchDate->setTimezone('UTC');
-                                Log::info("user time to utc time: ". $dispatchDate);
-                                dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))->delay($dispatchDate);
-                                // }
-                            }
-                        } else {
-                            Log::info("no billing client:". $item->id);
-                        }
-                    /* } else {
-                        Log::info("invoice remind date: ".$remindDate);
                     } */
-                } else {
-                    Log::info("invoice email template: ".$emailTemplateId);
                 }
+                
             }
         }
     }

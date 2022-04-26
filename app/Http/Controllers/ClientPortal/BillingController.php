@@ -191,7 +191,8 @@ class BillingController extends Controller
                     $payableAmount = ($invoice->invoiceFirstInstallment->adjustment > 0) ? $invoice->invoiceFirstInstallment->adjustment : $invoice->invoiceFirstInstallment->installment_amount;
                 }
             }
-            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month', 'payableAmount', 'client', 'fundRequest', 'payableRecordId', 'type'));
+            $onlinePaymentSetting = getFirmOnlinePaymentSetting();
+            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month', 'payableAmount', 'client', 'fundRequest', 'payableRecordId', 'type', 'onlinePaymentSetting'));
         } else {
             return abort(403);
         }

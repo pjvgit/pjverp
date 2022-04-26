@@ -79,7 +79,6 @@ class EventDayReminderEmailCommand extends Command
                 }
                 if(count($users)) {
                     foreach($users as $userkey => $useritem) {
-                        Log::info($useritem);
                         Log::info("user_timezone > " . $useritem->user_timezone);
                         $remindDate = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info("event day remind date:" . $remindDate);

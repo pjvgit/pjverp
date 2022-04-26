@@ -1,4 +1,7 @@
------------------------------------- 04-APR-2022 ------------------------------
+------------------------------------ 26-APR-2022 ------------------------------
+ALTER TABLE `firm_online_payment_settings`
+ADD `is_accept_interest_free_monthly_payment` enum('no','yes') COLLATE 'utf8mb4_general_ci' NULL DEFAULT 'no' AFTER `private_key`;
+------------------------------------ 25-APR-2022 ------------------------------
 ALTER TABLE `invoices`
 ADD `invoice_reminders` json NULL;
 

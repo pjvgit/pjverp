@@ -29,6 +29,14 @@
                 <input type="text" class="form-control" name="private_key" id="private_key" value="{{ $paymentSetting->private_key ?? '' }}">
             </div>
         </div>
+        <div class="form-group row">
+            <div class="col-3 col-form-label">Accept interest free Monthly Payments</div>
+            <div class="col-9">
+                <input name="is_accept_interest_free_monthly_payment" type="hidden" value="no">
+                <input type="checkbox" value="yes" name="is_accept_interest_free_monthly_payment" id="is_accept_interest_free_monthly_payment" @if(isset($paymentSetting) && $paymentSetting->is_accept_interest_free_monthly_payment == 'yes') checked @endif>
+                <label for="is_accept_interest_free_monthly_payment">Enabled</label>
+            </div>
+        </div>
     </div>
 </form>
 <div>

@@ -22,7 +22,7 @@ class HomeController extends Controller
         $userId = auth()->id();
         $totalInvoice = Invoices::whereHas('invoiceShared', function($query) use($userId) {
                             $query->where("user_id", $userId)->where("is_shared", "yes");
-                        })->where('status', '!=', 'Paid');
+                        })->whereNotIn('status', ['Paid','Forwarded']);
         if(isset($request->case_id) && $request->case_id != ''){
             $totalInvoice = $totalInvoice->where("case_id",$request->case_id);
         }                

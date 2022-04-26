@@ -165,6 +165,7 @@ class BillingSettingController extends BaseController
         $authUser = auth()->user();
         $data['firm_id'] = $authUser->firm_name;
         $data['is_accept_online_payment'] = $request->is_accept_online_payment;
+        $data['is_accept_interest_free_monthly_payment'] = $request->is_accept_interest_free_monthly_payment;
         $data['updated_by'] = $authUser->id;
         if($request->is_accept_online_payment == 'yes') {
             $data['public_key'] = $request->public_key;

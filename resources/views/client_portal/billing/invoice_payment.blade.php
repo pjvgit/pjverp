@@ -23,7 +23,10 @@
                                 @include('client_portal.billing.partial.load_credit_card_form')
                             @else
                                 <h3 class="border-bottom border-gray pb-2">Total: One payment of {{ $payableAmount }} pesos</h3>
-                                <p>Or if you chose interest free monthly payments you will pay as follows:</p>
+                                @if(!empty($onlinePaymentSetting) && $onlinePaymentSetting->is_accept_interest_free_monthly_payment == 'yes')
+                                @if($payableAmount >= 300)
+                                <p>Or if you choose interest free monthly payments you will pay as follows:</p>
+                                @endif
                                 <div class="row">
                                     <div class="col-md-6">
                                         @if($payableAmount >= 300)
@@ -40,6 +43,7 @@
                                         @endif
                                     </div>
                                 </div>
+                                @endif
                                 <div class="row pt-3">
                                     <div class="col-md-10">
                                         <div class="text-left">
@@ -65,7 +69,7 @@
                                                         @csrf
                                                         <input type="hidden" name="type" value="{{ $type }}" >
                                                         <input type="hidden" name="payable_record_id" value="{{ encodeDecodeId($payableRecordId, 'encode') }}" >
-                                                        <input type="hidden" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
+                                                        <input type="hidden" id="conekta_key" value="{{ (!empty($onlinePaymentSetting) || $onlinePaymentSetting->is_accept_online_payment == "yes") ? $onlinePaymentSetting->public_key : ''}}" >
                                                         <ul class="list-group">
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">
@@ -73,6 +77,7 @@
                                                                     <span>Pay with Visa, MasterCard or American Express Credit or Debit Card</span><span class="checkmark"></span>
                                                                 </label>
                                                             </li>
+                                                            @if(!empty($onlinePaymentSetting) && $onlinePaymentSetting->is_accept_interest_free_monthly_payment == 'yes')
                                                             @if($payableAmount >= 300)
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">
@@ -104,6 +109,7 @@
                                                                     <span>12 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
                                                                 </label>
                                                             </li>
+                                                            @endif
                                                             @endif
                                                         </ul>
                                                         <button type="submit" class="btn btn-primary mt-2" id="credit_card_continue_btn">Continue</button>
