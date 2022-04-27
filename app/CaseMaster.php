@@ -457,19 +457,20 @@ class CaseMaster extends Authenticatable
     public function getUpcomingEventAttribute()
     {
         $userTimezone = auth()->user()->user_timezone;
-        $eventRecurring = EventRecurring::where('start_date', ">=", date('Y-m-d'))->orderBy('start_date','ASC')
+        $eventRecurring = EventRecurring::whereDate('start_date', ">=", date('Y-m-d'))
                 ->whereJsonContains('event_linked_staff', ['user_id' => (string)auth()->id()])
                 ->whereHas('event', function($query) {
-                    $query->where('case_id', $this->id)->where('start_time', ">=", date('h:i:s'))->orderBy('start_time','ASC');
+                    $query->where('case_id', $this->id)->whereTime('start_time', ">=", date('h:i:s'))->orderBy('start_time','ASC');
                 })->with(['event' => function($query) {
-                    $query->where('start_time', ">=", date('h:i:s'))->orderBy('start_time','ASC');
+                    $query->whereTime('start_time', ">=", date('h:i:s'))->orderBy('start_time','ASC');
                 }])->first();
         $eventArr = [];
         if($eventRecurring) {
             $event = $eventRecurring->event;
+            $startDateTime= convertUTCToUserTime($eventRecurring->start_date.' '.$event->start_time, $userTimezone);
             $eventArr = [
-                'event_title' => $event->event_title,
-                'start_date_time' => ($event->is_full_day == 'no') ? convertUTCToUserTime($eventRecurring->start_date.' '.$event->start_time, $userTimezone) : convertUTCToUserTime($eventRecurring->start_date.' 00:00:00', $userTimezone),
+                'event_title' => $event->event_title ?? "<No Title>",
+                'start_date_time' => ($event->is_full_day == 'no') ? date('M, d Y, h:i a',strtotime($startDateTime)) : date('D, M j Y',strtotime($eventRecurring->start_date)).", All day",
                 'is_all_day' => $event->is_full_day,
             ];
         }

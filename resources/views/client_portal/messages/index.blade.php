@@ -51,7 +51,7 @@
     padding-bottom: 10px !important;
     width: 100% !important;
 }
-
+}
 </style>
 @endsection
 @section('page-js')

@@ -92,7 +92,7 @@
 
 				{{-- Recent activity --}}
 				<div class="mb-3">
-					<h1 class="primary-heading">Recent Activity </h1>
+					<h1 class="primary-heading">Recent Activity (All Cases)</h1>
 					<ul class="list" id="notifications_list">
 						@forelse ($recentActivity as $key => $item)
 							@include('client_portal.partial.load_activity_list')

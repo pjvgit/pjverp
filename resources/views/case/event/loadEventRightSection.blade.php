@@ -186,7 +186,7 @@
     $(document).ready(function () {
         // check if login user is checked or not for showing default reminder
         <?php if(isset($from) && $from != "edit"){?>
-        $(".fieldGroup").empty();
+        $(".fieldGroupEventReminder").empty();
         <?php } ?>   
         /* $("[data-toggle=popover]").popover({
             html: true
@@ -252,12 +252,12 @@
                 loadTimeEstimationUsersList(SU);
             }
             // check if login user is checked or not for showing default reminder
-            <?php if(isset($from) && $from != "edit"){?>
+            <?php if(isset($from) /* && $from != "edit" */){?>
             $(".client_share_all_users").each(function (i) {
                 if($(this).val() == '{{auth::user()->id}}'){
                     $('.reminder_user_type').each(function (j) {
                         if($(this).val() == 'me'){
-                            $(this).parents('.fieldGroup').remove();
+                            $(this).parents('.fieldGroupEventReminder').remove();
                         }
                     });
                     if ($(this).prop('checked') == true) {
@@ -280,11 +280,11 @@
         $(".client_share_all_users").click(function () {
             var id = $(this).attr('rowVal');
             // check if login user is checked or not for showing default reminder
-            <?php if(isset($from) && $from != "edit"){?>
+            <?php if(isset($from) /* && $from != "edit" */){?>
             if(id == '{{auth::user()->id}}'){
                 $('.reminder_user_type').each(function (j) {
                     if($(this).val() == 'me'){
-                        $(this).parents('.fieldGroup').remove();
+                        $(this).parents('.fieldGroupEventReminder').remove();
                     }
                 });
                 if ($(this).prop('checked') == true) {

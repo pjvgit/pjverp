@@ -919,24 +919,20 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         urlList+="<br>";
                     
                     }
+                    $('td:eq(3)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+urlList+'</div>');
 
                     var obj_upcoming_event = aData.upcoming_event;
                     var eventTitle=eventDate='';
                     if(obj_upcoming_event != null){
-                        if(obj_upcoming_event.event_title!=null && obj_upcoming_event.event_title!=''){
-                                eventTitle='<a href="#">'+obj_upcoming_event.event_title+'</a> ';
-                        }else{
-                                eventTitle='<a href="#">&lt;No Title&gt;</a> ';
-                        }
-                        if(obj_upcoming_event.is_all_day == 'yes')
-                            eventDate = 'All day';
-                        else
-                            eventDate=moment(obj_upcoming_event.start_date_time).format("MMM, DD YYYY, hh:mm a");
+                        eventTitle='<a href="#">'+obj_upcoming_event.event_title+'</a> ';
+                        // if(obj_upcoming_event.is_all_day == 'yes')
+                        //     eventDate = 'All day';
+                        // else
+                        //     eventDate=moment(obj_upcoming_event.start_date_time).format("MMM, DD YYYY, hh:mm a");
+                        eventDate = obj_upcoming_event.start_date_time;
                     }else{
                         eventTitle='<i class="table-cell-placeholder"></i>';
                     }
-                    $('td:eq(3)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+urlList+'</div>');
-                    
                     $('td:eq(4)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+eventTitle+' <br> '+eventDate+'</div>');
                     
                     var obj_upcoming_task = aData.upcoming_task;

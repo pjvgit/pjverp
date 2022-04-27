@@ -50,9 +50,6 @@ class HomeController extends Controller
                         ->orderBy("created_at", "desc")->with(["createdByUser", "task"/*  => function($query) {
                             $query->select("task_title")->withoutAppends();
                         } */]);
-        if(isset($request->case_id) && $request->case_id != ''){
-            $recentActivity = $recentActivity->where("case_id",$request->case_id);
-        }                
         $recentActivity = $recentActivity->take(3)->get();
         
         $totalMessages = Messages::leftJoin("users","users.id","=","messages.created_by")

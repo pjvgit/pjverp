@@ -50,11 +50,15 @@ class BillingController extends Controller
         $invoices = Invoices::whereHas('invoiceShared', function($query) {
                         $query->where("user_id", auth()->id())->where("is_shared", "yes");
                     })->whereNotIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
-                    ->get();
+                    ->with(["invoiceShared" => function($query) {
+                        $query->where("user_id", auth()->id())->where("is_shared", "yes");
+                    }])->get();
         $forwardedInvoices = Invoices::whereHas('invoiceShared', function($query) {
-                                $query->where("user_id", auth()->id());
+                                $query->where("user_id", auth()->id())->where("is_shared", "yes");
                             })->whereIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
-                            ->with("invoiceForwardedToInvoice", "invoiceLastPayment")->get();
+                            ->with(["invoiceForwardedToInvoice", "invoiceLastPayment", "invoiceShared" => function($query) {
+                                $query->where("user_id", auth()->id())->where("is_shared", "yes");
+                            }])->get();
         $onlinePaymentSetting = FirmOnlinePaymentSetting::where('firm_id', auth()->user()->firm_name)->first();
         $requestFunds = RequestedFund::where('client_id', auth()->id())->where('amount_due', '>', '0.00')->orderBy('created_at', 'desc')->get();
         $requestFundsHistory = RequestedFund::where('client_id', auth()->id())->where('amount_due', '0.00')->orderBy('created_at', 'desc')->get();

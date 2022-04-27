@@ -3,7 +3,7 @@
 @section('main-content')
 <div class="app-container__content">
 	<section class="detail-view" id="task_detail_view">
-		<div class="detail-view__header task-view-header">check CP activity
+		<div class="detail-view__header task-view-header">{{ @$task->task_title }}
 			<div class="u-hidden-md-down">
 				{{-- <button class="btn btn-primary">Upload Document</button> --}}
 			</div>

@@ -8,7 +8,7 @@
         <ul class="list-group">
             @if(count($invoices) || count($requestFunds))
                 @forelse ($invoices as $key => $item)
-                    <li class="payable list-row no-gutters @if($item->is_viewed == 'no') is-unread @endif">
+                    <li class="payable list-row no-gutters @if($item->invoiceShared && $item->invoiceShared[0]->is_viewed == 'no') is-unread @endif">
                         <a href="{{ route('client/bills/detail', $item->decode_id) }}" class="col-md-9 billing-list">
                             {{-- <span class="payable-row__icon payable-row__icon-unpaid"><i class="fas fa-dollar-sign"></i></span> --}}
                             <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
@@ -78,7 +78,7 @@
             @forelse ($forwardedInvoices as $key => $item)
                 <ul class="list" id="paid_payables">
                     @if($item->status == "Paid")
-                        <li class="payable list-row no-gutters @if($item->is_viewed == 'no') is-unread @endif">
+                        <li class="payable list-row no-gutters @if($item->invoiceShared && $item->invoiceShared[0]->is_viewed == 'no') is-unread @endif">
                             <a href="{{ route('client/bills/detail', $item->decode_id) }}" class="col-8 col-md-10">
                                 {{-- <span class="payable-row__icon payable-row__icon-paid"><i class="fas fa-dollar-sign"></i></span> --}}
                                 <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>

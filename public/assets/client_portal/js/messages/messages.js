@@ -110,7 +110,7 @@ $(document).ready(function() {
         window.location.href = url;
     });
 
-    $(document).on('click', '#homeCaseFilter', function(){
+    $(document).on('change', '#homeCaseFilter', function(){
         var url = 'home?';
         if($(this).val() != ''){
             url +='&case_id='+$(this).val();
@@ -145,7 +145,8 @@ function archiveMessage(){
                     }, 'slow');
                     return false;
                 } else {
-                    window.location.reload();
+                    window.location.href = baseUrl+"/client/messages";
+                    // window.location.reload();
                 }
             },
             error: function (xhr, status, error) {
@@ -186,7 +187,8 @@ function unarchiveMessage(){
                     }, 'slow');
                     return false;
                 } else {
-                    window.location.reload();
+                    // window.location.reload();
+                    window.location.href = baseUrl+"/client/messages";
                 }
             },
             error: function (xhr, status, error) {
