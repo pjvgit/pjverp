@@ -73,9 +73,16 @@ class BillingController extends BaseController
         
             $getChildUsers=$this->getParentAndChildUserIds();
           
-            $case = TaskTimeEntry::leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
-            ->select('task_time_entry.*',"case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number","case_master.id as cid")->whereIn('case_master.created_by',$getChildUsers)->groupBy("case_master.id")->get();
+            // $case = TaskTimeEntry::leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
+            // ->select('task_time_entry.*',"case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number","case_master.id as cid")->whereIn('case_master.created_by',$getChildUsers)->groupBy("case_master.id")->get();
 
+            $case = CaseMaster::where("firm_id",$firmData->id)->select("case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number","case_master.id as cid");
+            if(auth()->user()->hasPermissionTo('access_only_linked_cases')) {
+                $case = $case->whereHas('caseStaffAll', function($query) {
+                                $query->where('user_id', auth()->id());
+                            });
+            }
+            $case = $case->get();
 
             $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
             $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
@@ -1374,7 +1381,14 @@ class BillingController extends BaseController
             $getClientIds = Invoices::select("user_id")->get()->pluck('user_id');
 
             $getChildUsers=$this->getParentAndChildUserIds();
-            $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->whereIn("id",$getCaseIds)->where('is_entry_done',"1")->get();
+            // $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->whereIn("id",$getCaseIds)->where('is_entry_done',"1")->get();
+            $CaseMasterData = CaseMaster::where("firm_id", $user->firm_name)->where('is_entry_done',"1");
+            if(auth()->user()->hasPermissionTo('access_only_linked_cases')) {
+                $CaseMasterData = $CaseMasterData->whereHas('caseStaffAll', function($query) {
+                                $query->where('user_id', auth()->id());
+                            });
+            }
+            $CaseMasterData = $CaseMasterData->get();
            
             $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)/* ->where("parent_user",Auth::user()->id) */->where("firm_name",Auth::user()->firm_name)->whereIn("id",$getClientIds)->get();
            

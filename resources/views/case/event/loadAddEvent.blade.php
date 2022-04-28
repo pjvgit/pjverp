@@ -319,7 +319,7 @@
                         placeholder="Enter state">
                 </div>
                 <div class="col-md-2 form-group mb-3">
-                    <input class="form-control" id="postal_code" value="" maxlength="255" name="postal_code"
+                    <input class="form-control" id="postal_code" value="" maxlength="8" name="postal_code"
                         placeholder="Enter postal code">
                 </div>
 

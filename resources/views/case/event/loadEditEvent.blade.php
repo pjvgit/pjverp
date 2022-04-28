@@ -357,7 +357,7 @@
                                     placeholder="Enter state">
                             </div>
                             <div class="col-md-2 form-group mb-3">
-                                <input class="form-control" id="postal_code" value="{{($eventLocationAdded['postal_code'])??''}}" maxlength="255" name="postal_code"
+                                <input class="form-control" id="postal_code" value="{{($eventLocationAdded['postal_code'])??''}}" maxlength="8" name="postal_code"
                                     placeholder="Enter postal code">
                             </div>
 
@@ -916,44 +916,44 @@
     function selectTypeload(selectdValue) {
         // var selectdValue = $("#event-frequency option:selected").val()
         $(".innerLoader").css('display', 'block');
-        $('#repeat_dropdown').show();
-        $("#repeat_daily").hide();
-        $("#repeat_custom").hide();
-        $(".repeat_monthly").hide();
-        $(".repeat_yearly").hide();
+        $('#loadEditEventPopup #repeat_dropdown').show();
+        $("#loadEditEventPopup #repeat_daily").hide();
+        $("#loadEditEventPopup #repeat_custom").hide();
+        $("#loadEditEventPopup .repeat_monthly").hide();
+        $("#loadEditEventPopup .repeat_yearly").hide();
        
         if (selectdValue == 'DAILY') {
-            $("#repeat_daily").show();
-            $("#repeat_custom").hide();
-            $(".repeat_yearly").hide();
-            $(".repeat_monthly").hide();
+            $("#loadEditEventPopup #repeat_daily").show();
+            $("#loadEditEventPopup #repeat_custom").hide();
+            $("#loadEditEventPopup .repeat_yearly").hide();
+            $("#loadEditEventPopup .repeat_monthly").hide();
         } else if (selectdValue == 'CUSTOM') {
-            $("#repeat_custom").show();
-            $("#repeat_daily").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
+            $("#loadEditEventPopup #repeat_custom").show();
+            $("#loadEditEventPopup #repeat_daily").hide();
+            $("#loadEditEventPopup .repeat_monthly").hide();
+            $("#loadEditEventPopup .repeat_yearly").hide();
         } else if (selectdValue == 'MONTHLY') {
-            $(".repeat_yearly").hide();
-            $(".repeat_monthly").show();
-            $("#repeat_custom").hide();
+            $("#loadEditEventPopup .repeat_yearly").hide();
+            $("#loadEditEventPopup .repeat_monthly").show();
+            $("#loadEditEventPopup #repeat_custom").hide();
         } else if (selectdValue == 'YEARLY') {
-            $(".repeat_yearly").show();
-            $(".repeat_monthly").hide();
-            $("#repeat_custom").hide();
+            $("#loadEditEventPopup .repeat_yearly").show();
+            $("#loadEditEventPopup .repeat_monthly").hide();
+            $("#loadEditEventPopup #repeat_custom").hide();
         }else if (selectdValue == 'WEEKLY') {
-            $('#repeat_dropdown').show();
-            $("#repeat_daily").hide();
-            $("#repeat_custom").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
+            $('#loadEditEventPopup #repeat_dropdown').show();
+            $("#loadEditEventPopup #repeat_daily").hide();
+            $("#loadEditEventPopup #repeat_custom").hide();
+            $("#loadEditEventPopup .repeat_monthly").hide();
+            $("#loadEditEventPopup .repeat_yearly").hide();
 
         // }else if(selectdValue == 'EVERY_BUSINESS_DAY'){
             
         } else {
-            $("#repeat_daily").hide();
-            $("#repeat_custom").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
+            $("#loadEditEventPopup #repeat_daily").hide();
+            $("#loadEditEventPopup #repeat_custom").hide();
+            $("#loadEditEventPopup .repeat_monthly").hide();
+            $("#loadEditEventPopup .repeat_yearly").hide();
             // $('#repeat_dropdown').hide();
         }
         $(".innerLoader").css('display', 'none');
