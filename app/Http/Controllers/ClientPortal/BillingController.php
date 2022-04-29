@@ -52,7 +52,7 @@ class BillingController extends Controller
                     })->whereNotIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
                     ->with(["invoiceShared" => function($query) {
                         $query->where("user_id", auth()->id())->where("is_shared", "yes");
-                    }])->get();
+                    }, "invoiceInstallment"])->get();
         $forwardedInvoices = Invoices::whereHas('invoiceShared', function($query) {
                                 $query->where("user_id", auth()->id())->where("is_shared", "yes");
                             })->whereIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
@@ -1187,7 +1187,7 @@ class BillingController extends Controller
         // Get user additional info
         $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
         $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
-        if(empty($fundRequest) || $fundRequest->status == "paid") {
+        if(!empty($fundRequest) || $fundRequest->status == "paid") {
                 DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
                 $trustHistoryId = DB::table('trust_history')->insertGetId([
                     'client_id' => $paymentDetail->user_id,
