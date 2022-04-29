@@ -1072,11 +1072,13 @@ class BillingController extends Controller
         $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
         $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
         if($invoiceHistory) {
-            if(empty($invoice) && in_array($invoice->status, ["Paid", "Forwarded"])) {
+            Log::info("oxxo cash invoice status: ". $invoice->status);
+            if(!empty($invoice) && in_array($invoice->status, ["Paid", "Forwarded"])) {
                 // Get user additional info
                 $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
                 $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
                 DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
+                Log::info("oxxo cash move payment to trust account");
                 $trustHistoryId = DB::table('trust_history')->insertGetId([
                     'client_id' => $paymentDetail->user_id,
                     'payment_method' => $paymentMethod,
@@ -1092,6 +1094,7 @@ class BillingController extends Controller
                 // For update next/previous trust balance
                 $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
             } else {
+                Log::info("receive oxxo cash payment");
                 // Update invoice payment status
                 DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
