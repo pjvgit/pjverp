@@ -1213,12 +1213,17 @@ class HomeController extends BaseController
     }
 
     public function createTimer(Request $request){
-        $SmartTimer = new SmartTimer();
-        $SmartTimer->started_at = date("Y-m-d H:i:s");
-        $SmartTimer->user_id = Auth::User()->id;
-        $SmartTimer->save();
-        session(["smart_timer_id" => $SmartTimer->id]);
-        return response()->json(["status" => "success", "smart_timer_id" => $SmartTimer->id, 'smart_timer_created_by' => Auth::user()->id]);
+        $SmartTimerData = SmartTimer::where('user_id', Auth::User()->id)->count();
+        if($SmartTimerData == 0){
+            $SmartTimer = new SmartTimer();
+            $SmartTimer->started_at = date("Y-m-d H:i:s");
+            $SmartTimer->user_id = Auth::User()->id;
+            $SmartTimer->save();
+            session(["smart_timer_id" => $SmartTimer->id]);
+            return response()->json(["status" => "success", "smart_timer_id" => $SmartTimer->id, 'smart_timer_created_by' => Auth::user()->id]);
+        }else{
+            return response()->json(["status" => "error"]);
+        }
     }
 
     public function deleteTimer(Request $request){

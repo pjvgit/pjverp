@@ -870,9 +870,10 @@
 
                         return false;
                     } else {
-                        localStorage.removeItem("counter");
-                        localStorage.removeItem("pauseCounter");
-                        localStorage.removeItem("smart_timer_id");
+                        // localStorage.removeItem("counter");
+                        // localStorage.removeItem("pauseCounter");
+                        // localStorage.removeItem("smart_timer_id");
+                        deleteTimerInStorage();
                         toastr.success('Your time entry has been created', "", {
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
