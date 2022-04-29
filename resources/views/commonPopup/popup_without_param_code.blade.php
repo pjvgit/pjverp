@@ -308,7 +308,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12" id="AddCompany">
-                        <div class="loader-bubble loader-bubble-primary" style="display: block;"></div>
+                        <div class="loader-bubble loader-bubble-primary" style="display: none;"></div>
                     </div>
                 </div>
             </div>

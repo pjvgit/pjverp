@@ -121,7 +121,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-8 col-form-label"></label>
             <div class="col-md-2 form-group mb-3">
-                <div class="loader-bubble loader-bubble-primary" id="innerLoader"></div>
+                <div class="loader-bubble loader-bubble-primary" id="innerLoader" style="display: none;"></div>
             </div>
         </div>
         <div class="form-group row">

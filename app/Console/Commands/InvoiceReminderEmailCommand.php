@@ -92,6 +92,7 @@ class InvoiceReminderEmailCommand extends Command
                                         $remindDate = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                                         Log::info($useritem->user_timezone."=".$remindDate);
                                         $timestamp = $remindDate->format('Y-m-d').' 05:00';
+                                        Log::info("invoice reminder timestamp: ".$timestamp);
                                         $dispatchDate = Carbon::createFromFormat('Y-m-d H:i', $timestamp, $useritem->user_timezone ?? 'UTC');
                                         $dispatchDate->setTimezone('UTC');
                                         Log::info("invoice reminder dispatch date: ". $dispatchDate);

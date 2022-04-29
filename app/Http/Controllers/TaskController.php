@@ -1,23 +1,20 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\User,App\EmailTemplate,App\Countries;
+use App\User,App\Countries;
 use Illuminate\Http\Request,DateTime;
-use DB,Validator,Session,Mail,Storage,Image;
-use Illuminate\Support\Facades\Input;
+use DB,Session;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\ContractUserCase,App\CaseMaster;
-use App\DeactivatedUser,App\TempUserSelection,App\CasePracticeArea,App\CaseStage,App\CaseClientSelection;
-use App\CaseStaff,App\CaseUpdate,App\CaseStageUpdate,App\CaseActivity;
-use App\CaseEvent,App\CaseEventLocation,App\EventType;
-use Carbon\Carbon,App\CaseEventReminder,App\CaseEventLinkedStaff;
-use App\Http\Controllers\CommonController,App\CaseSolReminder;
-use DateInterval,DatePeriod,App\CaseEventComment;
+use App\CaseMaster;
+use App\TempUserSelection,App\CasePracticeArea,App\CaseStage,App\CaseClientSelection;
+use App\CaseStaff;
+use App\CaseEvent;
+use Carbon\Carbon;
+use App\Http\Controllers\CommonController;
 use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
-use App\TaskHistory,App\LeadAdditionalInfo,App\AllHistory;
-use App\FirmAddress,App\CaseEventLinkedContactLead,App\SmartTimer,App\UserPreferanceReminder;
+use App\TaskHistory,App\AllHistory;
+use App\FirmAddress,App\SmartTimer,App\UserPreferanceReminder;
 use App\Jobs\TaskCommentEmailJob;
 
 class TaskController extends BaseController
@@ -124,7 +121,7 @@ class TaskController extends BaseController
         // return $task = $task->get();
      
         $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->where("id","!=",Auth::user()->id)->get();
-        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $CaseMasterData = CaseMaster::where("firm_id", auth()->user()->firm_name)->where('is_entry_done',"1")->get();
         
 
         $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();

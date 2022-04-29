@@ -426,8 +426,8 @@
                             }
                             optgroup += "</optgroup>"
                             $('#allocate_fund').append(optgroup);
-                            $(".select2-option").trigger('chosen:updated');
-                            $('#allocate_fund').trigger("change");
+                            // $(".select2-option").trigger('chosen:updated');
+                            // $('#allocate_fund').trigger("change");
                         }
                     }
                 })

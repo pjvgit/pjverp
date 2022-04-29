@@ -708,22 +708,22 @@ class BillingController extends Controller
             }
         } catch (\Conekta\AuthenticationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ApiError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ProcessingError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ParameterValidationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\Handler $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (Exception $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage ());
+            return redirect()->back()->with('error_alert', $e->getMessage ().", code: ".$e->getCode());
         }
     }
 
@@ -875,22 +875,22 @@ class BillingController extends Controller
             }
         } catch (\Conekta\AuthenticationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ApiError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ProcessingError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ParameterValidationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\Handler $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (Exception $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage ());
+            return redirect()->back()->with('error_alert', $e->getMessage ().", code: ".$e->getCode());
         }
     }
 
