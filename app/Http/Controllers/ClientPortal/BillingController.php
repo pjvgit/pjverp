@@ -52,7 +52,7 @@ class BillingController extends Controller
                     })->whereNotIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
                     ->with(["invoiceShared" => function($query) {
                         $query->where("user_id", auth()->id())->where("is_shared", "yes");
-                    }])->get();
+                    }, "invoiceInstallment"])->get();
         $forwardedInvoices = Invoices::whereHas('invoiceShared', function($query) {
                                 $query->where("user_id", auth()->id())->where("is_shared", "yes");
                             })->whereIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
@@ -708,22 +708,22 @@ class BillingController extends Controller
             }
         } catch (\Conekta\AuthenticationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ApiError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ProcessingError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ParameterValidationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\Handler $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (Exception $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage ());
+            return redirect()->back()->with('error_alert', $e->getMessage ().", code: ".$e->getCode());
         }
     }
 
@@ -875,22 +875,22 @@ class BillingController extends Controller
             }
         } catch (\Conekta\AuthenticationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ApiError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ProcessingError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\ParameterValidationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (\Conekta\Handler $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
         } catch (Exception $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage ());
+            return redirect()->back()->with('error_alert', $e->getMessage ().", code: ".$e->getCode());
         }
     }
 
@@ -1072,11 +1072,13 @@ class BillingController extends Controller
         $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
         $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
         if($invoiceHistory) {
-            if(empty($invoice) && in_array($invoice->status, ["Paid", "Forwarded"])) {
+            Log::info("oxxo cash invoice status: ". $invoice->status);
+            if(!empty($invoice) && in_array($invoice->status, ["Paid", "Forwarded"])) {
                 // Get user additional info
                 $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
                 $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
                 DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
+                Log::info("oxxo cash move payment to trust account");
                 $trustHistoryId = DB::table('trust_history')->insertGetId([
                     'client_id' => $paymentDetail->user_id,
                     'payment_method' => $paymentMethod,
@@ -1092,6 +1094,7 @@ class BillingController extends Controller
                 // For update next/previous trust balance
                 $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
             } else {
+                Log::info("receive oxxo cash payment");
                 // Update invoice payment status
                 DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
@@ -1184,7 +1187,7 @@ class BillingController extends Controller
         // Get user additional info
         $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
         $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
-        if(empty($fundRequest) || $fundRequest->status == "paid") {
+        if(!empty($fundRequest) || $fundRequest->status == "paid") {
                 DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
                 $trustHistoryId = DB::table('trust_history')->insertGetId([
                     'client_id' => $paymentDetail->user_id,

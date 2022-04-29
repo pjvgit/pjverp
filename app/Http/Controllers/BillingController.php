@@ -509,9 +509,15 @@ class BillingController extends BaseController
         if(!empty($user)){
             $getChildUsers=$this->getParentAndChildUserIds();
 
-            $case = ExpenseEntry::leftJoin("case_master","case_master.id","=","expense_entry.case_id")
-            ->select('expense_entry.*',"case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number","case_master.id as cid")->whereIn('case_master.created_by',$getChildUsers)->groupBy("case_master.id")->get();
-
+            // $case = ExpenseEntry::leftJoin("case_master","case_master.id","=","expense_entry.case_id")
+            // ->select('expense_entry.*',"case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number","case_master.id as cid")->whereIn('case_master.created_by',$getChildUsers)->groupBy("case_master.id")->get();
+            $case = CaseMaster::where("firm_id",$user->firm_name)->select("case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number","case_master.id as cid");
+            if(auth()->user()->hasPermissionTo('access_only_linked_cases')) {
+                $case = $case->whereHas('caseStaffAll', function($query) {
+                                $query->where('user_id', auth()->id());
+                            });
+            }
+            $case = $case->get();
 
             $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
             $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
@@ -8009,7 +8015,6 @@ class BillingController extends BaseController
             $data = json_decode(stripslashes($request->invoice_id));
             $notSavedInvoice=$savedInvoice=[];
             foreach($data as $k1=>$v1){
-                dbStart();
                 $Invoices=Invoices::find($v1);
                 $invoice_id=$Invoices['id'];
                 $paid=$Invoices['paid_amount'];
@@ -8125,7 +8130,6 @@ class BillingController extends BaseController
                 }
                 dbCommit();
             }
-            dbEnd();
             return response()->json(['errors'=>'','savedInvoice'=>$savedInvoice,'notSavedInvoice'=>$notSavedInvoice]);
             exit;  
             } catch (Exception $e) {

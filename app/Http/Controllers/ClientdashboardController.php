@@ -1689,7 +1689,8 @@ class ClientdashboardController extends BaseController
         $client_id=$request->user_id;
         $user = User::whereId($client_id)->select("user_level")->first();
         $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$client_id)->with('user')->first(); 
-        $clientCases = CaseClientSelection::where("selected_user", $client_id)->where('case_id', '>', 0)->with("case")->get();
+        $clientCases = CaseClientSelection::where("selected_user", $client_id)->where('case_id', '>', 0)->has('case')
+                ->with("case")->get();
         $leadCases = LeadAdditionalInfo::where("user_id", $client_id)->select("user_id", "potential_case_title", "allocated_trust_balance")->get();
         $trust_account_balance=$minimum_trust_balance=0.00;
         if(!empty($UsersAdditionalInfo)){

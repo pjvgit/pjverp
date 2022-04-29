@@ -3604,7 +3604,7 @@ $nonBillableAmount = 0;
         localStorage.setItem('shared_client', JSON.stringify(arrShare));
         var em=pa="";
         em=$("#portalAccess_"+id).attr("em");
-        pa=$("#portalAccess_"+id).attr("pa");
+        pa=$("#portalAccess_"+id).attr("pe");
        
         if ($("#portalAccess_"+id).prop('checked') == true && (em=="" || pa=="0")) {
             $("#portalAccess_"+id).prop('checked', false);
