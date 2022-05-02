@@ -498,7 +498,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                
                                                 <?php 
                                                 }else{?>
-                                                <input id="image-upload" name="firm_logo" type="file"
+                                                <input id="image-upload" name="firm_logo" type="file" accept="image/png, image/jpg, image/jpeg"
                                                     class="w-50 form-control-file">
                                                 <em id="image-upload-text">Logo will be automatically resized to fit
                                                     within 200x50</em>

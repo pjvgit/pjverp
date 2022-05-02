@@ -61,21 +61,24 @@ class UserController extends BaseController
                 }
                 if($user->getUserFirms() > 1) {
                     return redirect()->intended(route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode')));
-                } else if($user->user_level == '2' && $user->userAdditionalInfo->client_portal_enable == '1') {
-                    
-                    $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
-                    $user->save();
-                    
-                    // Add history
-                    $data=[];
-                    $data['user_id']= $user->id;
-                    $data['client_id']= $user->id;
-                    $data['activity']='logged in to LegalCase';
-                    $data['type']='user';
-                    $data['action']='login';
-                    $CommonController= new CommonController();
-                    $CommonController->addMultipleHistory($data);
-                    return redirect()->intended(route('client/home'))->with('success','Login Successfully');
+                } else if($user->user_level == '2') {
+                    if($user->userAdditionalInfo->client_portal_enable == '1') {
+                        $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                        $user->save();
+                        
+                        // Add history
+                        $data=[];
+                        $data['user_id']= $user->id;
+                        $data['client_id']= $user->id;
+                        $data['activity']='logged in to LegalCase';
+                        $data['type']='user';
+                        $data['action']='login';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+                        return redirect()->intended(route('client/home'))->with('success','Login Successfully');
+                    } else {
+                        return response()->make(view('errors.403'), 403);
+                    }
                 } else if($user->user_level == '3') {
                     // Save invoice settings if user is old and has not invoice default setting
                     $this->saveDefaultInvoicePreferences($user->firm_name, $user->id);

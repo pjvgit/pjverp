@@ -48,16 +48,7 @@
 							@if(!empty($invoice->invoiceFirstInstallment))
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Next Payment Due</div>
-								@php
-									$dueAmount = $invoice->invoiceInstallment->where("status", "unpaid")->sortBy("due_date")->where('due_date', '<', date('Y-m-d'))->sum('installment_amount');
-									$adjustment = $invoice->invoiceInstallment->where("status", "unpaid")->sortBy("due_date")->where('due_date', '<', date('Y-m-d'))->sum('adjustment');
-									$nextInstallment = $invoice->invoiceInstallment->where("status", "unpaid")->sortBy("due_date")->where('due_date', '>=', date('Y-m-d'))->first();
-									if($nextInstallment) {
-										$dueAmount += $nextInstallment->installment_amount;
-										$adjustment += $nextInstallment->adjustment;
-									}
-								@endphp
-								<div class="payable-detail__total-balance-due">${{ number_format(($dueAmount - $adjustment), 2) }}</div>
+								<div class="payable-detail__total-balance-due">${{ @$invoice->getInstallmentDueAmount() }}</div>
 							</div>
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Next Payment Date</div>
