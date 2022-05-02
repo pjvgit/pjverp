@@ -171,12 +171,14 @@
                 },
                 rate_field_id: {
                     required: true,
-                    number:true
+                    number:true,
+                    minStrict: true
                 },
                 duration_field: {
                     required: true,
                     number: true,
                     min:0.1,
+                    minStrict: true
                 }
             },
             messages: {

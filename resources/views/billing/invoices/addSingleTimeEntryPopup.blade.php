@@ -175,7 +175,8 @@
                 },
                 rate_field_id: {
                     required: true,
-                    number: true
+                    number: true,
+                    minStrict: true
                 },
                 duration_field: {
                     required: {
@@ -196,7 +197,8 @@
                             return status;
                         }
                     },
-                    number: true
+                    number: true,
+                    minStrict: true
                 }
             },
             messages: {

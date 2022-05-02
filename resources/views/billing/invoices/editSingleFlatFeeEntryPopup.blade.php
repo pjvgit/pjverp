@@ -84,7 +84,8 @@
                 rate_field_id: {
                     required: true,
                     number: true,
-                    min: 0.1
+                    min: 0.1,
+                    minStrict: true
                 }
             },
             messages: {
