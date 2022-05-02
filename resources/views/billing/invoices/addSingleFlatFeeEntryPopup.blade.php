@@ -88,6 +88,7 @@
                     required: true,
                     number: true,
                     min: 0.1,
+                    minStrict: true
                 }
             },
             messages: {
