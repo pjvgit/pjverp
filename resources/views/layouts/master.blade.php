@@ -290,12 +290,7 @@
         });
         
         var ct = 0; 
-        console.log("auto_logout > AuthSessionTime > "+ localStorage.getItem("AuthSessionTime"));
-        if(localStorage.getItem("AuthSessionTime")){
-            localStorage.setItem("AuthSessionTime",  parseInt(localStorage.getItem("AuthSessionTime")) + 1)
-        }else{
-            localStorage.setItem("AuthSessionTime", 0)
-        }
+        
         
         // Show idle timeout warning dialog.
         function IdleWarning() {
@@ -313,6 +308,15 @@
        
         var dont_logout_while_timer_runnig = "{{Auth::User()->dont_logout_while_timer_runnig}}";
         console.log("auto_logout > dont_logout_while_timer_runnig > " + dont_logout_while_timer_runnig);
+        
+        
+        console.log("auto_logout > AuthSessionTime > "+ localStorage.getItem("AuthSessionTime"));
+        if(localStorage.getItem("AuthSessionTime")){
+            localStorage.setItem("AuthSessionTime",  parseInt(localStorage.getItem("AuthSessionTime")) + 1)
+        }else{
+            localStorage.setItem("AuthSessionTime", 0)
+        }
+        
         <?php if(Auth::User()->auto_logout=="on"){?>
         if (localStorage.getItem("pauseCounter") == "no"){
         console.log("auto_logout > on ");
@@ -335,9 +339,15 @@
                             IdleTimeout();
                             clearInterval(interval);
                         }else{
-                            clearInterval(interval);
-                            localStorage.removeItem('AuthSessionTime');
-                            window.location.reload();
+                            if(localStorage.getItem("pauseCounter") == 'yes'){
+                                clearInterval(interval);
+                                localStorage.removeItem('AuthSessionTime');
+                                window.location.reload();
+                            }else{
+                                localStorage.removeItem('AuthSessionTime');
+                                IdleTimeout();
+                                clearInterval(interval);
+                            }
                         }
                     }
                 }, 1000);
