@@ -51,20 +51,26 @@
                         <tr style="padding-left: 4px;">
                             <td scope="col" style="width: 10%;text-align:right;"><b>Payment Terms:</b></td>
                             <td scope="col" style="width: 10%;text-align:left;">
+                                @if(!empty($invoice->invoiceFirstInstallment))
+                                @else
                                 <?php
                                     $items=array("0"=>"Due date","1"=>"Due on receipt","2"=>"Net 15","3"=>"Net 30","4"=>"Net 60","5"=>"");
                                     ?>
                                 <?php echo $items[$invoice->payment_term]; ?>
-
+                                @endif
                             </td>
                         </tr>
                         <tr style="padding-left: 4px;">
                             <td scope="col" style="width: 10%;text-align:right;"><b>Due Date:</b></td>
                             <td scope="col" style="width: 10%;text-align:left;">
+                                @if(!empty($invoice->invoiceFirstInstallment))
+                                    See Payment Plan
+                                @else
                                 <?php 
                                     if($invoice->due_date!=NULL){?>
                                 {{date("F d,Y",strtotime($invoice->due_date))}}
                                 <?php } ?>
+                                @endif
                             </td>
                         </tr>
                     </tbody>
@@ -185,7 +191,7 @@
                     {{date('m/d/Y',strtotime($v->entry_date))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
-                    {{ $v->user->full_name }}
+                    {{ @$v->user->full_name }}
                 </td>
                 <td class="time-entry-activity" style="vertical-align: top;">
                     {{ @$v->taskActivity->title }}

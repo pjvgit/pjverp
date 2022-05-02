@@ -371,4 +371,25 @@ class Invoices extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    /**
+     * Get due amount of installments and normal invoice amounts
+     */
+    public function getInstallmentDueAmount()
+    {
+        $installments = $this->invoiceInstallment;
+        if(count($installments)) {
+            $dueAmount = $installments->where("status", "unpaid")->sortBy("due_date")->where('due_date', '<', date('Y-m-d'))->sum('installment_amount');
+            $adjustment = $installments->where("status", "unpaid")->sortBy("due_date")->where('due_date', '<', date('Y-m-d'))->sum('adjustment');
+            $nextInstallment = $installments->where("status", "unpaid")->sortBy("due_date")->where('due_date', '>=', date('Y-m-d'))->first();
+            if($nextInstallment) {
+                $dueAmount += $nextInstallment->installment_amount;
+                $adjustment += $nextInstallment->adjustment;
+            }
+            $pendingAmount = number_format(($dueAmount - $adjustment), 2);
+        } else {
+            $pendingAmount = $this->due_amount_new;
+        }
+        return $pendingAmount;
+    }
 }

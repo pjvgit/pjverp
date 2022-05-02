@@ -52,7 +52,8 @@ define("SUCCESS_SAVE_PROFILE", 'Profile has been updated successfully.');
 
 //User
 define("SENT_LINK","We sent you an activation link. Check your email and click on the link to verify.");
-define("INACTIVE_ACCOUNT","You need to confirm your account. We have sent you an activation link, please check your email.");
+// define("INACTIVE_ACCOUNT","You need to confirm your account. We have sent you an activation link, please check your email.");
+define("INACTIVE_ACCOUNT","You need to confirm your account. Please contact your law firm directly.");
 
 define("EMAIL_VERIFIED","Your e-mail is verified. You can now login.");
 // define("EMAIL_ALREADY_VERIFIED","Your e-mail is already verified. You can now login.");

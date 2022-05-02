@@ -98,7 +98,7 @@ $(document).ready(function() {
         window.location.reload();
     });
 
-    $(document).on('click', '#caseFilter', function(){
+    $(document).on('change', '#caseFilter', function(){
         var folder = $("#folder").val();
         var url = 'messages?';
         if(folder != ''){

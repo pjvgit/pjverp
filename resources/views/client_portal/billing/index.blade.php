@@ -13,21 +13,7 @@
                             {{-- <span class="payable-row__icon payable-row__icon-unpaid"><i class="fas fa-dollar-sign"></i></span> --}}
                             <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
                             <div class="list-row__body">
-                                @php
-                                    if(!empty($item->invoiceInstallment)) {
-                                        $dueAmount = $item->invoiceInstallment->where("status", "unpaid")->sortBy("due_date")->where('due_date', '<', date('Y-m-d'))->sum('installment_amount');
-                                        $adjustment = $item->invoiceInstallment->where("status", "unpaid")->sortBy("due_date")->where('due_date', '<', date('Y-m-d'))->sum('adjustment');
-                                        $nextInstallment = $item->invoiceInstallment->where("status", "unpaid")->sortBy("due_date")->where('due_date', '>=', date('Y-m-d'))->first();
-                                        if($nextInstallment) {
-                                            $dueAmount += $nextInstallment->installment_amount;
-                                            $adjustment += $nextInstallment->adjustment;
-                                        }
-                                        $amount = number_format(($dueAmount - $adjustment), 2);
-                                    } else {
-                                        $amount = $item->due_amount_new;
-                                    }
-                                @endphp
-                                <span class="list-row__header mt-0">${{ $amount }}</span><br>
+                                <span class="list-row__header mt-0">${{ @$item->getInstallmentDueAmount() }}</span><br>
                                 <span class="list-row__header-detail">{{ convertUTCToUserDate($item->invoice_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') }} - Inv. #{{ $item->invoice_id }}</span>
                             </div>
                         </a>
