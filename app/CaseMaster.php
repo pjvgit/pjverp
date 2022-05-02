@@ -473,8 +473,9 @@ class CaseMaster extends Authenticatable
                 'start_date_time' => ($event->is_full_day == 'no') ? date('M, d Y, h:i a',strtotime($startDateTime)) : date('D, M j Y',strtotime($eventRecurring->start_date)).", All day",
                 'is_all_day' => $event->is_full_day,
             ];
+            return (object)$eventArr;
         }
-        return (object)$eventArr;
+        return null;
     }
 
     /**
