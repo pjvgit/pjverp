@@ -52,7 +52,10 @@
 							</div>
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Next Payment Date</div>
-								<div>{{ convertUTCToUserDate($invoice->invoiceFirstInstallment->due_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') }}</div>
+								@php
+								$nextInstallment = $invoice->invoiceInstallment->where("status", "unpaid")->sortBy("due_date")->where('due_date', '>=', date('Y-m-d'))->first();
+								@endphp
+								<div>{{ convertUTCToUserDate($nextInstallment->due_date ?? $invoice->invoiceFirstInstallment->due_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') }}</div>
 							</div>
 							@endif
 							<div class="payable-detail__datapair">

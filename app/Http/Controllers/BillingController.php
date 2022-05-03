@@ -2201,6 +2201,17 @@ class BillingController extends BaseController
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
 
+                // Update batch invoice count
+                $batchInvoice = InvoiceBatch::whereRaw("find_in_set('".$Invoices->id."',invoice_id)")->first();
+                if($batchInvoice) {
+                    $invArray = explode(',', $batchInvoice->invoice_id);
+                    unset($invArray[$Invoices->id]);
+                    InvoiceBatch::whereId($batchInvoice->id)->update([
+                        'invoice_id' => implode(',', $invArray),
+                        'total_invoice' => ($batchInvoice->total_invoice - 1),
+                    ]);
+                }
+
                 $Invoices->delete();
                 session(['popup_success' => 'Invoice was deleted']);
                 return response()->json(['errors'=>'']);

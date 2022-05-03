@@ -1874,7 +1874,7 @@ $nonBillableAmount = 0;
                                                         <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">
                                                         <td style="text-align: center;padding:10px;">
                                                             <div class="locked">   
-                                                                <input type="checkbox" name="portalAccess[]"  value="{{$v->user_id}}"  id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$v->user_id}}"  em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$v->user_id}})" <?php if(in_array($v->user_id,$SharedInvoice)) { echo "checked=checked"; } ?>>
+                                                                <input type="checkbox" name="portalAccess[]"  value="{{$v->user_id}}"  id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$v->user_id}}"  em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$v->user_id}})" <?php if(in_array($v->user_id,$SharedInvoice)) { echo "checked=checked"; } ?> {{ ($v->client_portal_enable == '0' && in_array($v->user_id,$SharedInvoice)) ? 'disabled' : '' }}>
                                                             </div>                                                            
                                                         </td>
                                                         <td class="invoice-sharing-name">
