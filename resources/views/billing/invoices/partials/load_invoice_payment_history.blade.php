@@ -64,7 +64,16 @@
                 <tr class="invoice_info_row invoice-table-row">
                     <td class="payment-history-column-activity " style="vertical-align: top;">{{$hVal->acrtivity_title}}</td>
                     <td class="payment-history-column-formatted-date" style="vertical-align: top;">{{$hVal->added_date}}</td>
-                    <td class="payment-history-column-pay-method" style="vertical-align: top;">{{ $hVal->pay_method }}</td>
+                    <td class="payment-history-column-pay-method" style="vertical-align: top;">
+                        {{ $hVal->pay_method }}
+                        @if($value->acrtivity_title=="Payment Received" && $value->status == "5")
+                        <div class="position-relative">
+                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account</div>">
+                                <img style="border: none;" src="{{ asset('icon/note.svg') }}">
+                            </a>
+                        </div>
+                        @endif
+                    </td>
                     <td class="payment-history-column-amount" style="vertical-align: top;">${{number_format($hVal->amount,2)}}</td>
                     <td class="payment-history-column-user" style="vertical-align: top;">
                         {{substr($hVal->createdByUser->full_name,0,100)}} ({{$hVal->createdByUser->user_title}})
@@ -76,3 +85,6 @@
     </table>
     @endif
 @endif
+<script>
+$('[data-toggle="popover"]').popover();
+</script>
