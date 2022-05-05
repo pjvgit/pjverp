@@ -1077,6 +1077,13 @@ class BillingController extends Controller
             if(!empty($invoice) && in_array($invoice->status, ["Paid", "Forwarded"])) {
                 // Update invoice history status
                 DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '5', 'online_payment_status' => 'paid']);
+
+                // Update invoice online payment status
+                $anyPending = InvoiceHistory::where('invoice_id', $invoice->id)->where('online_payment_status', 'pending')->first();
+                if(empty($anyPending)) {
+                    DB::table('invoices')->where('id', $invoice->id)->update(["online_payment_status" => 'paid']);
+                }
+
                 // Get user additional info
                 $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
                 $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');

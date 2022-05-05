@@ -21,7 +21,7 @@
             <td class="payment-history-column-pay-method" style="vertical-align: top;">
                 {{ $hVal->pay_method }} {{ (in_array($hVal->status, [2, 3])) ? '(Refunded)' : '' }}
                 @if($hVal->acrtivity_title=="Payment Received" && $hVal->status == "5")
-                    <div class="position-relative">
+                    <div class="position-relative" style="float: right;">
                         <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account</div>">
                             <img style="border: none;" src="{{ asset('icon/note.svg') }}">
                         </a>
