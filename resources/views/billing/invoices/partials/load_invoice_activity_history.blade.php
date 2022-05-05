@@ -12,7 +12,9 @@
                             $depositInto="<i class='table-cell-placeholder'></i>";
                         }  */
                         
-                        if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
+                        if($value->acrtivity_title=="Payment Received" && $value->status == "5"){
+                            $notes = "Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account";
+                        } else if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Payment Notes</a>';
                         }else if($value->acrtivity_title=="Payment Received" && $value->notes!=NULL){
                             $notes=$value->notes;
@@ -164,7 +166,9 @@
                             $depositInto="<i class='table-cell-placeholder'></i>";
                         } */ 
                         
-                        if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
+                        if($value->acrtivity_title=="Payment Received" && $value->status == "5"){
+                            $notes = "Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account";
+                        } else if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Payment Notes</a>';
                         }else if($value->acrtivity_title=="Payment Received" && $value->notes!=NULL){
                             $notes=$value->notes;

@@ -1,3 +1,7 @@
+------------------------------------ 05-MAY-2022 ------------------------------
+ALTER TABLE `invoice_history`
+CHANGE `status` `status` enum('0','1','2','3','4','5') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT '0' COMMENT '0 : None 1: Deposit 2: Full Refund 3.Partial Refund 4: Refund Entry 5: online payment fund moved to trust' AFTER `notes`;
+
 ------------------------------------ 26-APR-2022 ------------------------------
 ALTER TABLE `firm_online_payment_settings`
 ADD `is_accept_interest_free_monthly_payment` enum('no','yes') COLLATE 'utf8mb4_general_ci' NULL DEFAULT 'no' AFTER `private_key`;
