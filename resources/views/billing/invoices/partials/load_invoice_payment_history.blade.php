@@ -20,6 +20,13 @@
             <td class="payment-history-column-formatted-date" style="vertical-align: top;">{{$hVal->added_date}}</td>
             <td class="payment-history-column-pay-method" style="vertical-align: top;">
                 {{ $hVal->pay_method }} {{ (in_array($hVal->status, [2, 3])) ? '(Refunded)' : '' }}
+                @if($hVal->acrtivity_title=="Payment Received" && $hVal->status == "5")
+                    <div class="position-relative">
+                        <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account</div>">
+                            <img style="border: none;" src="{{ asset('icon/note.svg') }}">
+                        </a>
+                    </div>
+                @endif
             </td>
             <td class="payment-history-column-amount" style="vertical-align: top;">
                 @if(in_array($hVal->acrtivity_title, ["Payment Received","Payment Pending"]))
@@ -66,13 +73,7 @@
                     <td class="payment-history-column-formatted-date" style="vertical-align: top;">{{$hVal->added_date}}</td>
                     <td class="payment-history-column-pay-method" style="vertical-align: top;">
                         {{ $hVal->pay_method }}
-                        @if($value->acrtivity_title=="Payment Received" && $value->status == "5")
-                        <div class="position-relative">
-                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account</div>">
-                                <img style="border: none;" src="{{ asset('icon/note.svg') }}">
-                            </a>
-                        </div>
-                        @endif
+                        
                     </td>
                     <td class="payment-history-column-amount" style="vertical-align: top;">${{number_format($hVal->amount,2)}}</td>
                     <td class="payment-history-column-user" style="vertical-align: top;">
