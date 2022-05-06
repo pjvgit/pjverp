@@ -417,7 +417,11 @@
 	</section>
 	<div></div>
 </div>
+@endsection
+@section('page-js')
 <script>
+$(document).ready(function () {
 	$('[data-toggle="popover"]').popover();
+});
 </script>
 @endsection
