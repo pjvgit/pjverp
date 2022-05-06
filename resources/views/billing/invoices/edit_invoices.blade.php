@@ -4522,7 +4522,7 @@ $nonBillableAmount = 0;
     function removeAdjustmentEntry(id, amount) {
         swal({
             title: "Are you sure?",
-            text: "You will not be able to recover this imaginary file!",
+            text: "You will not be able to recover this adjustment!",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#0CC27E',

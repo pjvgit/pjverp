@@ -121,7 +121,8 @@ class ContractController extends BaseController
             $user->add_event_guide2 = 0;
             $user->add_event_guide = 0;
             $user->add_task_guide = 0;            
-            $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
+            // $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
+            $user->user_status  = "1";  // Default status is active once verified account it will activated.
             $user->created_by =Auth::User()->id;
             // print_r($user);exit;
             $user->save();
