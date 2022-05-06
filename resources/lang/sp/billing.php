@@ -23,4 +23,7 @@ return [
 
     // For bank transfer
     'bt_radio_text' => 'Transferencia electrónica (SPEI o TEF)',
+
+    'invoice_overpaid_note' => 'Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account',
+
 ];

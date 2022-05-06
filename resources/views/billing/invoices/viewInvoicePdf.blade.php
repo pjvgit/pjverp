@@ -1119,6 +1119,9 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
             </td>
             <td class="payment-history-column-pay-method" style="vertical-align: top;">
                 {{$hVal->pay_method}}
+                @if($hVal->acrtivity_title=="Payment Received" && $hVal->status == "5")
+                    @lang('billing.invoice_overpaid_note')
+                @endif
             </td>
             <td class="payment-history-column-amount" style="vertical-align: top;">
                 <?php if(in_array($hVal->acrtivity_title,["Payment Received","Payment Pending"])){?>
