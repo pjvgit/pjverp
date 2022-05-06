@@ -333,6 +333,13 @@
 									@if($item->refund_amount)
 									(Refunded)
 									@endif
+									@if($item->acrtivity_title=="Payment Received" && $item->status == "5")
+										<div class="position-relative" style="float: right;">
+											<a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>@lang('billing.invoice_overpaid_note')</div>">
+												<img style="border: none;" src="{{ asset('icon/note.svg') }}">
+											</a>
+										</div>
+									@endif
 								</div>
 								<div class="payable-detail-item-status "></div>
 								<div class="payable-detail-item-price">
@@ -410,5 +417,7 @@
 	</section>
 	<div></div>
 </div>
-
+<script>
+	$('[data-toggle="popover"]').popover();
+</script>
 @endsection
