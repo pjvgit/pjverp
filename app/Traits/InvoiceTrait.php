@@ -152,14 +152,16 @@ trait InvoiceTrait {
     /**
      * Transfer fund to allocated trust fund when delete invoice
      */
-    public function deleteInvoiceFundTransfer($invoiceId)
+    public function deleteInvoiceFundTransfer($invoice)
     {
-        $invoiceHistories = InvoiceHistory::where("invoice_id", $invoiceId)->get();
+        $invoiceHistories = InvoiceHistory::where("invoice_id", $invoice->id)->get();
         $authUser = auth()->user();
         if($invoiceHistories) {
             foreach($invoiceHistories as $key => $item) {
                 if(/* $item->payment_from != "online" && */ $item->refund_ref_id == '' && $item->status == '1' && $item->deposit_into_id != '') {
-                    $caseId = ($Invoices->case_id != 0) ? $Invoices->case_id : Null; $leadCaseId = Null;
+                    $caseId = ($invoice->case_id != 0 && $invoice->is_lead_invoice == 'no') ? $invoice->case_id : Null; 
+                    $leadCaseId = ($invoice->case_id == Null || $invoice->is_lead_invoice == 'yes') ? $invoice->user_id : Null;
+                    Log::info("lead case id: ". $leadCaseId);
                     if($item->payment_from == "trust") {
                         $trustHis = TrustHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->first();
                         $trustHis->fill(["is_invoice_cancelled" => "yes"])->save();
@@ -169,10 +171,10 @@ trait InvoiceTrait {
                             CaseClientSelection::where('case_id', $trustHis->allocated_to_case_id)->where('selected_user', $trustHis->client_id)->decrement('allocated_trust_balance', $item->amount);
                             // $caseId = $trustHis->allocated_to_case_id;
                         } */
-                        if($trustHis->allocated_to_lead_case_id) {
+                        /* if($trustHis->allocated_to_lead_case_id) {
                             LeadAdditionalInfo::where("user_id", $trustHis->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $item->amount);
                             $leadCaseId = $trustHis->allocated_to_lead_case_id;
-                        }
+                        } */
                         // $trustHis->delete();
                         // $this->updateNextPreviousTrustBalance($item->deposit_into_id);
                     }
@@ -188,7 +190,7 @@ trait InvoiceTrait {
                         "current_trust_balance" => $userAddInfo->trust_account_balance,
                         "payment_date" => date('Y-m-d'),
                         "fund_type" => 'payment deposit',
-                        "related_to_invoice_id" => $Invoices->id,
+                        "related_to_invoice_id" => $invoice->id,
                         "allocated_to_case_id" => $caseId ?? Null,
                         "allocated_to_lead_case_id" => $leadCaseId ?? Null,
                         "created_by" => $authUser->id,
@@ -198,9 +200,12 @@ trait InvoiceTrait {
                         CaseMaster::where('id', $caseId)->increment('total_allocated_trust_balance', $item->amount);
                         CaseClientSelection::where('case_id', $caseId)->where('selected_user', $item->deposit_into_id)->increment('allocated_trust_balance', $item->amount);
                     }
+                    if(isset($leadCaseId)) {
+                        LeadAdditionalInfo::where("user_id", $leadCaseId)->increment('allocated_trust_balance', $item->amount);
+                    }
                     $this->updateNextPreviousTrustBalance($item->deposit_into_id);
                     InvoicePayment::where("id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
-                    sleep(3);
+                    sleep(2);
                 }
                 $item->fill(["is_invoice_cancelled" => "yes"])->save();
             }

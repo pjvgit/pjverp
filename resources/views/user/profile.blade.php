@@ -352,9 +352,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 <div class="col-md-12 form-group mb-3 float-right">
                                                     
                                                     @if(file_exists(public_path().'/images/users/'.$user->profile_image) && $user->profile_image!='')
-                                                    <img class="border border-dark" src="{{URL::asset('/images/users/')}}/{{$user->profile_image}}"
-                                                        id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true"
-                                                        aria-expanded="false">
+                                                    <img class="border border-dark" src="{{ asset('images/users/'.$user->profile_image) }}" >
                                                         <a class="btn btn-outline-danger  btn-rounded   m-1" onclick="removeImage();">
                                                         <span class="ladda-label">Remove Image</span>
                                                     </a>
@@ -424,10 +422,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 grid : false,
             });
             $('.cropper').on('rcrop-ready', function(){
+                // alert('ready');
                 var srcResized = $(this).rcrop('getDataURL', 130,130);
                 $('#imageCode').val(srcResized);
             });
             $('.cropper').on('rcrop-changed', function(){
+                // alert('changed');
                 var srcResized = $(this).rcrop('getDataURL', 130,130);
                 $('#imageCode').val(srcResized);
             });

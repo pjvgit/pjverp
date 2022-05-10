@@ -1,8 +1,9 @@
 function deleteInvoice(id, redirect_link = '') {
+    var invIdArr = [id];
     $.ajax({
         type: "POST",
         url: baseUrl + "/bills/invoices/getStaffandClientListOfInvoice", 
-        data: {"invoice_id":id},
+        data: {"invoice_id":invIdArr},
         success: function (res) {
             $("#deleteInvoicePopup").modal("show");
             $("#delete_invoice_id").val(id);

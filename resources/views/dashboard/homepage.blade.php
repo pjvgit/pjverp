@@ -522,7 +522,7 @@
                                             {{date('h:ia',strtotime($convertedEndDateTime))}})</small>
                                         @endif
                                         <a class="pendo-upcoming-event-appt-link"
-                                            href="{{ route('events/detail', $v->id) }}">
+                                            href="{{ route('events/detail',base64_encode($v->id)) }}">
                                             {{$v->event->event_title}}</a>
                                         <i class="ml-1 fas fa-angle-down upcoming-event-toggle-down"></i>
                                         <i class="ml-1 fas fa-angle-up upcoming-event-toggle-up d-none"></i>
@@ -536,13 +536,23 @@
                                                 $user = getUserDetail($km->user_id);
                                                 $USerArray[]=$user->first_name ." ".$user->last_name ." (".$user->user_type_text.")";
                                             }
+                                        }
+                                        $allContact = encodeDecodeJson($v->event_linked_contact_lead);
+                                        if(!empty($allContact)){
+                                            foreach($allContact as $m=>$km){
+                                                $user = getUserDetail($km->contact_id);
+                                                $USerArray[]=$user->first_name ." ".$user->last_name ." (".$user->user_type_text.")";
+                                            }
+                                        }
                                             $list=implode('<br>',$USerArray);
                                             ?>
+                                    <?php
+                                    if(count($USerArray)) { ?>
                                     <div data-html="true" data-trigger="hover" data-toggle="tooltip" data-placement="top"
                                         data-container="body"
                                         data-original-title="<span class='text-pre-wrap'>{{$list}}</span>">
                                         <i class="fas fa-user-friends"></i>
-                                        <span>{{count($allUSer)}} invited</span>
+                                        <span>{{count($USerArray)}} invited</span>
                                     </div>
                                     <?php
                                         }else{

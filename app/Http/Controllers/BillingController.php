@@ -9815,10 +9815,11 @@ class BillingController extends BaseController
             if($user->user_level == 5) {
                 $result = LeadAdditionalInfo::where('user_id', $request->user_id)->select("user_id", "allocated_trust_balance", "potential_case_title")->get();
                 $is_lead_case = 'yes';
+                $unallocatedTrustBalance = ($userAddInfo->trust_account_balance > 0) ? (@$userAddInfo->trust_account_balance - @$result[0]->allocated_trust_balance) : 0.00;
             } else {
                 $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
                     ->where("case_client_selection.selected_user", $request->user_id)->whereNull("case_client_selection.deleted_at")->whereNull("case_master.case_close_date");
-                if($request->case_id) {
+                if($request->case_id) { 
                     $result = $result->where("case_client_selection.case_id", $request->case_id);
                 }
                 $result = $result->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")
@@ -12613,7 +12614,9 @@ class BillingController extends BaseController
     }
 
     public function getStaffandClientListOfInvoice(Request $request){
-        $invoice_id = $request->invoice_id;
+        // return $request->all();
+        $html = '<table class="col-12"><tbody>';
+        foreach($request->invoice_id as $invoice_id) {
         $Invoices = Invoices::find($invoice_id);
         $userCaseStaffList = $clientList = [];
 
@@ -12632,7 +12635,7 @@ class BillingController extends BaseController
             $clientList = User::where('id',$Invoices['user_id'])->get();
         }
 
-        $html = '<table class="col-12"><tbody>';
+        
         foreach($userCaseStaffList as $k=>$v){
             $html .= '<tr>
                         <td>
@@ -12652,6 +12655,7 @@ class BillingController extends BaseController
                         </td>
                         <td class="pl-0 col-12">'.ucfirst($v->first_name.' '.$v->last_name).' ('.$v->user_title.')</td>
                     </tr>';
+        }
         }
         $html .= '</tbody></table>';
         return response()->json(['html' => $html]);

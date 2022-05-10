@@ -653,7 +653,7 @@ class UserController extends BaseController
     {
         // print_r($request->all());exit;
         $User= User::find(Auth::User()->id);
-        $path = BASE_URL."images/users/".$User->profile_image;
+        $path = public_path('/images/users/').$User->profile_image;
         if(file_exists($path)){
             unlink($path);
         }
@@ -664,7 +664,7 @@ class UserController extends BaseController
         $img = str_replace('data:image/'.$type[0].';base64,', '', $image);
         $img = str_replace(' ', '+', $img);
         $data = base64_decode($img);
-        $file = Auth::User()->id."_profile" . "." . $type[0];
+        $file = $User->id.'_'.date('Ymdhis').".". $type[0];
         $destinationPath = public_path('/images/users/'); 
         $success = file_put_contents($destinationPath."/".$file, $data);
 

@@ -412,6 +412,12 @@ td,th{
                             </ul>
                         </div>
                     </div>
+                    <div class="row showBulkUserlist" style="display: none;">
+                        <div class="col-md-12">
+                            <p>Please select the users, to whom will get email of deleted invoice.</p>
+                            <div class="showBulkStaffList"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <div class="col-md-12  text-center">
@@ -1484,7 +1490,24 @@ td,th{
         $("#delete_invoice_id").val(id);
     }
     function deleteBulkInvoice() {
-        $("#deleteBulkInvoice").modal("show");
+        var invIdArr = [];
+        $("input[class=task_checkbox]:checked").each(function (i) {
+            invIdArr.push($(this).val());
+        });
+        console.log(invIdArr);
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/getStaffandClientListOfInvoice", 
+            data: {"invoice_id": invIdArr},
+            success: function (res) {
+                $("#deleteBulkInvoice").modal("show");
+                // $("#delete_invoice_id").val(id);
+                // $("#redirect_link").val(redirect_link); 
+                $(".showBulkUserlist").show();
+                $(".showBulkStaffList").html('').html(res.html); 
+            }
+        });
+        // $("#deleteBulkInvoice").modal("show");
     }
     function applyTrustBalance() {
         $("#applyTrustBalancePopup").modal("show");

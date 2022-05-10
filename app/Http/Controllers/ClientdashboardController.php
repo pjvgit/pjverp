@@ -3818,15 +3818,14 @@ class ClientdashboardController extends BaseController
             ->addColumn('action', function ($data) use($userAddInfo){
                 $action = '';
                 if($data->is_refunded == "yes") {
-
                 } else if($data->is_invoice_cancelled == "yes") {
-                    
                 } else if($data->payment_method == "refund") {
                     if($data->online_payment_status == "partially_refunded") 
                         $action .= '<span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted."><i class="pl-1 fas fa-question-circle fa-lg"></i></span>';
                     else
                         $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
                 } else {
+                    if($userAddInfo->credit_account_balance > 0) {
                     $action .= '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
                     if($data->online_payment_status == "paid")  {
                         $action .= '';
@@ -3835,6 +3834,7 @@ class ClientdashboardController extends BaseController
                             $action .= '<a href="javascript:;" onclick="deleteCreditWarningPopup(\''.@$data->user->full_name.'\')">Delete</a>';
                         else
                             $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
+                    }
                     }
                 }
                 return $action;

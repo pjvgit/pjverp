@@ -421,7 +421,8 @@
                                 if($("#deposit_into").val() == "credit") {
                                     optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.credit_account_balance)+")" + "</option>";
                                 } else {
-                                    optgroup += "<option value='" + res.freshData.user_id + "' data-minimum-trust-balance='"+res.freshData.minimum_trust_balance+"'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.unallocate_trust_balance - leadAllocateAmount)+")" + "</option>";
+                                    var unallocateBalance = (res.freshData.unallocate_trust_balance > 0) ? (res.freshData.unallocate_trust_balance - leadAllocateAmount) : 0.00;
+                                    optgroup += "<option value='" + res.freshData.user_id + "' data-minimum-trust-balance='"+res.freshData.minimum_trust_balance+"'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+ unallocateBalance +")" + "</option>";
                                 }
                             }
                             optgroup += "</optgroup>"
