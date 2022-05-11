@@ -1097,6 +1097,7 @@ class BillingController extends Controller
                     'payment_date' => date('Y-m-d'),
                     'fund_type' => 'diposit',
                     'online_payment_status' => 'paid',
+                    'related_to_invoice_id' => $invoice->id,
                     'created_by' => $paymentDetail->user_id,
                     'created_at' => Carbon::now(),
                 ]);
@@ -1207,6 +1208,7 @@ class BillingController extends Controller
                     'payment_date' => date('Y-m-d'),
                     'fund_type' => 'diposit',
                     'online_payment_status' => 'paid',
+                    'related_to_fund_request_id' => $paymentDetail->fund_request_id,
                     'created_by' => $paymentDetail->user_id,
                     'created_at' => Carbon::now(),
                 ]);

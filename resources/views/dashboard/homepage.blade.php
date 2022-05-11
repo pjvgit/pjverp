@@ -534,7 +534,8 @@
                                         if(!empty($allUSer)){
                                             foreach($allUSer as $m=>$km){
                                                 $user = getUserDetail($km->user_id);
-                                                $USerArray[]=$user->first_name ." ".$user->last_name ." (".$user->user_type_text.")";
+                                                if($user)
+                                                    $USerArray[]=$user->first_name ." ".$user->last_name ." (".$user->user_type_text.")";
                                             }
                                         }
                                         $allContact = encodeDecodeJson($v->event_linked_contact_lead);

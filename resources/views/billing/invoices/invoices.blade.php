@@ -1290,16 +1290,20 @@ td,th{
             beforeLoader();
             return false;
         }
-        var array = [];
+        var invarray = [];
         $("input[class=task_checkbox]:checked").each(function (i) {
-            array.push($(this).val());
+            invarray.push($(this).val());
         });
         var dataString = '';
-        dataString = $("#deleteBulkInvoiceForm").serialize();
+        // dataString = $("#deleteBulkInvoiceForm").serialize();
+        dataString = $(this).serializeArray(); // convert form to array
+        dataString.push({name: "invoice_id", value: invarray});
         $.ajax({
             type: "POST",
-            url: baseUrl + "/bills/invoices/deleteBulkInvoiceForm", // json datasource
-            data: dataString + '&invoice_id=' + JSON.stringify(array),
+            // url: baseUrl + "/bills/invoices/deleteBulkInvoiceForm", // json datasource
+            url: baseUrl + "/bills/invoices/deleteInvoiceForm",
+            // data: dataString + '&invoice_id=' + JSON.stringify(array),
+            data: dataString,
             beforeSend: function (xhr, settings) {
                 settings.data += '&bulk_action=yes';
             },

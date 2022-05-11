@@ -2022,18 +2022,20 @@ class BillingController extends BaseController
 
     public function deleteInvoiceForm(Request $request)
     {
-        return $request->all();
+        // return $request->all();
         $validator = \Validator::make($request->all(), [
-           'invoice_id' => 'required|numeric',
+           'invoice_id' => 'required',
         ]);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-                $id=$request->invoice_id;
+            $nonDeletedInvoice = [];
+                // $id=$request->invoice_id;
+            $invoiceIds = (!is_array($request->invoice_id)) ? explode(',', $request->invoice_id) : $request->invoice_id;
+            foreach($invoiceIds as $id) {
                 $Invoices=Invoices::find($id);
-                // Invoices::where("id", $id)->delete();
-
+                if(!empty($Invoices) && $Invoices->status != "Forwarded") {
                 //Remove flat fee entry for the invoice and reactivated time entry
                 $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::where("invoice_id",$id)->get();
                 foreach($FlatFeeEntryForInvoice as $k=>$v){
@@ -2188,13 +2190,15 @@ class BillingController extends BaseController
                 // remove all flat fee entry and create new one if no any paid entry found for case
 
                 // send mail to case staff
-                $userCaseStaffList = $request->userCaseStaffList;
+                if($request->userCaseStaffList) {
+                $userCaseStaffList = $request->userCaseStaffList[$id];
                 if(!empty($userCaseStaffList)){
                     $firmData=Firm::find(Auth::User()->firm_name);
                     $getTemplateData = EmailTemplate::find(44);
                     foreach ($userCaseStaffList as $k => $v){
                         \App\Jobs\DeleteInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $v, $firmData, $getTemplateData);
                     }
+                }
                 }
 
                 //Add Invoice history
@@ -2220,8 +2224,23 @@ class BillingController extends BaseController
                 }
 
                 $Invoices->delete();
+                } else {
+                    array_push($nonDeletedInvoice, $Invoices->id);
+                }
+            }
+            if(count($nonDeletedInvoice)) {
+                $nonDeleted = Invoices::whereIn("invoices.id",$nonDeletedInvoice)->with("portalAccessUserAdditionalInfo")->get();
+                if($nonDeleted) {
+                    foreach($nonDeleted as $key => $item) {
+                        if(count($item->invoiceForwardedToInvoice) == 0) {
+                            $this->updateInvoiceAmount($item->id);
+                        }
+                    }
+                }
+                $view = view('billing.invoices.partials.load_invoice_not_deleted',compact('nonDeleted'))->render();
+            }
                 session(['popup_success' => 'Invoice was deleted']);
-                return response()->json(['errors'=>'']);
+                return response()->json(['errors'=>'', 'view' => $view ?? ""]);
                 exit;  
         }  
     }
@@ -7655,7 +7674,6 @@ class BillingController extends BaseController
             $data = json_decode(stripslashes($request->invoice_id));
             $nonDeletedInvoice = [];
             foreach($data as $k1=>$v1){
-                return $request->userCaseStaffList[$v1];
                 $Invoices = Invoices::whereId($v1)->first();
                 if(!empty($Invoices)){
                     if($Invoices->status != "Forwarded") {
