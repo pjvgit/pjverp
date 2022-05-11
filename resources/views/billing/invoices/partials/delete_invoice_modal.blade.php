@@ -2,7 +2,7 @@
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog" bladefile="resources\views\billing\invoices\partials\delete_invoice_modal.blade.php">
         <form class="deleteInvoiceForm" id="deleteInvoiceForm" name="deleteInvoiceForm" method="POST">
-            <input type="hidden" id="delete_invoice_id" name="invoice_id">
+            <input type="text" id="delete_invoice_id" name="invoice_id[]">
             <input type="hidden" id="redirect_link" name="redirect_link">
             @csrf
             <div class="modal-content">

@@ -2022,6 +2022,7 @@ class BillingController extends BaseController
 
     public function deleteInvoiceForm(Request $request)
     {
+        return $request->all();
         $validator = \Validator::make($request->all(), [
            'invoice_id' => 'required|numeric',
         ]);
@@ -7640,6 +7641,7 @@ class BillingController extends BaseController
 
     public function deleteBulkInvoice(Request $request)
     {
+        // return $request->all();
         $request->merge([
             'invoice_id' => ($request->invoice_id!="[]") ? $request->invoice_id : NULL
         ]);
@@ -7653,6 +7655,7 @@ class BillingController extends BaseController
             $data = json_decode(stripslashes($request->invoice_id));
             $nonDeletedInvoice = [];
             foreach($data as $k1=>$v1){
+                return $request->userCaseStaffList[$v1];
                 $Invoices = Invoices::whereId($v1)->first();
                 if(!empty($Invoices)){
                     if($Invoices->status != "Forwarded") {
@@ -12640,20 +12643,20 @@ class BillingController extends BaseController
             $html .= '<tr>
                         <td>
                         <label class="mb-0">
-                            <input type="checkbox" class="mr-2 mb-1" name="userCaseStaffList[]" value="'.$v->email.'" data-email="'.$v->email.'">
+                            <input type="checkbox" class="mr-2 mb-1" name="userCaseStaffList['.$Invoices->id.'][]" value="'.$v->email.'" data-email="'.$v->email.'">
                         </label>
                         </td>
-                        <td class="pl-0 col-12">'.ucfirst($v->first_name.' '.$v->last_name).' ('.$v->user_title.')</td>
+                        <td class="pl-0 col-12">'.ucfirst($v->first_name.' '.$v->last_name).' ('.$v->user_title.') (Invoice #'.$Invoices->invoice_id.')</td>
                     </tr>';
         }
         foreach($clientList as $k=>$v){
             $html .= '<tr>
                         <td>
                         <label class="mb-0">
-                            <input type="checkbox" class="mr-2 mb-1" name="userCaseStaffList[]" value="'.$v->email.'" data-email="'.$v->email.'">
+                            <input type="checkbox" class="mr-2 mb-1" name="userCaseStaffList['.$Invoices->id.'][]" value="'.$v->email.'" data-email="'.$v->email.'">
                         </label>
                         </td>
-                        <td class="pl-0 col-12">'.ucfirst($v->first_name.' '.$v->last_name).' ('.$v->user_title.')</td>
+                        <td class="pl-0 col-12">'.ucfirst($v->first_name.' '.$v->last_name).' ('.$v->user_title.') (Invoice #'.$Invoices->invoice_id.')</td>
                     </tr>';
         }
         }

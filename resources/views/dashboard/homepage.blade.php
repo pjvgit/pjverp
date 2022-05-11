@@ -540,8 +540,8 @@
                                         $allContact = encodeDecodeJson($v->event_linked_contact_lead);
                                         if(!empty($allContact)){
                                             foreach($allContact as $m=>$km){
-                                                $user = getUserDetail($km->contact_id);
-                                                $USerArray[]=$user->first_name ." ".$user->last_name ." (".$user->user_type_text.")";
+                                                $user = getUserDetail($km->contact_id ?? $km->lead_id);
+                                                $USerArray[]=$user->first_name ." ".@$user->last_name ." (".@$user->user_type_text.")";
                                             }
                                         }
                                             $list=implode('<br>',$USerArray);
