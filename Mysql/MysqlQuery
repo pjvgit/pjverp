@@ -1,5 +1,5 @@
 ------------------------------------ 11-MAY-2022 ------------------------------
-CREATE TABLE `user_online_payment_customer_detail` (
+CREATE TABLE `user_online_payment_customer_details` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `client_id` int(11) NOT NULL,
   `conekta_customer_id` varchar(255) NOT NULL,

@@ -150,11 +150,11 @@
                         <div class="row">
                             <div class="col-md-6 form-group">
                                 <label class="">Name</label>
-                                <input type="text" class="form-control" name="name_on_card" value="Trupti" data-conekta="card[name]" placeholder="Nombre del tarjetahabiente" maxlength="50" size="50">
+                                <input type="text" class="form-control" name="name_on_card" value="" data-conekta="card[name]" placeholder="Nombre del tarjetahabiente" maxlength="50" size="50">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label class="">Phone number</label>
-                                <input type="text" class="form-control" name="phone_number" value="8756457889" placeholder="Teléfono del tarjetahabiente" maxlength="20" size="20">
+                                <input type="text" class="form-control" name="phone_number" value="" placeholder="Teléfono del tarjetahabiente" maxlength="20" size="20">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label class="">Credit card number</label>
@@ -164,17 +164,17 @@
                                 <label class="">Expiration date</label>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" placeholder="MM" maxlength="2" name="expiry_month" id="expiry_month" value="05" data-conekta="card[exp_month]">
+                                        <input type="text" class="form-control" placeholder="MM" maxlength="2" name="expiry_month" id="expiry_month" value="" data-conekta="card[exp_month]">
                                     </div>/
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" placeholder="YYYY" maxlength="4" name="expiry_year" id="expiry_year" value="2025" data-conekta="card[exp_year]">
+                                        <input type="text" class="form-control" placeholder="YYYY" maxlength="4" name="expiry_year" id="expiry_year" value="" data-conekta="card[exp_year]">
                                     </div>
                                 </div>
                                 <span class="card-date-error"></span>
                             </div>
                             <div class="col-md-6 form-group">
                                 <label class="">CVV</label>
-                                <input type="password" class="form-control" placeholder="CVV" maxlength="4" size="4" name="cvv" id="cvv" value="777" data-conekta="card[cvc]">
+                                <input type="password" class="form-control" placeholder="CVV" maxlength="4" size="4" name="cvv" id="cvv" value="" data-conekta="card[cvc]">
                             </div>
                             <input type="hidden" name="conekta_token_id" id="conekta_token_id"/>
                         </div>
@@ -197,7 +197,7 @@
                         <div class="form-group row">
                             <label class="col-md-3">Phone number</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control phone-number" name="phone_number" id="cash_phone_number" placeholder="Teléfono" maxlength="13" minlength="10">
+                                <input type="text" class="form-control phone-number" name="cash_phone_number" id="cash_phone_number" placeholder="Teléfono" maxlength="13" minlength="10">
                             </div>
                         </div>
                     </div>

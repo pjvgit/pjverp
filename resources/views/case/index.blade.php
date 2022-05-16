@@ -923,17 +923,23 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
                     var obj_upcoming_event = aData.upcoming_event;
                     var eventTitle=eventDate='';
-                    if(obj_upcoming_event != null){
-                        eventTitle='<a href="#">'+obj_upcoming_event.event_title+'</a> ';
-                        // if(obj_upcoming_event.is_all_day == 'yes')
-                        //     eventDate = 'All day';
-                        // else
-                        //     eventDate=moment(obj_upcoming_event.start_date_time).format("MMM, DD YYYY, hh:mm a");
-                        eventDate = obj_upcoming_event.start_date_time;
+                    if(obj_upcoming_event != null) {
+                        if(obj_upcoming_event.is_sol == 'no') {
+                            eventTitle='<a href="#">'+obj_upcoming_event.event_title+'</a> ';
+                            eventDate = obj_upcoming_event.start_date_time;
+                            $('td:eq(4)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+eventTitle+' <br> '+eventDate+'</div>')
+                        } else {
+                            $('td:eq(4)', nRow).html('<div class="next-event">\
+                                <span class="sol-badge badge badge-secondary mr-1 p-1">SOL</span>\
+                                <a href="/court_cases/19549135/calendar" class="event-name">'+obj_upcoming_event.event_title+'</a>\
+                                <div class="event-date">'+obj_upcoming_event.start_date_time+'</div>\
+                                <div class="event-time"></div>\
+                                </div>');
+                        }
                     }else{
                         eventTitle='<i class="table-cell-placeholder"></i>';
+                        $('td:eq(4)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+eventTitle+' <br> '+eventDate+'</div>');
                     }
-                    $('td:eq(4)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+eventTitle+' <br> '+eventDate+'</div>');
                     
                     var obj_upcoming_task = aData.upcoming_task;
                     var taskTitle=taskDate=taskOverDue=taskAllLink='';

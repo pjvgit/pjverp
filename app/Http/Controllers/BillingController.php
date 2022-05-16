@@ -28,6 +28,7 @@ use App\Traits\CreditAccountTrait;
 use App\Traits\InvoiceTrait;
 use App\Traits\TrustAccountActivityTrait;
 use App\Traits\TrustAccountTrait;
+use App\UserOnlinePaymentCustomerDetail;
 use App\UserTrustCreditFundOnlinePayment;
 use Carbon\Carbon;
 use Exception;
@@ -547,6 +548,7 @@ class BillingController extends BaseController
         $case = ExpenseEntry::leftJoin("users","expense_entry.user_id","=","users.id")
         ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
         ->leftJoin("case_master","case_master.id","=","expense_entry.case_id")
+        ->where("case_master.firm_id", auth()->user()->firm_name)
         ->select('expense_entry.*',"task_activity.title as activity_title","case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number"  ,"case_master.id as cid",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid");
 
         if(isset($requestData['c']) && $requestData['c']!=''){
@@ -1597,6 +1599,7 @@ class BillingController extends BaseController
                 ->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
                 ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance", "users.user_title")
                 ->where("case_client_selection.case_id",$invoiceData['case_id'])
+                ->where("users.firm_name", $firmData->id)
                 ->groupBy("case_client_selection.selected_user")->get(); 
 
                 $invoiceUserNotInCase = ''; 
@@ -11524,7 +11527,43 @@ class BillingController extends BaseController
         try {
             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
             \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-            $client = User::whereId($request->client_id)->first();
+            $client = User::whereId($request->client_id)->with('onlinePaymentCustomerDetail')->first();
+            if($client) {
+                $customerId = '';
+                if(count($client->onlinePaymentCustomerDetail)) {
+                    foreach($client->onlinePaymentCustomerDetail as $citem) {
+                        $customer = \Conekta\Customer::find($citem->conekta_customer_id);
+                        Log::info("conekta customer detail: ". $customer);
+                        if($customer) {
+                            $customerId = $citem->conekta_customer_id;
+                        }
+                    }
+                }        
+                // return $customerId;       
+                if($customerId == '') {
+                    if($request->online_payment_method == "credit-card") {
+                        $phoneNumber = $request->phone_number;
+                    } else if($request->online_payment_method == "cash") {
+                        $phoneNumber = $request->cash_phone_number;
+                    } else if($request->online_payment_method == "bank-transfer") {
+                        $phoneNumber = $request->bt_phone_number;
+                    } else {
+                        $phoneNumber = $client->mobile_number;
+                    }
+                    // $phoneNumber = (isset($request->phone_number)) ? $request->phone_number : ((isset($request->bt_phone_number)) ? $request->bt_phone_number : $client->mobile_number);
+                    $customer = \Conekta\Customer::create([
+                                    "name"=> $client->full_name,
+                                    "email"=> $client->email,
+                                    "phone"=> $phoneNumber,
+                                ]);
+                    UserOnlinePaymentCustomerDetail::create([
+                        'client_id' => $client->id,
+                        'conekta_customer_id' => $customer->id,
+                        'created_by' => auth()->id(),
+                    ]);
+                    $customerId = $customer->id;
+                }
+            /* $client = User::whereId($request->client_id)->first();
             if($client) {
                 if(empty($client->conekta_customer_id)) {
                     $phoneNumber = ($request->phone_number) ? $request->phone_number : (($request->bt_phone_number) ? $request->bt_phone_number : $client->mobile_number);
@@ -11536,15 +11575,15 @@ class BillingController extends BaseController
                                 ]);
                     $client->fill(['conekta_customer_id' => $customer->id])->save();
                     $client->refresh();
-                }
+                } */
                 $msg = "Las indicaciones para hacer el pago se han enviado correctamente al correo de su cliente. En cuanto su cliente haga el pago se lo haremos saber por correo y se verá reflejado en el sistema.";
                 if($request->online_payment_method == "credit-card") {
-                    $this->invoiceCardPayment($request, $client);
+                    $this->invoiceCardPayment($request, $client, $customerId);
                     $msg = "Se ha recibido correctamente el pago de ".number_format($request->amount,2)." pesos con Tarjeta de débito o crédito.";
                 } else if($request->online_payment_method == "cash") {
-                    $this->invoiceCashPayment($request, $client);
+                    $this->invoiceCashPayment($request, $client, $customerId);
                 } else if($request->online_payment_method == "bank-transfer") {
-                    $this->invoiceBankPayment($request, $client);
+                    $this->invoiceBankPayment($request, $client, $customerId);
                 } else {}
                 // $firmData=Firm::find($client->firm_name);
                 // $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
@@ -11574,9 +11613,9 @@ class BillingController extends BaseController
     /**
      * Invoice Card payment
      */
-    public function invoiceCardPayment($request, $client)
+    public function invoiceCardPayment($request, $client, $customerId)
     {
-        $customerId = $client->conekta_customer_id;
+        // $customerId = $client->conekta_customer_id;
         $payableAmount = $request->amount;
         $validOrderWithCharge = [
             'line_items' => [
@@ -11883,9 +11922,9 @@ class BillingController extends BaseController
     /**
      * Get invoice cash payment detail and do payment
      */
-    public function invoiceCashPayment($request, $client)
+    public function invoiceCashPayment($request, $client, $customerId)
     {
-        $customerId = $client->conekta_customer_id;           
+        // $customerId = $client->conekta_customer_id;           
         $amount = $request->amount;
         $validOrderWithCharge = [
             'line_items' => [
@@ -12023,9 +12062,9 @@ class BillingController extends BaseController
     /**
      * Get invoice bank transfer payment detail and do payment
      */
-    public function invoiceBankPayment($request, $client)
+    public function invoiceBankPayment($request, $client, $customerId)
     {
-        $customerId = $client->conekta_customer_id;
+        // $customerId = $client->conekta_customer_id;
         $amount = $request->amount;
         $authUser = auth()->user();
         $validOrderWithCharge = [
@@ -12185,7 +12224,43 @@ class BillingController extends BaseController
             try {
                 $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
                 \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-                $client = User::whereId($request->client_id)->first();
+                $client = User::whereId($request->client_id)->with('onlinePaymentCustomerDetail')->first();
+                if($client) {
+                    $customerId = '';
+                    if(count($client->onlinePaymentCustomerDetail)) {
+                        foreach($client->onlinePaymentCustomerDetail as $citem) {
+                            $customer = \Conekta\Customer::find($citem->conekta_customer_id);
+                            Log::info("conekta customer detail: ". $customer);
+                            if($customer) {
+                                $customerId = $citem->conekta_customer_id;
+                            }
+                        }
+                    }                
+                    if($customerId == '') {
+                        if($request->online_payment_method == "credit-card") {
+                            $phoneNumber = $request->phone_number;
+                        } else if($request->online_payment_method == "cash") {
+                            $phoneNumber = $request->cash_phone_number;
+                        } else if($request->online_payment_method == "bank-transfer") {
+                            $phoneNumber = $request->bt_phone_number;
+                        } else {
+                            $phoneNumber = $client->mobile_number;
+                        }
+                        // $phoneNumber = ($request->phone_number) ? $request->phone_number : (($request->bt_phone_number) ? $request->bt_phone_number : $client->mobile_number);
+                        $customer = \Conekta\Customer::create([
+                                        "name"=> $client->full_name,
+                                        "email"=> $client->email,
+                                        "phone"=> $phoneNumber,
+                                    ]);
+                        UserOnlinePaymentCustomerDetail::create([
+                            'client_id' => $client->id,
+                            'conekta_customer_id' => $customer->id,
+                            'created_by' => auth()->id(),
+                        ]);
+                        $customerId = $customer->id;
+                    }
+                    return $customerId;
+                /* $client = User::whereId($request->client_id)->first();
                 if($client) {
                     if(empty($client->conekta_customer_id)) {
                         $phoneNumber = ($request->phone_number) ? $request->phone_number : (($request->bt_phone_number) ? $request->bt_phone_number : $client->mobile_number);
@@ -12197,15 +12272,15 @@ class BillingController extends BaseController
                                     ]);
                         $client->fill(['conekta_customer_id' => $customer->id])->save();
                         $client->refresh();
-                    }
+                    } */
                     $msg = "Las indicaciones para hacer el pago se han enviado correctamente al correo de su cliente. En cuanto su cliente haga el pago se lo haremos saber por correo y se verá reflejado en el sistema.";
                     if($request->online_payment_method == "credit-card") {
-                        $this->fundCardPayment($request, $client);
+                        $this->fundCardPayment($request, $client, $customerId);
                         $msg = "Se ha recibido correctamente el pago de ".number_format($request->amount,2)." pesos con Tarjeta de débito o crédito.";
                     } else if($request->online_payment_method == "cash") {
-                        $this->fundCashPayment($request, $client);
+                        $this->fundCashPayment($request, $client, $customerId);
                     } else if($request->online_payment_method == "bank-transfer") {
-                        $this->fundBankPayment($request, $client);
+                        $this->fundBankPayment($request, $client, $customerId);
                     } else {}
                     return response()->json(['errors'=>'', 'msg' => $msg]);
                 }
@@ -12234,9 +12309,9 @@ class BillingController extends BaseController
     /**
      * Trust/Credit/Request fund card payment
      */
-    public function fundCardPayment($request, $client)
+    public function fundCardPayment($request, $client, $customerId)
     {
-        $customerId = $client->conekta_customer_id;
+        // $customerId = $client->conekta_customer_id;
         $payableAmount = $request->amount;
         $validOrderWithCharge = [
             'line_items' => [
@@ -12466,9 +12541,9 @@ class BillingController extends BaseController
     /**
      * Trust/Credit/Request fund cash payment
      */
-    public function fundCashPayment($request, $client)
+    public function fundCashPayment($request, $client, $customerId)
     {
-        $customerId = $client->conekta_customer_id;
+        // $customerId = $client->conekta_customer_id;
         $amount = $request->amount;
         $authUser = auth()->user();
         $validOrderWithCharge = [
@@ -12551,9 +12626,9 @@ class BillingController extends BaseController
     /**
      * Get bank transfer payment detail and do payment
      */
-    public function fundBankPayment($request, $client)
+    public function fundBankPayment($request, $client, $customerId)
     {
-        $customerId = $client->conekta_customer_id;
+        // $customerId = $client->conekta_customer_id;
         $amount = $request->amount;
         $authUser = auth()->user();
         $validOrderWithCharge = [

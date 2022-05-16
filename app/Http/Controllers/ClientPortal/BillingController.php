@@ -24,6 +24,7 @@ use App\Traits\CreditAccountTrait;
 use App\Traits\TrustAccountTrait;
 use App\TrustHistory;
 use App\User;
+use App\UserOnlinePaymentCustomerDetail;
 use App\UsersAdditionalInfo;
 use App\UserTrustCreditFundOnlinePayment;
 use Carbon\Carbon;
@@ -221,18 +222,32 @@ class BillingController extends Controller
         try {
             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
             \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-            $client = User::whereId($request->client_id)->first();
+            $client = User::whereId($request->client_id)->with('onlinePaymentCustomerDetail')->first();
             if($client) {
-                if(empty($client->conekta_customer_id)) {
+                $customerId = '';
+                if(count($client->onlinePaymentCustomerDetail)) {
+                    foreach($client->onlinePaymentCustomerDetail as $citem) {
+                        $customer = \Conekta\Customer::find($citem->conekta_customer_id);
+                        Log::info("conekta customer detail: ". $customer);
+                        if($customer) {
+                            $customerId = $citem->conekta_customer_id;
+                        }
+                    }
+                }                
+                if($customerId == '') {
                     $customer = \Conekta\Customer::create([
-                                    "name"=> $client->full_name,
-                                    "email"=> $client->email,
-                                    "phone"=> $client->mobile_number ?? $request->phone_number,
-                                ]);
-                    $client->fill(['conekta_customer_id' => $customer->id])->save();
-                    $client->refresh();
+                        "name"=> $client->full_name,
+                        "email"=> $client->email,
+                        "phone"=> $client->mobile_number ?? $request->phone_number,
+                    ]);
+                    UserOnlinePaymentCustomerDetail::create([
+                        'client_id' => $client->id,
+                        'conekta_customer_id' => $customer->id,
+                        'created_by' => auth()->id(),
+                    ]);
+                    $customerId = $customer->id;
                 }
-                $customerId = $client->conekta_customer_id;
+                // $customerId = $client->conekta_customer_id;
                 $payableAmount = $request->payable_amount;
                 $validOrderWithCharge = [
                     'line_items' => [
@@ -566,8 +581,32 @@ class BillingController extends Controller
         try {
             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
             \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-            $client = User::whereId(auth()->id())->first();
+            $client = User::whereId(auth()->id())->with('onlinePaymentCustomerDetail')->first();
             if($client) {
+                $customerId = '';
+                if(count($client->onlinePaymentCustomerDetail)) {
+                    foreach($client->onlinePaymentCustomerDetail as $citem) {
+                        $customer = \Conekta\Customer::find($citem->conekta_customer_id);
+                        Log::info("conekta customer detail: ". $customer);
+                        if($customer) {
+                            $customerId = $citem->conekta_customer_id;
+                        }
+                    }
+                }                
+                if($customerId == '') {
+                    $customer = \Conekta\Customer::create([
+                        "name"=> $client->full_name,
+                        "email"=> $client->email,
+                        "phone"=> $request->phone_number ?? $client->mobile_number,
+                    ]);
+                    UserOnlinePaymentCustomerDetail::create([
+                        'client_id' => $client->id,
+                        'conekta_customer_id' => $customer->id,
+                        'created_by' => auth()->id(),
+                    ]);
+                    $customerId = $customer->id;
+                }
+            /* if($client) {
                 if(empty($client->conekta_customer_id)) {
                     $customer = \Conekta\Customer::create([
                                     "name"=> $request->name ?? $client->full_name,
@@ -577,7 +616,7 @@ class BillingController extends Controller
                     $client->fill(['conekta_customer_id' => $customer->id])->save();
                     $client->refresh();
                 }
-                $customerId = $client->conekta_customer_id;
+                $customerId = $client->conekta_customer_id; */
                 
                 $amount = $request->payable_amount;
                 $validOrderWithCharge = [
@@ -738,8 +777,32 @@ class BillingController extends Controller
         try {
             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
             \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-            $client = User::whereId(auth()->id())->first();
+            $client = User::whereId(auth()->id())->with('onlinePaymentCustomerDetail')->first();
             if($client) {
+                $customerId = '';
+                if(count($client->onlinePaymentCustomerDetail)) {
+                    foreach($client->onlinePaymentCustomerDetail as $citem) {
+                        $customer = \Conekta\Customer::find($citem->conekta_customer_id);
+                        Log::info("conekta customer detail: ". $customer);
+                        if($customer) {
+                            $customerId = $citem->conekta_customer_id;
+                        }
+                    }
+                }                
+                if($customerId == '') {
+                    $customer = \Conekta\Customer::create([
+                        "name"=> $client->full_name,
+                        "email"=> $client->email,
+                        "phone"=> $client->mobile_number ?? $request->bt_phone_number,
+                    ]);
+                    UserOnlinePaymentCustomerDetail::create([
+                        'client_id' => $client->id,
+                        'conekta_customer_id' => $customer->id,
+                        'created_by' => auth()->id(),
+                    ]);
+                    $customerId = $customer->id;
+                }
+            /* if($client) {
                 if(empty($client->conekta_customer_id)) {
                     $customer = \Conekta\Customer::create([
                                     "name"=> $client->full_name ?? $request->bt_name,
@@ -749,7 +812,7 @@ class BillingController extends Controller
                     $client->fill(['conekta_customer_id' => $customer->id])->save();
                     $client->refresh();
                 }
-                $customerId = $client->conekta_customer_id;
+                $customerId = $client->conekta_customer_id; */
                 $amount = $request->payable_amount;
                 $validOrderWithCharge = [
                     'line_items' => [

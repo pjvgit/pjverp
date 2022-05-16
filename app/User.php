@@ -331,4 +331,14 @@ class User extends Authenticatable
             return 'All firm cases';
         }
     }
+
+    /**
+     * Get all of the onlinePaymentCustomerDetail for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function onlinePaymentCustomerDetail()
+    {
+        return $this->hasMany(UserOnlinePaymentCustomerDetail::class, 'client_id');
+    }
 }

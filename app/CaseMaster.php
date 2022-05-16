@@ -472,7 +472,22 @@ class CaseMaster extends Authenticatable
                 'event_title' => $event->event_title ?? "<No Title>",
                 'start_date_time' => ($event->is_full_day == 'no') ? date('M, d Y, h:i a',strtotime($startDateTime)) : date('D, M j Y',strtotime($eventRecurring->start_date)).", All day",
                 'is_all_day' => $event->is_full_day,
+                'is_sol' => 'no',
             ];
+            // return (object)$eventArr;
+        }
+
+        $caseSol = Event::whereDate('start_date', ">=", date('Y-m-d'))
+                ->where('case_id', $this->id)->where('is_SOL', 'yes')->first();
+        if($caseSol) {
+            $eventArr = [
+                'event_title' => $caseSol->event_title ?? "<No Title>",
+                'start_date_time' => date('M, d Y',strtotime($caseSol->start_date)),
+                'is_all_day' => $caseSol->is_full_day,
+                'is_sol' => 'yes',
+            ];
+        }
+        if(count($eventArr)) {
             return (object)$eventArr;
         }
         return null;

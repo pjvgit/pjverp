@@ -116,7 +116,7 @@ $("#pay_online_payment").validate({
         'name': {
             required: true
         },
-        'phone_number': {
+        'cash_phone_number': {
             required: true,
             number: true,
             minlength: 10,
@@ -137,6 +137,10 @@ $("#pay_online_payment").validate({
             required: "Favor de ingresar esta información.",
         },
         phone_number: {
+            required: "Favor de ingresar esta información.",
+            number: "Ingrese un número telefónico válido con lada. No use paréntesis.",
+        },
+        cash_phone_number: {
             required: "Favor de ingresar esta información.",
             number: "Ingrese un número telefónico válido con lada. No use paréntesis.",
         },
