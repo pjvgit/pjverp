@@ -1,7 +1,7 @@
 <form class="edit_firm" id="billing_payment_form" action="{{ route('billing/settings/update/payment/preferences') }}" method="post">
     @csrf
     <input type="hidden" name="setting_id" value="{{ @$paymentSetting->id }}">
-    <div class="preference-section-title">Invoice Preferences</div>
+    <div class="preference-section-title">Online Payments</div>
     <div class="form-group row">
         <div class="col-3 col-form-label">Accept Online Payments</div>
         <div class="col-9">

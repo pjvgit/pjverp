@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Firm,App\FirmAddress,App\PotentialCaseInvoice;
 use App\FirmEventReminder,App\FirmSolReminder,App\FlatFeeEntry;
-use App\TaskTimeEntry,App\CaseMaster,App\TaskActivity,App\CaseTaskLinkedStaff;
+use App\TaskTimeEntry,App\CaseMaster,App\TaskActivity;
 use App\ExpenseEntry,App\RequestedFund,App\InvoiceAdjustment;
 use App\Invoices,App\CaseClientSelection,App\UsersAdditionalInfo,App\CasePracticeArea,App\InvoicePayment;
 use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoicePaymentPlan,App\InvoiceInstallment;
@@ -26,13 +26,13 @@ use App\Jobs\ShareInvoiceJob;
 use App\RequestedFundOnlinePayment;
 use App\Traits\CreditAccountTrait;
 use App\Traits\InvoiceTrait;
+use App\Traits\OnlinePaymentTrait;
 use App\Traits\TrustAccountActivityTrait;
 use App\Traits\TrustAccountTrait;
 use App\UserOnlinePaymentCustomerDetail;
 use App\UserTrustCreditFundOnlinePayment;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -42,7 +42,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Crypt;
 class BillingController extends BaseController
 {
-    use CreditAccountTrait, InvoiceTrait, TrustAccountActivityTrait, TrustAccountTrait;
+    use CreditAccountTrait, InvoiceTrait, TrustAccountActivityTrait, TrustAccountTrait, OnlinePaymentTrait;
     public function __construct()
     {
     }
@@ -7150,6 +7150,8 @@ class BillingController extends BaseController
                             $invoiceHistoryNew['pay_method'] = "Refund";
                             $invoiceHistoryNew['payment_from'] = "online";
                             $invoiceHistoryNew['online_payment_status'] = $order->payment_status;
+
+                            
                         }
                     } else {
                         //Insert invoice payment record.
@@ -11530,17 +11532,8 @@ class BillingController extends BaseController
             $client = User::whereId($request->client_id)->with('onlinePaymentCustomerDetail')->first();
             if($client) {
                 $customerId = '';
-                if(count($client->onlinePaymentCustomerDetail)) {
-                    foreach($client->onlinePaymentCustomerDetail as $citem) {
-                        $customer = \Conekta\Customer::find($citem->conekta_customer_id);
-                        Log::info("conekta customer detail: ". $customer);
-                        if($customer) {
-                            $customerId = $citem->conekta_customer_id;
-                        }
-                    }
-                }        
-                // return $customerId;       
-                if($customerId == '') {
+                $customerId = $this->checkUserExistOnConekta($client);
+                if($customerId == '' || $customerId == 'error code') {
                     if($request->online_payment_method == "credit-card") {
                         $phoneNumber = $request->phone_number;
                     } else if($request->online_payment_method == "cash") {
@@ -12227,16 +12220,8 @@ class BillingController extends BaseController
                 $client = User::whereId($request->client_id)->with('onlinePaymentCustomerDetail')->first();
                 if($client) {
                     $customerId = '';
-                    if(count($client->onlinePaymentCustomerDetail)) {
-                        foreach($client->onlinePaymentCustomerDetail as $citem) {
-                            $customer = \Conekta\Customer::find($citem->conekta_customer_id);
-                            Log::info("conekta customer detail: ". $customer);
-                            if($customer) {
-                                $customerId = $citem->conekta_customer_id;
-                            }
-                        }
-                    }                
-                    if($customerId == '') {
+                    $customerId = $this->checkUserExistOnConekta($client);          
+                    if($customerId == '' || $customerId == 'error code') {
                         if($request->online_payment_method == "credit-card") {
                             $phoneNumber = $request->phone_number;
                         } else if($request->online_payment_method == "cash") {

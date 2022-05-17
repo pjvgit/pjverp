@@ -21,6 +21,7 @@ use App\RequestedFund;
 use App\RequestedFundOnlinePayment;
 use App\SharedInvoice;
 use App\Traits\CreditAccountTrait;
+use App\Traits\OnlinePaymentTrait;
 use App\Traits\TrustAccountTrait;
 use App\TrustHistory;
 use App\User;
@@ -36,7 +37,7 @@ use mikehaertl\wkhtmlto\Pdf;
 
 class BillingController extends Controller 
 {
-    use CreditAccountTrait, TrustAccountTrait;
+    use CreditAccountTrait, TrustAccountTrait, OnlinePaymentTrait;
 
     public function __construct()
     {
@@ -225,16 +226,8 @@ class BillingController extends Controller
             $client = User::whereId($request->client_id)->with('onlinePaymentCustomerDetail')->first();
             if($client) {
                 $customerId = '';
-                if(count($client->onlinePaymentCustomerDetail)) {
-                    foreach($client->onlinePaymentCustomerDetail as $citem) {
-                        $customer = \Conekta\Customer::find($citem->conekta_customer_id);
-                        Log::info("conekta customer detail: ". $customer);
-                        if($customer) {
-                            $customerId = $citem->conekta_customer_id;
-                        }
-                    }
-                }                
-                if($customerId == '') {
+                $customerId = $this->checkUserExistOnConekta($client);
+                if($customerId == '' || $customerId == 'error code') {
                     $customer = \Conekta\Customer::create([
                         "name"=> $client->full_name,
                         "email"=> $client->email,
@@ -584,16 +577,8 @@ class BillingController extends Controller
             $client = User::whereId(auth()->id())->with('onlinePaymentCustomerDetail')->first();
             if($client) {
                 $customerId = '';
-                if(count($client->onlinePaymentCustomerDetail)) {
-                    foreach($client->onlinePaymentCustomerDetail as $citem) {
-                        $customer = \Conekta\Customer::find($citem->conekta_customer_id);
-                        Log::info("conekta customer detail: ". $customer);
-                        if($customer) {
-                            $customerId = $citem->conekta_customer_id;
-                        }
-                    }
-                }                
-                if($customerId == '') {
+                $customerId = $this->checkUserExistOnConekta($client);
+                if($customerId == '' || $customerId == 'error code') {
                     $customer = \Conekta\Customer::create([
                         "name"=> $client->full_name,
                         "email"=> $client->email,
@@ -780,16 +765,8 @@ class BillingController extends Controller
             $client = User::whereId(auth()->id())->with('onlinePaymentCustomerDetail')->first();
             if($client) {
                 $customerId = '';
-                if(count($client->onlinePaymentCustomerDetail)) {
-                    foreach($client->onlinePaymentCustomerDetail as $citem) {
-                        $customer = \Conekta\Customer::find($citem->conekta_customer_id);
-                        Log::info("conekta customer detail: ". $customer);
-                        if($customer) {
-                            $customerId = $citem->conekta_customer_id;
-                        }
-                    }
-                }                
-                if($customerId == '') {
+                $customerId = $this->checkUserExistOnConekta($client);
+                if($customerId == '' || $customerId == 'error code') {
                     $customer = \Conekta\Customer::create([
                         "name"=> $client->full_name,
                         "email"=> $client->email,
