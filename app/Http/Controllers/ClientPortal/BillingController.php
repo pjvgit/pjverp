@@ -190,13 +190,13 @@ class BillingController extends Controller
         if((!empty($invoice) || !empty($fundRequest)) && !empty($client)) {
             $month = $request->month;
             if($fundRequest) {
-                $payableAmount = $fundRequest->amount_due;
+                $payableAmount = str_replace( ',', '', $fundRequest->amount_due );
             } else {
                 /* $payableAmount = $invoice->due_amount;
                 if($invoice->invoiceFirstInstallment) {
                     $payableAmount = ($invoice->invoiceFirstInstallment->adjustment > 0) ? $invoice->invoiceFirstInstallment->adjustment : $invoice->invoiceFirstInstallment->installment_amount;
                 } */
-                $payableAmount = $invoice->getInstallmentDueAmount();
+                $payableAmount = str_replace( ',', '', $invoice->getInstallmentDueAmount() );
             }
             $onlinePaymentSetting = getFirmOnlinePaymentSetting();
             return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month', 'payableAmount', 'client', 'fundRequest', 'payableRecordId', 'type', 'onlinePaymentSetting'));

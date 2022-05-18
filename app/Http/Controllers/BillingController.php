@@ -7151,7 +7151,9 @@ class BillingController extends BaseController
                             $invoiceHistoryNew['payment_from'] = "online";
                             $invoiceHistoryNew['online_payment_status'] = $order->payment_status;
 
-                            
+                            // Send refund email to client
+                            $client = User::whereId($onlinePaymentDetail->user_id)->first();
+                            $this->dispatch(new OnlinePaymentEmailJob($findInvoice, $client, $emailTemplateId = 45, $invoiceOnlinePayment, 'client_credit_card_refund', 'invoice'));
                         }
                     } else {
                         //Insert invoice payment record.

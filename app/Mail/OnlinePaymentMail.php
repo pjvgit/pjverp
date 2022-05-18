@@ -96,6 +96,11 @@ class OnlinePaymentMail extends Mailable
                 ->subject($this->template->subject)
                 ->markdown('emails.online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
+            case 'client_credit_card_refund':
+                return $this
+                ->subject($this->template->subject)
+                ->markdown('emails.online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                break;
             default:
                 # code...
                 break;
