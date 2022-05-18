@@ -733,22 +733,22 @@ class BillingController extends Controller
             }
         } catch (\Conekta\AuthenticationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\ApiError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\ProcessingError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\ParameterValidationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\Handler $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (Exception $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage ().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage ());
         }
     }
 
@@ -916,22 +916,22 @@ class BillingController extends Controller
             }
         } catch (\Conekta\AuthenticationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\ApiError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\ProcessingError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\ParameterValidationError $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\Handler $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (Exception $e){
             DB::rollback();
-            return redirect()->back()->with('error_alert', $e->getMessage ().", code: ".$e->getCode());
+            return redirect()->back()->with('error_alert', $e->getMessage ());
         }
     }
 
@@ -1124,6 +1124,9 @@ class BillingController extends Controller
                     DB::table('invoices')->where('id', $invoice->id)->update(["online_payment_status" => 'paid']);
                 }
 
+                $caseId = ($invoice->case_id != 0 && $invoice->is_lead_invoice == 'no') ? $invoice->case_id : Null; 
+                $leadCaseId = ($invoice->case_id == Null || $invoice->is_lead_invoice == 'yes') ? $invoice->user_id : Null;
+
                 // Get user additional info
                 $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
                 $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
@@ -1138,9 +1141,21 @@ class BillingController extends Controller
                     'fund_type' => 'diposit',
                     'online_payment_status' => 'paid',
                     'related_to_invoice_id' => $invoice->id,
+                    "allocated_to_case_id" => $caseId ?? Null,
+                    "allocated_to_lead_case_id" => $leadCaseId ?? Null,
                     'created_by' => $paymentDetail->user_id,
                     'created_at' => Carbon::now(),
                 ]);
+                if(isset($caseId)) {
+                    DB::table('case_master')->where('id', $caseId)->increment("total_allocated_trust_balance", $paymentDetail->amount);
+                    // CaseMaster::where('id', $caseId)->increment('total_allocated_trust_balance', $paymentDetail->amount);
+                    DB::table("case_client_selection")->where("case_id", $caseId)->where("selected_user", $paymentDetail->user_id)->increment('allocated_trust_balance', $paymentDetail->amount);
+                    // CaseClientSelection::where('case_id', $caseId)->where('selected_user', $paymentDetail->user_id)->increment('allocated_trust_balance', $paymentDetail->amount);
+                }
+                if(isset($leadCaseId)) {
+                    DB::table("lead_additional_info")->where("user_id", $leadCaseId)->increment("allocated_trust_balance", $paymentDetail->amount);
+                    // LeadAdditionalInfo::where("user_id", $leadCaseId)->increment('allocated_trust_balance', $paymentDetail->amount);
+                }
                 $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
                 // For update next/previous trust balance
                 $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
