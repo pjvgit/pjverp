@@ -44,6 +44,9 @@ trait OnlinePaymentTrait {
 
     public function savePaymentToTrustFund($paymentDetail, $invoice, $amount)
     {
+        $caseId = ($invoice->case_id != 0 && $invoice->is_lead_invoice == 'no') ? $invoice->case_id : Null; 
+        $leadCaseId = ($invoice->case_id == Null || $invoice->is_lead_invoice == 'yes') ? $invoice->user_id : Null;
+        
         $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
         $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
         DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $amount);

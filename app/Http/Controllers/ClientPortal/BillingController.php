@@ -1124,11 +1124,11 @@ class BillingController extends Controller
                     DB::table('invoices')->where('id', $invoice->id)->update(["online_payment_status" => 'paid']);
                 }
 
-                $caseId = ($invoice->case_id != 0 && $invoice->is_lead_invoice == 'no') ? $invoice->case_id : Null; 
+                /* $caseId = ($invoice->case_id != 0 && $invoice->is_lead_invoice == 'no') ? $invoice->case_id : Null; 
                 $leadCaseId = ($invoice->case_id == Null || $invoice->is_lead_invoice == 'yes') ? $invoice->user_id : Null;
 
                 // Get user additional info
-                /* $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
+                $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
                 $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
                 DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
                 Log::info("oxxo cash move payment to trust account");
@@ -1185,7 +1185,13 @@ class BillingController extends Controller
                 if(!empty($getInstallMentIfOn)){
                     $this->updateInvoiceInstallmentAmount($dueAmt, $invoice->id, $onlinePaymentStatus = 'paid');
                 }
-                $this->updateInvoiceAmount($invoice->id);
+                // $this->updateInvoiceAmount($invoice->id);
+                $invDueAmt = $invoice->due_amount - $dueAmt;
+                $invoice->fill([
+                    'paid_amount'=> $invoice->paid_amount + $dueAmt,
+                    'due_amount'=> $invDueAmt,
+                    'status' => ($invDueAmt == 0) ? "Paid" : $invoice->status,
+                ])->save();
 
                 $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
                 // For lawyer activity
