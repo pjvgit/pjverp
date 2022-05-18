@@ -1128,7 +1128,7 @@ class BillingController extends Controller
                 $leadCaseId = ($invoice->case_id == Null || $invoice->is_lead_invoice == 'yes') ? $invoice->user_id : Null;
 
                 // Get user additional info
-                $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
+                /* $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
                 $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
                 DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
                 Log::info("oxxo cash move payment to trust account");
@@ -1158,7 +1158,8 @@ class BillingController extends Controller
                 }
                 $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
                 // For update next/previous trust balance
-                $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
+                $this->updateNextPreviousTrustBalance($paymentDetail->user_id); */
+                $this->savePaymentToTrustFund($paymentDetail, $invoice, $paymentDetail->amount);
             } else {
                 Log::info("receive oxxo cash payment");
                 // Update invoice payment status
@@ -1167,13 +1168,22 @@ class BillingController extends Controller
                 // Update invoice history status
                 DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid']);
 
+                if($invoice->due_amount < $paymentDetail->amount) {
+                    $dueAmt = $invoice->due_amount;
+                    // Extra amount will move to trust allocated fund
+                    $extraAmt = $paymentDetail->amount - $invoice->due_amount;
+                    $this->savePaymentToTrustFund($paymentDetail, $invoice, $extraAmt);
+                } else {
+                    $dueAmt = $paymentDetail->amount;
+                }
+
                 // Update invoice status and amount
                 DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
 
                 // Update invoice/invoice installment amount
                 $getInstallMentIfOn = InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
                 if(!empty($getInstallMentIfOn)){
-                    $this->updateInvoiceInstallmentAmount($paymentDetail->amount, $invoice->id, $onlinePaymentStatus = 'paid');
+                    $this->updateInvoiceInstallmentAmount($dueAmt, $invoice->id, $onlinePaymentStatus = 'paid');
                 }
                 $this->updateInvoiceAmount($invoice->id);
 
@@ -1203,7 +1213,6 @@ class BillingController extends Controller
                     'created_by' => $paymentDetail->user_id,
                     'created_at' => Carbon::now(),
                 ]);
-                
                 if($paymentDetail->payment_method == 'cash') {
                     // Send confirmation email to client
                     $client = User::whereId($paymentDetail->user_id)->first();
