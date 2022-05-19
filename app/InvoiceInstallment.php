@@ -21,7 +21,8 @@ class InvoiceInstallment extends Authenticatable
     }  
     public function getInvoiceNumberAttribute(){
         if(isset($this->invoice_id)){
-            return sprintf("%05d", $this->invoice_id);
+            // return sprintf("%05d", $this->invoice_id);
+            return sprintf("%05d", $this->invoice->unique_invoice_number);
         }else{
             return "";
         }
@@ -212,4 +213,14 @@ class InvoiceInstallment extends Authenticatable
          }
        
     } 
+
+    /**
+     * Get the invoice that owns the InvoiceInstallment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'invoice_id');
+    }
 }

@@ -24,6 +24,7 @@ use App\Jobs\OnlinePaymentEmailJob;
 use App\Jobs\ShareInvoiceClientEmailJob;
 use App\Jobs\ShareInvoiceJob;
 use App\RequestedFundOnlinePayment;
+use App\Rules\UniqueInvoiceNumberRule;
 use App\Traits\CreditAccountTrait;
 use App\Traits\InvoiceTrait;
 use App\Traits\OnlinePaymentTrait;
@@ -2565,7 +2566,8 @@ class BillingController extends BaseController
             ->get();
 
 
-            $maxInvoiceNumber = DB::table("invoices")->max("id") + 1;
+            // $maxInvoiceNumber = DB::table("invoices")->max("id") + 1;
+            $maxInvoiceNumber = DB::table("invoices")->where('firm_id', $user->firm_name)->max("unique_invoice_number") + 1;
 
             $adjustment_token=$request->token;
 
@@ -2834,7 +2836,8 @@ class BillingController extends BaseController
             ->where("invoice_adjustment.case_id",$case_id)
             ->where("invoice_adjustment.token",$request->token)->get();
 
-            $maxInvoiceNumber = DB::table("invoices")->max("id") + 1;
+            // $maxInvoiceNumber = DB::table("invoices")->max("id") + 1;
+            $maxInvoiceNumber = DB::table("invoices")->where('firm_id', $user->firm_name)->max("unique_invoice_number") + 1;
 
             $adjustment_token=$request->token;
 
@@ -4137,7 +4140,8 @@ class BillingController extends BaseController
         // return $request->all();
         $rules = [
             // 'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
-            'invoice_number_padded' => 'required|numeric|unique:invoices,id',
+            // 'invoice_number_padded' => 'required|numeric|unique:invoices,id',
+            'invoice_number_padded' => ['required', 'numeric', new UniqueInvoiceNumberRule()],
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             // 'total_text' => 'required'
@@ -4178,9 +4182,12 @@ class BillingController extends BaseController
         // dd($request->all());    
         dbStart();        
         try {
-            DB::table('invoices')->where("deleted_at","!=",NULL)->where("id",$request->invoice_number_padded)->delete();
+            $authUser = auth()->user();
+            // DB::table('invoices')->where("deleted_at","!=",NULL)->where("id",$request->invoice_number_padded)->delete();
+            DB::table('invoices')->where("deleted_at","!=",NULL)->where("firm_id", $authUser->firm_name)->where("unique_invoice_number",$request->invoice_number_padded)->delete();
             $InvoiceSave=new Invoices;
-            $InvoiceSave->id=$request->invoice_number_padded;
+            // $InvoiceSave->id=$request->invoice_number_padded;
+            $InvoiceSave->unique_invoice_number = $request->invoice_number_padded;
             $InvoiceSave->user_id=$request->contact;
             $InvoiceSave->case_id= ($request->court_case_id == "none") ? 0 : $request->court_case_id;
             $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->bill_invoice_date)))), auth()->user()->user_timezone ?? 'UTC');
@@ -4669,7 +4676,6 @@ class BillingController extends BaseController
         $authUser = auth()->user();
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->where('firm_id', $authUser->firm_name)->first();
-        \Log::info("viewInvoice > ".$invoiceID." > InvoiceData >". json_encode($findInvoice));
         if(!empty($findInvoice)){
         $case = CaseMaster::whereId($findInvoice->case_id);
         if($authUser->parent_user != 0) {
@@ -4747,7 +4753,6 @@ class BillingController extends BaseController
                 }
             }
             //check case client company is list out on contacts
-            Log::info("is trust trust fund applied:". session()->get('trustFundApplied'));
             $lowTrustBalanceClient = '';
             if(session()->get('trustFundApplied') == 'yes' && $findInvoice->is_lead_invoice == "no") {
                 $lowTrustBalanceClient = User::where('id', $findInvoice->user_id)
@@ -4764,7 +4769,7 @@ class BillingController extends BaseController
                 }
             }
 
-            $invoiceNo = sprintf('%06d', $findInvoice->id);
+            $invoiceNo = sprintf('%06d', $findInvoice->unique_invoice_number);
             $invoiceSetting = $findInvoice->invoice_setting;
             $invoiceDefaultSetting = getInvoiceSetting();
             if($request->ajax()) {
@@ -5998,6 +6003,7 @@ class BillingController extends BaseController
         $InvoiceSave=Invoices::find($request->invoice_id);
         $rules = [
             'invoice_number_padded' => 'required|numeric',
+            'invoice_number_padded' => new UniqueInvoiceNumberRule(),
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             'total_text' => 'required',

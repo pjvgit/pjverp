@@ -606,7 +606,11 @@ class ContractController extends BaseController
                 $loadFirmUser = firmUserList();
             }
 
-            $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")->leftjoin("users","case_staff.user_id","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type")->where("case_staff.user_id",$contractUserID)->where("firm_name",Auth::user()->firm_name)->where("case_master.is_entry_done","1")->get();
+            // $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")->leftjoin("users","case_staff.user_id","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type")->where("case_staff.user_id",$contractUserID)->where("firm_name",Auth::user()->firm_name)->where("case_master.is_entry_done","1")->get();
+            $case = CaseMaster::where("firm_id", auth()->user()->firm_name)->where("is_entry_done", "1")
+                    ->whereHas("caseStaffDetails", function($query) use($contractUserID) {
+                        $query->where("users.id", $contractUserID);
+                    })->get();
             $DeactivatedUserData = DeactivatedUser::where('user_id',$contractUserID)->first();   
             
             return view('contract.attorneysView',compact('userProfile','userProfileCreatedBy','id','CaseMasterClient','CaseMasterCompany','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','case','DeactivatedUserData'));
@@ -1642,11 +1646,13 @@ class ContractController extends BaseController
         ->leftjoin("users","case_staff.user_id","=","users.id")
         ->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type","users.user_title");
         $case = $case->where("case_staff.user_id",base64_decode($requestData['user_id']));
-        $case = $case->where("firm_name",Auth::user()->firm_name); //Logged in user not visible in grid
+        $case = $case->where("case_master.firm_id",Auth::user()->firm_name); //Logged in user not visible in grid
         $case = $case->where("case_master.is_entry_done","1");
+        $case = $case->whereNull("case_staff.deleted_at");
+        $case = $case->whereNull("case_master.deleted_at");
         $totalData=$case->count();
         $totalFiltered = $totalData; 
-        $case = $case->groupBy('case_staff.case_id');
+        // $case = $case->groupBy('case_staff.case_id');
         $case = $case->offset($requestData['start'])->limit($requestData['length']);
         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $case = $case->get();

@@ -1,5 +1,5 @@
 @extends('layouts.master')
-<?php $s = sprintf('%06d', $findInvoice->id);?>
+<?php $s = sprintf('%06d', $findInvoice->unique_invoice_number);?>
 @section('title', 'Edit Invoice #'.$s.' - Invoices - Billing')@section('main-content')
 @include('billing.submenu')
 <div class="separator-breadcrumb border-top"></div>
@@ -32,7 +32,7 @@ $nonBillableAmount = 0;
                 <div class="card-body" id="main_content">
                     <span id="responseMain"></span>
                     <div class="d-flex align-items-center pb-3">
-                        <?php $s = sprintf('%06d', $findInvoice->id);?>
+                        <?php $s = sprintf('%06d', $findInvoice->unique_invoice_number);?>
                         <h4 class="my-0">Invoice #{{$s}}</h4>
                         
                           <div class="ml-auto">
@@ -99,7 +99,7 @@ $nonBillableAmount = 0;
                                     <td>
                                         <div class="form_control" style="width: 200px;">
                                             <?php 
-                                            $formatted_value = sprintf("%06d", $findInvoice->id);
+                                            $formatted_value = sprintf("%06d", $findInvoice->unique_invoice_number);
                                             ?>
                                             <input class="form-control" name="invoice_number_padded" value="{{$formatted_value}}">
                                         </div>
