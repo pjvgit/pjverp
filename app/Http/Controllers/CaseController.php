@@ -92,7 +92,7 @@ class CaseController extends BaseController
         $columns = array('id', 'case_title', 'case_desc', 'case_number', 'case_status','case_unique_number');
         $requestData= $_REQUEST;
         
-        $case = CaseMaster::leftjoin("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+        $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
         
         //Filter applied for practice area
         if(isset($requestData['pa']) && $requestData['pa']!=''){
