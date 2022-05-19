@@ -1176,7 +1176,6 @@ class BillingController extends Controller
                 } else {
                     $dueAmt = $paymentDetail->amount;
                 }
-
                 // Update invoice status and amount
                 DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
 

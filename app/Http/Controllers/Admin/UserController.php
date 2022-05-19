@@ -43,7 +43,9 @@ class UserController extends Controller {
     {
         $staff_id = $request->staff_id;
         $userData = $case = $userPermissions = [];
-        $userProfile = User::where('user_level','3')->where('id', $staff_id)->with('firmDetail','caseStaff')->first();
+        $userProfile = User::where('user_level','3')->where('id', $staff_id)->with(['firmDetail','caseStaff','staffCases' => function($query) {
+            $query->orWhereNotNull('case_master.case_close_date');
+        }])->first();
         // select * from users where firm_name = 10 and user_level in ('3')
         // select * from case_master where created_by = 31
         // select * from case_master where created_by = 31

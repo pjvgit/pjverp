@@ -124,7 +124,7 @@ class User extends Authenticatable
      */
     public function caseStaff()
     {
-        return $this->hasMany(CaseStaff::class, 'user_id');
+        return $this->hasMany(CaseStaff::class, 'user_id')->whereNull("deleted_at");
     }
 
     /**
