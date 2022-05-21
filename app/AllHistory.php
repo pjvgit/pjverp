@@ -173,4 +173,14 @@ class AllHistory extends Authenticatable
     {
         return $this->hasOne(Firm::class, 'id', 'firm_name');
     }
+    
+    /**
+     * Get the invoice that owns the AllHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'activity_for', 'id');
+    }
 }

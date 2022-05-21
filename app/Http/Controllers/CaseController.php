@@ -911,6 +911,8 @@ class CaseController extends BaseController
             if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1"; 
                 
+            }else {
+                $CaseMaster->conflict_check = '0';
             }
             if(isset($request->conflict_check_description)) { 
                 $CaseMaster->conflict_check_description=$request->conflict_check_description; 

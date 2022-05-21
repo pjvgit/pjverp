@@ -21,12 +21,12 @@
                         @if($v->action == "pay") for invoice  @endif
                         @if ($v->deleteInvoice == NULL)
                             @if($v->type == 'lead_invoice')
-                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                             @else
-                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                             @endif
                         @else
-                            #{{sprintf('%06d', $v->activity_for)}}
+                            #{{sprintf('%06d', $v->unique_invoice_number)}}
                         @endif 
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                         <?php  if($v->case_unique_number!=NULL && $v->deleteCase ==NULL){  ?>
@@ -44,12 +44,12 @@
                         
                         @if ($v->deleteInvoice == NULL)
                             @if($v->type == 'lead_invoice')
-                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                             @else
-                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                             @endif
                         @else
-                            #{{sprintf('%06d', $v->activity_for)}}
+                            #{{sprintf('%06d', $v->unique_invoice_number)}}
                         @endif 
                         {{ ($v->action == "unshare") ? "from the portal with" : (($v->action == "share") ? "in the portal with" : "") }}
                         @if($v->action == "email") to @endif
@@ -62,9 +62,9 @@
                         {{$v->activity}} 
                         
                         @if ($v->deleteInvoice == NULL)
-                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                         @else
-                            #{{sprintf('%06d', $v->activity_for)}}
+                            #{{sprintf('%06d', $v->unique_invoice_number)}}
                         @endif 
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
                         <?php  if($v->case_unique_number!=NULL && $v->deleteCase == NULL){  ?>

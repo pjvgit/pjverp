@@ -10024,13 +10024,15 @@ class BillingController extends BaseController
         ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
         ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
         ->leftJoin('task','task.id','=','all_history.task_id')
+        ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
         ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", 
                 "users.*","all_history.*","u1.user_level as ulevel","u1.user_title as utitle",
                 DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),
                 "case_master.case_title","case_master.id","task_activity.title",
                 "all_history.created_at as all_history_created_at",
                 "case_master.deleted_at as deleteCase",
-                "case_master.case_unique_number", "case_events.event_title as eventTitle", "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
+                "case_master.case_unique_number", "case_events.event_title as eventTitle", "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle',
+                "invoices.deleted_at as deleteInvoice","invoices.unique_invoice_number")
         ->where('all_history.is_for_client','no')
         ->whereIn("all_history.type", ["invoices", "lead_invoice","time_entry","expenses","credit","deposit","fundrequest"])
         // ->whereIn("all_history.action", $authUserNotifyAction)

@@ -12,6 +12,7 @@ use App\InvoiceSetting;
 use App\LeadAdditionalInfo;
 use App\User;
 use App\CaseStage;
+use App\Invoices;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\UsersAdditionalInfo;
@@ -679,4 +680,13 @@ function getWeekNthDay($nthDay)
 {
     $array = array(1 => 'first', 2 => 'second', 3 => 'third', 4 => 'fourth', 5 => 'fifth', 6 => 'sixth', 7 => 'seventh');
     return $array[$nthDay];
+}
+
+/**
+ * Get invoice unique number using invoice id
+ */
+function getInvoiceUniqueNumber($invoiceId)
+{
+    $invoice = Invoices::whereId($invoiceId)->select('unique_invoice_number')->first();
+    return $invoice->unique_invoice_number ?? 0;
 }

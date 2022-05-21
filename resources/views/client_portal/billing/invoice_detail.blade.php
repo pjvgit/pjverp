@@ -17,7 +17,7 @@
 						{{-- <i class="fa fa-download" aria-hidden="true"></i> --}}
 						<span class="payable-detail__export-button">View Full Invoice (PDF)</span>
 					</a>
-					@if($onlinePaymentSetting && $onlinePaymentSetting->is_accept_online_payment == 'yes')
+					@if($onlinePaymentSetting && $onlinePaymentSetting->is_accept_online_payment == 'yes' && !in_array($invoice->status, ["Paid","Forwarded"]))
 					<a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', ['type'=>'invoice', 'id'=>encodeDecodeId($invoice->id, 'encode'), 'client_id'=>encodeDecodeId(auth()->id(), 'encode')]) }}">
 						<span class="payable-detail__export-button">Pay Now</span>
 					</a>

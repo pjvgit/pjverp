@@ -941,7 +941,7 @@ class ClientdashboardController extends BaseController
                             $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                         } else if($userAddInfo->unallocate_trust_balance < $data->amount_paid && $data->allocated_to_case_id) {
                             $allocatedAmount = CaseClientSelection::where("case_id", $data->allocated_to_case_id)->where("selected_user", $userAddInfo->user_id)->select("allocated_trust_balance")->first();
-                            if($allocatedAmount->allocated_trust_balance < $data->amount_paid && $data->fund_type != "withdraw" && $data->fund_type != "payment") {
+                            if($allocatedAmount && $allocatedAmount->allocated_trust_balance < $data->amount_paid && $data->fund_type != "withdraw" && $data->fund_type != "payment") {
                                 $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                             } else {
                                 if($data->online_payment_status == "paid") 

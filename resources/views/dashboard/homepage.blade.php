@@ -396,7 +396,7 @@
                                     <tr class="border-bottom">
                                         <td class="overdue-invoice">
                                             <small><a class="text-dark pendo-overdue-invoice-invoice-link"
-                                                    href="{{BASE_URL}}bills/invoices/view/{{$v->decode_id}}">#{{sprintf('%06d', $v->id)}}</a></small>
+                                                    href="{{BASE_URL}}bills/invoices/view/{{$v->decode_id}}">#{{sprintf('%06d', $v->unique_invoice_number ?? 0)}}</a></small>
                                             <a class="pendo-overdue-invoice-court-case"
                                                 href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{substr($v->case_title,0,100)}}</a>
                                             <span class="font-weight-bold">${{number_format($v->due_amount,2)}}</span>
@@ -435,7 +435,8 @@
                                 <tbody>
                                     @forelse ($clientList as $k => $v)
                                         @php
-                                            $userUrl = route('contacts/companies/billing/trust/allocation', $v->id);
+                                            $userUrl = route('contacts/companies/billing/trust/a
+                                            4llocation', $v->id);
                                             if($v->user_level=="2") {
                                                 $userUrl = route('contacts/clients/billing/trust/allocation', $v->id);
                                             }

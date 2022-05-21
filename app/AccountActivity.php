@@ -24,7 +24,7 @@ class AccountActivity extends Authenticatable
     public function getRelatedAttribute(){
         
         if($this->section=="invoice"){
-           return sprintf('%06d', $this->related_to);
+           return sprintf('%06d', getInvoiceUniqueNumber($this->related_to));
         }else if($this->section=="request"){
             return sprintf('%05d', $this->related_to);
         }else{

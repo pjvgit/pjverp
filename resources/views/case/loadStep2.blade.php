@@ -90,7 +90,7 @@
             <label for="inputEmail3" class="col-sm-2 col-form-label">Statute of Limitations</label>
             <div class="col-md-10 form-group mb-3">
                 <input class="form-control datepicker" id="case_statute" value="" name="case_statute" type="text"
-                placeholder="mm/dd/yyyy">
+                placeholder="mm/dd/yyyy" autocomplete="off">
 
             </div>
         </div>

@@ -93,7 +93,7 @@
             <label for="inputEmail3" class="col-sm-2 col-form-label">Statute of Limitations</label>
             <div class="col-md-10 form-group mb-3">
                 <input class="form-control datepicker soldate" id="case_statute_date" value="{{  ($CaseMaster->case_statute_date)?date('m/d/Y',strtotime($CaseMaster->case_statute_date)): old('case_statute') }}" name="case_statute" type="text"
-                placeholder="mm/dd/yyyy">
+                placeholder="mm/dd/yyyy" autocomplete="off">
 
             </div>
         </div>

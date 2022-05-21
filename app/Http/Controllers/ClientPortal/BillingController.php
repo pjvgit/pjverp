@@ -129,7 +129,7 @@ class BillingController extends Controller
 
         // return view('client_portal.billing.pdf_view', ['userData' => $userData, 'firmData' => $firmData, 'invoice' => $invoice, 'firmAddress' => $firmAddress]);
         
-        $filename="Invoice_".$invoiceId.'.pdf';
+        $filename="Invoice_".$invoice->unique_invoice_number.'.pdf';
         $PDFData=view('client_portal.billing.pdf_view',compact('userData','firmData','invoice','firmAddress'));
         $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
