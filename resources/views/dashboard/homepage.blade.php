@@ -435,8 +435,7 @@
                                 <tbody>
                                     @forelse ($clientList as $k => $v)
                                         @php
-                                            $userUrl = route('contacts/companies/billing/trust/a
-                                            4llocation', $v->id);
+                                            $userUrl = route('contacts/companies/billing/trust/allocation', $v->id);
                                             if($v->user_level=="2") {
                                                 $userUrl = route('contacts/clients/billing/trust/allocation', $v->id);
                                             }
