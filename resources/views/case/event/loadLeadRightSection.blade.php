@@ -22,7 +22,7 @@
                     <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="javascript:;"
                         data-toggle="popover" title=""
                         data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number.
-                        </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{ route('case_details/info', $val->id) }}'>Edit Info</a>"
+                        </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{ route('lead_details/info', $val->id) }}'>Edit Info</a>"
                         data-html="true">
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>

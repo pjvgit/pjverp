@@ -158,11 +158,11 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     <label for="inputEmail3" class="col-sm-2 col-form-label">Cases</label>
                                     <div class="col-sm-8">
                                         <div style="line-height: 1.5em;">
-                                            <input type="radio" name="export_cases"  value="0" checked="checked">
-                                            <label for="include_companies"> Only include cases I'm linked to</label><br>
+                                            <input type="radio" name="export_cases"  value="0" checked="checked" id="export_cases_0">
+                                            <label for="export_cases_0"> Only include cases I'm linked to</label><br>
 
-                                            <input type="radio" name="export_cases"  value="1">
-                                            <label for="include_archived">Include all firm cases</label><br>
+                                            <input type="radio" name="export_cases"  value="1" id="export_cases_1">
+                                            <label for="export_cases_1">Include all firm cases</label><br>
                                         </div>
                                     </div>
                                 </div>

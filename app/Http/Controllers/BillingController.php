@@ -2939,6 +2939,7 @@ class BillingController extends BaseController
     }
     public function deleteFlatFeeEntry(Request $request)
     {
+        // return $request->all();
         $validator = \Validator::make($request->all(), [
             'flat_fee_id' => 'required',
         ]);
@@ -2976,7 +2977,7 @@ class BillingController extends BaseController
                 }}
             }
             FlatFeeEntryForInvoice::where("flat_fee_entry_id", $id)->delete();
-            if($request->action=="delete"){                
+            if($request->action=="delete" && $FlatFeeEntry->is_primary_flat_fee == 'no'){                
                 $FlatFeeEntry->token_id = $request->token_id;
                 $FlatFeeEntry->deleted_at = date('Y-m-d h:i:s');
                 $FlatFeeEntry->save();

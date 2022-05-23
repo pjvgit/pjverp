@@ -305,6 +305,7 @@ class CaseController extends BaseController
                                 'time_entry_billable' => 'yes',                        
                                 'token_id' => round(microtime(true) * 1000),
                                 'created_by' => Auth::user()->id, 
+                                'is_primary_flat_fee' => 'yes',
                             ]);
                         }
                     }
@@ -1287,6 +1288,7 @@ class CaseController extends BaseController
                         'token_id' => round(microtime(true) * 1000),
                         'firm_id' => Auth::User()->firm_name,
                         'created_by' => auth()->id(),
+                        'is_primary_flat_fee' => 'yes',
                     ]);
                 }                                
             }

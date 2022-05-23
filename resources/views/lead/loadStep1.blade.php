@@ -55,8 +55,8 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Cell phone</label>
             <div class="col-md-9 form-group mb-10">
-                <input class="form-control" id="home_phone" value="{{($UserMaster->mobile_number)??''}}" maxlength="255"
-                    name="home_phone" placeholder="(xxx)-xxx-xxxx">
+                <input class="form-control" id="mobile_number" value="{{($UserMaster->mobile_number)??''}}" maxlength="255"
+                    name="cell_phone" placeholder="(xxx)-xxx-xxxx">
             </div>
 
         </div>
@@ -80,8 +80,8 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-3 col-form-label">Home Phone</label>
                     <div class="col-md-3 form-group mb-10">
-                        <input class="form-control" id="mobile_number" maxlength="255"
-                            value="{{($UserMaster->home_phone)??''}}" name="cell_phone" placeholder="(xxx)-xxx-xxxx">
+                        <input class="form-control" id="home_phone" maxlength="255"
+                            value="{{($UserMaster->home_phone)??''}}" name="home_phone" placeholder="(xxx)-xxx-xxxx">
                     </div>
                 </div>
 

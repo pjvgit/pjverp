@@ -4443,19 +4443,23 @@ class ClientdashboardController extends BaseController
         $caseNotesCsvData=[];
         $caseNotesHeader="Case Name|Created By|Date|Created at|Updated at|Subject|Note";
         $caseNotesCsvData[]=$caseNotesHeader;
-
-        $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+        $authUser = auth()->user();
+        $case = CaseMaster::where("firm_id", $authUser->firm_name)->leftjoin("users","case_master.created_by","=","users.id")
+                ->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
 
         if($request['export_cases'] == 0){
             $case = $case->where("case_master.is_entry_done","1");
-            if(Auth::user()->parent_user==0){
+            /* if(Auth::user()->parent_user==0){
                 $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
                 $getChildUsers[]=Auth::user()->id;
                 $case = $case->whereIn("case_master.created_by",$getChildUsers);
             }else{
                 $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
                 $case = $case->whereIn("case_master.id",$childUSersCase);
-            }
+            } */
+            $case = $case->whereHas("caseStaffDetails", function($query) {
+                $query->where("users.id", auth()->id());
+            });
             if(!isset($request['include_archived'])){   
                 $case = $case->where("case_master.case_close_date", NULL);
             }
