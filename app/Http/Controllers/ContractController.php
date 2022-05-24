@@ -629,10 +629,12 @@ class ContractController extends BaseController
      }
      public function saveProfile(Request $request)
      {
+        $request->request->add(['user_id' => base64_decode($request->uid)]);
          $validator = \Validator::make($request->all(), [
              'first_name' => 'required',
              'last_name' => 'required',
-             'email' => 'required|unique:users,email,'.base64_decode($request->uid).',id,deleted_at,NULL',
+             'email' => 'required'/* |unique:users,email,'.base64_decode($request->uid).',id,deleted_at,NULL */,
+             'email' => [new UniqueEmail()],
              'user_type' => 'required',
          ]);
          if ($validator->fails())

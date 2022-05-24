@@ -15,7 +15,8 @@ class FlatFeeEntry extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'task_id', 'case_id', 'user_id', 'activity_id', 'time_entry_billable', 'description', 'entry_date', 'entry_rate', 'rate_type', 'duration', 'cost', 'created_by', 'temp_invoice_token','token_id', 'firm_id'
+        'task_id', 'case_id', 'user_id', 'activity_id', 'time_entry_billable', 'description', 'entry_date', 'entry_rate', 'rate_type', 'duration', 'cost', 'created_by', 'temp_invoice_token','token_id', 'firm_id',
+        'is_primary_flat_fee', 'remove_from_current_invoice', 'invoice_link'
     ];    
     protected $appends  = ['decode_id','decode_invoice_id','date_format_new','calculated_amt'];
     public function getDecodeIdAttribute(){

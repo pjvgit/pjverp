@@ -446,7 +446,12 @@
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none; border-bottom: none;border-top: none;" border="1">
     <tbody>
         <tr class="invoice_info_row">
-            <td style="width: 580px; vertical-align: top; border: none;"></td>
+            <td style="width: 580px; vertical-align: top;  @if(empty($invoice->terms_condition)) border:none; @endif ">
+                @if($invoice->terms_condition)
+                <div style="font-weight: bold;">Terms &amp; Conditions:</div> <br>
+                <p class="invoice_notes">{{ $invoice->terms_condition }}</p>
+                @endif
+            </td>
             <td style="width: 10px; border: none;" rowspan="1">&nbsp;</td>
             <td style="text-align: right; border-right: none; vertical-align: top; width: 140px; line-height: 1.8;" rowspan="1">
                 Flat Fee Sub-Total:<br>
@@ -488,7 +493,12 @@
         </tr>
 
         <tr class="invoice_info_row">
-            <td style="border: none;">&nbsp;</td>
+            <td style="width: 580px; vertical-align: top;  @if(empty($invoice->notes)) border:none; @endif }}">
+                @if($invoice->notes)
+                <div style="font-weight: bold;">Notes:</div> <br>
+                <p class="invoice_notes">{{ $invoice->notes }}</p>
+                @endif
+            </td>
             <td style="border: none;">&nbsp;</td>
             <td class="invoice_info_bg" style="text-align: right; border-right: none; vertical-align: top; font-weight: bold; ">
                 Balance Due:

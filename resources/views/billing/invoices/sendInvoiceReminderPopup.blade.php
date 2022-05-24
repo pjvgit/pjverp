@@ -34,19 +34,6 @@ $CommonController= new App\Http\Controllers\CommonController();
                         if($dueDate) {
                             $currentDate = \Carbon\Carbon::createFromFormat('Y-m-d', $currentDate);
                             $dueDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dueDate);
-                            /* if($dueDate->eq($currentDate)) {
-                                $remindDate = $currentDate;
-                                $emailType = "present";
-                            } else if($dueDate->gt($currentDate)) {
-                                $remindDate = $dueDate->subDays(7);
-                                $emailType = "future";
-                            } else if($dueDate->lt($currentDate)) {
-                                $remindDate = $dueDate->addDays(7);
-                                $emailType = "past";
-                            } else {
-                                $remindDate = "";
-                                $emailType = "";
-                            } */
 
                             $remindSetting = collect($invoice->invoice_setting['reminder'] ?? []);
                             if($dueDate->eq($currentDate)) { // For present due date
@@ -73,8 +60,30 @@ $CommonController= new App\Http\Controllers\CommonController();
                                 $remindDate = "";
                                 $emailType = "";
                             }
+
+                            /* $decodeReminders = encodeDecodeJson($invoice->invoice_reminders);
+                            if($decodeReminders) {
+                                if($dueDate->eq($currentDate)) { // For present due date
+                                    $onDue = $decodeReminders->where("remind_type", "on the due date")->where('is_reminded', 'no');
+                                    $remindDate = \Carbon\Carbon::createFromFormat('Y-m-d', $onDue->remind_at);
+                                    $emailType = "present";
+                                } else if($dueDate->gt($currentDate)) {
+                                    $dueIn = $decodeReminders->where('remind_type', 'due in')->where("is_reminded", "no")->sortByDesc('days')->first();                                    
+                                    dd($dueIn);
+                                    $remindDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dueIn->remind_at);
+                                    $emailType = "future";
+                                } else if($dueDate->lt($currentDate)) { // For past due date
+                                    $overDue = $decodeReminders->where('remind_type', 'overdue by')->where("is_reminded", "no")->where("remind_at", "<", date('Y-m-d'))->sortBy('days')->first();
+                                    $remindDate = \Carbon\Carbon::createFromFormat('Y-m-d', $overDue->remind_at);
+                                    $emailType = "past";
+                                } else {
+                                    $remindDate = "";
+                                    $emailType = "";
+                                }
+                            } */
                         }
                     @endphp
+                    
                     @if($remindDate)
                     Next automated reminder: {{ $remindDate->format("M d, Y") }}
                     @endif

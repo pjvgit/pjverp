@@ -412,6 +412,22 @@
 						</div>
 					</div>
 				</div>
+				@if($invoice->notes)
+				<div>
+					<div class="payable-detail-header">
+						<div class="payable-detail-line-header-name">Notes</div>
+					</div>
+					<div class="payable-detail__text">{{ $invoice->notes }}</div>
+				</div>
+				@endif
+				@if($invoice->terms_condition)
+				<div>
+					<div class="payable-detail-header">
+						<div class="payable-detail-line-header-name">Terms and Conditions</div>
+					</div>
+					<div class="payable-detail__text">{{ $invoice->terms_condition }}</div>
+				</div>
+				@endif
 			</div>
 		</div>
 	</section>

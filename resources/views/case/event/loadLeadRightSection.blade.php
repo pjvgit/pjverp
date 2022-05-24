@@ -19,7 +19,7 @@
                     foreach($caseCllientSelection as $key=>$val){?>
             <tr class="sharing-user">
                 <td class="d-flex  no-border "><span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
-                    <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="javascript:;"
+                    <a class="event-name d-flex align-items-center pop" tabindex="0" role="button" href="javascript:;"
                         data-toggle="popover" title=""
                         data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number.
                         </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{ route('lead_details/info', $val->id) }}'>Edit Info</a>"

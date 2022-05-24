@@ -2757,12 +2757,12 @@ class BillingController extends BaseController
                     $totalDeletedFlatFee = FlatFeeEntry::where('case_id', $case_id) ->where("flat_fee_entry.token_id","=",$request->token)->where("flat_fee_entry.remove_from_current_invoice","yes")->where('status', 'unpaid')->sum('cost');
                     if($totalUnpaidFlatFee > 0) {
                         $flatFeeAmount = $totalUnpaidFlatFee;
-                    }else if($totalDeletedFlatFee > 0) {
-                        $flatFeeAmount = $totalDeletedFlatFee;
+                    // }else if($totalDeletedFlatFee > 0) {
+                    //     $flatFeeAmount = $totalDeletedFlatFee;
                     }else{
                         $flatFeeAmount = $totalFlatFee;
                     }
-                    $remainFlatFee = $caseMaster->billing_amount - $flatFeeAmount;
+                    $remainFlatFee = $caseMaster->billing_amount - ($flatFeeAmount + $totalDeletedFlatFee);
                     // dd($caseMaster->billing_amount .' - '. $totalFlatFee .' - '. $remainFlatFee . ' - '.$totalUnpaidFlatFee);
                     if($remainFlatFee > 0 && $totalUnpaidEditFlatFee == 0) {
                         FlatFeeEntry::create([
@@ -2977,7 +2977,7 @@ class BillingController extends BaseController
                 }}
             }
             FlatFeeEntryForInvoice::where("flat_fee_entry_id", $id)->delete();
-            if($request->action=="delete" && $FlatFeeEntry->is_primary_flat_fee == 'no'){                
+            if($request->action=="delete" && $FlatFeeEntry->is_primary_flat_fee == 'no'){   
                 $FlatFeeEntry->token_id = $request->token_id;
                 $FlatFeeEntry->deleted_at = date('Y-m-d h:i:s');
                 $FlatFeeEntry->save();

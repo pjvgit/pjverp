@@ -4552,7 +4552,7 @@ class CaseController extends BaseController
 
 
         //Client List
-        $caseCllientSelection = User::select("first_name","last_name","id","parent_user","user_level")->where("id",$request->lead_id)->get();
+        $caseCllientSelection = User::select("first_name","last_name","id","parent_user","user_level","email","mobile_number")->where("id",$request->lead_id)->get();
         // $caseCllientSelection = User::leftJoin('lead_additional_info','lead_additional_info.user_id','=','users.id')->select("users.id","users.first_name","users.last_name","users.user_level","users.parent_user","lead_additional_info.client_portal_enable")->where("users.id",$request->lead_id)->get();
 
         //Load all staff

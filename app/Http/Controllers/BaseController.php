@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Validator, Response, Mail,Storage,DB;
 use App\User,App\CaseActivity,App\AccountActivity;
 use App\CaseClientSelection,App\ClientActivity,App\UsersAdditionalInfo;
+use App\Rules\UniqueEmail;
 use App\TaskTimeEntry,App\ExpenseEntry,App\ViewCaseState,App\CaseStaff,App\FlatFeeEntry;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -96,10 +97,13 @@ class BaseController extends Controller
         return FALSE;
     }
     public function validate_email(Request $request) {
-
+        $request->request->add(['user_id' => $request->id]);
         if ($request->input('email') !== '') {
             if ($request->input('email')) {
-                $rule = array('email' => 'Required|email|unique:users,email,'.$request->input('id').',id,deleted_at,NULL');
+                $rule = array(
+                    'email' => 'Required|email'/* |unique:users,email,'.$request->input('id').',id,deleted_at,NULL */,
+                    'email' => [new UniqueEmail()],
+                );
                 $validator = \Validator::make($request->all(), $rule);
             }
             if (!$validator->fails()) {
