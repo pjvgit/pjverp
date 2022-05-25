@@ -179,8 +179,7 @@ function convertTimeToUTCzone($str,$timezone){
 
 //TO USER
 function convertUTCToUserTime($str, $timezone){
-    $timestamp = $str;
-    $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, "UTC");
+    $date = Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
     $date->setTimezone($timezone ?? 'UTC');
     return $date->format("Y-m-d H:i:s");
 }

@@ -1112,8 +1112,9 @@ class CaseController extends BaseController
 
                     $CommonController= new CommonController();
                     $timezone=Auth::User()->user_timezone;
-                    $convertedDate=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($vv->created_at)),$timezone);
-                    $mainArray[$k]['created_at']=$convertedDate;
+                    // $convertedDate=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($vv->created_at)),$timezone);
+                    // $mainArray[$k]['created_at']=$convertedDate;
+                    $mainArray[$k]['created_at'] = $vv->created_at;
 
                     $caseCreatedAt=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($CaseMaster->created_at)),$timezone);
                     $caseCreatedDate=date('m-d-Y h:i a',strtotime($caseCreatedAt));
@@ -4818,6 +4819,7 @@ class CaseController extends BaseController
    }
    public function loadTaskPortion(Request $request)
    {
+    //    return $request->all();
         $case_id=$request->case_id;
         $task = Task::join("users","task.created_by","=","users.id")
         ->leftjoin("case_master","task.case_id","=","case_master.id")
@@ -4830,9 +4832,9 @@ class CaseController extends BaseController
         }else if(isset($request->status) && $request->status=="complete"){
             $task = $task->where("status","1");
         }else if(isset($request->print_task_range_from)){
-            $task = $task->orWhereBetween("task_due_on",[date('Y-m-d',strtotime($request->print_task_range_from)),date('Y-m-d',strtotime($request->print_task_range_to))]);
-            if(isset($request->include_without_due_date)){
-                $task = $task->Where("task_due_on",'9999-12-30');
+            $task = $task->whereBetween("task_due_on",[date('Y-m-d',strtotime($request->print_task_range_from)),date('Y-m-d',strtotime($request->print_task_range_to))]);
+            if(isset($request->include_without_due_date) && $request->include_without_due_date == "true"){
+                $task = $task->orWhere("task_due_on",'9999-12-30');
             }     
         }        
         $task = $task->where("task.created_by",Auth::user()->id);

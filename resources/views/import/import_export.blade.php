@@ -631,6 +631,17 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         });
     });
 
+/**
+ * CHange file input accept according to radio selection
+ */
+/* $('#importContactWithOptions input[type=radio][name=import_format]').change(function() {
+    if (this.value == 'vcf') {
+        $("#importContactWithOptions #upload_file").prop("accept", ".vcf");
+    }
+    else if (this.value == 'csv') {
+        $("#importContactWithOptions #upload_file").prop("accept", "image/*");
+    }
+}); */
 </script>
 @stop
 @endcan

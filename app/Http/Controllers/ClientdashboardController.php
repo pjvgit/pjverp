@@ -4564,6 +4564,7 @@ class ClientdashboardController extends BaseController
                     if(trim($csv_data[0][0])=="Case/Matter Name" && trim($csv_data[0][1]) =="Number" && trim($csv_data[0][2])=="Open Date" && trim($csv_data[0][3]) =="Practice Area" && trim($csv_data[0][4])=="Case Description" && trim($csv_data[0][5]) =="Case Closed" && trim($csv_data[0][6])=="Closed Date" && trim($csv_data[0][7]) =="Lead Attorney" && trim($csv_data[0][8])=="Originating Attorney" && trim($csv_data[0][9]) =="SOL Date" && trim($csv_data[0][10])=="Outstanding Balance" && trim($csv_data[0][11]) =="Case Stage" && trim($csv_data[0][12])=="Conflict Check?" && trim($csv_data[0][13]) =="Conflict Check Notes" && trim($csv_data[0][14])=="Note: <Imported Note 1>" && trim($csv_data[0][15]) =="Note: <Imported Note 2>"){                    
                     unset($csv_data[0]);
                     // dd($csv_data);
+                    $ClientCompanyImport=new ClientCompanyImport;
                     if(empty($csv_data) || trim($csv_data[1][0]) == ""){
                         $errorString='<ul><li>please fill the correct data into file. No blank data added into import.</li></ui>';
                         $ClientCompanyImport->error_code=$errorString;
@@ -4576,7 +4577,6 @@ class ClientdashboardController extends BaseController
                     $uploadFile = $request->upload_file;
                     $namewithextension = $uploadFile->getClientOriginalName(); 
 
-                    $ClientCompanyImport=new ClientCompanyImport;
                     $ClientCompanyImport->file_name=$namewithextension;
                     $ClientCompanyImport->total_record=count($csv_data);
                     $ClientCompanyImport->total_imported=0;

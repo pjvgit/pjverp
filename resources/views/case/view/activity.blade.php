@@ -4,6 +4,7 @@
     <?php 
     $t=0;
     $previous_date = null;
+    $userTimezone = auth()->user()->user_timezone ?? 'UTC';
     foreach($mainArray as $k=>$v){
         if (date('Y-m-d', strtotime($v['created_at']))  != $previous_date) {
             $previous_date = date('Y-m-d', strtotime($v['created_at']));
@@ -12,7 +13,7 @@
             <div>
                 <div class="bg-info" style="height: 100%; width: 3px; position: absolute; margin-left: 20px; margin-top: 5px; z-index: -10;" id="date-string-2021-09-23T00:00:00+05:30">
                 </div>
-                <span style="font-size: 100%;" class="badge badge-info">{{ date('M d', strtotime($v['created_at'])) }}</span>
+                <span style="font-size: 100%;" class="badge badge-info">{{ date('M d',strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($v['created_at'])), $userTimezone))) }}</span>
             </div>
             <div class="w-100 ml-2"><span class="text-muted "></span><br><br></div>
         </div>
@@ -44,7 +45,7 @@
             </div>
             <div class="w-100">
                 <div class="timeline-generic-row bill-row recent-activity-row">
-                    <div class="date-time text-muted">{{ date('H:i a', strtotime($v['created_at'])) }}</div>
+                    <div class="date-time text-muted">{{ date('h:i a',strtotime(convertUTCToUserTime($v['created_at'], $userTimezone))) }}</div>
                     <div class="d-flex align-items-center">
                     <i class="fa fa-pen-square text-info mr-1"></i>
                     <div class="d-flex flex-row"><a class="d-flex align-items-center user-link" href="{{ route('contacts/attorneys/info', base64_encode($v['created_id'])) }}"> {{$v['created_by']}} </a></div>
