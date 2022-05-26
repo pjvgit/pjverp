@@ -850,7 +850,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $isSet=localStorage.getItem("addTimeEntry");
         if($isSet!=""){
             $("#loadTimeEntryPopup").modal("show");
-            loadTimeEntryPopup();
+            // loadTimeEntryPopup();
+            loadTimeEntryPopupByCase('{{$CaseMaster->case_id}}');
         }
         localStorage.setItem("addTimeEntry","");
         $('[data-toggle="popover"]').popover();
@@ -1380,6 +1381,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $(".icon-angle-down").show();
     }
     function loadTimeEntryPopupForNotes(id) {
+        alert();
         $("#preloader").show();
         $("#addTimeEntry").html('');
         $(function () {

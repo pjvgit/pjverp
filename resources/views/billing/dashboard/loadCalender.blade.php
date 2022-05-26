@@ -22,6 +22,13 @@
                 editable: false,
                 eventLimit: true, // allow "more" link when too many events
                 events: function (start, end, timezone, callback) {
+                    var cDate = $("#calendarq").fullCalendar("getDate");
+                    var currentMonth = cDate.month() + 1; // fullcalendar month start from 0 to 11
+                    var currentYear = cDate.year();
+
+                    var view = $('#calendarq').fullCalendar('getView');
+                    var viewName = view.name;
+                    console.log(viewName);
                     $.ajax({
                         url: baseUrl + "/bills/dashboard/loadDataOnly",
                         type: 'POST',
@@ -53,7 +60,7 @@
                             var endDate=  end.format();
                             var type=$("#currentBox").val();
 
-                             callBakeC(startDate,endDate,type);
+                             callBakeC(startDate,endDate,type, currentMonth, currentYear, viewName); 
                         }
                     })
                 },

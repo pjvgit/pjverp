@@ -783,7 +783,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-    function AddContactModal() {
+    function AddContactModal1() {
         $("#preloader").show();
         $("#step-1-again").html('');
         $(function () {

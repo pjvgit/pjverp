@@ -145,8 +145,10 @@ class BillingController extends BaseController
             $case = $case->where("task_time_entry.created_by",Auth::User()->id);
         }
         if(isset($requestData['st']) && $requestData['st']!=''){
-            $case = $case->where("task_activity.title",'like', '%' . $requestData['st'] . '%');
-            $case = $case->orWhere("task_time_entry.description",'like', '%' . $requestData['st'] . '%');
+            $case = $case->where(function($query) use($requestData) {
+                $query->where("task_activity.title",'like', '%' . $requestData['st'] . '%');
+                $query->orWhere("task_time_entry.description",'like', '%' . $requestData['st'] . '%');
+            });
         }
 
         if(isset($requestData['i']) && $requestData['i']=='i'){
@@ -10336,14 +10338,19 @@ class BillingController extends BaseController
 
         $FinalArra=[];$monthTotal=$monthHours=0;
         // $startDate=date('Y-m-d',strtotime($request->start));
+        if($request->viewName == "month") {
+            $startDate = Carbon::create($request->year, $request->month)->startOfMonth()->format('Y-m-d');
+            $endDate = Carbon::create($request->year, $request->month)->lastOfMonth()->format('Y-m-d');
+        } else {
         $startDate = Carbon::parse($request->start)->addMonth(1)->format('Y-m-01');   
         $endDate=date('Y-m-d',strtotime($request->end));
+        }
         $monthTimeEntryData = TaskTimeEntry::select('task_time_entry.*')
         ->whereIn('created_by',$getChildUsers);
         if($request->forUser!=0){
             $monthTimeEntryData=$monthTimeEntryData->where('user_id',$request->forUser);
         }
-        $monthTimeEntryData=$monthTimeEntryData->whereBetween('entry_date',[$startDate,$endDate])
+        return $monthTimeEntryData=$monthTimeEntryData->whereBetween('entry_date',[$startDate,$endDate])
         ->get();
         foreach($monthTimeEntryData as $k1=>$v1){
             if($v1->time_entry_billable=="yes"){

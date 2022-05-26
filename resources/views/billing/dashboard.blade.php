@@ -881,7 +881,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             }
         })
     }
-    function loadSummary(start,end,type) {
+    function loadSummary(start,end,type, currentMonth, currentYear, viewName) {
         $('.showError').html('');
         
         $("#loadSummary").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
@@ -891,7 +891,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             data: {
                 start: start,
                 end: end,
-                type:type
+                type:type,
+                month: currentMonth,
+                year: currentYear,
+                viewName: viewName
             },
             success: function (res) {
             
@@ -926,8 +929,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             }
         })
     }
-    function callBakeC(start,end,type){
-        loadSummary(start,end,type);
+    function callBakeC(start,end,type, currentMonth, currentYear, viewName){
+        loadSummary(start,end,type, currentMonth, currentYear, viewName);
     }
     function loadTimeEntryPopup(currentDate) {
         $("#preloader").show();
