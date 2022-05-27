@@ -18,7 +18,7 @@
                     </ul>
                     <div>
                         <div id="step-1" class="p-3">
-                            <h1>{{ ($type == 'fundrequest') ? "Payment Request" : "Invoice" }} #{{ $payableRecordId }}</h1>
+                            <h1>{{ ($type == 'fundrequest') ? "Payment Request" : "Invoice" }} #{{ $showableId }}</h1>
                             @if(isset($month) && $month != '')
                                 @include('client_portal.billing.partial.load_credit_card_form')
                             @else

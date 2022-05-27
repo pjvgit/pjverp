@@ -179,10 +179,12 @@ class BillingController extends Controller
         $payableRecordId = encodeDecodeId($id, 'decode');
         $clientId = encodeDecodeId($client_id, 'decode');
         $invoice = ''; $fundRequest = '';
+        $showableId = $payableRecordId;
         if($type == 'invoice') {
             $invoice = Invoices::whereId($payableRecordId)->whereHas('invoiceShared', function($query) use($clientId) {
                 $query->where("user_id", $clientId)->where("is_shared", "yes");
             })->whereNotIn('status', ['Paid','Forwarded'])->with('invoiceFirstInstallment')->first();
+            $showableId = $invoice->unique_invoice_number;
         } elseif($type == 'fundrequest') {
             $fundRequest = RequestedFund::whereId($payableRecordId)->where('status', '!=', 'paid')->first();
         } else { }
@@ -199,7 +201,7 @@ class BillingController extends Controller
                 $payableAmount = str_replace( ',', '', $invoice->getInstallmentDueAmount() );
             }
             $onlinePaymentSetting = getFirmOnlinePaymentSetting();
-            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month', 'payableAmount', 'client', 'fundRequest', 'payableRecordId', 'type', 'onlinePaymentSetting'));
+            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month', 'payableAmount', 'client', 'fundRequest', 'payableRecordId', 'type', 'onlinePaymentSetting', 'showableId'));
         } else {
             return abort(403);
         }
