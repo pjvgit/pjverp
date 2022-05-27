@@ -1028,8 +1028,8 @@ class BillingController extends Controller
     public function conektaReferenceExpired($data)
     {
         Log::info("reference expired function enter");
-        try {
-            dbStart();
+        // try {
+        //     dbStart();
             Log::info("conekta order id: ". $data->data->object->id);
             $response = $data->data;
             $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
@@ -1044,23 +1044,25 @@ class BillingController extends Controller
                 if($invoice && $invoiceHistory) {
                     Log::info("ref. expired invoice and invoice history found");
                     // Update invoice payment status
+                    InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
                     DB::table("invoice_payment")->where('id', $invoiceHistory->invoice_payment_id)->update(['status' => '0']);
                     Log::info("invoice payment status updated");
                     
                     // Update invoice history status
+                    InvoiceHistory::whereId($invoiceHistory->id)->update(['acrtivity_title' => 'Payment Expired', 'online_payment_status' => 'expired']);
                     DB::table("invoice_history")->where('id', $paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Expired', 'online_payment_status' => 'expired']);
                     Log::info("invoice history detail updated");
                     
                     // Send reference expired email to client
                     $client = User::where('id', $paymentDetail->user_id)->first();
-                    if($paymentDetail->payment_method == 'cash') {
+                    /* if($paymentDetail->payment_method == 'cash') {
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $client, $emailTemplateId = 40, $paymentDetail, 'cash_reference_expired_client', 'invoice'));
                         Log::info('cash reference expired webhook successfull');
                     } else if($paymentDetail->payment_method == 'bank transfer') {
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $client, $emailTemplateId = 42, $paymentDetail, 'bank_reference_expired_client', 'invoice'));
                         Log::info('bank reference expired webhook successfull');
                     } else {
-                    }
+                    } */
                 }
             } else {
                 $paymentDetail = RequestedFundOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
@@ -1091,10 +1093,10 @@ class BillingController extends Controller
                 }
             }
             Log::info('reference expired webhook end');
-        } catch (Exception $e) {
-            dbEnd();
-            Log::info('Reference expired webhook failed: '. $e->getMessage());
-        }
+        // } catch (Exception $e) {
+        //     dbEnd();
+        //     Log::info('Reference expired webhook failed: '. $e->getMessage());
+        // }
     }
 
     /**
