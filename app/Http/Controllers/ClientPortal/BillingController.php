@@ -806,7 +806,7 @@ class BillingController extends Controller
                         [
                             'payment_method' => [
                                 'type'       => 'spei',
-                                'expires_at' => strtotime(Carbon::now()->addDays(7)),
+                                'expires_at' => strtotime(Carbon::now()->addHours(1)),
                             ],
                             'amount' => (int)$amount * 100,
                         ]
@@ -1028,8 +1028,8 @@ class BillingController extends Controller
     public function conektaReferenceExpired($data)
     {
         Log::info("reference expired function enter");
-        // try {
-        //     dbStart();
+        try {
+            dbStart();
             Log::info("conekta order id: ". $data->data->object->id);
             $response = $data->data;
             $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
@@ -1092,11 +1092,12 @@ class BillingController extends Controller
                     }
                 }
             }
+            dbCommit();
             Log::info('reference expired webhook end');
-        // } catch (Exception $e) {
-        //     dbEnd();
-        //     Log::info('Reference expired webhook failed: '. $e->getMessage());
-        // }
+        } catch (Exception $e) {
+            dbEnd();
+            Log::info('Reference expired webhook failed: '. $e->getMessage());
+        }
     }
 
     /**
