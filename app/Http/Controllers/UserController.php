@@ -56,7 +56,7 @@ class UserController extends BaseController
                 Auth::logoutOtherDevices($password);
                 $user = User::find(Auth::User()->id);
                 $url = redirect()->intended()->getTargetUrl();
-                if(strpos($url, 'client/bills/') !== false) { 
+                if(strpos($url, 'client/bills/') !== false/*  || strpos($url, 'client/tasks/') !== false */) { 
                     return redirect($url);
                 }
                 if($user->getUserFirms() > 1) {

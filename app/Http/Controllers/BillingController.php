@@ -1570,7 +1570,7 @@ class BillingController extends BaseController
             $user = [
                 "from" => FROM_EMAIL,
                 "from_title" => FROM_EMAIL_TITLE,
-                "subject" => "Reminder: Invoice #".$request->invoice_id." is available to view for ".$firmData->firm_name,
+                "subject" => "Reminder: Invoice #".$Invoices->invoice_id." is available to view for ".$firmData->firm_name,
                 "to" => $clientData->email,
                 "full_name" => "",
                 "mail_body" => $mail_body
@@ -4772,7 +4772,7 @@ class BillingController extends BaseController
                 }
             }
 
-            $invoiceNo = sprintf('%06d', $findInvoice->unique_invoice_number);
+            $invoiceNo = $findInvoice->invoice_id;
             $invoiceSetting = $findInvoice->invoice_setting;
             $invoiceDefaultSetting = getInvoiceSetting();
             if($request->ajax()) {

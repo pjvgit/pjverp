@@ -22,7 +22,7 @@ class InvoiceInstallment extends Authenticatable
     public function getInvoiceNumberAttribute(){
         if(isset($this->invoice_id)){
             // return sprintf("%05d", $this->invoice_id);
-            return sprintf("%05d", $this->invoice->unique_invoice_number);
+            return sprintf("%06d", $this->invoice->unique_invoice_number);
         }else{
             return "";
         }

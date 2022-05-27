@@ -1,6 +1,5 @@
 @extends('layouts.master')
-<?php $s = sprintf('%06d', $findInvoice->unique_invoice_number);?>
-@section('title', 'Edit Invoice #'.$s.' - Invoices - Billing')@section('main-content')
+@section('title', 'Edit Invoice #'.$findInvoice->invoice_id.' - Invoices - Billing')@section('main-content')
 @include('billing.submenu')
 <div class="separator-breadcrumb border-top"></div>
 <div class="row">
@@ -32,8 +31,7 @@ $nonBillableAmount = 0;
                 <div class="card-body" id="main_content">
                     <span id="responseMain"></span>
                     <div class="d-flex align-items-center pb-3">
-                        <?php $s = sprintf('%06d', $findInvoice->unique_invoice_number);?>
-                        <h4 class="my-0">Invoice #{{$s}}</h4>
+                        <h4 class="my-0">Invoice #{{ $findInvoice->invoice_id }}</h4>
                         
                           <div class="ml-auto">
                             <a class="btn btn-link text-black-50" target="_blank" href="{{route('billing/settings')}}">Manage Firm Invoice Settings</a>
@@ -98,10 +96,7 @@ $nonBillableAmount = 0;
                                         Invoice #</td>
                                     <td>
                                         <div class="form_control" style="width: 200px;">
-                                            <?php 
-                                            $formatted_value = sprintf("%06d", $findInvoice->unique_invoice_number);
-                                            ?>
-                                            <input class="form-control" name="invoice_number_padded" value="{{$formatted_value}}">
+                                            <input class="form-control" name="invoice_number_padded" value="{{ $findInvoice->invoice_id }}">
                                         </div>
                                     </td>
                                 </tr>

@@ -45,7 +45,7 @@ $finalAmt=$invoice-$paid;
                             <tr style="padding-left: 4px;">
                                 <td scope="col" style="width: 10%;text-align:right;"><b>Invoice #:</b></td>
                                 <td scope="col" style="width: 10%;text-align:left;">
-                                    {{sprintf('%06d', $valueData['Invoice']['id'])}}</td>
+                                    {{sprintf('%06d', $valueData['Invoice']['unique_invoice_number'])}}</td>
                             </tr>
 
 

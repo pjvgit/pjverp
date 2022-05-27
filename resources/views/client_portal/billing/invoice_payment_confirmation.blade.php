@@ -26,7 +26,7 @@
                             <div class="row text-center o-hidden">
                                 <div class="col-md-12">
                                     <h4>@lang('billing.confirm_note_1', ['amount' => number_format($paymentDetail->amount ?? 0, 2)])</h4>
-                                    <p>@lang('billing.confirm_note_2') {{ ($payableType == 'fundrequest') ? 'Request #'.$paymentDetail->fund_request_id : 'Invoice #'.$paymentDetail->invoice_id}}</p>
+                                    <p>@lang('billing.confirm_note_2') {{ ($payableType == 'fundrequest') ? 'Request #'.$paymentDetail->fund_request_id : 'Invoice #'.$invoice->invoice_id}}</p>
                                     <p>@lang('billing.confirm_note_3')</p>
                                     <p>@lang('billing.confirm_note_4')</p>  
                                 </div>
@@ -65,7 +65,7 @@
                                     </div>
                                 </div>
                                 <h4 class="text-center">CONCEPTO DE SU PAGO<br></h4>
-                                <div class="text-center">{{ ($payableType == 'fundrequest') ? 'Request #'.$paymentDetail->fund_request_id : 'Invoice #'.$paymentDetail->invoice_id}}<br>
+                                <div class="text-center">{{ ($payableType == 'fundrequest') ? 'Request #'.$paymentDetail->fund_request_id : 'Invoice #'.$invoice->invoice_id}}<br>
                                     <button type="button" class="btn btn-info" onclick="printDiv('cash-pay')">Imprimir Comprobante</button>
                                 </div>
                             </div>
@@ -89,7 +89,7 @@
                                             <li>La CLABE que le hemos proporcionado es dinámica y de un solo uso. Si en el futuro quiere hacer otro SPEI o TEF, deberá generar otro comprobante igual a este para que reciba otra CLABE nueva.</li>
                                         </ol>                                                                
                                         <div class="text-center">
-                                            <h2>Concepto de su Pago</h2>{{ ($payableType == 'fundrequest') ? 'Request #'.$paymentDetail->fund_request_id : 'Invoice #'.$paymentDetail->invoice_id}}<br>
+                                            <h2>Concepto de su Pago</h2>{{ ($payableType == 'fundrequest') ? 'Request #'.$paymentDetail->fund_request_id : 'Invoice #'.$invoice->invoice_id}}<br>
                                             <br>
                                             <img src="{{ asset('images/payment/spei.jpg') }}" alt="SPEI">
                                             <br><br> 

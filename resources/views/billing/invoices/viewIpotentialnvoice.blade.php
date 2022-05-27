@@ -2,7 +2,7 @@
 @section('title', 'Invoice')
 @section('main-content')
 @include('billing.submenu')
-<?php $s = sprintf('%06d', $findInvoice->id);?>
+<?php $s = sprintf('%06d', $findInvoice->unique_invoice_number);?>
 
 <div class="separator-breadcrumb border-top"></div>
 <div class="row">

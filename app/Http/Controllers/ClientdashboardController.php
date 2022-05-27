@@ -1978,29 +1978,31 @@ class ClientdashboardController extends BaseController
         // ->whereIn("id",$CaseMasterCompanyList)
         // ->get();
 
-
+        $authUser = auth()->user();
         //For company list
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_status");
-        if(Auth::user()->parent_user==0){
+        /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
             $CaseMasterCompany = $CaseMasterCompany->whereIn("parent_user",$getChildUsers);              
         }else{
             $CaseMasterCompany = $CaseMasterCompany->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
-        }
+        } */
+        $CaseMasterCompany = $CaseMasterCompany->where('firm_name', $authUser->firm_name);
         $CaseMasterCompany=$CaseMasterCompany->where('user_level',"4")->whereIn('user_status',["1","2"])->get();
         
         //Get client list with client enable portal is active
          $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as id");
         $user = $user->where("user_level","2"); //Load all client 
 
-        if(Auth::user()->parent_user==0){
+        /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
             $user = $user->whereIn("parent_user",$getChildUsers);
         }else{
             $user = $user->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
-        }
+        } */
+        $user = $user->where('firm_name', $authUser->firm_name);
         $user = $user->whereIn("users.user_status",[1,2]);
         $clientLists=$user->get();
 

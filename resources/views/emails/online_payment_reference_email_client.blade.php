@@ -13,7 +13,7 @@
     if($payableType == 'fundrequest') {
         $content = str_replace('[PAYABLE_ID]', 'Request #'.$onlinePayment->fund_request_id, $content);
     } else if($payableType == 'invoice') {
-        $content = str_replace('[PAYABLE_ID]', 'Invoice #'.@$payableRecord->unique_invoice_number, $content);
+        $content = str_replace('[PAYABLE_ID]', 'Invoice #'.@$payableRecord->invoice_id, $content);
     } else {
         $content = str_replace('[PAYABLE_ID]', 'Client#'.$onlinePayment->user_id, $content);
     }
