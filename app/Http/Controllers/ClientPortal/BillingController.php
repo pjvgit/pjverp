@@ -619,7 +619,7 @@ class BillingController extends Controller
                         [
                             'payment_method' => [
                                 'type'       => 'oxxo_cash',
-                                'expires_at' => strtotime(Carbon::now()->addDays(1)),
+                                'expires_at' => strtotime(Carbon::now()->addHours(1)),
                             ],
                             'amount' => (int)$amount * 100,
                         ]
@@ -1055,14 +1055,14 @@ class BillingController extends Controller
                     
                     // Send reference expired email to client
                     $client = User::where('id', $paymentDetail->user_id)->first();
-                    /* if($paymentDetail->payment_method == 'cash') {
+                    if($paymentDetail->payment_method == 'cash') {
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $client, $emailTemplateId = 40, $paymentDetail, 'cash_reference_expired_client', 'invoice'));
                         Log::info('cash reference expired webhook successfull');
                     } else if($paymentDetail->payment_method == 'bank transfer') {
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $client, $emailTemplateId = 42, $paymentDetail, 'bank_reference_expired_client', 'invoice'));
                         Log::info('bank reference expired webhook successfull');
                     } else {
-                    } */
+                    }
                 }
             } else {
                 $paymentDetail = RequestedFundOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();

@@ -21,7 +21,7 @@
         } else {
             $content = str_replace('[CASE_TITLE]', 'None', $content);
         }
-        $content = str_replace('[PAYABLE_ID]', 'Invoice #'.$payableRecord->id, $content);
+        $content = str_replace('[PAYABLE_ID]', 'Invoice #'.@$payableRecord->unique_invoice_number, $content);
         $content = str_replace('[INVOICE_LINK]', '<a href="'.route('bills/invoices/view', base64_encode($onlinePayment->invoice_id)).'" >View</a>', $content);
     } else if($payableType == 'fund') {
         $content = str_replace('[CLIENT_NAME]', @$payableRecord->full_name ?? '', $content);

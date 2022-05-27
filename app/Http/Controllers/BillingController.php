@@ -4679,6 +4679,10 @@ class BillingController extends BaseController
         $authUser = auth()->user();
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->where('firm_id', $authUser->firm_name)->first();
+        $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", 'ord_2rsfShJBhfeu82zNV')->first();
+        $client = User::where('id', $paymentDetail->user_id)->first();
+        $this->dispatch(new OnlinePaymentEmailJob($findInvoice, $client, $emailTemplateId = 40, $paymentDetail, 'cash_reference_expired_client', 'invoice'));
+        
         if(!empty($findInvoice)){
         $case = CaseMaster::whereId($findInvoice->case_id);
         if($authUser->parent_user != 0) {

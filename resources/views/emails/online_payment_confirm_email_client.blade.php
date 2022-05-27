@@ -15,7 +15,7 @@
             $content = str_replace('[INVOICE_LINK]', route('client/bills/request/detail', base64_encode($payableRecord->id)), $content);
         }
     } else if($payableType == 'invoice'){
-        $content = str_replace('[PAYABLE_ID]', 'Invoice #'.$onlinePayment->invoice_id, $content);
+        $content = str_replace('[PAYABLE_ID]', 'Invoice #'.@$payableRecord->unique_invoice_number, $content);
         if(isset($payableRecord)) {
             $content = str_replace('[INVOICE_LINK]', route('client/bills/detail', $payableRecord->decode_id), $content);
         }

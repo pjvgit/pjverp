@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Invoices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -35,11 +36,14 @@ class OnlinePaymentMail extends Mailable
      */
     public function build()
     {
+        if($this->payableType == 'invoice' && $this->payableRecord == null) {
+            $this->payableRecord = Invoices::whereId()->first();
+        }
         switch ($this->userType) {
             case 'client':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                ->markdown('emails.online_payment_confirm_email_client', ['payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
             case 'user':
                 return $this
@@ -49,12 +53,12 @@ class OnlinePaymentMail extends Mailable
             case 'cash_reference_client':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.online_payment_reference_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                ->markdown('emails.online_payment_reference_email_client', ['payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
             case 'cash_confirm_client':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                ->markdown('emails.online_payment_confirm_email_client', ['payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
             case 'cash_confirm_user':
                 return $this
@@ -64,12 +68,12 @@ class OnlinePaymentMail extends Mailable
             case 'cash_payment_reminder_client':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                ->markdown('emails.online_payment_confirm_email_client', ['payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
             case 'cash_reference_expired_client':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.online_payment_confirm_email_client', ['payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                ->markdown('emails.online_payment_confirm_email_client', ['payableRecord' => $this->payableRecord, 'payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
             case 'bank_reference_client':
                 return $this
@@ -79,7 +83,7 @@ class OnlinePaymentMail extends Mailable
             case 'bank_confirm_client':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                ->markdown('emails.online_payment_confirm_email_client', ['payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
             case 'bank_confirm_user':
                 return $this
@@ -94,12 +98,12 @@ class OnlinePaymentMail extends Mailable
             case 'bank_payment_reminder_client':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                ->markdown('emails.online_payment_confirm_email_client', ['payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
             case 'client_credit_card_refund':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
+                ->markdown('emails.online_payment_confirm_email_client', ['payableRecord' => $this->payableRecord, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment, 'payableType' => $this->payableType]);
                 break;
             default:
                 # code...
