@@ -1044,12 +1044,12 @@ class BillingController extends Controller
                 if($invoice && $invoiceHistory) {
                     Log::info("ref. expired invoice and invoice history found");
                     // Update invoice payment status
-                    InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
+                    // InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
                     DB::table("invoice_payment")->where('id', $invoiceHistory->invoice_payment_id)->update(['status' => '0']);
                     Log::info("invoice payment status updated");
                     
                     // Update invoice history status
-                    InvoiceHistory::whereId($invoiceHistory->id)->update(['acrtivity_title' => 'Payment Expired', 'online_payment_status' => 'expired']);
+                    // InvoiceHistory::whereId($invoiceHistory->id)->update(['acrtivity_title' => 'Payment Expired', 'online_payment_status' => 'expired']);
                     DB::table("invoice_history")->where('id', $paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Expired', 'online_payment_status' => 'expired']);
                     Log::info("invoice history detail updated");
                     
