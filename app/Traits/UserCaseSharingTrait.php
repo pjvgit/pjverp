@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\EventRecurring;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 trait UserCaseSharingTrait {
 
@@ -19,7 +20,8 @@ trait UserCaseSharingTrait {
         if($eventRecurrings) {
             foreach($eventRecurrings as $key => $item) {
                 $decodeStaff = encodeDecodeJson($item->event_linked_staff);
-                if($decodeStaff->where('user_id', $staffUserId)->where('is_linked', 'no')->first()) {
+                $checkUserExist = $decodeStaff->where("user_id", (string)$staffUserId)->where('is_linked', 'no')->first();
+                if($checkUserExist) {
                     $newArray = [];
                     foreach($decodeStaff as $skey => $sitem) {
                         if($sitem->user_id == $staffUserId) {
@@ -32,7 +34,7 @@ trait UserCaseSharingTrait {
                 } else {
                     $eventLinkedStaff = [
                         'event_id' => $item->event_id,
-                        'user_id' => $staffUserId,
+                        'user_id' => (string)$staffUserId,
                         'is_linked' => 'yes',
                         'attending' => "no",
                         'comment_read_at' => Carbon::now(),
@@ -115,6 +117,33 @@ trait UserCaseSharingTrait {
                     }
                 }
                 $item->fill(['event_linked_contact_lead' => encodeDecodeJson($newArray, 'encode')])->save();
+            }
+        }
+    }
+
+    /**
+     * Re-assign user events to new user when firm user deactivate
+     */
+    public function reAssignEventToNewUser($oldUserId, $newUserId)
+    {
+        $eventRecurrings = EventRecurring::whereJsonContains('event_linked_staff', ["user_id" => (string)$oldUserId])->has('event')->get();
+        if($eventRecurrings) {
+            Log::info("event recurrings found");
+            foreach($eventRecurrings as $ekey => $item) {
+                $decodeStaff = encodeDecodeJson($item->event_linked_staff);
+                // $checkUserExist = $decodeStaff->where("user_id", $oldUserId)->first();
+                // if($checkUserExist) {
+                    Log::info("user found in linked list");
+                    $newArray = [];
+                    foreach($decodeStaff as $skey => $sitem) {
+                        if($sitem->user_id == $oldUserId) {
+                            $sitem->user_id = $newUserId;
+                            $sitem->is_read = 'no';
+                        }
+                        $newArray[] = $sitem;
+                    }
+                    $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
+                // }
             }
         }
     }

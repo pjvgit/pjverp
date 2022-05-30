@@ -24,17 +24,17 @@ class AuthController extends Controller
         $verifyUser = User::where('token', $token)->first();
         
         if(isset($verifyUser) ) {
-            if($this->updateSameEmailUserDetail($verifyUser)) {
-                return redirect()->route('get/client/profile', $token);
+            if(isset($request->forgot_password)) {
+                return view("client_portal.auth.forgot_password", ['user' => $verifyUser]);
             } else {
-                if($verifyUser->user_status == 1 && $verifyUser->verified == 1 && $verifyUser->last_login){
+                if($this->updateSameEmailUserDetail($verifyUser)) {
                     return redirect()->route('get/client/profile', $token);
-                }else{
-                    if($request->forgot_password) {
-                        return view("client_portal.auth.forgot_password", ['user' => $verifyUser]);
-                    } else {
-                        $status = EMAIL_VERIFIED;
-                        return redirect()->route('setup/client/profile', $token);
+                } else {
+                    if($verifyUser->user_status == 1 && $verifyUser->verified == 1 && $verifyUser->last_login){
+                        return redirect()->route('get/client/profile', $token);
+                    }else{
+                            $status = EMAIL_VERIFIED;
+                            return redirect()->route('setup/client/profile', $token);
                     }
                 }
             }

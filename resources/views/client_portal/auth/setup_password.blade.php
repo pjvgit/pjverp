@@ -36,6 +36,7 @@
                         <div class="col-12 col-sm-7">
                             <input autocomplete="off" class="form-control" type="password" name="password_confirmation" id="activation_form_password_confirmation">
                             <div class="form-control-feedback invisible"></div>
+                            
                             <a href="{{ route('client/activate/account', $user->token) }}?forgot_password=true">Forgot password?</a>
                         </div>
                     </div>
@@ -78,7 +79,6 @@ $(document).ready(function () {
         rules: {
             password_confirmation: {
                 required: true,
-                maxlength: 20,
             },
             client_terms_acknowledgement: {
                 required: true,

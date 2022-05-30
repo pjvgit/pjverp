@@ -257,7 +257,7 @@ class ContractController extends BaseController
 
         // Link user with events
         if(isset($request->sharing_setting_1)) {
-            $this->shareEventToUser($request->case_id, $request->user_id, (isset($request->sharing_setting_2)) ? 'yes' : 'no');
+            $this->shareEventToUser($request->case_list, $user->id, (isset($request->sharing_setting_2)) ? 'yes' : 'no');
             /* $eventRecurrings = EventRecurring::whereHas('event', function($query) use($request) {
                 $query->where('case_id', $request->case_id)->where('is_event_private', 'no');
             })->get();
@@ -762,7 +762,9 @@ class ContractController extends BaseController
                         CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->user_id], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
-                    
+                // Assign events to new user
+                $this->reAssignEventToNewUser($request->user_id, $request->assign_to);
+
                 // CaseStaff::where('user_id',$request->user_id)->delete();
                 // CaseTaskLinkedStaff::where('user_id',$request->user_id)->delete();
             }
@@ -839,6 +841,30 @@ class ContractController extends BaseController
                         CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $user_id], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
+
+                // Re-assign events 
+                // $this->reAssignEventToNewUser($user_id, $request->assign_to);
+                return $eventRecurrings = EventRecurring::whereJsonContains('event_linked_staff', ["user_id" => (string)$user_id])->has('event')->get();
+                if($eventRecurrings) {
+                    Log::info("event recurrings found");
+                    foreach($eventRecurrings as $ekey => $item) {
+                        $decodeStaff = encodeDecodeJson($item->event_linked_staff);
+                        // $checkUserExist = $decodeStaff->where("user_id", $oldUserId)->first();
+                        // if($checkUserExist) {
+                            Log::info("user found in linked list");
+                            $newArray = [];
+                            foreach($decodeStaff as $skey => $sitem) {
+                                if($sitem->user_id == $user_id) {
+                                    $sitem->user_id = $request->assign_to;
+                                    $sitem->is_read = 'no';
+                                }
+                                $newArray[] = $sitem;
+                            }
+                            $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
+                        // }
+                    }
+                }
+
                 // CaseStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
                 // CaseTaskLinkedStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
                 session(['popup_success' => 'Transferring tasks and events for selected user. It may take a couple minutes for this to complete.']);
