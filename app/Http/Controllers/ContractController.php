@@ -843,27 +843,7 @@ class ContractController extends BaseController
                 }
 
                 // Re-assign events 
-                // $this->reAssignEventToNewUser($user_id, $request->assign_to);
-                return $eventRecurrings = EventRecurring::whereJsonContains('event_linked_staff', ["user_id" => (string)$user_id])->has('event')->get();
-                if($eventRecurrings) {
-                    Log::info("event recurrings found");
-                    foreach($eventRecurrings as $ekey => $item) {
-                        $decodeStaff = encodeDecodeJson($item->event_linked_staff);
-                        // $checkUserExist = $decodeStaff->where("user_id", $oldUserId)->first();
-                        // if($checkUserExist) {
-                            Log::info("user found in linked list");
-                            $newArray = [];
-                            foreach($decodeStaff as $skey => $sitem) {
-                                if($sitem->user_id == $user_id) {
-                                    $sitem->user_id = $request->assign_to;
-                                    $sitem->is_read = 'no';
-                                }
-                                $newArray[] = $sitem;
-                            }
-                            $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
-                        // }
-                    }
-                }
+                $this->reAssignEventToNewUser($user_id, $request->assign_to);
 
                 // CaseStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
                 // CaseTaskLinkedStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
