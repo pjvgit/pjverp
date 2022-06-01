@@ -16,7 +16,7 @@ trait UserTrait {
     {
         $existVerifiedUser = User::whereEmail($user->email)->whereVerified(1)->whereNotNull('password')->first();
         if($existVerifiedUser) {
-            $user->user_status = 1;
+            $user->user_status = '1';
             $user->verified = 1;
             $user->password = $existVerifiedUser->password;
             $user->user_timezone = $existVerifiedUser->user_timezone;

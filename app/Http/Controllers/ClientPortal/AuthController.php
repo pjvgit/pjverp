@@ -139,7 +139,7 @@ class AuthController extends Controller
                 $data['user_id']= $user->id;
                 $data['client_id']= $user->id;
                 $data['activity']='logged in to LegalCase';
-                $data['activity_for']=$request->invoice_id;
+                $data['activity_for']=$user->id;
                 $data['type']='user';
                 $data['action']='login';
                 $CommonController= new CommonController();
@@ -254,6 +254,67 @@ class AuthController extends Controller
             return response()->json(['view' => $view, 'success' => true]);
         } catch (Exception $e) {
             return response()->json(['error' => true, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Save reset password
+     */
+    public function resetPassword($token, Request $request)
+    {
+        // return $request->all();
+        $request->validate([
+            'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
+            'confirm_password' => 'required|min:6',
+        ]);
+
+        $user =  User::where(["token" => $token])->with('userAdditionalInfo')->first();
+
+        if(isset($user) ) {
+            $user->fill([
+                'password' => Hash::make(trim($request->password)),
+                'verified'=>"1",
+                'user_status'=>"1",
+            ])->save();
+
+            // Update same email passwords
+            User::where("email", $user->email)->update(['password' => Hash::make(trim($request->password))]);
+
+            Auth::loginUsingId($user->id);
+            if (Auth::check()) {
+                if($user->user_status == '1') {
+                    if($user->user_level == '2' && $user->userAdditionalInfo->client_portal_enable == '1') { 
+                        $redirectUrl = "client/home";
+                    } else {
+                        $redirectUrl = "dashboard";
+                    }
+                    session(['layout' => 'horizontal']);
+                    $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                    $user->save();
+
+                    // Add history
+                    $data=[];
+                    $data['user_id']= $user->id;
+                    $data['client_id']= $user->id;
+                    $data['activity']='logged in to LegalCase';
+                    $data['activity_for']=$user->id;
+                    $data['type']='user';
+                    $data['action']='login';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
+                    return redirect()->route($redirectUrl)->with('success','Login Successfully');
+                } else {
+                    Auth::logout();
+                    session()->flush();
+                    return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+                }
+            } else {
+                session()->flush();
+                return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+            }
+        }else{
+            session()->flush();
+            return redirect('login')->with('warning', INACTIVE_ACCOUNT);
         }
     }
 }

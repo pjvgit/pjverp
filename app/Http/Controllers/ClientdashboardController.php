@@ -4558,6 +4558,7 @@ class ClientdashboardController extends BaseController
         }else{
             $path = $request->file('upload_file')->getRealPath();
             $csv_data = array_map('str_getcsv', file($path));
+            // return $csv_data;
             if(!empty($csv_data)){
                 if(count($csv_data) >= 1000){
                     return response()->json(['errors'=>'We recommend importing less than 1000 records at a time or the import may error out. If you have more than 1000 records to import, we suggest breaking the import up into multiple spreadsheets and try again']);
@@ -4591,7 +4592,7 @@ class ClientdashboardController extends BaseController
 
                     $waringCount = 0;
                     $caseArray = [];
-                    try{   
+                    // try{   
                     $errorString='<ul>';                     
                         foreach($csv_data as $key=>$val){
                             $caseArray[$key]['case_title'] = $val[0];
@@ -4611,7 +4612,7 @@ class ClientdashboardController extends BaseController
                             $caseArray[$key]['case_note_1'] = $val[14];
                             $caseArray[$key]['case_note_2'] = $val[15];
                         }
-
+                        // return $caseArray;
                         $ic=0;
                         foreach($caseArray as $finalOperationKey=>$finalOperationVal){
                             
@@ -4686,10 +4687,10 @@ class ClientdashboardController extends BaseController
                             $data['action']='add';
                             $CommonController= new CommonController();
                             $CommonController->addMultipleHistory($data);
-
+                            $authUser = auth()->user();
                             if($finalOperationVal['lead_attorney'] != ''){
                                 $leadName = explode(" ",$finalOperationVal['lead_attorney']);
-                                $leadAttorney = User::where('first_name','like','%'.$leadName[0].'%')->where('last_name','like','%'.$leadName[1].'%')->select('id')->first(); 
+                                $leadAttorney = User::where('first_name','like','%'.@$leadName[0].'%')->where('last_name','like','%'.@$leadName[1].'%')->where('firm_name', $authUser->firm_name)->select('id')->first(); 
                                 if(!empty($leadAttorney)){
                                     $CaseStaff = new CaseStaff;
                                     $CaseStaff->case_id=$CaseMaster->id; 
@@ -4699,7 +4700,7 @@ class ClientdashboardController extends BaseController
 
                                     if($finalOperationVal['originating_attorney'] != ''){
                                         $originatingName = explode(" ",$finalOperationVal['originating_attorney']);
-                                        $originatingAttorney = User::where('first_name','like','%'.$originatingName[0].'%')->where('last_name','like','%'.$originatingName[1].'%')->select('id')->first(); 
+                                        $originatingAttorney = User::where('first_name','like','%'.@$originatingName[0].'%')->where('last_name','like','%'.@$originatingName[1].'%')->where('firm_name', $authUser->firm_name)->select('id')->first(); 
                                         if(!empty($originatingAttorney)){
                                             $CaseStaff->originating_attorney=$originatingAttorney->id; 
                                         }else{
@@ -4851,12 +4852,12 @@ class ClientdashboardController extends BaseController
                         $CommonController= new CommonController();
                         $CommonController->addMultipleHistory($data);
 
-                    }  catch (\Exception $e) {
+                    /* }  catch (\Exception $e) {
                         $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
                         $ClientCompanyImport->error_code=$errorString;
                         $ClientCompanyImport->status=2;
                         $ClientCompanyImport->save();
-                    }
+                    } */
                 }else{
                     return response()->json(['errors'=>'Wrong file use for imports because columns are not matched. Make sure that you are copying the data into the right columns. Please Use Legal Case Import Template Spreadsheet... ',]);
                     exit;

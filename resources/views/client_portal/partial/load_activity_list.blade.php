@@ -3,7 +3,7 @@
     <a href="{{ route('client/bills/detail',base64_encode($item->activity_for)) }}"><i class="fas fa-dollar-sign list-row__icon"></i>
         <div class="list-row__body">
             <span class="list-row__wrappable-content">{{ @$item->createdByUser->full_name}} {{ $item->activity }} 
-                <span class="u-color-primary">#{{ $item->invoice->invoice_id }}</span>
+                <span class="u-color-primary">#{{ @$item->invoice->invoice_id }}</span>
             </span><br>
             <span class="list-row__header-detail">{{ date('M d, Y h:i A', strtotime($item->formated_created_at)) }}</span>
         </div>

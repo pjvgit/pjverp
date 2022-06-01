@@ -457,6 +457,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         </label>
                         <br>
                     </div>
+                    {{-- <div class="alert alert-warning mt-2">Performing this action more than once choosing different users, will result in tasks and events with multiple assignees and attendees.</div> --}}
                     <div class="col-md-12" >
                         <div class="d-flex justify-content-end mt-3">
                             <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>

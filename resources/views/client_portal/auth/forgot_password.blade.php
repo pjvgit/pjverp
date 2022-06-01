@@ -9,7 +9,7 @@
     <div class="col-md-12">
         <div class="modal-content">
 
-            <form class="no_validate" id="activation_form" action="{{ route('save/client/profile', $user->token) }}" method="post">
+            <form class="no_validate" id="activation_form" action="{{ route('reset/password', $user->token) }}" method="post">
                 @csrf
                 <div class="modal-body">
                   <div class="form-group">
@@ -33,30 +33,10 @@
                       <label for="activation_form_password_confirmation">Confirm password</label>
                     </div>
                     <div class="col-12 col-sm-7">
-                      <input autocomplete="off" class="form-control" type="password" name="password_confirmation" id="activation_form_password_confirmation">
+                      <input autocomplete="off" class="form-control" type="password" name="confirm_password" id="activation_form_password_confirmation">
                       <div class="form-control-feedback hidden-xs-up"></div>
                     </div>
                   </div>
-              
-                    <div class="form-group row ">
-                        <div class="col-12">
-                            <input name="client_terms_acknowledgement" type="hidden" value="0">
-                            <input type="checkbox" value="1" name="client_terms_acknowledgement" id="activation_form_client_terms_acknowledgement"> 
-                            <label for="activation_form_client_terms_acknowledgement">I Have Read &amp; Accept the <a target="_blank" class="btn-link" href="{{ route('terms/client/portal') }}">Terms &amp; Conditions</a> (including E-SIGN)</label>
-                            <span class="terms-error"></span>
-                        </div>
-                        <div class="col-12 form-control-feedback invisible"></div>
-                    </div>
-                    <div class="form-group row ">
-                        <div class="col-12">
-                            <input name="client_privacy_acknowledgement" type="hidden" value="0">
-                            <input type="checkbox" value="1" name="client_privacy_acknowledgement" id="activation_form_client_privacy_acknowledgement"> 
-                            <label for="activation_form_client_privacy_acknowledgement">I Have Read &amp; Accept the <a target="_blank" class="btn-link" href="{{ route('privacy') }}">Privacy Policy</a></label>
-                            <span class="privacy-error"></span>
-                        </div>
-                        <div class="col-12 form-control-feedback invisible"></div>
-                    </div>
-                    <input type="text" name="time_zone" id="activation_form_time_zone" value="">
                 </div>
                 <div class="modal-footer">
                     <button id="activation-form-submit" type="submit" class="btn btn-primary">Log In</button>
@@ -79,49 +59,25 @@ $(document).ready(function () {
             password: {
                 required: true,
                 minlength: 6,
-                maxlength: 20,
+                // maxlength: 20,
             },
-            password_confirmation: {
+            confirm_password: {
                 required: true,
                 minlength: 6,
-                maxlength: 20,
+                // maxlength: 20,
                 equalTo : "#activation_form_password"
-            },
-            client_terms_acknowledgement: {
-                required: true,
-            },
-            client_privacy_acknowledgement:{
-                required:true
             },
         },
         messages: {
-            password_confirmation: {
+            confirm_password: {
                 equalTo : "Please enter the same password again."
             },
         },
         errorPlacement: function (error, element) {
-            if (element.is('#activation_form_client_terms_acknowledgement')) {
-                error.insertAfter('.terms-error');
-            }else if (element.is('#activation_form_client_privacy_acknowledgement')) {
-                error.insertAfter('.privacy-error');
-            } else {
                 element.after(error);
-            }
         }
     });
 });
 
-// For timezone
-var timezone_offset_minutes = new Date().getTimezoneOffset();
-timezone_offset_minutes = timezone_offset_minutes == 0 ? 0 : -timezone_offset_minutes;
-$.ajax({
-    url: "{{ route('get/timezone') }}",
-    type: "POST",
-    global: false,
-    data: {timezone_offset_minutes: timezone_offset_minutes, _token: $('meta[name="csrf-token"]').attr('content')},
-    success: function(data) {
-        $("#activation_form_time_zone").val(data);
-    }
-});
 </script>
 @stop

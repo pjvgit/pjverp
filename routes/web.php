@@ -23,13 +23,13 @@ Route::get('mail', function () {
     return view('emails.invitation-email');
 });
 
-Route::get("events", function() {
+/* Route::get("events", function() {
     return view("errors.maintenance");
 })->name('events/');
 
 Route::get('court_cases/{id}/calendars', function() {
     return view("errors.maintenance");
-})->name('calendars');
+})->name('calendars'); */
 
 Route::view('dashboard/dashboard1', 'dashboard.dashboardv1')->name('dashboard_version_1');
 Route::view('dashboard/dashboard2', 'dashboard.dashboardv2')->name('dashboard_version_2');
@@ -1225,6 +1225,7 @@ Route::group(['namespace' => "ClientPortal"], function () {
     Route::post('save/client/profile/{token}', 'AuthController@saveClientProfile')->name("save/client/profile");
     Route::get('get/client/profile/{token}', 'AuthController@getClientProfile')->name("get/client/profile");
     Route::post('update/client/profile/{token}', 'AuthController@updateClientProfile')->name("update/client/profile");
+    Route::post('reset/password/{token}', 'AuthController@resetPassword')->name("reset/password");
     Route::get('terms/client/portal', 'AuthController@termsCondition')->name("terms/client/portal");
     Route::post('get/timezone', 'AuthController@getTimezone')->name("get/timezone");
 

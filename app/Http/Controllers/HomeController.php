@@ -896,7 +896,7 @@ class HomeController extends BaseController
     {
         // return $request->all();
         $authUserId = auth()->id();
-        if($request->is_dismiss) {
+        if(isset($request->is_dismiss) && $request->is_dismiss == 'yes') {
             if($request->event_reminder_id && $request->event_recurring_id) {
                 foreach($request->event_recurring_id as $key => $item) {
                     $eventRecurring = EventRecurring::whereId($item)->first();
@@ -947,15 +947,10 @@ class HomeController extends BaseController
                     }
                 }
             }
-            if($request->sol_reminder_id  || $request->reminder_task_id) {               
-                if($request->sol_reminder_id){
-                    // CaseSolReminder::whereIn('id', $request->sol_reminder_id)->update(["is_dismiss" => $request->is_dismiss]);
-                    $reminder = CaseSolReminder::whereId($request->sol_reminder_id)->first();
-                }
-                if($request->reminder_task_id){
-                    // TaskReminder::whereIn('id', $request->reminder_task_id)->update(["is_dismiss" => $request->is_dismiss]);
-                    $reminder = TaskReminder::whereId($request->reminder_task_id)->first();
-                }
+            // Task reminder
+            if($request->reminder_task_id) {       
+                foreach($request->reminder_task_id as $item) {
+                $reminder = TaskReminder::whereId($item)->first();
                 if($reminder) {
                     $newArray = [];                    
                     $countOfRecord = count(collect($reminder->staff_remind_detail));
@@ -990,6 +985,47 @@ class HomeController extends BaseController
                     // dd($newArray);
                     $reminder->fill(['staff_remind_detail' => encodeDecodeJson($newArray, 'encode')])->save();
                 } 
+                }
+            }
+            // SOL Reminder
+            if($request->sol_reminder_id) {
+                foreach($request->sol_reminder_id as $item) {
+                    $reminder = CaseSolReminder::whereId($item)->first();
+                    if($reminder) {
+                        $newArray = [];                    
+                        $countOfRecord = count(collect($reminder->staff_remind_detail));
+                        if($countOfRecord == 0){
+                            $newArray = [array(
+                                'user_id' => Auth::user()->id,
+                                'is_dismiss' => 'yes',
+                                'snooze_time' => null,
+                                'snooze_type' => null,
+                                'snoozed_at' => null,
+                                'snooze_remind_at' => null,
+                            )];
+                        }else{
+                            foreach(collect($reminder->staff_remind_detail) as $staff => $item){    
+                                $oldArray = json_decode($item);
+                                // dd($oldArray);
+                                $indexKey = 0;
+                                foreach($oldArray as $key => $value){
+                                    if(Auth::user()->id == $value->user_id){
+                                        $indexKey = $key;
+                                    }
+                                    $newArray[$key] = $value;
+                                }
+                                $newArray[$indexKey]->user_id = Auth::user()->id;
+                                $newArray[$indexKey]->is_dismiss = 'yes';
+                                $newArray[$indexKey]->snooze_time = null;
+                                $newArray[$indexKey]->snooze_type = null;
+                                $newArray[$indexKey]->snoozed_at = null;
+                                $newArray[$indexKey]->snooze_remind_at = null;                            
+                            }
+                        }
+                        // dd($newArray);
+                        $reminder->fill(['staff_remind_detail' => encodeDecodeJson($newArray, 'encode')])->save();
+                    }
+                }
             } 
             return response()->json(["status" => "success"]);
         } else { 

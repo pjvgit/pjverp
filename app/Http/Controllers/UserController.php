@@ -52,13 +52,14 @@ class UserController extends BaseController
         }else{
             $email=$request->email;
             $password=$request->password;
-            if (Auth::guard('web')->attempt(['email' => $email, 'password' => $password])) {
+            if (Auth::guard('web')->attempt(['email' => $email, 'password' => $password, 'verified' => '1'])) {
                 Auth::logoutOtherDevices($password);
                 $user = User::find(Auth::User()->id);
                 $url = redirect()->intended()->getTargetUrl();
                 if(strpos($url, 'client/bills/') !== false/*  || strpos($url, 'client/tasks/') !== false */) { 
                     return redirect($url);
                 }
+                // return $user->getUserFirms();
                 if($user->getUserFirms() > 1) {
                     return redirect()->intended(route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode')));
                 } else if($user->user_level == '2') {
@@ -214,7 +215,7 @@ class UserController extends BaseController
         $verifyUser = User::where('token', $token)->first();
         
         if(isset($verifyUser) ){
-            if($verifyUser->user_status==1){
+            if($verifyUser->user_status == '1' && $verifyUser->verified == 1){
                 return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
             }else{
                 if($this->updateSameEmailUserDetail($verifyUser)) {
@@ -906,13 +907,14 @@ class UserController extends BaseController
      //open set password popup when verify email
      public function setupsave(Request $request)
      {
+        // return $request->all();
         $request->validate([
             'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
             'confirm_password' => 'required|min:6',
             'user_timezone' => 'required',
         ]);
 
-        $verifyUser =  User::where(["token" => $request->utoken])->first();
+        $verifyUser =  User::where("token", $request->utoken)->first();
     
         if(isset($verifyUser) ){
             $user = $verifyUser;
@@ -961,7 +963,9 @@ class UserController extends BaseController
                 "mail_body" => $mail_body
             ];
             $sendEmail = $this->sendMail($user);   
-            if (Auth::guard('web')->attempt(['email' => $verifyUser->email, 'password' => $request->password])) {
+            $verifyUser->refresh();
+            Auth::login($verifyUser);
+            if (Auth::check()) {
                 $userStatus = Auth::User()->user_status;
                 if($userStatus=='1') { 
                     $verifyUser->last_login = Carbon::now()->format('Y-m-d H:i:s');

@@ -621,7 +621,7 @@ class BillingController extends Controller
                         [
                             'payment_method' => [
                                 'type'       => 'oxxo_cash',
-                                'expires_at' => strtotime(Carbon::now()->addHours(1)),
+                                'expires_at' => strtotime(Carbon::now()->addMinutes(10)),
                             ],
                             'amount' => (int)$amount * 100,
                         ]
@@ -808,7 +808,7 @@ class BillingController extends Controller
                         [
                             'payment_method' => [
                                 'type'       => 'spei',
-                                'expires_at' => strtotime(Carbon::now()->addHours(1)),
+                                'expires_at' => strtotime(Carbon::now()->addMinutes(10)),
                             ],
                             'amount' => (int)$amount * 100,
                         ]
@@ -1047,8 +1047,8 @@ class BillingController extends Controller
                     Log::info("ref. expired invoice and invoice history found");
                     // Update invoice payment status
                     // InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
-                    DB::table("invoice_payment")->where('id', $invoiceHistory->invoice_payment_id)->update(['status' => '0']);
-                    Log::info("invoice payment status updated");
+                    // DB::table("invoice_payment")->where('id', $invoiceHistory->invoice_payment_id)->update(['status' => '0']);
+                    // Log::info("invoice payment status updated");
                     
                     // Update invoice history status
                     // InvoiceHistory::whereId($invoiceHistory->id)->update(['acrtivity_title' => 'Payment Expired', 'online_payment_status' => 'expired']);

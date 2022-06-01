@@ -16,13 +16,14 @@ use App\Jobs\ProcessPodcast;
 use App\Http\Controllers\CommonController;
 use App\Rules\UniqueEmail;
 use App\Traits\UserCaseSharingTrait;
+use App\Traits\UserTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ContractController extends BaseController
 {
-    use UserCaseSharingTrait;
+    use UserCaseSharingTrait, UserTrait;
     public function __construct()
     {
         // $this->middleware("auth");
@@ -126,6 +127,9 @@ class ContractController extends BaseController
             $user->created_by =Auth::User()->id;
             // print_r($user);exit;
             $user->save();
+
+            // Set user default permissions
+            $this->saveUserDefaultPermission($user);
         
             $getTemplateData = EmailTemplate::find(6);
             $fullName=$request->first_name. ' ' .$request->last_name;
