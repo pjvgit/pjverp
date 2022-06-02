@@ -7137,7 +7137,7 @@ class BillingController extends BaseController
                     if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
                         $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
                         // Check conekta account has enough balance
-                        $credentials = base64_encode($firmOnlinePaymentSetting->private_key);
+                        /* $credentials = base64_encode($firmOnlinePaymentSetting->private_key);
                         $client = new \GuzzleHttp\Client();
                         $response = $client->get('https://api.conekta.io/balance', [
                                 'headers' => [
@@ -7150,7 +7150,7 @@ class BillingController extends BaseController
                         if($res->available[0]->amount <= 0) {
                             dbEnd();
                             return response()->json(['online_errors'=> 'No cuenta con saldo suficiente para hacer el reembolso. Favor de abonar a su saldo, vea el proceso haciendo click aquí.']);
-                        }
+                        } */
                         $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id", $onlinePaymentDetail->user_id)->first();
                         \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
                         $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);

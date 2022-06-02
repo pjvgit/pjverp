@@ -145,7 +145,7 @@
                     $('.showError').show();
                     afterLoader();
                     return false;
-                } else if (res.online_errors != '') {
+                /* } else if (res.online_errors != '') {
                     $('.showError').html('');
                     var errotHtml =
                         '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><p>'+res.online_errors;
@@ -154,7 +154,7 @@
                     $('.showError').append(errotHtml);
                     $('.showError').show();
                     afterLoader();
-                    return false;
+                    return false; */
                 } else {
                     window.location.reload();
                 }
