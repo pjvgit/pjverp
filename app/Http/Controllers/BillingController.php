@@ -41,6 +41,8 @@ use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
+
 class BillingController extends BaseController
 {
     use CreditAccountTrait, InvoiceTrait, TrustAccountActivityTrait, TrustAccountTrait, OnlinePaymentTrait;
@@ -1584,6 +1586,28 @@ class BillingController extends BaseController
 
     public function payInvoicePopup(Request $request)
     {
+        
+        $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+        \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+        $client = new \GuzzleHttp\Client();
+        $credentials = base64_encode($firmOnlinePaymentSetting->public_key);
+
+        $response = $client->get('https://apipp.conekta.io/balance', [
+        // 'body' => '{"livemode":false,"name":"El Fulanito - The guy","email":"correo@dominio.com","phone":"55-5555-5555","default_shipping_contact_id":"ship_cont_1a2b3c4d5e6f7g8h (Conekta_ID)","id":"cus_1a2b3c4d5e6f7g8h","object":"customer","created_at":"1628019992","corporate":false,"default_payment_source_id":"src_1a2b3c4d5e6f7g8h"}',
+        'headers' => [
+            'Accept' => 'application/vnd.conekta-v2.0.0+json',
+            'Authorization' => ['Basic '.$credentials],
+            'Content-Type' => 'application/json',
+        ],
+        ]);
+        return $response->getBody();
+        /* return $response = Http::withHeaders([
+                        'Accept' => 'application/vnd.conekta-v2.0.0+json',
+                        'Content-Type' => 'application/json; charset=utf-8',
+                        'Authorization' =>
+                    ])->get('https://apipp.conekta.io/balance', [
+                        'u' => $firmOnlinePaymentSetting->private_key,
+                    ]); */
        $validator = \Validator::make($request->all(), [
             'id' => 'required|min:1|max:255',
         ]);
@@ -6885,6 +6909,7 @@ class BillingController extends BaseController
         if ($validator->fails()) {
             return response()->json(['errors'=>$validator->errors()->all()]);
         } else {
+            
             try {
                 dbStart();
                 $authUser = auth()->user();

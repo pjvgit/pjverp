@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
 // use Datatables;
 use Yajra\Datatables\Datatables;
 use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate,App\ExpenseEntry,App\CaseEvent,App\ClientFullBackup,App\AccountActivity;
+use App\Event;
 use App\Traits\FundRequestTrait;
 use App\Traits\TrustAccountTrait;
 use Exception;
@@ -3222,6 +3223,7 @@ class ClientdashboardController extends BaseController
 
     public function importContacts(Request $request)
     {
+        // return $request->all();
         // print_r($request->all());exit;
         $validator = \Validator::make($request->all(), [
             'upload_file' => 'required|max:8192', //8 mb
@@ -3567,12 +3569,14 @@ class ClientdashboardController extends BaseController
                     if($v[0]=="BEGIN:VCARD"){
                             $counter++;
                     }else{
-                            if($v[0]=="VERSION:3.0" || $v[0]=="END:VCARD" ){
+                            // if($v[0]=="VERSION:3.0" || $v[0]=="VERSION:2.1" || $v[0]=="END:VCARD" ){
+                            if(strpos($v[0], 'VERSION') !== false || $v[0]=="END:VCARD" ){
                             }else{
                                 $arrayGroup[$counter][]=$v[0];
                             }
                     }
-                }               
+                }             
+                // return $arrayGroup;  
                 // echo count($arrayGroup);
                 // exit;
                 // print_r($arrayGroup);
@@ -3582,6 +3586,7 @@ class ClientdashboardController extends BaseController
                 if(count($arrayGroup)>=1){
                     $ic=0;                   
                     foreach($arrayGroup as $finalOperationKey => $finalOperationVal){
+                        // return $finalOperationVal;
                         $finalOperationKey = $finalOperationKey - 1;                        
                         $org=explode(":",$finalOperationVal[0]);                        
                         if($org[0]=="ORG"){
@@ -3603,8 +3608,17 @@ class ClientdashboardController extends BaseController
                                 exit;
                             }
                         }
-                        if (strpos($org[0], 'FN')  !== false) {
+                        // if (strpos($org[0], 'FN')  !== false) {
                             foreach($finalOperationVal as $k => $v){
+                                if (strpos($v, 'FN')  !== false) { 
+                                    $fname=explode(":",$v);
+                                    if(count($fname) > 1) {
+                                        $name = explode(" ", $fname[1]);
+                                        $UserArray[$finalOperationKey]['first_name']=($name[0] != '') ? $name[0] : NULL;
+                                        $UserArray[$finalOperationKey]['last_name']=(isset($name[1]) && $name[1] != '') ? $name[1] : NULL;
+                                        $UserArray[$finalOperationKey]['fullNameString']=(isset($fname[1]) && $fname[1] != '') ? $fname[1] : NULL;
+                                    }
+                                }
                                 if (strpos($v, 'EMAIL')  !== false) { 
                                     $email=explode(":",$v);
                                     $UserArray[$finalOperationKey]['email']=($email[1] != '') ? $email[1] : NULL;
@@ -3615,11 +3629,31 @@ class ClientdashboardController extends BaseController
                                     $phone=explode(":",$v);
                                     $UserArray[$finalOperationKey]['mobile_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
                                 }
+                                if (strpos($v, 'TEL;WORK;VOICE') !== false || strpos($v, 'TEL;type=WORK') !== false) { 
+                                    $phone=explode(":",$v);
+                                    $UserArray[$finalOperationKey]['work_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
+                                }
+                                if (strpos($v, 'TEL;HOME;VOICE') !== false || strpos($v, 'TEL;type=HOME') !== false) { 
+                                    $phone=explode(":",$v);
+                                    $UserArray[$finalOperationKey]['home_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
+                                }
+                                if (strpos($v, 'TEL;CELL;VOICE') !== false || strpos($v, 'TEL;type=CELL') !== false) { 
+                                    $phone=explode(":",$v);
+                                    $UserArray[$finalOperationKey]['mobile_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
+                                }
+                                if (strpos($v, 'TITLE') !== false) { 
+                                    $title=explode(":",$v);
+                                    $UserArray[$finalOperationKey]['job_title'] = ($title[1] != '') ? str_replace(" ", "", $title[1]) : NULL;
+                                }
 
                                 if (strpos($v, 'ORG') !== false) { 
                                     $company_name = explode(":",$v);
                                     $UserArray[$finalOperationKey]['multiple_compnay_id'] = ($company_name[1] != '') ? $this->createOrReturn($company_name[1]) : NULL;
                                     $UserArray[$finalOperationKey]['company_name'] = ($company_name[1] != '') ? $company_name[1] : NULL;
+                                }
+                                if (strpos($v, 'URL;WORK') !== false) { 
+                                    $url = explode(":",$v);
+                                    $UserArray[$finalOperationKey]['website'] = ($url[1] != '') ? $url[1] : NULL;
                                 }
 
                                 if (strpos($v, 'NOTE') !== false) { 
@@ -3627,7 +3661,7 @@ class ClientdashboardController extends BaseController
                                     $UserArray[$finalOperationKey]['UsersAdditionalInfoNotes'] = ($notes[1] != '') ? $notes[1] : NULL;
                                 } 
                             }
-                        }
+                        // }
                     }
                     foreach($UserArray as $userKey=>$userVal){
                         $User = New User;
@@ -3636,6 +3670,8 @@ class ClientdashboardController extends BaseController
                         $User->last_name=$userVal['last_name'] ?? NULL;
                         $User->email=$userVal['email']?? NULL; 
                         $User->mobile_number=$userVal['mobile_number']?? NULL; 
+                        $User->home_phone=$userVal['home_number']?? NULL; 
+                        $User->work_phone=$userVal['work_number']?? NULL; 
                         $User->parent_user=Auth::User()->id;
                         $User->firm_name=Auth::User()->firm_name;
                         $User->created_by=Auth::User()->id;
@@ -3644,6 +3680,8 @@ class ClientdashboardController extends BaseController
                         
                         $UsersAdditionalInfo= new UsersAdditionalInfo;
                         $UsersAdditionalInfo->user_id=$User->id; 
+                        $UsersAdditionalInfo->job_title=$userVal['job_title']?? NULL; 
+                        $UsersAdditionalInfo->website=$userVal['website']?? NULL; 
                         $UsersAdditionalInfo->multiple_compnay_id=$userVal['multiple_compnay_id'] ?? NULL; 
                         $UsersAdditionalInfo->notes=$userVal['UsersAdditionalInfoNotes'] ?? NULL; 
                         $UsersAdditionalInfo->created_by = Auth::User()->id;
@@ -4923,7 +4961,7 @@ class ClientdashboardController extends BaseController
             ExpenseEntry::where("case_id", $history->case_id)->delete();
             CaseNotes::where("case_id", $history->case_id)->delete();
             Invoices::where("case_id", $history->case_id)->delete();
-            CaseEvent::where("case_id", $history->case_id)->delete();
+            Event::where("case_id", $history->case_id)->delete();
             Messages::where("case_id", $history->case_id)->delete();
             CaseMaster::where("id", $history->case_id)->delete();
         }
