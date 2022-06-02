@@ -7149,7 +7149,7 @@ class BillingController extends BaseController
                         $res = json_decode($response->getBody());
                         if($res->available[0]->amount <= 0) {
                             dbEnd();
-                            return response()->json(['errors'=> 'No cuenta con saldo suficiente para hacer el reembolso. Favor de abonar a su saldo, vea el proceso haciendo click aquí.']);
+                            return response()->json(['online_errors'=> 'No cuenta con saldo suficiente para hacer el reembolso. Favor de abonar a su saldo, vea el proceso haciendo click aquí.']);
                         }
                         $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id", $onlinePaymentDetail->user_id)->first();
                         \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
