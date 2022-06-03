@@ -1586,28 +1586,17 @@ class BillingController extends BaseController
 
     public function payInvoicePopup(Request $request)
     {
-        // $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
-        // // Check conekta account has enough balance
-        // $credentials = base64_encode($firmOnlinePaymentSetting->private_key);
-        // $client = new \GuzzleHttp\Client();
-        // $response = $client->get('https://api.conekta.io/balance', [
-        //         'headers' => [
-        //             'Accept' => 'application/vnd.conekta-v2.0.0+json',
-        //             'Authorization' => ['Basic '.$credentials],
-        //             'Content-Type' => 'application/json',
-        //         ],
-        //     ]);
-        //     // ->getBody();
-        //     $res = json_decode($response->getBody());
-        //     return $res->available[0]->amount;
-        //     echo "<pre>";
-        //     print_r($res->available[0]->currency);
-        //     print_r($res);
-        //     echo "</pre>";
-        // // $res = $response->getBody();
-        // exit;
-        // $json = json_decode($res, true);
-        // return $json->available;
+        /* try {
+        $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+        \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+        // Check conekta account has order or not
+        return $order = \Conekta\Order::find('ord_2rv47aMSBvzTrb33h');
+        if($order) {
+
+        }
+        } catch (Exception $e) {
+            return response()->json(['errors' => $e->getMessage(), 'code' => $e->getCode()]);
+        } */
         
        $validator = \Validator::make($request->all(), [
             'id' => 'required|min:1|max:255',
@@ -7136,6 +7125,14 @@ class BillingController extends BaseController
                     $onlinePaymentDetail = InvoiceOnlinePayment::where("invoice_history_id", $request->transaction_id)->first();
                     if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
                         $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+                        \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+                        // Check conekta account has order or not
+                        try {
+                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                        } catch (Exception $e) {
+                            dbEnd();
+                            return response()->json(['errors' => '', 'online_errors' => 'No es posible hacer un reembolso en línea debido a que ha cambiado su API del proveedor de pagos Conekta.']);
+                        }
                         // Check conekta account has enough balance
                         $credentials = base64_encode($firmOnlinePaymentSetting->private_key);
                         $client = new \GuzzleHttp\Client();
@@ -7149,11 +7146,9 @@ class BillingController extends BaseController
                         $res = json_decode($response->getBody());
                         if($res->available[0]->amount <= 0) {
                             dbEnd();
-                            return response()->json(['errors' => '', 'online_errors'=> 'No cuenta con saldo suficiente para hacer el reembolso. Favor de abonar a su saldo, vea el proceso haciendo click aquí.']);
+                            return response()->json(['errors' => '', 'online_errors'=> 'No cuenta con saldo suficiente para hacer el reembolso. Favor de abonar a su saldo, vea el proceso haciendo <a href="https://help.conekta.com/hc/es-419/articles/360058988233--C%C3%B3mo-abonar-y-retener-mi-saldo-" target="_blank">click aquí</a>.']);
                         }
                         $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id", $onlinePaymentDetail->user_id)->first();
-                        \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-                        $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
                         $order->refund([
                             'reason' => 'requested_by_client',
                             'amount' => (int) $request->amount,

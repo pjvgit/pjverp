@@ -3629,21 +3629,38 @@ class ClientdashboardController extends BaseController
                                     $phone=explode(":",$v);
                                     $UserArray[$finalOperationKey]['mobile_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
                                 }
-                                if (strpos($v, 'TEL;WORK;VOICE') !== false || strpos($v, 'TEL;type=WORK') !== false) { 
+                                // if (strpos($v, 'TEL;WORK;VOICE') !== false || strpos($v, 'TEL;type=WORK') !== false) { 
+                                if (strpos($v, 'TEL') !== false && strpos($v, 'WORK') !== false) { 
                                     $phone=explode(":",$v);
                                     $UserArray[$finalOperationKey]['work_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
                                 }
-                                if (strpos($v, 'TEL;HOME;VOICE') !== false || strpos($v, 'TEL;type=HOME') !== false) { 
+                                // if (strpos($v, 'TEL;HOME;VOICE') !== false || strpos($v, 'TEL;type=HOME') !== false) { 
+                                if (strpos($v, 'TEL') !== false && strpos($v, 'HOME') !== false) { 
                                     $phone=explode(":",$v);
                                     $UserArray[$finalOperationKey]['home_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
                                 }
-                                if (strpos($v, 'TEL;CELL;VOICE') !== false || strpos($v, 'TEL;type=CELL') !== false) { 
+                                // if (strpos($v, 'TEL;CELL;VOICE') !== false || strpos($v, 'TEL;type=CELL') !== false) { 
+                                if (strpos($v, 'TEL') !== false && strpos($v, 'CELL') !== false) { 
                                     $phone=explode(":",$v);
                                     $UserArray[$finalOperationKey]['mobile_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
                                 }
                                 if (strpos($v, 'TITLE') !== false) { 
                                     $title=explode(":",$v);
                                     $UserArray[$finalOperationKey]['job_title'] = ($title[1] != '') ? str_replace(" ", "", $title[1]) : NULL;
+                                }
+
+                                if (strpos($v, 'ADR') !== false) { 
+                                    $adr=explode(":",$v);
+                                    if(count($adr) > 1) {
+                                        $adr1 = explode(";", $adr[1]);
+                                        $adr1 = array_filter($adr1, fn($value) => !is_null($value) && $value !== '');
+                                        if(count($adr1)) {
+                                            $UserArray[$finalOperationKey]['street'] = (isset($adr1[0]) && $adr1[0] != '') ? quoted_printable_decode($adr1[0]) : NULL;
+                                            $UserArray[$finalOperationKey]['city'] = (isset($adr1[1]) && $adr1[1] != '') ? quoted_printable_decode($adr1[1]) : NULL;
+                                            $UserArray[$finalOperationKey]['state'] = (isset($adr1[2]) && $adr1[2] != '') ? quoted_printable_decode($adr1[2]) : NULL;
+                                            $UserArray[$finalOperationKey]['postal_code'] = (isset($adr1[3]) && $adr1[3] != '') ? quoted_printable_decode($adr1[3]) : NULL;
+                                        }
+                                    }
                                 }
 
                                 if (strpos($v, 'ORG') !== false) { 
@@ -3672,6 +3689,10 @@ class ClientdashboardController extends BaseController
                         $User->mobile_number=$userVal['mobile_number']?? NULL; 
                         $User->home_phone=$userVal['home_number']?? NULL; 
                         $User->work_phone=$userVal['work_number']?? NULL; 
+                        $User->street=$userVal['street']?? NULL; 
+                        $User->city=$userVal['city']?? NULL; 
+                        $User->state=$userVal['state']?? NULL; 
+                        $User->postal_code=$userVal['postal_code']?? NULL; 
                         $User->parent_user=Auth::User()->id;
                         $User->firm_name=Auth::User()->firm_name;
                         $User->created_by=Auth::User()->id;

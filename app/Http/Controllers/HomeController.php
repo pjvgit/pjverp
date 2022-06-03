@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use App\CaseSolReminder;
 use App\Task,App\AllHistory,App\Feedback;
 use App\Invoices,App\EmailTemplate;
+use App\Mail\NotificationActivityMail;
 use App\TaskReminder,App\SmartTimer,App\PauseTimerEntrie,App\NotificationSetting;
 use App\Traits\EventReminderTrait;
 use App\Traits\TaskReminderTrait;

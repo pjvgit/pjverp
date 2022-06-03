@@ -68,12 +68,13 @@ class NotificationEmailCommand extends Command
             // ->whereDate("all_history.created_at", date('Y-m-d'))
             ->where('all_history.is_for_client','no')
             ->with('caseFirm')
-            ->get();
+            ->get()->groupBy('firm_id');
         echo "History data for ". date('Y-m-d').' : '. count($commentData);echo PHP_EOL;
         Log::info("History data for ". date('Y-m-d').' : '. count($commentData));
         $firmData = [];
         $staffData = [];
-        foreach($commentData as $key=>$val){            
+        foreach($commentData as $firmid => $fdata){            
+        foreach($fdata as $key=>$val){            
             // echo $val->historyID;echo PHP_EOL;
             // echo $val->createdBy;echo PHP_EOL;
             // echo $val->caseFirm->parent_user_id;echo PHP_EOL;
@@ -89,8 +90,8 @@ class NotificationEmailCommand extends Command
                     if ($date->hour === 05 && $date->minute <= 29) {
                         Log::info("Firm Notification Email sent to : ". $firmDetail->email. ' for case_id > '. $val->caseId.' > for time zone : '.$firmDetail->user_timezone." at ".$date);
                         $preparedFor = substr($firmDetail->first_name,0,100).' '.substr($firmDetail->last_name,0,100).'|'.$firmDetail->email;
-                        $firmData[$preparedFor][$key] = $val;
-                        $firmData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url; 
+                        $firmData[$firmid][$preparedFor][$key] = $val;
+                        $firmData[$firmid][$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url; 
                     } 
                 }               
             }
@@ -109,12 +110,13 @@ class NotificationEmailCommand extends Command
                         if ($date->hour === 05 && $date->minute <= 29) {
                             Log::info("Staff notification Email sent to : ". $staff->email. ' for case_id > '. $val->caseId.' > for time zone : '.$staff->user_timezone." at ".$date);
                             $preparedFor = substr($staff->first_name,0,100).' '.substr($staff->last_name,0,100).'|'.$staff->email.'|'.$staff->id;
-                            $staffData[$preparedFor][$key] = $val;
-                            $staffData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
+                            $staffData[$firmid][$preparedFor][$key] = $val;
+                            $staffData[$firmid][$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
                         }
                     }
                 }
             }
+        }
         }
         // $userNotificationSetting =  DB::select('SELECT uns.notification_id, uns.for_email, ns.topic, ns.type, ns.action, ns.sub_type
         // FROM user_notification_settings uns
@@ -123,14 +125,16 @@ class NotificationEmailCommand extends Command
         // where uns.user_id =11133 and uns.for_email = "yes" and uni.notification_email_interval = "1440" ');
         
         // for firm User
-        $firmData = array_map('array_values', $firmData);
+        // $firmData = array_map('array_values', $firmData);
         $caseData = [];
         $itemData = [];        
                                         
         $ignoreTypes = ['fundrequest','credit','deposit'];
         $ignoreActions = ['pay_delete'];  
 
-        foreach($firmData as $key => $item) {
+        foreach($firmData as $fkey => $fitem) {
+            $fitem = array_map('array_values', $fitem);
+        foreach($fitem as $key => $item) {
             if(count($item) > 0) {
                 $firmId = $item[0]->caseFirm->parent_user_id;
                 echo $firmId ."-->"; echo PHP_EOL;  
@@ -186,15 +190,17 @@ class NotificationEmailCommand extends Command
                     Log::info("Firm user > itemData > ". count($itemData). " & caseData > ".count($caseData));
                     Log::info("Firm user email send to > ". $preparedEmail. " & firm id : ".$firmId);
                     \Mail::to($preparedEmail)->send(new NotificationActivityMail($itemData, $firmDetail, $preparedFor, $preparedEmail, $caseData, "yes"));
-                    // \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($itemData, $firmDetail, $preparedFor, $preparedEmail, $caseData, "yes"));
+                    // \Mail::to('trupti.bhuva@plutustec.com')->send(new NotificationActivityMail($itemData, $firmDetail, $preparedFor, $preparedEmail, $caseData, "yes"));
                 }
             }
+        }
         }
 
         // for staff
         $caseStaffData = [];
         $itemStaffData = [];
-        foreach($staffData as $key => $item) {
+        foreach($staffData as $fkey => $fitem) {
+        foreach($fitem as $key => $item) {
             if(count($item) > 0) {                
                 echo $key;echo PHP_EOL;
                 $explodeKey = explode('|', $key);            
@@ -248,9 +254,10 @@ class NotificationEmailCommand extends Command
                     Log::info("Staff > itemStaffData > ". count($itemStaffData). " & staff > caseStaffData > ".count($caseStaffData));
                     Log::info("Staff email send to > ". $preparedEmail. " & staff id : ".$staffID);
                     \Mail::to($preparedEmail)->send(new NotificationActivityMail($itemStaffData, $firmDetail, $preparedFor, $preparedEmail, $caseStaffData, "yes"));
-                    // \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($itemStaffData, $firmDetail, $preparedFor, $preparedEmail, $caseStaffData, "yes"));
+                    // \Mail::to('trupti.bhuva@plutustec.com')->send(new NotificationActivityMail($itemStaffData, $firmDetail, $preparedFor, $preparedEmail, $caseStaffData, "yes"));
                 }
             }
+        }
         }
         Log::info("Activity notification reminder Command End : ". date('Y-m-d H:i:s'));
     }

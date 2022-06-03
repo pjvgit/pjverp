@@ -11,7 +11,7 @@
                         }else{
                             $depositInto="<i class='table-cell-placeholder'></i>";
                         }  */
-                        
+                        $onlineOverPaymentNote = "Se recibió un pago en exceso. Se ha abonado a la factura el monto necesario para cubrirla y el resto se ha abonado a los Fondos Asignados del Caso. Si requiere hacer un reembolso total, debe reembolsar cada una de las dos partes.";
                         if($value->acrtivity_title=="Payment Received" && $value->status == "5"){
                             $notes = "Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account";
                         } else if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
