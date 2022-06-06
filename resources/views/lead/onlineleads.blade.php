@@ -45,7 +45,7 @@
                 
                 <div class="table-responsive">  
                     <?php 
-                    if(count($leads)<=0){?>
+                    if($leadCount <= 0){?>
                     <div class="opportunities-list" id="opportunities-list">
                         <div class="leads-empty-state m-5 d-flex flex-column justify-content-center align-items-center">
                             <i class="far fa-address-card my-4 fa-5x" data-testid="empty-state-icon"></i>

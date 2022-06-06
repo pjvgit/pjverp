@@ -758,7 +758,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('intake_form/loadLeadCase','IntakeformController@loadLeadCase')->name('intake_form/loadLeadCase');
     Route::post('intake_form/sentEmailIntakeForm','IntakeformController@sentEmailIntakeForm')->name('intake_form/sentEmailIntakeForm');
     Route::post('intake_form/dismissContactUs', 'IntakeformController@dismissContactUs')->name('intake_form/dismissContactUs');
-
+    Route::post('intake_form/getClientLeadDetail','IntakeformController@getClientLeadDetail')->name('intake_form/getClientLeadDetail');
+    
     //INTAKE FORM
 
     Route::get('preview', 'PDFController@preview');

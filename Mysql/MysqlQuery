@@ -1,3 +1,7 @@
+------------------------------------ 06-JUN-2022 ------------------------------
+ALTER TABLE `invoice_history`
+ADD `online_invoice_amount` decimal(20,2) NULL COMMENT 'if overpayment, what amount should go to invoice' AFTER `amount`;
+
 ------------------------------------ 19-MAY-2022 ------------------------------
 ALTER TABLE `invoices`
 CHANGE `id` `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT FIRST,

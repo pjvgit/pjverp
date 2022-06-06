@@ -173,9 +173,11 @@
             if(uType=="contact"){
                 $("#text_contact_id").val(selectdValue);
                 loadClientCase(selectdValue);
+                loadClientLeadDetail(selectdValue, 'client');
             }else{
                 $("#text_lead_id").val(selectdValue);
                 loadLeadCase(selectdValue);
+                loadClientLeadDetail(selectdValue, 'lead');
             }
         }else{
             $("#case_id").attr("disabled",true);
@@ -205,6 +207,19 @@
                 success: function (res) {
                     $("#case_id").html(res);
                      // $("#emailFormArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        }) 
+    }
+    function loadClientLeadDetail(id, uType) {
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url:  baseUrl +"/intake_form/getClientLeadDetail", // json datasource
+                data: {'id':id},
+                success: function (res) {
+                    $("#emailIntakeForm #email_address").val(res.email);
                     $("#preloader").hide();
                 }
             })

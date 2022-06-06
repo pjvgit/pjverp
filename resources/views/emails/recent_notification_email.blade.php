@@ -388,9 +388,9 @@
                                     @if($v->action == "pay") for invoice  @endif
                                     @if ($v->deleteInvoice == NULL)
                                         @if($v->type == 'lead_invoice')
-                                        <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                                        <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', @$v->invoice->unique_invoice_number ?? 0)}} </a> 
                                         @else
-                                        <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                                        <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', @$v->invoice->unique_invoice_number ?? 0)}} </a> 
                                         @endif
                                     @else
                                         #{{sprintf('%06d', $v->activity_for)}}
@@ -401,9 +401,9 @@
                                     
                                     @if ($v->deleteInvoice == NULL)
                                         @if($v->type == 'lead_invoice')
-                                        <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                                        <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', @$v->invoice->unique_invoice_number ?? 0)}} </a> 
                                         @else
-                                        <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                                        <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', @$v->invoice->unique_invoice_number ?? 0)}} </a> 
                                         @endif
                                     @else
                                         #{{sprintf('%06d', $v->activity_for)}}

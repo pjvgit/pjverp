@@ -1172,11 +1172,6 @@ class BillingController extends Controller
                 $this->savePaymentToTrustFund($paymentDetail, $invoice, $paymentDetail->amount);
             } else {
                 Log::info("receive oxxo cash payment");
-                // Update invoice payment status
-                DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
-
-                // Update invoice history status
-                DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid']);
 
                 if($invoice->due_amount < $paymentDetail->amount) {
                     $dueAmt = $invoice->due_amount;
@@ -1186,6 +1181,14 @@ class BillingController extends Controller
                 } else {
                     $dueAmt = $paymentDetail->amount;
                 }
+                
+                // Update invoice payment status
+                DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0', 'amount_paid' => $dueAmt]);
+
+                // Update invoice history status
+                DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)
+                    ->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid', 'invoice_online_amount' => $dueAmt]);
+
                 // Update invoice status and amount
                 DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
 

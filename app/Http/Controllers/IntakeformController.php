@@ -494,6 +494,18 @@ class IntakeformController extends BaseController
         return view('intake_forms.emailIntakeForm',compact('intakeForm','formId','caseLeadList','CaseMasterData','CaseMasterClient','firmData'));
     }
 
+    /**
+     * Get selected client/lead detail
+     */
+    public function getClientLeadDetail(Request $request)
+    {
+        $client = User::where("id", $request->id)->select('email')->first();
+        if($client) {
+            $email = $client->email;
+        }
+        return response()->json(['email' => $email ?? '']);
+    }
+
     public function loadClientCase(Request $request)
     {
         $id=$request->id;
