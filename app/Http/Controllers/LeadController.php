@@ -6153,6 +6153,7 @@ class LeadController extends BaseController
     }   
     public function collectFormData(Request $request)
     {
+        // return $request->all();
         $intakeForm=IntakeFormFields::where("intake_form_id",$request->form_id)->get();
         $requiredArray=[];
         foreach($intakeForm as $k=>$v){

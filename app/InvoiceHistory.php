@@ -19,8 +19,8 @@ class InvoiceHistory extends Authenticatable
 
     protected $fillable = ["invoice_id", "lead_invoice_id", "lead_id", "acrtivity_title", "pay_method", "amount", "responsible_user", "deposit_into", 
         "deposit_into_id", "invoice_payment_id", "status", "notes", "refund_ref_id", "created_by", "updated_by", "payment_from", "online_payment_status", "is_invoice_cancelled",
-        "invoice_online_amount"];
-    // "invoice_online_amount" is for if overpayment, what amount should got to invoice
+        "payable_amount", "is_overpaid"];
+    
     protected $appends  = ['added_date','responsible','refund_amount'];
 
     public function getCreatedatnewformateAttribute(){

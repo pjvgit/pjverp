@@ -5361,7 +5361,7 @@ class BillingController extends BaseController
             return view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice','case_client_company','invoiceSetting'));
         }else{
 
-            $filename="Invoice_".$invoice_id.'.pdf';
+            $filename="Invoice_".$Invoice->unique_invoice_number.'.pdf';
             $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice','case_client_company','invoiceSetting'));
             /* $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
@@ -7471,7 +7471,7 @@ class BillingController extends BaseController
                 // Update refund reference record status
                 $refundRefHistory = InvoiceHistory::find($PaymentMaster->refund_ref_id);
                 if($refundRefHistory) {
-                    $refundRefHistory->status="1";
+                    $refundRefHistory->status = ($refundRefHistory->is_overpaid == 'partial') ? "6" : "1";
                     $refundRefHistory->save();
                 }            
 
@@ -9327,6 +9327,7 @@ class BillingController extends BaseController
                 // dd($FlatFeeEntryData);
                 // dd($RemainFlatFeeEntryData);
                 if($subTotal > 0){
+                    $maxInvoiceNumber = DB::table("invoices")->where('firm_id', auth()->user()->firm_name)->max("unique_invoice_number") + 1;
                     $InvoiceSave=new Invoices;
                     $InvoiceSave->id=$request->invoice_number_padded;
                     $InvoiceSave->user_id=$caseClient['selected_user'];
@@ -9356,6 +9357,7 @@ class BillingController extends BaseController
                     $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
                     $InvoiceSave->invoice_token=Str::random(250);
                     $InvoiceSave->firm_id = auth()->user()->firm_name;
+                    $InvoiceSave->unique_invoice_number = $maxInvoiceNumber;
                     $InvoiceSave->save();
 
                     \Log::info("InvoiceSave : ".$InvoiceSave->id);

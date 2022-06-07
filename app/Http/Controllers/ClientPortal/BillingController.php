@@ -1126,7 +1126,7 @@ class BillingController extends Controller
             Log::info("oxxo cash invoice status: ". $invoice->status);
             if(!empty($invoice) && in_array($invoice->status, ["Paid", "Forwarded"])) {
                 // Update invoice history status
-                DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '5', 'online_payment_status' => 'paid']);
+                DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '5', 'online_payment_status' => 'paid', 'is_overpaid' => 'full']);
 
                 // Update invoice online payment status
                 $anyPending = InvoiceHistory::where('invoice_id', $invoice->id)->where('online_payment_status', 'pending')->first();
@@ -1183,11 +1183,12 @@ class BillingController extends Controller
                 }
                 
                 // Update invoice payment status
-                DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0', 'amount_paid' => $dueAmt]);
+                DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0', 'amount_paid' => $dueAmt, 'payable_amount' => $paymentDetail->amount]);
 
                 // Update invoice history status
                 DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)
-                    ->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid', 'invoice_online_amount' => $dueAmt]);
+                    ->update(['acrtivity_title' => 'Payment Received', 'status' => '6', 'online_payment_status' => 'paid', 'amount' => $dueAmt, 
+                            'payable_amount' => $paymentDetail->amount, 'is_overpaid' => 'partial']);
 
                 // Update invoice status and amount
                 DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);

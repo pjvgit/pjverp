@@ -11,9 +11,14 @@
                         }else{
                             $depositInto="<i class='table-cell-placeholder'></i>";
                         }  */
-                        $onlineOverPaymentNote = "Se recibió un pago en exceso. Se ha abonado a la factura el monto necesario para cubrirla y el resto se ha abonado a los Fondos Asignados del Caso. Si requiere hacer un reembolso total, debe reembolsar cada una de las dos partes.";
+                        $onlineFullOverPaymentNote = "";
+                        $onlinePartiallyOverPaymentNote = "";
                         if($value->acrtivity_title=="Payment Received" && $value->status == "5"){
-                            $notes = "Pago en exceso: Este pago supera el monto total de la factura y se ha acreditado a la Operating Account";
+                            $notes = __('billing.invoice_overpaid_note');
+                            $notes .= $value->notes;
+                        } else if($value->acrtivity_title=="Payment Received" && $value->status == "6"){
+                            $notes = __('billing.invoice_partially_overpaid_note');
+                            $notes .= $value->notes;
                         } else if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Payment Notes</a>';
                         }else if($value->acrtivity_title=="Payment Received" && $value->notes!=NULL){
@@ -52,8 +57,10 @@
                             if(!in_array($value->pay_method, ["Card","Oxxo Cash","SPEI"]) && !in_array($value->payment_from, ["online","client_online"])) {
                                 $refund .= '|<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
                             }
-                        }else if($value->acrtivity_title=="Payment Received" && $value->status=2){
+                        }else if($value->acrtivity_title=="Payment Received" && $value->status==2){
                             $refund='';
+                        }else if($value->acrtivity_title=="Payment Received" && $value->status==6){
+                            $refund='<a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$value->id.');"><button type="button"  class="btn btn-link ">Refund</button></a>';
                         }else if($value->acrtivity_title=="Payment Refund" && $value->status==4 || $value->status==2){
                             if($value->online_payment_status == "partially_refunded" && $value->payment_from == "online") {
                                 $refund = '<span class="tooltip-wrapper" style="position: relative;"><span>
@@ -168,6 +175,10 @@
                         
                         if($value->acrtivity_title=="Payment Received" && $value->status == "5"){
                             $notes = __('billing.invoice_overpaid_note');
+                            $notes .= $value->notes;
+                        } else if($value->acrtivity_title=="Payment Received" && $value->status == "6"){
+                            $notes = __('billing.invoice_partially_overpaid_note');
+                            $notes .= $value->notes;
                         } else if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Payment Notes</a>';
                         }else if($value->acrtivity_title=="Payment Received" && $value->notes!=NULL){
@@ -204,8 +215,10 @@
                             if(!in_array($value->pay_method, ["Card","Oxxo Cash","SPEI"]) && !in_array($value->payment_from, ["online","client_online"])) {
                                 $refund .= '|<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
                             }
-                        }else if($value->acrtivity_title=="Payment Received" && $value->status=2){
+                        }else if($value->acrtivity_title=="Payment Received" && $value->status==2){
                             $refund='';
+                        }else if($value->acrtivity_title=="Payment Received" && $value->status==6){
+                            $refund='<a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$value->id.');"><button type="button"  class="btn btn-link ">Refund</button></a>';
                         }else if($value->acrtivity_title=="Payment Refund" && $value->status==4 || $value->status==2){
                             if($value->online_payment_status == "partially_refunded" && $value->payment_from == "online") {
                                 $refund = '<span class="tooltip-wrapper text-center" style="position: relative;"><span>

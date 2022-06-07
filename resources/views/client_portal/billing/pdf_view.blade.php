@@ -584,6 +584,10 @@
                     <br>
                     Nota: @lang('billing.invoice_overpaid_note')
                 @endif
+                @if($hVal->acrtivity_title=="Payment Received" && $hVal->status == "6")
+                    <br>
+                    Nota: @lang('billing.invoice_partially_overpaid_note')
+                @endif
             </td>
             <td class="payment-history-column-amount" style="vertical-align: top;">
                 @if($hVal->acrtivity_title=="Payment Received")

@@ -73,7 +73,7 @@
                                 <td class="pt-3 pdf-name-row">
                                     <a href="{{ route('bills/invoices/invoiceInlineView', $Invoices['invoice_token']) }}?disposition=inline" target="_blank"
                                         rel="noopener noreferrer">
-                                        <p>{{"Invoice_".$Invoices['id'].".pdf"}}</p>
+                                        <p>{{"Invoice_".$Invoices['unique_invoice_number'].".pdf"}}</p>
                                     </a>
                                 </td>
                             </tr>

@@ -27,6 +27,13 @@
                         </a>
                     </div>
                 @endif
+                @if($hVal->acrtivity_title=="Payment Received" && $hVal->status == "6")
+                    <div class="position-relative" style="float: right;">
+                        <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>@lang('billing.invoice_partially_overpaid_note')</div>">
+                            <img style="border: none;" src="{{ asset('icon/note.svg') }}">
+                        </a>
+                    </div>
+                @endif
             </td>
             <td class="payment-history-column-amount" style="vertical-align: top;">
                 @if(in_array($hVal->acrtivity_title, ["Payment Received","Payment Pending"]))

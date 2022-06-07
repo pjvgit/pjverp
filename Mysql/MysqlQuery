@@ -1,7 +1,15 @@
------------------------------------- 06-JUN-2022 ------------------------------
-ALTER TABLE `invoice_history`
-ADD `online_invoice_amount` decimal(20,2) NULL COMMENT 'if overpayment, what amount should go to invoice' AFTER `amount`;
+------------------------------------ 07-JUN-2022 ------------------------------
+ALTER TABLE `invoice_payment`
+ADD `payable_amount` decimal(20,2) NULL AFTER `is_invoice_cancelled`;
 
+ALTER TABLE `invoice_history` 
+ADD `payable_amount` decimal(20,2) NULL AFTER `is_invoice_cancelled`;
+
+ALTER TABLE `invoice_history`
+CHANGE `status` `status` enum('0','1','2','3','4','5','6') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT '0' COMMENT '0 : None 1: Deposit 2: Full Refund 3.Partial Refund 4: Refund Entry 5: online payment fund moved to trust, 6: partially overpaid like some amount to invoice and other to trust fund' AFTER `notes`
+
+ALTER TABLE `invoice_history`
+ADD `is_overpaid` enum('no','partial','full') NOT NULL DEFAULT 'no' AFTER `payable_amount`
 ------------------------------------ 19-MAY-2022 ------------------------------
 ALTER TABLE `invoices`
 CHANGE `id` `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT FIRST,

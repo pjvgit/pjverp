@@ -77,7 +77,7 @@ $finalAmt=$invoice-$paid;
                             <tr style="padding-left: 4px;">
                                 <td scope="col" style="width: 10%;text-align:right;"><b>Invoice #:</b></td>
                                 <td scope="col" style="width: 10%;text-align:left;">
-                                    {{sprintf('%06d', $Invoice['id'])}}</td>
+                                    {{ $Invoice['invoice_id'] }}</td>
                             </tr>
 
 
@@ -133,7 +133,7 @@ $finalAmt=$invoice-$paid;
             <tr>
                 <td scope="col" style="width: 10%;text-align:left;"><b>Payment:</b>:
                     ${{number_format($InvoiceHistory['amount'],2)}} on Invoice
-                    #{{sprintf('%06d', $InvoiceHistory['invoice_id'])}}</td>
+                    #{{ $Invoice['invoice_id'] }}</td>
             </tr>
             <tr>
                 <td scope="col" style="width: 10%;text-align:left;"><b>Payment
@@ -159,7 +159,7 @@ $finalAmt=$invoice-$paid;
             </tr>
             <tr>
                 <td scope="col" style="width: 10%;text-align:left;"><b>Refund:</b>:
-                    ${{number_format($InvoiceHistory['amount'],2)}} on Invoice #{{sprintf('%06d', $InvoiceHistory['invoice_id'])}}
+                    ${{number_format($InvoiceHistory['amount'],2)}} on Invoice #{{ $Invoice['invoice_id'] }}
             </tr>
             <tr>
                 <td scope="col" style="width: 10%;text-align:left;"><b>Payment
