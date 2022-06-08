@@ -1281,30 +1281,24 @@ class BillingController extends Controller
         // Get user additional info
         $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
         $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
-        if(!empty($fundRequest) || $fundRequest->status == "paid") {
-                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
-                $trustHistoryId = DB::table('trust_history')->insertGetId([
-                    'client_id' => $paymentDetail->user_id,
-                    'payment_method' => $paymentMethod,
-                    'amount_paid' => $paymentDetail->amount,
-                    'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
-                    'payment_date' => date('Y-m-d'),
-                    'fund_type' => 'diposit',
-                    'online_payment_status' => 'paid',
-                    'related_to_fund_request_id' => $paymentDetail->fund_request_id,
-                    'created_by' => $paymentDetail->user_id,
-                    'created_at' => Carbon::now(),
-                ]);
-                $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
-                // For update next/previous trust balance
-                $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
+        if(!empty($fundRequest) && $fundRequest->status == "paid") {
+                $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $paymentDetail->amount);
         } else {
+            if($fundRequest->amount_due < $paymentDetail->amount) {
+                $dueAmt = $fundRequest->amount_due;
+                // Extra amount will move to trust/credit fund
+                $extraAmt = $paymentDetail->amount - $fundRequest->amount_due;
+                $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $extraAmt);
+            } else {
+                $dueAmt = $paymentDetail->amount;
+            }
+
             // Update fund request paid/due amount and status
-            $remainAmt = $fundRequest->amount_due - $paymentDetail->amount;
+            $remainAmt = $fundRequest->amount_due - $dueAmt;
             DB::table("requested_fund")->where("id", $paymentDetail->fund_request_id)
                 ->update([
                     'amount_due' => $remainAmt,
-                    'amount_paid' => ($fundRequest->amount_paid + $paymentDetail->amount),
+                    'amount_paid' => ($fundRequest->amount_paid + $dueAmt),
                     'payment_date' => date('Y-m-d'),
                     'status' => ($remainAmt == 0) ? 'paid' : 'partial',
                     'online_payment_status' => 'paid',
@@ -1312,11 +1306,11 @@ class BillingController extends Controller
                 ]);                        
             //Deposit into trust account
             if($fundRequest->deposit_into_type == "trust") {
-                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
+                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $dueAmt);
                 $trustHistoryId = DB::table('trust_history')->insertGetId([
                     'client_id' => $paymentDetail->user_id,
                     'payment_method' => $paymentMethod,
-                    'amount_paid' => $paymentDetail->amount,
+                    'amount_paid' => $dueAmt,
                     'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
                     'payment_date' => date('Y-m-d'),
                     'fund_type' => 'diposit',
@@ -1332,22 +1326,22 @@ class BillingController extends Controller
 
                 // For allocated case trust balance
                 if($fundRequest->allocated_to_case_id != '') {
-                    DB::table('case_master')->where('id', $fundRequest->allocated_to_case_id)->increment('total_allocated_trust_balance', $paymentDetail->amount);
-                    DB::table('case_client_selection')->where('case_id', $fundRequest->allocated_to_case_id)->where('selected_user', $paymentDetail->user_id)->increment('allocated_trust_balance', $paymentDetail->amount);
+                    DB::table('case_master')->where('id', $fundRequest->allocated_to_case_id)->increment('total_allocated_trust_balance', $dueAmt);
+                    DB::table('case_client_selection')->where('case_id', $fundRequest->allocated_to_case_id)->where('selected_user', $paymentDetail->user_id)->increment('allocated_trust_balance', $dueAmt);
                 }
                 // For allocated lead case trust balance
                 if($fundRequest->allocated_to_lead_case_id != '') {
-                    LeadAdditionalInfo::where('user_id', $fundRequest->allocated_to_lead_case_id)->increment('allocated_trust_balance', $paymentDetail->amount);
+                    LeadAdditionalInfo::where('user_id', $fundRequest->allocated_to_lead_case_id)->increment('allocated_trust_balance', $dueAmt);
                 }
 
                 // For update next/previous trust balance
                 $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
             } else {
                 // Deposit into credit account
-                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('credit_account_balance', $paymentDetail->amount);
+                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('credit_account_balance', $dueAmt);
                 $creditHistoryId = DB::table('deposit_into_credit_history')->insertGetId([
                     'user_id' => $paymentDetail->user_id,
-                    'deposit_amount' => $paymentDetail->amount,
+                    'deposit_amount' => $dueAmt,
                     'payment_method' => strtolower($paymentMethod),
                     'payment_date' => date("Y-m-d"),
                     'total_balance' => @$userAdditionalInfo->credit_account_balance,

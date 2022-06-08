@@ -1121,6 +1121,13 @@ class ClientdashboardController extends BaseController
                     }else{
                         $onlinePaymentStatus = ($data->online_payment_status == 'pending') ? "(Payment Pending)" : (($data->online_payment_status == 'expired') ? "(Expired)" : "");
                         $ftype="Deposit into Trust ".$allocateTxt." ".$isRefund.$onlinePaymentStatus;
+                        if($data->is_invoice_fund_request_overpaid == 'yes') {
+                            $ftype .= '<div class="position-relative" style="float: right;">
+                                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'.__('billing.trust_history_invoice_overpaid_note').'</div>">
+                                                <img style="border: none;" src="'. asset('icon/note.svg') .'">
+                                            </a>
+                                        </div>';
+                        }
                     }
                 }
                 return $ftype;
@@ -3560,8 +3567,6 @@ class ClientdashboardController extends BaseController
                 $csv_data = array_map('str_getcsv', file($path));
                 // echo implode("",$csv_data[0]);
                 // print_r($csv_data);exit;
-                $ClientCompanyImport->file_type="2";
-                $ClientCompanyImport->save(); 
                 $arrayGroup=[];
                 $UserArray=[];
                 $counter=0;
@@ -3649,7 +3654,7 @@ class ClientdashboardController extends BaseController
                                     $UserArray[$finalOperationKey]['job_title'] = ($title[1] != '') ? str_replace(" ", "", $title[1]) : NULL;
                                 }
 
-                                if (strpos($v, 'ADR') !== false) { 
+                                /* if (strpos($v, 'ADR') !== false) { 
                                     $adr=explode(":",$v);
                                     if(count($adr) > 1) {
                                         $adr1 = explode(";", $adr[1]);
@@ -3661,7 +3666,7 @@ class ClientdashboardController extends BaseController
                                             $UserArray[$finalOperationKey]['postal_code'] = (isset($adr1[3]) && $adr1[3] != '') ? quoted_printable_decode($adr1[3]) : NULL;
                                         }
                                     }
-                                }
+                                } */
 
                                 if (strpos($v, 'ORG') !== false) { 
                                     $company_name = explode(":",$v);
@@ -3681,6 +3686,7 @@ class ClientdashboardController extends BaseController
                         // }
                     }
                     foreach($UserArray as $userKey=>$userVal){
+                        if($userVal['first_name'] != '') {
                         $User = New User;
                         $User->user_level=$userVal['user_level'];
                         $User->first_name=$userVal['first_name'];
@@ -3708,7 +3714,11 @@ class ClientdashboardController extends BaseController
                         $UsersAdditionalInfo->created_by = Auth::User()->id;
                         $UsersAdditionalInfo->created_at=date('Y-m-d H:i:s');
                         $UsersAdditionalInfo->save();
-
+                        $ic++;
+                    
+                        } else {
+                            $warningList = "<ul><li>First name can't be blank </li></ui></br>";
+                        }
                         $ClientCompanyImportHistory=new ClientCompanyImportHistory;
                         $ClientCompanyImportHistory->client_company_import_id=$ClientCompanyImport->id;
                         $ClientCompanyImportHistory->full_name=$userVal['fullNameString'] ?? NULL;
@@ -3717,12 +3727,10 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImportHistory->contact_group=NULL;
                         $ClientCompanyImportHistory->outstanding_amount=0;
                         $ClientCompanyImportHistory->status="1";
-                        $ClientCompanyImportHistory->warning_list=NULL;
+                        $ClientCompanyImportHistory->warning_list= $warningList ?? NULL;
                         $ClientCompanyImportHistory->firm_id=Auth::User()->firm_name;
                         $ClientCompanyImportHistory->created_by=Auth::User()->id;
                         $ClientCompanyImportHistory->save();
-                        $ic++;
-                        
                     }
                     $ClientCompanyImport->status="1";
                     $ClientCompanyImport->total_imported=$ic;

@@ -911,7 +911,12 @@
                     ${{number_format($addition,2)}}<br>
                     <?php } ?>
                     <br>
-                    ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$totalFwdAmt-$discount+$addition,2)}}<br>
+                    @if($findInvoice->total_amount == 0)
+                        $0.00
+                    @else
+                    ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$totalFwdAmt-$discount+$addition,2)}}
+                    @endif
+                    <br>
                     ${{number_format($findInvoice->paid_amount,2)}}
                 </td>
             </tr>

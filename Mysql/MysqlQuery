@@ -1,3 +1,7 @@
+------------------------------------ 08-JUN-2022 ------------------------------
+ALTER TABLE `trust_history`
+ADD `is_invoice_fund_request_overpaid` enum('no','yes') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'no' AFTER `is_invoice_cancelled`;
+
 ------------------------------------ 07-JUN-2022 ------------------------------
 ALTER TABLE `invoice_payment`
 ADD `payable_amount` decimal(20,2) NULL AFTER `is_invoice_cancelled`;

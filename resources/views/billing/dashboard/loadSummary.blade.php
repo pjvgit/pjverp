@@ -12,7 +12,7 @@
     <?php 
         if(in_array($type,["all","b"])){?>
     <div class="ml-auto text-right">
-        <div id="Mtotal">Monthly Total: <strong>{{number_format($monthlyHourss,1)}} hrs</strong></div>
+        <div id="Mtotal">Monthly Total: <strong>{{number_format($monthlyHours,1)}} hrs</strong></div>
         <div>
             <div class="d-flex">
                 <div class="undefined d-flex flex-row">

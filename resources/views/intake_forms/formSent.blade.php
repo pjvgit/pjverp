@@ -398,11 +398,11 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                     <div class="row ">
                                         <div class="pr-2 col-12">
                                             <label class="form-check-label">
-                                                <input type="radio" <?php if($v->is_required=="yes"){ echo "required";} ?> <?php if( isset($filledData->yesno) && $filledData->yesno=="Yes") { echo "checked=checked"; }?> name="yesno" class="pick-option ml-2" value="yes">
+                                                <input type="radio" <?php if($v->is_required=="yes"){ echo "required";} ?> <?php if( isset($filledData->yesno) && $filledData->yesno=="yes") { echo "checked=checked"; }?> name="yesno" class="pick-option ml-2" value="yes">
                                                 <span>Yes</span>
                                             </label>
                                             <label class="form-check-label">
-                                                <input type="radio" <?php if($v->is_required=="yes"){ echo "required";} ?> name="yesno" <?php if(isset($filledData->yesno) && $filledData->yesno=="No") { echo "checked=checked"; } ?>  class="pick-option ml-2" value="No">
+                                                <input type="radio" <?php if($v->is_required=="yes"){ echo "required";} ?> name="yesno" <?php if(isset($filledData->yesno) && $filledData->yesno=="no") { echo "checked=checked"; } ?>  class="pick-option ml-2" value="no">
                                                 <span>No</span>
                                             </label>
                                         </div>

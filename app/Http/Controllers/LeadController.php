@@ -6182,6 +6182,9 @@ class LeadController extends BaseController
             if($v->form_field=="driver_license" && $v->is_required=="yes"){
                 $requiredArray=array("driver_license_number"=>"required","driver_license_state"=>"required");
             }
+            if($v->form_field=="yesno" && $v->is_required=="yes"){
+                $requiredArray=array("yesno"=>"required");
+            }
 
             if($v->form_field=="long_text" && $v->is_required=="yes"){
                 $requiredArray=array("long_text"=>"required");

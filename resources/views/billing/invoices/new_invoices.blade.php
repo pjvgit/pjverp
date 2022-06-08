@@ -3034,10 +3034,10 @@ $nonBillableAmount = 0;
                 var alert = 0;
                 var nonBillableAmount = {{$nonBillableAmount}};
                 var final_total = ($(".final_total").html() != undefined) ? $(".final_total").html().replace(/,/g, '') : 0.00;        
+                var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
+                var addition_amount = ($(".additions_section_total").html() != undefined) ? $(".additions_section_total").html().replace(/,/g, '') : 0.00;        
                 <?php if($case_id == "none"){ ?>
                     var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
-                    var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
-                    var addition_amount = ($(".additions_section_total").html() != undefined) ? $(".additions_section_total").html().replace(/,/g, '') : 0.00;        
                     if(flat_fee_sub_total_text > 0) {
                         alert++;
                     }
@@ -3058,7 +3058,7 @@ $nonBillableAmount = 0;
                     }
                 <?php }else{ ?>
                     // console.log("nonBillableAmount : " + nonBillableAmount)
-                    if(final_total == 0 && nonBillableAmount == 0){
+                    if(final_total == 0 && nonBillableAmount == 0 && discount_amount == 0){
                         swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
                         alert++;
                         afterLoader();

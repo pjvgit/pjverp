@@ -2216,7 +2216,7 @@ class BillingController extends BaseController
                     $firmData=Firm::find(Auth::User()->firm_name);
                     $getTemplateData = EmailTemplate::find(44);
                     foreach ($userCaseStaffList as $k => $v){
-                        \App\Jobs\DeleteInvoiceJob::dispatch(sprintf('%06d', @$Invoices['id']), $v, $firmData, $getTemplateData);
+                        \App\Jobs\DeleteInvoiceJob::dispatch(@$Invoices->invoice_id, $v, $firmData, $getTemplateData);
                     }
                 }
                 }
@@ -4244,6 +4244,9 @@ class BillingController extends BaseController
             $InvoiceSave->firm_id = auth()->user()->firm_name;
             $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
             $InvoiceSave->invoice_token=Str::random(250);
+            if($request->final_total_text == 0){
+                $InvoiceSave->status="Paid";
+            }
             if($request->final_total_text == 0 && $request->nonBillableAmount > 0){
                 $InvoiceSave->status="Paid";
             }
@@ -4366,31 +4369,7 @@ class BillingController extends BaseController
       
                     $findUSer=User::find($v);
                     $getTemplateData = EmailTemplate::find(20);
-                    // $token=BASE_URL."bills/invoices/view/".base64_encode($InvoiceSave->id);
-
                     dispatch(new ShareInvoiceClientEmailJob($InvoiceSave, $findUSer, $getTemplateData));
-
-                    /* $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
-                    $mail_body = $getTemplateData->content;
-                    $mail_body = str_replace('{name}', $fullName,$mail_body);
-                    $mail_body = str_replace('{email}', $email,$mail_body);
-                    $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                    $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-                    $mail_body = str_replace('{token}', $token,$mail_body);
-                    $mail_body = str_replace('{regards}', $firmData['firm_name'], $mail_body);  
-                    $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
-                    $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                    $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
-                    
-                    $userEmail = [
-                        "from" => FROM_EMAIL,
-                        "from_title" => $firmData['firm_name'],
-                        "subject" => $firmData['firm_name']." has sent you an invoice",
-                        "to" => $email,
-                        "full_name" => $fullName,
-                        "mail_body" => $mail_body
-                        ];
-                    $sendEmail = $this->sendMail($userEmail); */
                 }
             }
 
@@ -4430,7 +4409,7 @@ class BillingController extends BaseController
                 $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
                 if($forwardedInvoices) {
                     foreach($forwardedInvoices as $key => $item) {
-                        $this->updateInvoiceDraftStatus($InvoiceSave->invoice_id);
+                        $this->updateInvoiceDraftStatus($InvoiceSave->id);
                         $item->fill(["status" => "Forwarded"])->save();
                         InvoiceHistory::create([
                             "invoice_id" => $item->id,
@@ -6085,7 +6064,7 @@ class BillingController extends BaseController
             $InvoiceSave->bill_sent_status = $request->bill_sent_status;
             // $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
-            $InvoiceSave->due_amount = $request->final_total_text - $InvoiceSave->paid_amount;
+            $InvoiceSave->due_amount = ($request->final_total_text > 0) ? $request->final_total_text - $InvoiceSave->paid_amount : $request->final_total_text;
             $InvoiceSave->terms_condition=$request->bill['terms_and_conditions'];
             $InvoiceSave->notes=$request->bill['bill_notes'];
             if(!in_array($InvoiceSave->status, ['Partial','Paid','Forwarded','Overdue'])) {
@@ -6350,7 +6329,7 @@ class BillingController extends BaseController
                 $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
                 if($forwardedInvoices) {
                     foreach($forwardedInvoices as $key => $item) {
-                        $this->updateInvoiceDraftStatus($InvoiceSave->invoice_id);
+                        $this->updateInvoiceDraftStatus($InvoiceSave->id);
                         $item->fill(["status" => "Forwarded"])->save();
                         InvoiceHistory::create([
                             "invoice_id" => $item->id,
@@ -6473,7 +6452,7 @@ class BillingController extends BaseController
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{name}', $fullName,$mail_body);
                 $mail_body = str_replace('{loginurl}', BASE_URL.'login',$mail_body);
-                $mail_body = str_replace('{invoice}', $invoice_id,$mail_body);
+                $mail_body = str_replace('{invoice}', $FindInvoice->invoice_id, $mail_body);
                 $mail_body = str_replace('{token}', $token,$mail_body);
                 $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
                 $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
@@ -10462,10 +10441,12 @@ class BillingController extends BaseController
         $monthlyHours=0;
         if($request->type=="all" || $request->type=="b"){
             $monthlyHours = TaskTimeEntry::select('task_time_entry')
-            ->whereIn('created_by',$getChildUsers)
+            // ->whereIn('created_by',$getChildUsers)
             ->whereBetween('entry_date',[$startDate,$endDate]);
             if($request->forUser!=0){
                 $monthlyHours=$monthlyHours->where('user_id',$request->forUser);
+            } else {
+                $monthlyHours = $monthlyHours->where('created_by', auth()->id());
             }
             if($request->type=="all"){
                 $monthlyHours=$monthlyHours->whereIn("time_entry_billable",["yes","no"]);
@@ -10573,6 +10554,7 @@ class BillingController extends BaseController
         $TaskTimeEntry =TaskTimeEntry::leftJoin("users","task_time_entry.user_id","=","users.id")
         ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
         ->leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
+        ->where("task_time_entry.firm_id", auth()->user()->firm_name)
         ->select('task_time_entry.*',"task_activity.title as activity_title","case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number"  ,"case_master.id as cid",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid");
         if($request->forUser!=0){
             $TaskTimeEntry =$TaskTimeEntry->where("user_id",$request->forUser);
