@@ -34,6 +34,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 aria-selected="true">Full Backup</a>
                         </li>
                     </ul>
+                    @can('case_add_edit')
                     <div class="tab-content w-100" id="myTabContent">
                         <div class="tab-pane fade   {{ request()->is('imports/court_cases') ? 'active show' : '' }}"
                             id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab2">
@@ -79,6 +80,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             </div>
                         </div>
                     </div>
+                    @endcan
                 </div>
                
             </div>

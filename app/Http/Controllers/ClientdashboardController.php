@@ -3155,7 +3155,7 @@ class ClientdashboardController extends BaseController
 
     public function generateContactvCard($request){
       
-        $user = User::select("*")->where("user_level","2")->where("parent_user",Auth::user()->id);
+        $user = User::select("*")->where("user_level","2")->where("firm_name",Auth::user()->firm_name);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
             $user = $user->orWhere("users.user_status","4");  
         }
@@ -3175,10 +3175,10 @@ class ClientdashboardController extends BaseController
             $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
-            $vCard .= "END:VCARD\r\n";
+            $vCard .= "END:VCARD\r\n\n";
 
         }
-
+        // return $vCard;
         // $filePath = '/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/contacts.vcf"; // you can specify path here where you want to store file.
         $folderPath = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name);
         if(!File::isDirectory($folderPath)){
