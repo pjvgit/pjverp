@@ -143,6 +143,7 @@ trait OnlinePaymentTrait {
                 'created_at' => Carbon::now(),
                 'is_invoice_fund_request_overpaid' => 'yes',
             ]);
+            Log::info("credit history saved");
             $paymentDetail->fill(['credit_history_id' => $creditHistoryId])->save();
 
             // For update next/previous credit balance

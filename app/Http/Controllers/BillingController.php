@@ -7860,6 +7860,7 @@ class BillingController extends BaseController
                 $Applied=FALSE;
                 $Invoices=Invoices::find($v1);
                 $CaseMaster=CaseMaster::find($Invoices['case_id']);
+                if($Invoices->total_amount > 0) {
                 $InvoiceAdjustment = new InvoiceAdjustment;
                 
                 $FlatFeeEntryForInvoiceTotal = $TimeEntryForInvoiceTotal = $GrandTotalByInvoiceExp = $InvoiceAdjustmentTotal = $forwardedInvoicesGrandTotal = 0;
@@ -8032,7 +8033,7 @@ class BillingController extends BaseController
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
                 $InvoiceAdjustment->created_by=Auth::User()->id; 
                 }
-                
+                }
                 if($Applied==TRUE){
                     
                     if($Invoices->payment_plan_enabled == 'no'){
@@ -8052,10 +8053,10 @@ class BillingController extends BaseController
                         $Invoices->due_amount=$subTotalSave;
                         $Invoices->save();
                     }else{
-                        $notSavedInvoice .='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';    
+                        $notSavedInvoice .='<li>'. @$Invoices->invoice_id.' ('.@$CaseMaster['case_title'].')</li>';    
                     }
                 }else{
-                    $notSavedInvoice .='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';
+                    $notSavedInvoice .='<li>'. @$Invoices->invoice_id.' ('.@$CaseMaster['case_title'].')</li>';
                 }
             }
             return response()->json(['errors'=>'','list'=> $notSavedInvoice]);

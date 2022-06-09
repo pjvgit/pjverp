@@ -1294,6 +1294,7 @@ class BillingController extends Controller
             } else {
                 $dueAmt = $paymentDetail->amount;
             }
+            sleep(2);
             Log::info("fund request due amount: ".$dueAmt);
             // Update fund request paid/due amount and status
             $remainAmt = $fundRequest->amount_due - $dueAmt;
