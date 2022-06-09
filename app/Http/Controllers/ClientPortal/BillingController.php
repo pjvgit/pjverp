@@ -1282,8 +1282,10 @@ class BillingController extends Controller
         $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
         $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
         if(!empty($fundRequest) && $fundRequest->status == "paid") {
+            Log::info("fund request fully paid");
                 $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $paymentDetail->amount);
         } else {
+            Log::info("partially overpayment");
             if($fundRequest->amount_due < $paymentDetail->amount) {
                 $dueAmt = $fundRequest->amount_due;
                 // Extra amount will move to trust/credit fund
@@ -1292,7 +1294,7 @@ class BillingController extends Controller
             } else {
                 $dueAmt = $paymentDetail->amount;
             }
-
+            Log::info("fund request due amount: ".$dueAmt);
             // Update fund request paid/due amount and status
             $remainAmt = $fundRequest->amount_due - $dueAmt;
             DB::table("requested_fund")->where("id", $paymentDetail->fund_request_id)

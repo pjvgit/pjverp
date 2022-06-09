@@ -87,10 +87,12 @@ trait OnlinePaymentTrait {
      */
     public function savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $amount)
     {        
+        Log::info("fund request over payment");
         $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
         $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
         
         if($fundRequest->deposit_into_type == "trust") {
+            Log::info("trust fund request");
             DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $amount);
             $trustHistoryId = DB::table('trust_history')->insertGetId([
                 'client_id' => $paymentDetail->user_id,
@@ -121,7 +123,9 @@ trait OnlinePaymentTrait {
 
             // For update next/previous trust balance
             $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
+            Log::info("trust request saved");
         } else if($fundRequest->deposit_into_type == "credit") {
+            Log::info("credit fund request");
             // Deposit into credit account
             DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('credit_account_balance', $amount);
             $creditHistoryId = DB::table('deposit_into_credit_history')->insertGetId([
@@ -143,8 +147,9 @@ trait OnlinePaymentTrait {
 
             // For update next/previous credit balance
             $this->updateNextPreviousCreditBalance($paymentDetail->user_id);
+            Log::info("credit request saved");
         } else {
-
+            Log::info("overpayment else");
         }
     }
 }
