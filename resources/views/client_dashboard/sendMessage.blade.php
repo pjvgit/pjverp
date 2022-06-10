@@ -10,19 +10,24 @@
                 <label for="firstName1">Send To</label>
                 <span id="to_user_input_area">
                     <select class="form-control contact_group" id="sendto" name="send_to[]" data-placeholder="Type a name"
-                        multiple>
+                        multiple {{ (isset($_REQUEST['page']) && $_REQUEST['page'] == 'user_id') ? 'disabled' : '' }} style="{{ (isset($_REQUEST['page']) && $_REQUEST['page'] == 'user_id') ? 'background-color: #eee; opacity: 1;' : '' }}">
+                        @if($clientLists)
                         <optgroup label="Contact">
                             <?php foreach($clientLists as $clientekey=>$clientval){ ?>
                                 <option uType="client" data-set="client" value="client-{{$clientval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'user_id' && $_REQUEST['id'] == $clientval->id) ? "selected" : ""; ?>>
                                     {{substr($clientval->first_name,0,100)}} {{substr($clientval->last_name,0,100)}} </option>
                                     <?php } ?>
                         </optgroup>
+                        @endif
+                        @if(count($CaseMasterCompany))
                         <optgroup label="Companies">
                             <?php foreach($CaseMasterCompany as $companykey=>$companyval){ ?>
                             <option uType="company" data-set="company" value="company-{{$companyval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'user_id' && $_REQUEST['id'] == $companyval->id) ? "selected" : ""; ?>>
                                 {{substr($companyval->first_name,0,100)}} </option>
                             <?php } ?>
                         </optgroup>
+                        @endif
+                        @if($CaseMasterData)
                         <optgroup label="Cases">
                             <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
                             <option uType="case" data-set="case" value="case-{{$Caseval->id}}">
@@ -30,41 +35,18 @@
                                 <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> </option>
                             <?php } ?>
                         </optgroup>
+                        @endif
+                        @if(count($loadFirmUser))
                         <optgroup label="Firm Users">
                             <?php foreach($loadFirmUser as $staffkey=>$staffval){ ?>
                             <option uType="staff" data-set="staff" value="staff-{{$staffval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['id'] == $staffval->id) ? "selected" : ""; ?> >
                                 {{substr($staffval->first_name,0,100)}} {{substr($staffval->last_name,0,100)}} </option>
                             <?php } ?>
                         </optgroup>
+                        @endif
                     </select>
                     <span id="callername"></span>
                 </span>
-
-                <?php /* 
-                <div id="to_autocomplete_spinner" style="position: absolute; top: 28px; right: 0px; display: none;">
-                    <img src="{{BASE_URL}}images/ajax_arrows.gif">
-                </div>
-                <ul id="searchResult" class="ui-menu"></ul>
-                <div class="clear"></div>
-                <div id="userDetail"></div>
-                <div id="to_selections" class="clearfix">
-                    <div id="to_user_21260036" class="badge badge-light border p-2 my-1 mr-1">
-                        <span> Client3 m name (Client)
-                            <a href="#" onclick="Effect.Fade('to_user_21260036', {duration: 0.3, afterFinish: function() {$('to_user_21260036').remove();}}); return false;">
-                                <i class="fas fa-times-circle text-dark"></i>
-                            </a>
-                            <input type="hidden" name="to[]" id="to_" value="21260036">
-                        </span>
-                    </div>
-                    
-                </div>
-            </div>
-            <div class="col-md-4 form-group mb-3 pt-4">
-                <label for="firstName1">&nbsp;</label>
-                <input type="checkbox" name="send_global" id="send_global" value="1">
-                <label for="send_global">Send a global message</label>
-            </div>
-            */?>
 
                 <div id="to_user_global_options"
                     style="border: 1px solid rgb(200, 200, 200); background-color: rgb(243, 243, 243); padding: 7px 15px; display: block;">
@@ -76,11 +58,12 @@
                 </div>
 
             </div>
-            <div class="col-md-4 form-group mb-3 pt-4">
+            {{-- Moved to v2 --}}
+            {{-- <div class="col-md-4 form-group mb-3 pt-4">
                 <label for="firstName1">&nbsp;</label>
                 <input type="checkbox" name="send_global" id="send_global">
                 <label for="send_global">Send a global message</label>
-            </div>
+            </div> --}}
         </div>
         <hr>
         <table>
@@ -109,7 +92,7 @@
             <div class="col-md-8 form-group mb-3">
                 <label for="firstName1">Case Link</label>
                 <select class="form-control contact_group" id="case_link" name="case_link"
-                    data-placeholder="Type a name">
+                    data-placeholder="Type a name" {{ (isset($_REQUEST['page']) && $_REQUEST['page'] == 'case_id') ? 'disabled' : '' }}>
                     <option></option>
                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
                     <option uType="case" data-set="case" value="{{$Caseval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'case_id' && $_REQUEST['id'] == $Caseval->id) ? "selected" : ""; ?>>

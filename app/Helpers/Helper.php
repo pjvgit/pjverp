@@ -84,11 +84,6 @@ function firmUserList()
                 // ->where("user_status","1")
                 // ->orWhere("id",Auth::user()->id)
                 // ->orderBy('first_name','asc')->get();
-    /* $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
-    $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-    $getChildUsers[]=Auth::user()->id;
-    $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-    $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get(); */
 
     return  DB::table('users')->select("first_name","last_name","id","user_level","user_title","default_rate","default_color",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as full_name'))
                 ->where("firm_name",Auth::user()->firm_name)

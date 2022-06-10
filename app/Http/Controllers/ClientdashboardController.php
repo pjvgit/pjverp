@@ -1971,61 +1971,54 @@ class ClientdashboardController extends BaseController
 
     public function addNewMessagePopup(Request $request)
     {
-
-        //For company List
-        // $CaseMasterCompanyList = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
-        // foreach($CaseMasterCompanyList as $k=>$v){
-        //     $compnayIdWithEnablePortal = DB::table("users_additional_info")
-        //     ->select("id")
-        //     ->whereRaw("find_in_set($v->id,`multiple_compnay_id`)")
-        //     ->where("client_portal_enable",1)
-        //     ->get()
-        //     ->pluck("id");
-        // }
-        // $CaseMasterCompany = User::select("first_name","last_name","id","user_level")
-        // ->whereIn("id",$CaseMasterCompanyList)
-        // ->get();
+        // return $request->all();
 
         $authUser = auth()->user();
         //For company list
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_status");
-        /* if(Auth::user()->parent_user==0){
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
-            $CaseMasterCompany = $CaseMasterCompany->whereIn("parent_user",$getChildUsers);              
-        }else{
-            $CaseMasterCompany = $CaseMasterCompany->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
-        } */
         $CaseMasterCompany = $CaseMasterCompany->where('firm_name', $authUser->firm_name);
+        if($request->page == "case_id") {
+            $CaseMasterCompany = $CaseMasterCompany->whereHas("clientCasesSelection", function($query) use($request) {
+                $query->where("case_id", $request->id);
+            });
+        }
         $CaseMasterCompany=$CaseMasterCompany->where('user_level',"4")->whereIn('user_status',["1","2"])->get();
         
         //Get client list with client enable portal is active
          $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as id");
         $user = $user->where("user_level","2"); //Load all client 
-
-        /* if(Auth::user()->parent_user==0){
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
-            $user = $user->whereIn("parent_user",$getChildUsers);
-        }else{
-            $user = $user->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
-        } */
         $user = $user->where('firm_name', $authUser->firm_name);
         $user = $user->whereIn("users.user_status",[1,2]);
+        if($request->page == "case_id") {
+            $user = $user->whereHas("clientCasesSelection", function($query) use($request) {
+                $query->where("case_id", $request->id);
+            });
+        }
         $clientLists=$user->get();
 
         //Get firm user list 
-        $loadFirmUser = firmUserList();
+        // $loadFirmUser = firmUserList();
+        $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate","default_color")
+                        ->where("firm_name", $authUser->firm_name)
+                        ->where("user_level","3")
+                        ->where("user_status","1");
+        if($request->page == "case_id") {
+            $loadFirmUser = $loadFirmUser->whereHas("caseStaff", function($query) use($request) {
+                $query->where("case_id", $request->id);
+            });
+        }
+        $loadFirmUser = $loadFirmUser->orderBy('first_name','asc')->get();
         
         //Get all active case list with client portal enabled.
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
-        if(Auth::user()->parent_user==0){
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
-            $case = $case->whereIn("case_master.created_by",$getChildUsers);
-        }else{
-            $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
-            $case = $case->whereIn("case_master.id",$childUSersCase);
+        $case = $case->where("firm_name", $authUser->firm_name);
+        if($request->page == "case_id") {
+            $case = $case->where("case_master.id", $request->id);
+        }
+        if($request->page == "user_id") {
+            $case = $case->whereHas("caseAllClient", function($query) use($request) {
+                $query->where("selected_user", $request->id);
+            });
         }
         $case = $case->where("case_close_date", NULL);
         $case = $case->where("case_master.is_entry_done","1");
@@ -3175,7 +3168,7 @@ class ClientdashboardController extends BaseController
             $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
-            $vCard .= "END:VCARD\r\n\n";
+            $vCard .= "END:VCARD\r\n";
 
         }
         // return $vCard;

@@ -24,9 +24,17 @@
 <td style="padding: 10px;font-weight:600;">Case/Lead Name:</td>
 <td style="padding: 10px;">
 @if($event->case_id)
+@if($user->user_level == '3')
 <a href="{{ route('info', $event->case->case_unique_number) }}">{{ @$event->case->case_title }}</a>
+@else
+{{ @$event->case->case_title }}
+@endif
 @elseif($event->lead_id)
+@if($user->user_level == '3')
 <a href="{{ url('leads/case_details/info', $event->lead_id) }}">{{ @$event->leadUser->full_name }}</a>
+@else
+{{ @$event->leadUser->full_name }}
+@endif
 @else
 <p class="d-inline" style="opacity: 0.7;">Not specified</p>
 @endif

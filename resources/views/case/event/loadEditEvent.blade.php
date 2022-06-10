@@ -1154,6 +1154,9 @@
             firmStaff();
             $("#edit_event_right_section").html('');
             $(".hideUser").hide();
+            if($(".fieldGroupEventReminder").length > 1) {
+                $(".fieldGroupEventReminder").not(':first-child').remove();
+            }
         } else {
             $("#edit_event_right_section").html('');
             $(".hideUser").show();

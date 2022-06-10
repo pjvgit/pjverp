@@ -672,6 +672,7 @@ class BillingController extends BaseController
     } 
     public function saveExpenseBulkEntryPopup(Request $request)
     {
+        // return $request->all();
         // print_r($request->all());exit;
         $validator = \Validator::make($request->all(), [
             'case_or_lead' => 'required',
@@ -12757,11 +12758,18 @@ class BillingController extends BaseController
             ->where('user_id',$Invoices['user_id'])
             ->get();
         }else{
-            $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
-            ->select("users.email","users.first_name","users.last_name","users.user_title")
-            ->where('case_staff.case_id',$Invoices['case_id'])  
-            ->get();
-            $clientList = User::where('id',$Invoices['user_id'])->get();
+            if($Invoices->case_id) {
+                $userCaseStaffList =  CaseStaff::join('users','case_staff.user_id','=','users.id')
+                    ->select("users.email","users.first_name","users.last_name","users.user_title")
+                    ->where('case_staff.case_id',$Invoices['case_id'])  
+                    ->get();
+                $clientList = User::whereHas("clientCasesSelection", function($query) use($Invoices) {
+                        $query->where("case_id", $Invoices->case_id)->whereNull("deleted_at");
+                    })->get();
+            } else {
+                $userCaseStaffList = [];
+                $clientList = User::where('id',$Invoices['user_id'])->get();
+            }
         }
 
         

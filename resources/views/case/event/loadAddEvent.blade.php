@@ -351,7 +351,7 @@
                 <label for="reminders" class="col-sm-2 col-form-label">Reminders</label>
                 <div class="col">
                     <p><b>Note:</b> You must be linked to this Event in order to create reminders.</p>
-                    <div>
+                    <div id="event_reminder_div">
                         <div class="fieldGroupEventReminder">
                         </div>
                         <div class="text-muted mb-2">You can only edit reminders that you created. Reminders assigned to you by another firm user will need to be edited by the creator.</div>
@@ -683,6 +683,9 @@
                 
                 changeCaseUser();
                 $(".hideUser").hide();
+                if($(".fieldGroupEventReminder").length > 1) {
+                    $(".fieldGroupEventReminder").not(':first-child').remove();
+                }
             } else {
                 $(".hideUser").show();
                 $('#case_or_lead').removeAttr("disabled");
