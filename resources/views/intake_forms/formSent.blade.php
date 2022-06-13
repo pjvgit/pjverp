@@ -270,7 +270,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                                     data-placeholder="Select Country" style="width: 100%;">
                                                     <option value="">Select Country</option>
                                                     <?php foreach($country as $key=>$val){?>
-                                                    <option value="{{$val->id}}"> {{$val->name}}</option>
+                                                    <option value="{{$val->id}}" {{ (isset($filledData) && isset($filledData->country) && $filledData->country == $val->id) ? 'selected' : '' }}> {{$val->name}}</option>
                                                     <?php } ?>
                                                 </select>
                                             </div>

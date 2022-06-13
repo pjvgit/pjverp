@@ -25,7 +25,7 @@
                                 {{ @$v->case->case_title }}
                                 @endif
                             </td>
-                            <td>{{ $v->id }}</td>
+                            <td>{{ $v->unique_invoice_number }}</td>
                             <td>{{ $v->status }}</td>
                             <td>${{ number_format($v->due_amount ?? 0,2) }}</td>
                             <td>
@@ -50,7 +50,7 @@
                 </div><br>
                 <ul>
                     @foreach($NonSavedInvoices as $k=>$v)
-                        <li>{{sprintf('%06d', $v->id)}}
+                        <li>{{ $v->invoice_id }}
                         @if($v->is_lead_invoice == "yes")
                             ({{ @$v->leadAdditionalInfo->potential_case_title }})
                         @else
@@ -72,7 +72,7 @@
                 </div><br>
                 <ul>
                     <?php foreach($NonSavedInvoices as $k=>$v){?>
-                    <li>{{sprintf('%06d', $v->id)}} 
+                    <li>{{ $v->invoice_id }} 
                         @if($v->is_lead_invoice == "yes")
                             ({{ @$v->leadAdditionalInfo->potential_case_title }})
                         @else

@@ -1,7 +1,9 @@
 ------------------------------------ 13-JUN-2022 ------------------------------
 ALTER TABLE `trust_history`
-CHANGE `is_invoice_fund_request_overpaid` `is_invoice_fund_request_overpaid` enum('no','partial','full') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'no' AFTER `is_invoice_cancelled`;
+CHANGE `is_invoice_fund_request_overpaid` `is_invoice_fund_request_overpaid` enum('no','yes','partial','full') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'no' AFTER `is_invoice_cancelled`;
 
+ALTER TABLE `task_linked_staff`
+ADD `is_read` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `is_assign`;
 ------------------------------------ 09-JUN-2022 ------------------------------
 ALTER TABLE `deposit_into_credit_history`
 ADD `is_invoice_fund_request_overpaid` enum('no','yes') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'no' AFTER `is_invoice_cancelled`

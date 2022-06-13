@@ -13,6 +13,7 @@ use App\LeadAdditionalInfo;
 use App\User;
 use App\CaseStage;
 use App\Invoices;
+use App\Task;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\UsersAdditionalInfo;
@@ -683,4 +684,16 @@ function getInvoiceUniqueNumber($invoiceId)
 {
     $invoice = Invoices::whereId($invoiceId)->select('unique_invoice_number')->first();
     return $invoice->unique_invoice_number ?? 0;
+}
+
+/**
+ * Get current logged in user's unread task count
+ */
+function getUnreadTaskCount()
+{
+    $authUser = auth()->user();
+    $taskCount = Task::where("firm_id", $authUser->firm_name)->whereHas("taskLinkedStaff", function($query) use($authUser) {
+                    $query->where("users.id", $authUser->id);
+                })->count();
+    return $taskCount ?? 0;
 }

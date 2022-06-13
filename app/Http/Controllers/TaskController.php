@@ -86,7 +86,9 @@ class TaskController extends BaseController
 
         //Filter applied on case/lead column
         if(isset($_GET['cl']) && $_GET['cl']!=''){
-            $task = $task->where("task.case_id",$_GET['cl'])->orWhere("task.lead_id",$_GET['cl']);
+            $task = $task->where(function($query) {
+                $query->where("task.case_id",$_GET['cl'])->orWhere("task.lead_id",$_GET['cl']);
+            });
         }
         
         
