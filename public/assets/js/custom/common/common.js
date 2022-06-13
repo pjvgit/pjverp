@@ -631,3 +631,9 @@ window.addEventListener("beforeunload", function(e) {
     return undefined;
 });
 // End
+
+// Dismiss/CLose grant access modal
+$(document).on('click', '#loadGrantAccessModal .dismissLoadGrantAccessModal', function() {
+    localStorage.setItem('loadGrantAccessModal', "hide");
+    $('#loadGrantAccessModal').modal('hide');
+});

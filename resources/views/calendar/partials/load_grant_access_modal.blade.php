@@ -17,12 +17,12 @@
 </div>
 {{-- If open section, event list not working --}}
 @section('modal-js')
-<script type="text/javascript">
+{{-- <script type="text/javascript">
     
     $(document).on('click', '.dismissLoadGrantAccessModal', function() {
         localStorage.setItem('loadGrantAccessModal', "hide");
         $('#loadGrantAccessModal').modal('hide');
     });
     
-</script>
+</script> --}}
 @endsection

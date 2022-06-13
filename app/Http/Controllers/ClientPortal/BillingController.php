@@ -1169,7 +1169,7 @@ class BillingController extends Controller
                 $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
                 // For update next/previous trust balance
                 $this->updateNextPreviousTrustBalance($paymentDetail->user_id); */
-                $this->savePaymentToTrustFund($paymentDetail, $invoice, $paymentDetail->amount);
+                $this->savePaymentToTrustFund($paymentDetail, $invoice, $paymentDetail->amount, 'full');
             } else {
                 Log::info("receive oxxo cash payment");
 
@@ -1177,7 +1177,7 @@ class BillingController extends Controller
                     $dueAmt = $invoice->due_amount;
                     // Extra amount will move to trust allocated fund
                     $extraAmt = $paymentDetail->amount - $invoice->due_amount;
-                    $this->savePaymentToTrustFund($paymentDetail, $invoice, $extraAmt);
+                    $this->savePaymentToTrustFund($paymentDetail, $invoice, $extraAmt, 'partial');
                 } else {
                     $dueAmt = $paymentDetail->amount;
                 }
@@ -1283,14 +1283,14 @@ class BillingController extends Controller
         $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
         if(!empty($fundRequest) && $fundRequest->status == "paid") {
             Log::info("fund request fully paid");
-                $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $paymentDetail->amount);
+                $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $paymentDetail->amount, 'full');
         } else {
             Log::info("partially overpayment");
             if($fundRequest->amount_due < $paymentDetail->amount) {
                 $dueAmt = $fundRequest->amount_due;
                 // Extra amount will move to trust/credit fund
                 $extraAmt = $paymentDetail->amount - $fundRequest->amount_due;
-                $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $extraAmt);
+                $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $extraAmt, 'partial');
             } else {
                 $dueAmt = $paymentDetail->amount;
             }

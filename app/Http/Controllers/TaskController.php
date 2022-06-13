@@ -1534,11 +1534,11 @@ class TaskController extends BaseController
         $from="edit";
 
 
-        $caseLinkeSavedAttendingContact= CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$task_id)->where("task_linked_staff.is_assign","yes")->where("task_linked_staff.is_contact","yes")->get()->pluck('user_id');
+        $caseLinkeSavedAttendingContact= CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$task_id)->where("task_linked_staff.is_assign","yes")->where("task_linked_staff.is_contact","yes")->whereNull('task_linked_staff.deleted_at')->get()->pluck('user_id');
         $caseLinkeSavedAttendingContact= $caseLinkeSavedAttendingContact->toArray();
         
       }
-     
+        // return $caseCllientSelection;
     //   dd($caseLinkedSavedAssigned);
       return view('task.loadTaskRightSection',compact('caseCllientSelection','loadFirmUser','from','task_id','caseLinkedStaffList','caseNonLinkedAssigned','caseLinkedSavedAssigned','caseLinkeSaved','caseLinkeSavedAttendingContact'));     
       exit;    

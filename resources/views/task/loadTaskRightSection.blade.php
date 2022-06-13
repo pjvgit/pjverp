@@ -9,10 +9,15 @@
                     </th>
             </tr>
             <tr>
+                @php
+                    $linkedExistContact = $caseCllientSelection->whereIn('id', $caseLinkeSavedAttendingContact);
+                @endphp
                 <td><b>Select All</b></td>
-                <td sr-count="{{count($caseCllientSelection) .'-'.count($caseLinkeSavedAttendingContact)}}" ><input name="client-share-all" id="SelectAllLeadShare" class="load-client-reminder"
-                <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>
-                type="checkbox"></td>
+                <td sr-count="{{count($caseCllientSelection) .'-'.count($caseLinkeSavedAttendingContact)}}" >
+                    <input name="client-share-all" id="SelectAllLeadShare" class="load-client-reminder"
+                        <?php if(count($caseCllientSelection)==count($linkedExistContact)){?> checked="checked" <?php } ?>
+                        type="checkbox">
+                </td>
             </tr>
             <?php 
             foreach($caseCllientSelection as $key=>$val){?>

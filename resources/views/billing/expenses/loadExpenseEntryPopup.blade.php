@@ -263,93 +263,7 @@
                     <div class="col-1"></div>
                 </div> -->
             </div>
-            <div class="maturity_div copy-new hide maturity_div" id="optionTemplate2">
-                <h5 class="mt-3 bold">Expense <span name="expenseCount[]"></span></h5>
-                <div class="no-gutters row ">
-                    <div class="m-0 pr-3 col-3"><label>Case</label></div>
-                    <div class="m-0 pr-3 col-2"><label>Activity</label></div>
-                    <div class="m-0 pr-3 col-3"><label>Description</label></div>
-                    <div class="m-0 pr-1 col-1"><label>Cost</label></div>
-                    <div class="m-0 pr-3 col-1"><label>Quantity</label></div>
-                    <div class="m-0 pr-3 col-1"><label>Billable</label></div>
-                    <div class="col-1"></div>
-                </div>
-                <div class="no-gutters row ">
-                    <div class="pr-4 col-3">
-                        <div class="">
-                            <div class="row no-gutters">
-                                <select class="form-control case_or_lead" id="case_or_lead" name="case_or_lead[]"
-                                    data-placeholder="Search for an existing contact or company">
-                                    <option value="">Select case</option>
-                                    <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                                    <option  <?php if($case_id==$Caseval->id){ echo "selected=selected"; }?> value="{{$Caseval->id}}">{{$Caseval->case_title}}
-                                        <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?>
-                                    </option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pr-4 col-2">
-                        <div class="">
-                            <div class="row ">
-                                <select id="activity" name="activity[]" class="form-control custom-select col">
-                                    <option value="">Search activity</option>
-                                    <?php foreach($TaskActivity as $k=>$v){ ?>
-                                    <option value="{{$v->id}}">{{$v->title}}</option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pr-2 col-3">
-                        <input id="bulk-time-entry-row-description-0" name="description[]"
-                            class="form-control description-field"
-                            value="">
-                    </div>
-                    <div class="col-1 pr-2">
-                        <div class="">
-                            <input id="bulk-time-entry-row-cost-0" name="cost[]"
-                                class="form-control duration-field" value="">
-                        </div>
-                    </div>
-                    <div class="col-1 pr-2">
-                        <div class="">
-                            <input id="bulk-time-entry-row-duration-0" name="duration[]"
-                                class="form-control duration-field" value="">
-                        </div>
-                    </div>
-
-                    <div class="col-1 pr-3">
-                        <div class="text-center">
-                            <input type="checkbox" name="billable[]" class="billable-field form-check-input"
-                                checked="checked">
-                        </div>
-                    </div>
-                    <div class="pl-3 col-1">
-                        <button class="btn remove" type="button">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- <div class="mb-2 row ">
-                    <div class="col-7">
-                        <div class="">
-                            <div class="form-check">
-                                <label class="form-check-label ">
-                                    <input type="checkbox" name="billable[]" class="billable-field form-check-input"
-                                        checked="">
-                                    <div class="billtext"> Billable - Rate will be calculated once court case is
-                                        selected</div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- <div class="text-right col-4 showtaax" >0.1 = 6 minutes</div> --}}
-                    <div class="col-1"></div>
-                </div> -->
-            </div>
+            
             <div class="after-add-more-new"></div>
             <div class="row ">
                 <button type="button" id="add-one-row-id" class="btn btn-link add-more-expenses">Add another</button>
@@ -361,9 +275,96 @@
                 </a>
                 <button type="submit" name="save" value="s" class="btn btn-primary submitbutton">Save Entries</button>
             </div>
-            <input type="hidden" name="hideinputcount2" id="hideinputcount2" value="1" />
+            <input type="text" name="hideinputcount2" id="hideinputcount2" value="1" />
 
         </form>
+    </div>
+    <div class="maturity_div copy-new hide maturity_div" id="optionTemplate2">
+        <h5 class="mt-3 bold">Expense <span name="expenseCount[]"></span></h5>
+        <div class="no-gutters row ">
+            <div class="m-0 pr-3 col-3"><label>Case</label></div>
+            <div class="m-0 pr-3 col-2"><label>Activity</label></div>
+            <div class="m-0 pr-3 col-3"><label>Description</label></div>
+            <div class="m-0 pr-1 col-1"><label>Cost</label></div>
+            <div class="m-0 pr-3 col-1"><label>Quantity</label></div>
+            <div class="m-0 pr-3 col-1"><label>Billable</label></div>
+            <div class="col-1"></div>
+        </div>
+        <div class="no-gutters row ">
+            <div class="pr-4 col-3">
+                <div class="">
+                    <div class="row no-gutters">
+                        <select class="form-control case_or_lead" id="case_or_lead" name="case_or_lead[]"
+                            data-placeholder="Search for an existing contact or company">
+                            <option value="">Select case</option>
+                            <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
+                            <option  <?php if($case_id==$Caseval->id){ echo "selected=selected"; }?> value="{{$Caseval->id}}">{{$Caseval->case_title}}
+                                <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?>
+                            </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="pr-4 col-2">
+                <div class="">
+                    <div class="row ">
+                        <select id="activity" name="activity[]" class="form-control custom-select col">
+                            <option value="">Search activity</option>
+                            <?php foreach($TaskActivity as $k=>$v){ ?>
+                            <option value="{{$v->id}}">{{$v->title}}</option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="pr-2 col-3">
+                <input id="bulk-time-entry-row-description-0" name="description[]"
+                    class="form-control description-field"
+                    value="">
+            </div>
+            <div class="col-1 pr-2">
+                <div class="">
+                    <input id="bulk-time-entry-row-cost-0" name="cost[]"
+                        class="form-control duration-field" value="">
+                </div>
+            </div>
+            <div class="col-1 pr-2">
+                <div class="">
+                    <input id="bulk-time-entry-row-duration-0" name="duration[]"
+                        class="form-control duration-field" value="">
+                </div>
+            </div>
+
+            <div class="col-1 pr-3">
+                <div class="text-center">
+                    <input type="checkbox" name="billable[]" class="billable-field form-check-input"
+                        checked="checked">
+                </div>
+            </div>
+            <div class="pl-3 col-1">
+                <button class="btn remove" type="button">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- <div class="mb-2 row ">
+            <div class="col-7">
+                <div class="">
+                    <div class="form-check">
+                        <label class="form-check-label ">
+                            <input type="checkbox" name="billable[]" class="billable-field form-check-input"
+                                checked="">
+                            <div class="billtext"> Billable - Rate will be calculated once court case is
+                                selected</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            {{-- <div class="text-right col-4 showtaax" >0.1 = 6 minutes</div> --}}
+            <div class="col-1"></div>
+        </div> -->
     </div>
 </div>
 <style>
@@ -417,7 +418,7 @@
                 .removeClass('hide')
                 .removeAttr('id')
                 .attr('id', 'div' + (parseInt(hideinputcount2) + parseInt(1)) + '')
-                .insertBefore($template),
+                .insertBefore('.after-add-more-new'),
 
                 $option = $clone.find('[name="case_or_lead[]"]');
             $option.attr('id', 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
@@ -605,7 +606,7 @@
                     .removeClass('hide')
                     .removeAttr('id')
                     .attr('id', 'div' + (parseInt(hideinputcount2) + parseInt(1)) + '')
-                    .insertBefore($template),
+                    .insertBefore('.after-add-more-new'),
                     $option = $clone.find('[name="case_or_lead[]"]');
                 $option.attr('id', 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
                 $option.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
@@ -934,7 +935,7 @@
                 .removeClass('hide')
                 .removeAttr('id')
                 .attr('id', 'div' + (parseInt(hideinputcount2) + parseInt(1)) + '')
-                .insertBefore($template),
+                .insertBefore('.after-add-more-new'),
                 $option = $clone.find('[name="case_or_lead[]"]');
             $option.attr('id', 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             $option.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');

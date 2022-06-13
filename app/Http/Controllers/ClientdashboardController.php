@@ -1121,9 +1121,16 @@ class ClientdashboardController extends BaseController
                     }else{
                         $onlinePaymentStatus = ($data->online_payment_status == 'pending') ? "(Payment Pending)" : (($data->online_payment_status == 'expired') ? "(Expired)" : "");
                         $ftype="Deposit into Trust ".$allocateTxt." ".$isRefund.$onlinePaymentStatus;
-                        if($data->is_invoice_fund_request_overpaid == 'yes') {
+                        if(in_array($data->is_invoice_fund_request_overpaid, ['partial','full']) && !$data->related_to_invoice_id) {
                             $ftype .= '<div class="position-relative" style="float: right;">
                                             <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'.__('billing.trust_history_invoice_overpaid_note').'</div>">
+                                                <img style="border: none;" src="'. asset('icon/note.svg') .'">
+                                            </a>
+                                        </div>';
+                        } else if(in_array($data->is_invoice_fund_request_overpaid, ['partial','full']) && !$data->related_to_fund_request_id) {
+                            $note = ($data->is_invoice_fund_request_overpaid == 'full') ? __('billing.trust_history_frequest_full_overpaid_note') : __('billing.trust_history_frequest_partial_overpaid_note2');
+                            $ftype .= '<div class="position-relative" style="float: right;">
+                                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'.$note.'</div>">
                                                 <img style="border: none;" src="'. asset('icon/note.svg') .'">
                                             </a>
                                         </div>';

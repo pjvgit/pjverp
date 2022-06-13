@@ -28,5 +28,7 @@ return [
     'invoice_overpaid_note' => 'Este pago supera el monto de la factura y se ha abonado a Fondos Asigandos del Caso.',
     'invoice_partially_overpaid_note' => 'Se recibió un pago en exceso. Se ha abonado a la factura el monto necesario para cubrirla y el resto se ha abonado a los Fondos Asignados del Caso. Si requiere hacer un reembolso total, debe reembolsar cada una de las dos partes.',
     'trust_history_invoice_overpaid_note' => 'Se recibió un pago en exceso. Se ha abonado a la factura correspondiente el monto necesario para cubrirla y el resto se ha abonado aquí. Si requiere hacer un reembolso total, debe reembolsar cada una de las dos partes.',
-
+    'trust_history_frequest_full_overpaid_note' => 'Pago recibido en exceso para esta Solicitud.',
+    'trust_history_frequest_partial_overpaid_note1' => 'Se han recibido fondos en exceso para esta Solicitud. La diferencia aparece en esta misma tabla con el mismo número de Solicitud. Si requiere hacer un reembolso total, debe reembolsar cada una de las dos partes.',
+    'trust_history_frequest_partial_overpaid_note2' => 'Fondos recibidos en exceso para esta Solicitud. Si requiere hacer un reembolso total, debe reembolsar cada una de las dos partes.',
 ];

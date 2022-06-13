@@ -46,7 +46,7 @@ trait OnlinePaymentTrait {
     /**
      * Save invoice overpayment to trust fund
      */
-    public function savePaymentToTrustFund($paymentDetail, $invoice, $amount)
+    public function savePaymentToTrustFund($paymentDetail, $invoice, $amount, $overPaymentType = 'no')
     {
         $caseId = ($invoice->case_id != 0 && $invoice->is_lead_invoice == 'no') ? $invoice->case_id : Null; 
         $leadCaseId = ($invoice->case_id == Null || $invoice->is_lead_invoice == 'yes') ? $invoice->user_id : Null;
@@ -68,7 +68,7 @@ trait OnlinePaymentTrait {
             "allocated_to_lead_case_id" => $leadCaseId ?? Null,
             'created_by' => $paymentDetail->user_id,
             'created_at' => Carbon::now(),
-            'is_invoice_fund_request_overpaid' => 'yes',
+            'is_invoice_fund_request_overpaid' => $overPaymentType,
         ]);
         if(isset($caseId)) {
             DB::table('case_master')->where('id', $caseId)->increment("total_allocated_trust_balance", $amount);
@@ -85,7 +85,7 @@ trait OnlinePaymentTrait {
     /**
      * Save fund request overpayment to trust/credit fund
      */
-    public function savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $amount)
+    public function savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $amount, $overPaymentType = 'no')
     {        
         Log::info("fund request over payment");
         $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
@@ -107,7 +107,7 @@ trait OnlinePaymentTrait {
                 'online_payment_status' => 'paid',
                 'created_by' => $paymentDetail->user_id,
                 'created_at' => Carbon::now(),
-                'is_invoice_fund_request_overpaid' => 'yes',
+                'is_invoice_fund_request_overpaid' => $overPaymentType,
             ]);
             $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
 
@@ -141,7 +141,7 @@ trait OnlinePaymentTrait {
                 'online_payment_status' => 'paid',
                 'created_by' => $paymentDetail->user_id,
                 'created_at' => Carbon::now(),
-                'is_invoice_fund_request_overpaid' => 'yes',
+                'is_invoice_fund_request_overpaid' => $overPaymentType,
             ]);
             Log::info("credit history saved");
             $paymentDetail->fill(['credit_history_id' => $creditHistoryId])->save();
