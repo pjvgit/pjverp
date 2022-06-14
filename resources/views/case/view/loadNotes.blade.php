@@ -51,5 +51,51 @@
         return false;
     }
     $('#hiddenLable').hide();
+
+    $('#discardNotesForm').submit(function (e) {
+        beforeLoader();
+        e.preventDefault();
+
+        if (!$('#discardNotesForm').valid()) {
+            beforeLoader();
+            return false;
+        }
+        var dataString = '';
+        dataString = $("#discardNotesForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/contacts/clients/discardNote", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&delete=yes';
+            },
+            success: function (res) {
+                    beforeLoader();
+                    if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    return false;
+                } else {
+                    window.location.reload();
+                }
+            },
+            error: function (xhr, status, error) {
+            $('.showError').html('');
+            var errotHtml =
+                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+            $('.showError').append(errotHtml);
+            $('.showError').show();
+            afterLoader();
+        }
+        });
+    });
 </script>
 @endsection

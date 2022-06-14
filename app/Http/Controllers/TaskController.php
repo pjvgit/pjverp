@@ -143,12 +143,13 @@ class TaskController extends BaseController
     
         $caseLeadList = userLeadList();
 
+        // New logic set. This code is not required
         // read all app notifications
-        if(Auth::user()->parent_user == 0){
+        /* if(Auth::user()->parent_user == 0){
             AllHistory::where('type','task')->where('created_by', '!=' , Auth::user()->id )->update(['is_read'=>0]);
         }else{
             AllHistory::where('type','task')->where('created_by', Auth::user()->parent_user)->update(['is_read'=>0]);
-        }
+        } */
         return view('task.index',compact('task','CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','loadFirmStaff','CaseMasterData','CaseMasterClient','CaseMasterCompany',/* 'user_id', */'practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress','caseLeadList'));
     }
 
@@ -442,6 +443,7 @@ class TaskController extends BaseController
                 }
 
                 $CaseTaskLinkedStaff->linked_or_not_with_case="no";
+                $CaseTaskLinkedStaff->is_read= ($request['share_checkbox_nonlinked'][$i] != auth()->id()) ? "no" : 'yes';
                 $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                 $CaseTaskLinkedStaff->save();
             }
@@ -901,6 +903,7 @@ class TaskController extends BaseController
                     }
                     $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
                     $CaseTaskLinkedStaff->is_assign="yes";
+                    $CaseTaskLinkedStaff->is_read = ($v != auth()->id()) ? "no" : "yes";
                     $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                     $CaseTaskLinkedStaff->save();
                     $finalDataList[]=$CaseTaskLinkedStaff->id;
@@ -917,6 +920,7 @@ class TaskController extends BaseController
                         }
                         $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
                         $CaseTaskLinkedStaff->is_assign="yes";
+                        $CaseTaskLinkedStaff->is_read = ($v != auth()->id()) ? "no" : "yes";
                         $CaseTaskLinkedStaff->updated_by=Auth::user()->id; 
                         $CaseTaskLinkedStaff->save();
                         $finalDataList[]=$CaseTaskLinkedStaffCheck->id;
@@ -1313,6 +1317,9 @@ class TaskController extends BaseController
         // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
         $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
     
+        // Set task as read/viewed
+        CaseTaskLinkedStaff::where("user_id", auth()->id())->where("task_id", $request->task_id)->update(['is_read' => 'yes']);
+
     return view('task.taskView',compact('TaskData','CaseMasterData','TaskCreatedBy','TaskAssignedTo','TaskReminders','TaskChecklist','TaskChecklistCompleted','CaseMasterClient','CaseMasterCompany',/* 'user_id', */'practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));     
     exit;   
   }
@@ -1344,6 +1351,9 @@ class TaskController extends BaseController
 
     $TaskChecklist = TaskChecklist::leftJoin('users','users.id','=','task_checklist.updated_by')->select("task_checklist.*","users.first_name","users.last_name","users.id as uid","users.user_type")->where("task_id", $request->task_id)->orderBy('checklist_order','ASC')->get();
     $TaskChecklistCompleted = TaskChecklist::leftJoin('users','users.id','=','task_checklist.updated_by')->select("task_checklist.*","users.first_name","users.last_name","users.id as uid","users.user_type")->where("task_id", $request->task_id)->where('status','1')->count();
+
+        // Set task as read/viewed
+        CaseTaskLinkedStaff::where("user_id", auth()->id())->where("task_id", $task_id)->update(['is_read' => 'yes']);
 
     return view('case.taskView',compact('TaskData','CaseMasterData','TaskCreatedBy','TaskAssignedTo','TaskReminders','TaskChecklist','TaskChecklistCompleted','CaseMasterData','TaskCompletedBy','task_id'));     
     exit;   

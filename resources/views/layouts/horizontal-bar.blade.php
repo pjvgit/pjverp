@@ -77,7 +77,7 @@
                         <div>
                             <div>
                                 <label class="toggle" for="drop-2">Tasks</label>
-                                <a href="{{route('tasks')}}">Tasks <span class="badge badge-secondary taskCount" style="margin-bottom: 10px;"></span></a><input type="checkbox" id="drop-2">
+                                <a href="{{route('tasks')}}">Tasks <span class="badge badge-secondary {{-- taskCount --}}" style="margin-bottom: 10px;">{{ getUnreadTaskCount() }}</span></a><input type="checkbox" id="drop-2">
 
                             </div>
                         </div>

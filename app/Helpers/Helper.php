@@ -693,7 +693,7 @@ function getUnreadTaskCount()
 {
     $authUser = auth()->user();
     $taskCount = Task::where("firm_id", $authUser->firm_name)->whereHas("taskLinkedStaff", function($query) use($authUser) {
-                    $query->where("users.id", $authUser->id);
+                    $query->where("users.id", $authUser->id)->where('task_linked_staff.is_read', 'no');
                 })->count();
     return $taskCount ?? 0;
 }

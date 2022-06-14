@@ -644,7 +644,7 @@
         if(localStorage.getItem('loadGrantAccessModal') == 'hide'){
             localStorage.setItem('loadGrantAccessModal', '')
         }else{
-            window.location.reload();
+            // window.location.reload();
         }        
     });
 </script>

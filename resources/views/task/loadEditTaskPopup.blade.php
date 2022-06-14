@@ -539,7 +539,7 @@
             url: baseUrl + "/tasks/loadTaskRightSection",
             data: {"case_id": case_id,"task_id":{{$Task->id}}},
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#editTask #loadTaskSection").html(res);
                 afterLoader();
             }
         })
@@ -747,6 +747,6 @@
     }
 
     $('#editTask').on('hidden.bs.modal', function () {
-        window.location.reload();
+        // window.location.reload();
     });
 </script>

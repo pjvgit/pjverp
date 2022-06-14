@@ -862,9 +862,9 @@ class HomeController extends BaseController
                 if($v->type == 'event'){
                     $eventCount += 1;
                 }
-                if($v->type == 'task'){
+                /* if($v->type == 'task'){
                     $taskCount += 1;
-                }           
+                }  */          
             }
             $appNotificaionCount = array("eventCount" => $eventCount, "taskCount" => $taskCount);
         }
@@ -873,9 +873,9 @@ class HomeController extends BaseController
                 if($v->type == 'event'){
                     $eventCount += 1;
                 }
-                if($v->type == 'task'){
+                /* if($v->type == 'task'){
                     $taskCount += 1;
-                }           
+                } */           
             }
             $appNotificaionCount = array("eventCount" => $eventCount, "taskCount" => $taskCount);
         }

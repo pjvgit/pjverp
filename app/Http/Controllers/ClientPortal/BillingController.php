@@ -1286,11 +1286,13 @@ class BillingController extends Controller
                 $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $paymentDetail->amount, 'full');
         } else {
             Log::info("partially overpayment");
+            $isPartialOverPaid = 'no';
             if($fundRequest->amount_due < $paymentDetail->amount) {
                 $dueAmt = $fundRequest->amount_due;
                 // Extra amount will move to trust/credit fund
                 $extraAmt = $paymentDetail->amount - $fundRequest->amount_due;
                 $this->savePaymentToTrustCreditFund($paymentDetail, $fundRequest, $extraAmt, 'partial');
+                $isPartialOverPaid = 'yes';
             } else {
                 $dueAmt = $paymentDetail->amount;
             }
@@ -1322,6 +1324,7 @@ class BillingController extends Controller
                     'allocated_to_lead_case_id' => $fundRequest->allocated_to_lead_case_id,
                     'created_by' => $paymentDetail->user_id,
                     'online_payment_status' => 'paid',
+                    'is_invoice_fund_request_overpaid' => $isPartialOverPaid,
                     'created_by' => $paymentDetail->user_id,
                     'created_at' => Carbon::now(),
                 ]);
@@ -1353,6 +1356,7 @@ class BillingController extends Controller
                     'related_to_fund_request_id' => $fundRequest->id,
                     'created_by' => $paymentDetail->user_id,
                     'online_payment_status' => 'paid',
+                    'is_invoice_fund_request_overpaid' => $isPartialOverPaid,
                     'created_by' => $paymentDetail->user_id,
                     'created_at' => Carbon::now(),
                 ]);

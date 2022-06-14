@@ -98,4 +98,12 @@ class UsersAdditionalInfo extends Authenticatable
     {
         return $this->hasOne(LeadAdditionalInfo::class, 'user_id', 'user_id');
     }
+
+    /**
+     * Get client portal enabled attribute, if it not set return 0
+     */
+    public function getClientPortalEnableAttribute()
+    {
+        return $this->client_portal_enable ?? '0';
+    }
 }

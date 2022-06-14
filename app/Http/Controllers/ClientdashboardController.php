@@ -1134,7 +1134,13 @@ class ClientdashboardController extends BaseController
                                                 <img style="border: none;" src="'. asset('icon/note.svg') .'">
                                             </a>
                                         </div>';
-                        }
+                        } else if($data->is_invoice_fund_request_overpaid == 'yes' && !empty($data->related_to_fund_request_id)) {
+                            $ftype .= '<div class="position-relative" style="float: right;">
+                                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'.__('billing.trust_history_frequest_partial_overpaid_note1').'</div>">
+                                                <img style="border: none;" src="'. asset('icon/note.svg') .'">
+                                            </a>
+                                        </div>';
+                        } else {}
                     }
                 }
                 return $ftype;
@@ -3713,6 +3719,7 @@ class ClientdashboardController extends BaseController
                         $UsersAdditionalInfo->notes=$userVal['UsersAdditionalInfoNotes'] ?? NULL; 
                         $UsersAdditionalInfo->created_by = Auth::User()->id;
                         $UsersAdditionalInfo->created_at=date('Y-m-d H:i:s');
+                        $UsersAdditionalInfo->client_portal_enable='0';
                         $UsersAdditionalInfo->save();
                         $ic++;
                     

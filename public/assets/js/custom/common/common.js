@@ -11,12 +11,12 @@ function popupNotification() {
         type: 'GET',
         success: function(result) {
             if (result.view != "") {
-                // if (typeof $.cookie('is_popup_dismissed') === 'undefined') {
+                if (typeof $.cookie('is_popup_dismissed') === 'undefined') {
                     $("#notify_modal_body").html(result.view);
                     $("#notification_popup").modal('show');
-                // } else {
-                //     console.log("cookie set");
-                // }
+                } else {
+                    console.log("cookie set");
+                }
             } else {
                 $("#notification_popup").modal('hide');
                 if(result.appNotificaionCount.eventCount){
@@ -24,11 +24,12 @@ function popupNotification() {
                 }else{
                     $(".eventCount").html('');
                 }
-                if(result.appNotificaionCount.taskCount){
+                // New logic set. This code not required
+                /* if(result.appNotificaionCount.taskCount){
                     $(".taskCount").html('').html(result.appNotificaionCount.taskCount);
                 }else{
                     $(".taskCount").html('');
-                }
+                } */
             }
         },
         error: function(xhr, ajaxOptions, thrownError) {

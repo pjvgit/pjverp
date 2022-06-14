@@ -320,13 +320,16 @@ if(isset($_GET['task_read'])){
                                 <?php } ?>
                             </td>
                             <td class="task-name-cell align-middle">
-
+                                @php
+                                    $isAuthUserLinked = $subrow->taskLinkedStaff->where('id', auth()->id())->first();
+                                    $isTaskRead = (!empty($isAuthUserLinked)) ? $isAuthUserLinked->pivot->is_read : 'yes';
+                                @endphp
                                 <?php if($subrow->task_due_on > date('Y-m-d')){?>
                                 <a href="javascript:void(0);" onclick="loadTaskViewFromTask({{ $subrow->id }})"
-                                    class="p-0 w-100 text-left  btn btn-link">{{ $subrow->task_title }}</a>
+                                    class="p-0 w-100 text-left  btn btn-link {{ ($isTaskRead == 'no') ? 'font-weight-bold' : '' }}">{{ $subrow->task_title }}</a>
                                 <?php }else{ ?>
                                 <a href="javascript:void(0);" onclick="loadTaskViewFromTask({{ $subrow->id }})"
-                                    class="p-0 w-100 text-left text-danger btn btn-link">{{ $subrow->task_title }}</a>
+                                    class="p-0 w-100 text-left text-danger btn btn-link {{ ($isTaskRead == 'no') ? 'font-weight-bold' : '' }}">{{ $subrow->task_title }}</a>
 
                                 <?php } ?>
 
@@ -651,13 +654,16 @@ if(isset($_GET['task_read'])){
                                 <?php } ?>
                             </td>
                             <td class="task-name-cell align-middle">
-
+                                @php
+                                    $isAuthUserLinked = $subrow->taskLinkedStaff->where('id', auth()->id())->first();
+                                    $isTaskRead = (!empty($isAuthUserLinked)) ? $isAuthUserLinked->pivot->is_read : 'yes';
+                                @endphp
                                 <?php if($subrow->task_due_on > date('Y-m-d')){?>
                                 <a  href="javascript:void(0);" onclick="loadTaskViewFromTask({{ $subrow->id }})"
-                                    class="p-0 w-100 text-left  btn btn-link">{{ $subrow->task_title }}</a>
+                                    class="p-0 w-100 text-left  btn btn-link {{ ($isTaskRead == 'no') ? 'font-weight-bold' : '' }}">{{ $subrow->task_title }}</a>
                                 <?php }else{ ?>
                                 <a  href="javascript:void(0);" onclick="loadTaskViewFromTask({{ $subrow->id }})"
-                                    class="p-0 w-100 text-left text-danger btn btn-link">{{ $subrow->task_title }}</a>
+                                    class="p-0 w-100 text-left text-danger btn btn-link {{ ($isTaskRead == 'no') ? 'font-weight-bold' : '' }}">{{ $subrow->task_title }}</a>
 
                                 <?php } ?>
 
