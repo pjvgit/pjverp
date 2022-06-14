@@ -102,8 +102,8 @@ class UsersAdditionalInfo extends Authenticatable
     /**
      * Get client portal enabled attribute, if it not set return 0
      */
-    public function getClientPortalEnableAttribute()
+    /* public function getClientPortalEnableAttribute()
     {
         return $this->client_portal_enable ?? '0';
-    }
+    } */
 }
