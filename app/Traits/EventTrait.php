@@ -622,5 +622,19 @@ trait EventTrait {
             dispatch(new LeadEventInvitationEmailJob($eventRecurring, $caseEvent, $leadUser, $eventAction));
         }
     }
+
+    /**
+     * Convert event start/end date/time to utc zone
+     */
+    public function eventConvertTimestampToUtc($date, $time, $authUserTimezone, $responseType = null)
+    {
+        $timestamp = date('Y-m-d H:i:s',strtotime($date.' '.$time));
+        $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);
+        $date->setTimezone('UTC');
+        if($responseType == 'time') {
+            return $date->format("H:i:s");
+        }
+        return $date;
+    }
 }
  

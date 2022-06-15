@@ -1381,7 +1381,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $(".icon-angle-down").show();
     }
     function loadTimeEntryPopupForNotes(id) {
-        alert();
         $("#preloader").show();
         $("#addTimeEntry").html('');
         $(function () {

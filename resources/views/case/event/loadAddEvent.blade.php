@@ -895,24 +895,24 @@
         }
     }
 
-    $(".add_event_guide").click(function () {
+    $("#loadAddEventPopup").on("click", ".add_event_guide", function () {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/hideAddEventGuide",
             data: {"type":"1"},
             success: function (res) {
-                $("#add_event_guide").html('');
+                $("#loadAddEventPopup #add_event_guide").html('');
             }
         })
     });
 
-    $(".add_event_guide2").click(function () {
+    $("#loadAddEventPopup").on("click", ".add_event_guide2", function () {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/hideAddEventGuide",
             data:  {"type":"2"},
             success: function (res) {
-                $("#add_event_guide2").html('');
+                $("#loadAddEventPopup #add_event_guide2").html('');
             }
         })
     });

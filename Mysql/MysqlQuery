@@ -1,3 +1,8 @@
+------------------------------------ 15-JUN-2022 ------------------------------
+ALTER TABLE `users`
+CHANGE `add_event_guide2` `add_event_guide2` enum('0','1') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT '0' COMMENT '0: Show 1: hide ' AFTER `add_task_guide`,
+CHANGE `add_event_guide` `add_event_guide` enum('0','1') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT '0' COMMENT '0: Show 1: hide ' AFTER `add_event_guide2`;
+
 ------------------------------------ 14-JUN-2022 ------------------------------
 ALTER TABLE `deposit_into_credit_history`
 CHANGE `is_invoice_fund_request_overpaid` `is_invoice_fund_request_overpaid` enum('no','yes','partial','full') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'no' AFTER `is_invoice_cancelled`

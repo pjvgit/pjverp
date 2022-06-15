@@ -23,8 +23,8 @@
 
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
             @csrf
-            <input type="text" class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id">
-            <input type="text" class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" id="event_recurring_id">
+            <input type="hidden" class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id">
+            <input type="hidden" class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" id="event_recurring_id">
             <input type="hidden" class="form-control" value="no" name="is_reminder_updated" id="is_reminder_updated">
             <input type="hidden" class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" id="edit_recurring_pattern">
             <div id="firstStep">
@@ -1165,24 +1165,24 @@
     });
   
         
-    $(".add_event_guide").click(function () {
+    $("#loadEditEventPopup").on('click', ".add_event_guide", function () {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/hideAddEventGuide",
             data: {"type":"1"},
             success: function (res) {
-                $("#add_event_guide").html('');
+                $("#loadEditEventPopup #add_event_guide").html('');
             }
         })
     });
 
-    $(".add_event_guide2").click(function () {
+    $("#loadEditEventPopup").on('click', ".add_event_guide2", function () {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/hideAddEventGuide",
             data:  {"type":"2"},
             success: function (res) {
-                $("#add_event_guide2").html('');
+                $("#loadEditEventPopup #add_event_guide2").html('');
             }
         })
     });

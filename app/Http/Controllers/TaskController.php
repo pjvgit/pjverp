@@ -465,6 +465,7 @@ class TaskController extends BaseController
                 }
                 $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
                 $CaseTaskLinkedStaff->is_assign = "yes";
+                $CaseTaskLinkedStaff->is_read = ($request['linked_staff_checked_attend'][$i] != auth()->id()) ? "no" : "yes";
                 $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                 $CaseTaskLinkedStaff->save();
             }

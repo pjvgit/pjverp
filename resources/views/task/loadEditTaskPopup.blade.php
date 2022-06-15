@@ -166,7 +166,7 @@
                                         <div class="pl-0 col-2">
                                             <div>
                                                 <div class="">
-                                                    <select id="reminder_user_type" name="reminder_user_type[]" class="reminder_user_type form-control custom-select  ">
+                                                    <select name="reminder_user_type[]" class="reminder_user_type form-control custom-select  " onchange="changeTaskReminderUserType(this)">
                                                         @forelse (reminderUserType() as $key => $item)
                                                         <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? 'selected' : '' }}>{{ $item }}</option>
                                                         @empty
@@ -178,7 +178,7 @@
                                         <div class="pl-0 col-2">
                                             <div>
                                                 <div class="">
-                                                    <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
+                                                    <select name="reminder_type[]" class="form-control custom-select valid reminder_type" aria-invalid="false">
                                                     @foreach(getEventReminderTpe() as $k =>$v)
                                                                             <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
                                                                     @endforeach
@@ -189,7 +189,7 @@
                                         <div class="col-3">
                                             <div>
                                                 <div class="">
-                                                    <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  ">
+                                                    <select name="reminder_time_unit[]" class="form-control custom-select reminder_time_unit ">
                                                         <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>
                                                         <option <?php if($rval->reminder_frequncy=="week"){ echo "selected=selected"; } ?> value="week">weeks</option>
                                                     </select>
@@ -309,15 +309,13 @@
                         }
                     }
                 },
-                end_on: {
-                    required: {
-                        depends: function (element) {
-                            var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
-                                var status = false;
-                            }
-                            return status;
+                due_date: {
+                    required: function() {
+                        var status = true;
+                        if ($("#editTask .task-fieldGroup").length <= 1) {
+                            var status = false;
                         }
+                        return status;
                     }
                 },
                 task_name:{
@@ -329,8 +327,8 @@
                     required: "Select a court case or check not linked to a case"
 
                 }, 
-                end_on: {
-                    required: "Please provide an end date or select no end date."
+                due_date: {
+                    required: "Due Date is needed for task reminders"
 
                 },
                 task_name: {
@@ -342,8 +340,6 @@
                 if (element.is('#case_or_lead')) {
                     $($('.select2-container--classic .select2-selection--single')[3]).addClass("input-border-error");
                     error.appendTo('#CaseListError');
-                }else if (element.is('#end_on')) {
-                    error.appendTo('#EndOnListError');
                 } else {
                     element.after(error);
                 }
@@ -395,16 +391,7 @@
                 }
             });
         });
-        $("input:checkbox.all_day").click(function () {
-            if ($(this).is(":checked")) {
-                $("#start_time").attr("readonly", true);
-                $("#end_time").attr("readonly", true);
-
-            } else {
-                $('#start_time').removeAttr("readonly");
-                $('#end_time').removeAttr("readonly");
-            }
-        });
+        
         $("input:checkbox.no_case_link").click(function () {
             if ($(this).is(":checked")) {
                 $("#case_or_lead").attr("disabled", true);
@@ -414,25 +401,6 @@
             }
         });
 
-        $("input:checkbox#no_end_date_checkbox").click(function () {
-            if ($(this).is(":checked")) {
-                $("#end_on").attr("disabled", true);
-            } else {
-                $('#end_on').removeAttr("disabled");
-            }
-        });
-
-        $("input:checkbox.recuring_event").click(function () {
-            if ($(this).is(":checked")) {
-                $("#repeat_dropdown").show();
-                $("#endondiv").show();
-
-            } else {
-                $("#endondiv").hide();
-
-                $('#repeat_dropdown').hide();
-            }
-        });
     });
 
     function removeUser(id) {

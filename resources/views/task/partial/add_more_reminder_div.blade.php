@@ -4,11 +4,15 @@
             <div class="pl-0 col-2">
                 <div>
                     <div class="">
-                        <select id="reminder_user_type" name="reminder_user_type[]" class="reminder_user_type form-control custom-select valid" aria-invalid="false">
-                            <option value="me">Me</option>
+                        <select {{-- id="reminder_user_type" --}} name="reminder_user_type[]" class="reminder_user_type form-control custom-select valid" aria-invalid="false" onchange="changeTaskReminderUserType(this)">
+                            {{-- <option value="me">Me</option>
                             <option value="attorney">Attorneys</option>
                             <option value="paralegal">Paralegals</option>
-                            <option value="staff">Staff</option>
+                            <option value="staff">Staff</option> --}}
+                            @forelse (reminderUserType() as $key => $item)
+                            <option value="{{ $key }}" @if($key == 'client-lead') style="display: none;" @endif>{{ $item }}</option>
+                            @empty
+                            @endforelse
                         </select>
                     </div>
                 </div>
@@ -16,9 +20,12 @@
             <div class="pl-0 col-2">
                 <div>
                     <div class="">
-                        <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
-                                                                        <option value="popup">Popup</option>
-                                                                        <option value="email">Email</option>
+                        <select {{-- id="reminder_type" --}} name="reminder_type[]" class="form-control custom-select reminder_type ">
+                                                                        {{-- <option value="popup">Popup</option>
+                                                                        <option value="email">Email</option> --}}
+                            @foreach(getEventReminderTpe() as $k =>$v)
+                                <option value="{{$k}}">{{$v}}</option>
+                            @endforeach
                                                                 </select>
                     </div>
                 </div>
@@ -27,7 +34,7 @@
             <div class="col-3">
                 <div>
                     <div class="">
-                        <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  ">
+                        <select {{-- id="reminder_time_unit" --}} name="reminder_time_unit[]" class="form-control custom-select reminder_time_unit ">
                             
                             <option value="day">days</option>
                             <option value="week">weeks</option>

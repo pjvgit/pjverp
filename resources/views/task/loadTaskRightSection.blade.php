@@ -11,6 +11,8 @@
             <tr>
                 @php
                     $linkedExistContact = $caseCllientSelection->whereIn('id', $caseLinkeSavedAttendingContact);
+                    $enabledClientPortalUser = $caseCllientSelection->whereIn('id', $caseLinkeSavedAttendingContact)->where('client_portal_enable', '1')->pluck('id')->toArray();
+                    $linkedUserPortalDisabled = $caseCllientSelection->whereIn('id', $caseLinkeSavedAttendingContact)->where('client_portal_enable', '0')->pluck('id')->toArray();
                 @endphp
                 <td><b>Select All</b></td>
                 <td sr-count="{{count($caseCllientSelection) .'-'.count($caseLinkeSavedAttendingContact)}}" >
@@ -34,12 +36,17 @@
                             data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' 
                             data-html="true" data-original-title="" style="display: none;"></i>
                         <?php } ?>
+                        <?php if(in_array($val->id, $linkedUserPortalDisabled)){?> 
+                        <i class="tooltip-alert" id="war_popover_{{ $val->id }}" data-toggle="popover"  data-placement= "bottom" data-trigger="hover"  title="" 
+                            data-content='Client Portal must be enabled for this user' 
+                            data-html="true" data-original-title=""></i>
+                        <?php } ?>
                     </td>
                     <td>
                         <?php if(isset($from) && $from=="edit"){?>
                         <label class="mb-0 loadEventRightSection">
                             <input class="lead_client_share_all_users load-client-reminder" name="linked_contact_checked_attend[]" 
-                            <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?>
+                            <?php if(in_array($val->id,$enabledClientPortalUser)){ ?> checked="checked" <?php } ?>
                             value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
                             <?php if($val->client_portal_enable=='0'){?> onclick="loadGrantAccessModal({{$val->id}});" <?php } ?> data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox">
                         </label>

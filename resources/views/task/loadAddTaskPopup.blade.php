@@ -225,18 +225,7 @@
         $(".dropdown-color").on('click', function () {
             $("#dropdown-menu").toggle();
         });
-        // $(".hide").hide();
-        /* $(".add-more").click(function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
-                '</div>';
-            $('body').find('#addTaskArea .fieldGroup:last').before(fieldHTML);
-        });
-        $('#CreateTask').on('click', '.remove', function () {
-            var $row = $(this).parents('.fieldGroup').remove();
-        }); */
-
-
-        // $(".hide").hide();
+        
         $(".add-more-checklist").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroupChecklist">' + $(".fieldGroupCopyChecklist").html() +
                 '</div>';
@@ -259,15 +248,13 @@
                         }
                     }
                 },
-                end_on: {
-                    required: {
-                        depends: function (element) {
-                            var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
-                                var status = false;
-                            }
-                            return status;
+                due_date: {
+                    required: function() {
+                        var status = true;
+                        if ($("#loadAddTaskPopup .task-fieldGroup").length <= 1) {
+                            var status = false;
                         }
+                        return status;
                     }
                 },
                 task_name:{
@@ -279,8 +266,8 @@
                     required: "Select a court case or check not linked to a case"
 
                 }, 
-                end_on: {
-                    required: "Please provide an end date or select no end date."
+                due_date: {
+                    required: "Due Date is needed for task reminders"
 
                 },
                 task_name: {
@@ -292,8 +279,6 @@
                 if (element.is('#case_or_lead')) {
                     $($('.select2-container--classic .select2-selection--single')[2]).addClass("input-border-error");
                     error.appendTo('#CaseListError');
-                }else if (element.is('#end_on')) {
-                    error.appendTo('#EndOnListError');
                 } else {
                     element.after(error);
                 }
@@ -345,17 +330,6 @@
                 }
             });
         });
-        $("input:checkbox.all_day").click(function () {
-            if ($(this).is(":checked")) {
-                $("#start_time").attr("readonly", true);
-                $("#end_time").attr("readonly", true);
-
-            } else {
-                $('#start_time').removeAttr("readonly");
-                $('#end_time').removeAttr("readonly");
-
-            }
-        });
         $("input:checkbox.no_case_link").click(function () {
             if ($(this).is(":checked")) {
                 $("#case_or_lead").attr("disabled", true);
@@ -364,26 +338,6 @@
                 $('#case_or_lead').removeAttr("disabled");
                 $("#dynamicUSerTimes").html('');
                 
-            }
-        });
-
-        $("input:checkbox#no_end_date_checkbox").click(function () {
-            if ($(this).is(":checked")) {
-                $("#end_on").attr("disabled", true);
-            } else {
-                $('#end_on').removeAttr("disabled");
-            }
-        });
-
-        $("input:checkbox.recuring_event").click(function () {
-            if ($(this).is(":checked")) {
-                $("#repeat_dropdown").show();
-                $("#endondiv").show();
-
-            } else {
-                $("#endondiv").hide();
-
-                $('#repeat_dropdown').hide();
             }
         });
     });

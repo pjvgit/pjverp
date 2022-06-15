@@ -2166,10 +2166,12 @@ class CaseController extends BaseController
                 $recurringEndDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
             }
         }
-
+        
         // Start-End time for all events convert into UTC
-        $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
-        $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
+        // $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
+        // $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
+        $start_time = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'time');
+        $end_time = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'time');
 
         if(!isset($request->recuring_event)) {
             $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
@@ -2180,8 +2182,8 @@ class CaseController extends BaseController
                 "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
                 "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
                 "event_type_id" => $request->event_type ?? NULL,
-                "start_date" => convertDateToUTCzone($start_date, $authUser->user_timezone),
-                "end_date" => convertDateToUTCzone($end_date, $authUser->user_timezone),
+                "start_date" => $start_date,
+                "end_date" => $end_date,
                 "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
                 "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
                 "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
@@ -2259,10 +2261,11 @@ class CaseController extends BaseController
                 $recurringEndDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
             }
         }
-
         // Start-End time for all events convert into UTC
-        $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
-        $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
+        // $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
+        // $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
+        $start_time = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'time');
+        $end_time = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'time');
 
         if($request->delete_event_type=='SINGLE_EVENT') {
             

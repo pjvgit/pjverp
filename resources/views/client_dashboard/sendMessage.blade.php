@@ -10,7 +10,7 @@
                 <label for="firstName1">Send To</label>
                 <span id="to_user_input_area">
                     <select class="form-control contact_group" id="sendto" name="send_to[]" data-placeholder="Type a name"
-                        multiple {{ (isset($_REQUEST['page']) && $_REQUEST['page'] == 'user_id') ? 'disabled' : '' }} style="{{ (isset($_REQUEST['page']) && $_REQUEST['page'] == 'user_id') ? 'background-color: #eee; opacity: 1;' : '' }}">
+                        multiple >
                         @if($clientLists)
                         <optgroup label="Contact">
                             <?php foreach($clientLists as $clientekey=>$clientval){ ?>
@@ -92,7 +92,7 @@
             <div class="col-md-8 form-group mb-3">
                 <label for="firstName1">Case Link</label>
                 <select class="form-control contact_group" id="case_link" name="case_link"
-                    data-placeholder="Type a name" {{ (isset($_REQUEST['page']) && $_REQUEST['page'] == 'case_id') ? 'disabled' : '' }}>
+                    data-placeholder="Type a name" >
                     <option></option>
                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
                     <option uType="case" data-set="case" value="{{$Caseval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'case_id' && $_REQUEST['id'] == $Caseval->id) ? "selected" : ""; ?>>

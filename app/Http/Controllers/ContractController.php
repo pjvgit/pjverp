@@ -119,9 +119,9 @@ class ContractController extends BaseController
             $user->firm_name=Auth::User()->firm_name;
             $user->token  = Str::random(40);
             $user->parent_user =Auth::User()->id;
-            $user->add_event_guide2 = 0;
-            $user->add_event_guide = 0;
-            $user->add_task_guide = 0;            
+            $user->add_event_guide2 = '0';
+            $user->add_event_guide = '0';
+            $user->add_task_guide = '0';            
             // $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
             $user->user_status  = "1";  // Default status is active once verified account it will activated.
             $user->created_by =Auth::User()->id;

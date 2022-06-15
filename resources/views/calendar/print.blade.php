@@ -192,7 +192,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td style="width: 200px;">{{ ($value->case_id != '') ? $value->case_title  :  $value->first_name.' '.$value->last_name }}</td>
+                                    <td style="width: 200px;">{{ ($value->case_id != '') ? $value->case_title  :  @$value->first_name.' '.@$value->last_name }}</td>
                                     <td style="width: 500px;"></td>
                                 </tr>
                             @else

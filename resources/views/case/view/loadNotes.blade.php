@@ -97,5 +97,12 @@
         }
         });
     });
+    function hideshow(id){
+        $("#accordion-item-group"+id).removeClass("show");
+        $(".icon-angle-down-"+id).show();
+    }
+    function hidez(id){
+        $(".icon-angle-down-"+id).hide();
+    }
 </script>
 @endsection

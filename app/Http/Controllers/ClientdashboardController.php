@@ -1995,6 +1995,9 @@ class ClientdashboardController extends BaseController
                 $query->where("case_id", $request->id);
             });
         }
+        if($request->page == "user_id") {
+            $CaseMasterCompany = $CaseMasterCompany->where("users.id", $request->id);
+        }
         $CaseMasterCompany=$CaseMasterCompany->where('user_level',"4")->whereIn('user_status',["1","2"])->get();
         
         //Get client list with client enable portal is active
@@ -2006,6 +2009,9 @@ class ClientdashboardController extends BaseController
             $user = $user->whereHas("clientCasesSelection", function($query) use($request) {
                 $query->where("case_id", $request->id);
             });
+        }
+        if($request->page == "user_id") {
+            $user = $user->where("users.id", $request->id);
         }
         $clientLists=$user->get();
 
@@ -2019,6 +2025,10 @@ class ClientdashboardController extends BaseController
             $loadFirmUser = $loadFirmUser->whereHas("caseStaff", function($query) use($request) {
                 $query->where("case_id", $request->id);
             });
+        }
+        // Need to remove in v2
+        if($request->page == "user_id") {
+            $loadFirmUser = $loadFirmUser->where("users.id", $request->id);
         }
         $loadFirmUser = $loadFirmUser->orderBy('first_name','asc')->get();
         

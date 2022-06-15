@@ -922,7 +922,8 @@
                 if(case_id != '' && case_id > 0){
                     getAndCheckDefaultCaseRate(f, case_id)
                 }
-            });            
+            });    
+            $("#preloader").hide();        
         });
     });
     showDropdown();
