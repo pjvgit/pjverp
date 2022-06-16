@@ -114,7 +114,7 @@ $nonBillableAmount = 0;
                                                         array_push($clientCasesList,$v->id);
                                                     }
                                                     ?>
-                                                    @if(in_array($findInvoice->case_id, $clientCasesList))
+                                                    @if($findInvoice->case_id == 0 || in_array($findInvoice->case_id, $clientCasesList))
                                                     <select name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>

@@ -260,8 +260,8 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <div class="font-weight-bold">Created:</div>
                                     <?php 
                                     if(isset($CaseMaster->created_new_date)){
-                                      echo date('m/d/Y',strtotime($CaseMaster->created_new_date));
-                    
+                                    //   echo date('m/d/Y',strtotime($CaseMaster->created_new_date));
+                                        echo convertUTCToUserTime($CaseMaster->created_at, auth()->user()->user_timezone ?? 'UTC');
                                     }else{
                                       echo "-";
                                     }?> by:

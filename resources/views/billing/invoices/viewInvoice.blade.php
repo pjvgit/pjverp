@@ -410,6 +410,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         min-height: 600px;
         -webkit-box-shadow: 0 0 4px #333;
         box-shadow: 0 0 4px #333;
+        /* height: 600px; */
     }
 
     application-4e0803672e.css:1 div.invoice,

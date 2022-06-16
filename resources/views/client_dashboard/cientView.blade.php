@@ -368,7 +368,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                                     <tr>
                                                         <th>Website</th>
                                                         <td id="client-website">
-                                                            <a href="{{$UsersAdditionalInfo['website']}}">
+                                                            <a href="//{{$UsersAdditionalInfo['website']}}" target="_blank">
                                                                 {{$UsersAdditionalInfo['website']}} </a>
                                                         </td>
                                                     </tr>

@@ -10078,7 +10078,8 @@ class BillingController extends BaseController
         
         //Todays Data
         $TodayTimeEntryData = TaskTimeEntry::select('task_time_entry.*')
-        ->whereIn('created_by',$getChildUsers)
+        // ->whereIn('created_by',$getChildUsers)
+        ->where('created_by', auth()->id())
         ->where('entry_date',date('Y-m-d'))
         ->get();
 
@@ -10102,7 +10103,8 @@ class BillingController extends BaseController
         $startDate=date('Y-m-d',strtotime('this week'));
         $endDate=date('Y-m-d');
         $weekTimeEntryData = TaskTimeEntry::select('task_time_entry.*')
-        ->whereIn('created_by',$getChildUsers)
+        // ->whereIn('created_by',$getChildUsers)
+        ->where('created_by', auth()->id())
         ->whereBetween('entry_date',[$startDate,$endDate])
         ->get();
         foreach($weekTimeEntryData as $k1=>$v1){
@@ -10122,11 +10124,14 @@ class BillingController extends BaseController
         $FinalArray['weekTotal']=$weekTotal;
 
          //This Month data
-        $startDate=date('Y-m-d',strtotime("first day of this month"));
-         $endDate=date('Y-m-d');
+        // $startDate=date('Y-m-d',strtotime("first day of this month"));
+        //  $endDate=date('Y-m-d',strtotime("last day of this month"));
+        $startDate = Carbon::create($request->year, $request->month)->startOfMonth()->format('Y-m-d');
+        $endDate = Carbon::create($request->year, $request->month)->lastOfMonth()->format('Y-m-d');
         $monthTimeEntryData = TaskTimeEntry::select('task_time_entry.*')
-        ->whereIn('created_by',$getChildUsers)
+        // ->whereIn('created_by',$getChildUsers)
         ->whereBetween('entry_date',[$startDate,$endDate])
+        ->where('created_by', auth()->id())
         ->get();
         foreach($monthTimeEntryData as $k1=>$v1){
             if($v1->time_entry_billable=="yes"){
@@ -10367,14 +10372,14 @@ class BillingController extends BaseController
         $startDate = Carbon::parse($request->start)->addMonth(1)->format('Y-m-01');   
         $endDate=date('Y-m-d',strtotime($request->end));
         }
-        $monthTimeEntryData = TaskTimeEntry::select('task_time_entry.*');
+        $monthTimeEntryData = TaskTimeEntry::select('task_time_entry.*')->whereBetween('entry_date',[$startDate,$endDate]);
         // ->whereIn('created_by',$getChildUsers);
         if($request->forUser!=0){
             $monthTimeEntryData=$monthTimeEntryData->where('user_id',$request->forUser);
         } else {
             $monthTimeEntryData = $monthTimeEntryData->where('created_by', auth()->id());
         }
-        $monthTimeEntryData=$monthTimeEntryData->whereBetween('entry_date',[$startDate,$endDate])
+        $monthTimeEntryData=$monthTimeEntryData
         ->whereNull('deleted_at')
         ->get();
         foreach($monthTimeEntryData as $k1=>$v1){
@@ -10392,7 +10397,7 @@ class BillingController extends BaseController
         $monthTimeEntryDataForCalander = DB::table('task_time_entry')
         ->select(
             DB::raw('SUM(duration) as durationsum'),'entry_date'
-        );
+        )->whereBetween('entry_date',[$startDate,$endDate]);
         // ->whereIn('created_by',$getChildUsers);
         if($request->type=="all"){
             $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereIn("time_entry_billable",["yes","no"]);
@@ -10407,30 +10412,11 @@ class BillingController extends BaseController
             $monthTimeEntryData = $monthTimeEntryData->where('created_by', auth()->id());
         }
 
-        $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereBetween('entry_date',[$startDate,$endDate])
+        $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander
         ->where('deleted_at',NULL)
         ->groupBy('entry_date')
         ->get(); 
-        
-        
-        // $monthTimeEntryDataForCalander = DB::table('task_time_entry')
-        // ->select(
-        //     DB::raw('SUM(duration) as durationsum'),'entry_date'
-        // );
-        // if($request->type=="all"){
-        //     $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereIn("time_entry_billable",["yes","no"]);
-        // }else if($request->type=="nb"){
-        //     $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where("time_entry_billable","no");
-        // }else if($request->type=="b"){
-        //     $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where("time_entry_billable","yes");
-        // }
-        // $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereBetween('entry_date',[$startDate,$endDate]);
-        // if($request->forUser!=0){
-        //     $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where('user_id',$request->forUser);
-        // }
-        // $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->groupBy('entry_date')
-        // ->get();  
-        
+                
         $CalenderArray=[];
         $monthlyHourss=0;
         foreach($monthTimeEntryDataForCalander as $k=>$v){
@@ -10560,6 +10546,8 @@ class BillingController extends BaseController
         ->select('task_time_entry.*',"task_activity.title as activity_title","case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number"  ,"case_master.id as cid",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid");
         if($request->forUser!=0){
             $TaskTimeEntry =$TaskTimeEntry->where("user_id",$request->forUser);
+        } else {
+            $TaskTimeEntry = $TaskTimeEntry->where("user_id", auth()->id());
         }
         $TaskTimeEntry =$TaskTimeEntry->where('entry_date',$entryDate)
         ->get();  

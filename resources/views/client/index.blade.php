@@ -221,10 +221,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $('td:eq(5)', nRow).html('<div class="text-left">Disabled</div>'); 
                     
                     }  else{
-                        if(aData.last_login==null){
+                        if(aData.lastloginnewformate==null){
                             $('td:eq(5)', nRow).html('<div class="text-left">Never</div>'); 
                         }else{
-                            $('td:eq(5)', nRow).html('<div class="text-left">'+aData.last_login+'</div>'); 
+                            $('td:eq(5)', nRow).html('<div class="text-left">'+aData.lastloginnewformate+'</div>'); 
                         }
                     }
                 

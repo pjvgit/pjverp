@@ -123,7 +123,7 @@ $userTitle = unserialize(USER_TITLE);
                 <input class="form-control" id="work_phone" value="{{ $userProfile->work_phone ?? old('work_phone') }}" name="work_phone" placeholder="Enter work phone">
             </div>
             <div class="col-md-3 form-group mb-3">
-                <input class="form-control" id="mobile_number" value="{{ $userProfile->cell_phone ?? old('cell_phone') }}" name="cell_phone"
+                <input class="form-control" id="mobile_number" value="{{ $userProfile->mobile_number ?? old('cell_phone') }}" name="cell_phone"
                     placeholder="Enter cell phone">
             </div>
         </div>

@@ -121,9 +121,12 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
             <div class="card-body">
                 <div class="row no-gutters d-flex align-items-center">
                     <div class="col-3 col-md-auto">
-                    @if(file_exists( public_path().'/images/users/'.auth()->user()->id.'_profile.png' ) && auth()->user()->profile_image!='' && auth()->user()->is_published=="yes")
+                        @php
+                            $authUser = auth()->user();
+                        @endphp
+                    @if(file_exists(public_path().'/images/users/'.$authUser->profile_image) && auth()->user()->profile_image!='' && auth()->user()->is_published=="yes")
                             <img class="rounded-circle border" alt=""
-                            src="{{URL::asset('/images/users/')}}/{{auth()->user()->id.'_profile.png'}}"
+                            src="{{ asset('images/users/'.$authUser->profile_image) }}"
                             width="50" height="50" >
                     @else
                             <img class="rounded-circle" alt=""

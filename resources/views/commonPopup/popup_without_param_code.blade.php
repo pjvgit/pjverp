@@ -739,7 +739,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
-<div id="editTask" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
+<div id="editTask" class="modal fade bd-example-modal-xl modal-overflow" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">

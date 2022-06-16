@@ -2032,6 +2032,9 @@ class ClientdashboardController extends BaseController
         }
         $loadFirmUser = $loadFirmUser->orderBy('first_name','asc')->get();
         
+        $CaseMasterData = [];
+        // Need to remove this condition in V2
+        if($request->page == "case_id") {
         //Get all active case list with client portal enabled.
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
         $case = $case->where("firm_name", $authUser->firm_name);
@@ -2046,6 +2049,7 @@ class ClientdashboardController extends BaseController
         $case = $case->where("case_close_date", NULL);
         $case = $case->where("case_master.is_entry_done","1");
         $CaseMasterData = $case->get();
+        }
         return view('client_dashboard.sendMessage',compact('CaseMasterData','CaseMasterCompany','loadFirmUser','clientLists'));     
         exit;
     }

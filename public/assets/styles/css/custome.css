@@ -761,3 +761,7 @@ p {
 .agenda-shared-private-event {
     color: #ca4245;
 }
+
+.modal-overflow{
+    overflow-x: auto !important;
+}

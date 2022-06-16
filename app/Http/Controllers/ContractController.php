@@ -908,7 +908,7 @@ class ContractController extends BaseController
         $user = $user->with("clientCases", "createdByUser");
         $user = $user->offset($requestData['start'])->limit($requestData['length']);
         $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $user = $user->get();
+        $user = $user->get()->each->setAppends(['lastloginnewformate', 'full_name']);
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
             "recordsTotal"    => intval( $totalData ),  // total number of records
@@ -919,11 +919,13 @@ class ContractController extends BaseController
     }
     public function loadAddContact(Request $request)
     {
+        $authUser = auth()->user();
         DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
         $contractUserID=base64_decode($request->user_id);
         $ClientGroup=ClientGroup::where("status","1");
-        $getChildUsers=$this->getParentAndChildUserIds();
-        $ClientGroup=$ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();          
+        // $getChildUsers=$this->getParentAndChildUserIds();
+        // $ClientGroup=$ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();          
+        $ClientGroup=$ClientGroup->where('firm_id', $authUser->firm_name)->get();          
 
         $CompanyList= userCompanyList();
         $country = Countries::get();
@@ -1142,10 +1144,11 @@ class ContractController extends BaseController
     public function loadEditContact(Request $request)
     {
         $user_id=$request->user_id;
-      
+        $authUser = auth()->user();
         $ClientGroup=ClientGroup::where("status","1");
-        $getChildUsers=$this->getParentAndChildUserIds();
-        $ClientGroup = $ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();   
+        // $getChildUsers=$this->getParentAndChildUserIds();
+        // $ClientGroup = $ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();   
+        $ClientGroup = $ClientGroup->where('firm_id', $authUser->firm_name)->get();   
        
         $CompanyList=userCompanyList();
        $country = Countries::get();
@@ -1191,6 +1194,7 @@ class ContractController extends BaseController
                 $ClientGroup=ClientGroup::updateOrCreate(array("id"=> $request->company_contact_groupname));
                 $ClientGroup->group_name=$request->contact_group_text; 
                 $ClientGroup->status="1";
+                $ClientGroup->firm_id = $user->firm_name;
                 $ClientGroup->created_by =Auth::User()->id;
                 $ClientGroup->save();
                 $UsersAdditionalInfo->contact_group_id=$ClientGroup->id;
@@ -1277,7 +1281,7 @@ class ContractController extends BaseController
         $ClientGroup = ClientGroup::leftJoin("users","client_group.created_by","=","users.id")
         ->select('client_group.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid")
         ->where("status","1")->where("client_group.firm_id",Auth::user()->firm_name);
-        $ClientGroup = $ClientGroup; 
+        // $ClientGroup = $ClientGroup; 
         $totalData=$ClientGroup->count();
         $totalFiltered = $totalData;  
         if( !empty($requestData['search']['value']) ) {  
@@ -1365,6 +1369,7 @@ class ContractController extends BaseController
         }else{
             $ClientGroup=ClientGroup::find($id);
             $ClientGroup->group_name=$request->group_name; 
+            $ClientGroup->firm_id = Auth::User()->firm_name;
             $ClientGroup->save();
             session(['popup_success' => 'Your contact group has been updated.']);
 
