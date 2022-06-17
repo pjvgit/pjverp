@@ -113,7 +113,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                                 <a class="font-weight-bolder pendo-left-details-contact"
                                                     href="{{ route('contacts/clients/view', $val->id) }}">{{substr($val->first_name,0,15)}}
                                                     {{substr($val->last_name,0,15)}}</a>
-                                                <small class="ml-1 text-lowercase">(Client)</small>
+                                                <small class="ml-1 ">({{ ucfirst($val->user_title ?? 'Client') }})</small>
                                             </div>
                                             <small><a class="text-break pendo-left-details-contact-email"
                                                     href="mailto:{{$val->email}}">{{$val->email}}</a></small>
@@ -261,7 +261,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <?php 
                                     if(isset($CaseMaster->created_new_date)){
                                     //   echo date('m/d/Y',strtotime($CaseMaster->created_new_date));
-                                        echo convertUTCToUserTime($CaseMaster->created_at, auth()->user()->user_timezone ?? 'UTC');
+                                        echo date('m/d/Y',strtotime(convertUTCToUserTime($CaseMaster->created_at, auth()->user()->user_timezone ?? 'UTC')));
                                     }else{
                                       echo "-";
                                     }?> by:

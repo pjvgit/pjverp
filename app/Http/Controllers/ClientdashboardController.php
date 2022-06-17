@@ -2019,6 +2019,7 @@ class ClientdashboardController extends BaseController
         // $loadFirmUser = firmUserList();
         $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate","default_color")
                         ->where("firm_name", $authUser->firm_name)
+                        ->where('users.id', '!=', $authUser->id)
                         ->where("user_level","3")
                         ->where("user_status","1");
         if($request->page == "case_id") {
@@ -2032,9 +2033,6 @@ class ClientdashboardController extends BaseController
         }
         $loadFirmUser = $loadFirmUser->orderBy('first_name','asc')->get();
         
-        $CaseMasterData = [];
-        // Need to remove this condition in V2
-        if($request->page == "case_id") {
         //Get all active case list with client portal enabled.
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
         $case = $case->where("firm_name", $authUser->firm_name);
@@ -2049,7 +2047,6 @@ class ClientdashboardController extends BaseController
         $case = $case->where("case_close_date", NULL);
         $case = $case->where("case_master.is_entry_done","1");
         $CaseMasterData = $case->get();
-        }
         return view('client_dashboard.sendMessage',compact('CaseMasterData','CaseMasterCompany','loadFirmUser','clientLists'));     
         exit;
     }
@@ -2432,7 +2429,7 @@ class ClientdashboardController extends BaseController
                 if($sendToClient > 0){                    
                     $Messages=new Messages;
                     $Messages->user_id=str_replace(['client-','staff-'],'',implode(',',$request->send_to));
-                    if($request['message']['private_reply'] =="false"){
+                    if(isset($request['message']['private_reply']) && $request['message']['private_reply'] =="false"){
                         $Messages->replies_is='public';
                     }else{
                         $Messages->replies_is='private';
@@ -3009,9 +3006,9 @@ class ClientdashboardController extends BaseController
     }
 
     public function getLastCase($client_id){
-        $CaseClientSelection =CaseClientSelection::select("case_id")->where("selected_user",$client_id)->orderBy("created_at","DESC")->first();
-        if(!empty($CaseClientSelection)){
-            $caseMaster=CaseMaster::select("case_title","case_unique_number")->where("id",$CaseClientSelection['case_id'])->first();
+        $CaseClientSelection =CaseClientSelection::select("case_id")->where("selected_user",$client_id)->orderBy("created_at","DESC")->pluck('case_id')->toArray();
+        if(count($CaseClientSelection)){
+            $caseMaster=CaseMaster::select("case_title","case_unique_number")->whereIn("id",$CaseClientSelection)->get();
             return $caseMaster;
         }else{
             return "";
@@ -3028,14 +3025,14 @@ class ClientdashboardController extends BaseController
         $clientCsvData=[];
         $clientHeader=config('app.name')." ID|First Name|Middle Name|Last Name|Company|Job Title|Home Street|Home Street 2|Home City|Home State|Home Postal Code|Home Country/Region|Home Fax|Work Phone|Home Phone|Mobile Phone|Contact Group|E-mail Address|Web Page|Outstanding Trust Balance|Login Enabled|Archived|Birthday|Private Notes|License Number|License State|Welcome Message|:Notes|Cases|Case Link IDs|Created Date";
         $clientCsvData[]=$clientHeader;
-
-        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid","users_additional_info.*");
+        $authUser = auth()->user();
+        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid", "users.user_status as ustatus","users_additional_info.*", "users.created_at as user_created_at");
         $user = $user->where("user_level","2");  
-        $user = $user->where("parent_user",Auth::user()->id);
+        $user = $user->where("firm_name", $authUser->firm_name);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
-            $user = $user->whereIn("users.user_status",[1,2,4]); 
+            $user = $user->whereIn("users.user_status",['1','2','4']); 
         }else{
-            $user = $user->whereIn("users.user_status",[1,2]); 
+            $user = $user->whereIn("users.user_status",['1','2']); 
         }
         $user = $user->get();
         foreach($user as $clientKey=>$clientVal){
@@ -3062,7 +3059,7 @@ class ClientdashboardController extends BaseController
            }else{
                 $Portal="TRUE";
            }
-           if($clientVal->user_status=="4"){
+           if($clientVal->ustatus=="4"){
                 $Archive="TRUE";
             }else{
                 $Archive="FALSE";
@@ -3076,15 +3073,21 @@ class ClientdashboardController extends BaseController
             $notes='';
             $caseData=$this->getLastCase($clientVal->uid);
             if(!empty($caseData)){
-                $cases=$caseData['case_title'];
-                $casesLinkId=$caseData['case_unique_number'];
+                $cases1 = []; $casesLinkId1 = [];
+                foreach($caseData as $ckey => $cval) {
+                    $cases1[] = $cval['case_title'] ?? '';
+                    $casesLinkId1[] = $cval['case_unique_number'] ?? '';
+                }
+                $cases = implode(",", $cases1);
+                $casesLinkId = implode(",", $casesLinkId1);
             }else{
                 $cases='';
                 $casesLinkId='';
             }
             $webpage=$clientVal->website;
-            $createdAt=date('m/d/Y',strtotime($clientVal->created_at));
-            $clientCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->middle_name."|".$clientVal->last_name."|".$getCompanyName."|".$clientVal->job_title."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->work_phone."|".$clientVal->home_phone."|".$clientVal->mobile_number."|".$contactGroup."|".$clientVal->email."|".$webpage."|0"."|".$Portal."|".$Archive."|".$DOB."|".$clientVal->notes."|".$clientVal->driver_license."|".$clientVal->license_state."|".$welcomeMsg."|".$notes."|".$cases."|".$casesLinkId."|".$createdAt;
+            $createdAt = date('m/d/Y',strtotime(convertUTCToUserTime($clientVal->user_created_at, $authUser->user_timezone ?? 'UTC')));
+            $trustBalance = $clientVal->trust_account_balance ?? 0;
+            $clientCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->middle_name."|".$clientVal->last_name."|".$getCompanyName."|".$clientVal->job_title."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->work_phone."|".$clientVal->home_phone."|".$clientVal->mobile_number."|".$contactGroup."|".$clientVal->email."|".$webpage."|".$trustBalance."|".$Portal."|".$Archive."|".$DOB."|".$clientVal->notes."|".$clientVal->driver_license."|".$clientVal->license_state."|".$welcomeMsg."|".$notes."|".$cases."|".$casesLinkId."|".$createdAt;
         }
         // print_r($clientCsvData);
         // exit;
@@ -3106,22 +3109,20 @@ class ClientdashboardController extends BaseController
         $CompanyCsvData=[];
         $clientHeader=config('app.name')." ID|Company|Business Street|Business Street 2|Business City|Business State|Business Postal Code|Business Country/Region|Business Fax|Company Main Phone|E-mail Address|Web Page|Outstanding Trust Balance|Archived|Private Notes|Contacts|Cases|Case Link IDs|:Notes|Created Date";
         $CompanyCsvData[]=$clientHeader;
-
-        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid","users_additional_info.*",'users.created_at as uct');
+        $authUser = auth()->user();
+        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct');
         $user = $user->where("user_level","4");  
-        if(Auth::user()->parent_user==0){
+        /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
             $user = $user->whereIn("parent_user",$getChildUsers);
         }else{
             $user = $user->where("parent_user",Auth::user()->id);
-        }
-
+        } */
+        $user = $user->where("firm_name", $authUser->firm_name);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
-            // $user = $user->where("users.user_status","4");  
             $user = $user->whereIn("users.user_status",[1,2,4]); 
         }else{
-            // $user = $user->where("users.user_status","1"); 
             $user = $user->whereIn("users.user_status",[1,2]); 
         }
         // dd($user->toSql());
@@ -3136,7 +3137,7 @@ class ClientdashboardController extends BaseController
             if($clientVal->contact_group_id !=NULL){
                 $contactGroup=$this->getContactGroup($clientVal->contact_group_id);
             }
-            if($clientVal->user_status=="4"){
+            if($clientVal->ustatus=="4"){
                 $Archive="TRUE";
             }else{
                 $Archive="FALSE";
@@ -3144,8 +3145,13 @@ class ClientdashboardController extends BaseController
             $notes='';
             $caseData=$this->getLastCase($clientVal->uid);
             if(!empty($caseData)){
-                $cases=$caseData['case_title'];
-                $casesLinkId=$caseData['case_unique_number'];
+                $cases1 = []; $casesLinkId1 = [];
+                foreach($caseData as $ckey => $cval) {
+                    $cases1[] = $cval['case_title'] ?? '';
+                    $casesLinkId1[] = $cval['case_unique_number'] ?? '';
+                }
+                $cases = implode(",", $cases1);
+                $casesLinkId = implode(",", $casesLinkId1);
             }else{
                 $cases='';
                 $casesLinkId='';
@@ -3156,8 +3162,9 @@ class ClientdashboardController extends BaseController
             }else{
                 $contacts='';
             }
-            $createdAt=date('m/d/Y',strtotime($clientVal->uct));
-            $CompanyCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->mobile_number."|".$clientVal->email."|".$clientVal->website."|0"."|".$Archive."|".$clientVal->notes."|".$contacts."|".$cases."|".$casesLinkId."|".$notes."|".$createdAt;
+            $createdAt=date('m/d/Y',strtotime(convertUTCToUserTime($clientVal->uct, $authUser->user_timezone ?? 'UTC')));
+            $trustBalance = $clientVal->trust_account_balance ?? 0;
+            $CompanyCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->mobile_number."|".$clientVal->email."|".$clientVal->website."|".$trustBalance."|".$Archive."|".$clientVal->notes."|".$contacts."|".$cases."|".$casesLinkId."|".$notes."|".$createdAt;
         }
        
         // $file_path=public_path().'/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/".$filename;   
@@ -3174,15 +3181,26 @@ class ClientdashboardController extends BaseController
     }
 
     public function generateContactvCard($request){
-      
-        $user = User::select("*")->where("user_level","2")->where("firm_name",Auth::user()->firm_name);
+        $authUser = auth()->user();
+        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct')
+                ->where("user_level","2")->where("firm_name", $authUser->firm_name);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
-            $user = $user->orWhere("users.user_status","4");  
+            $user = $user->whereIn("users.user_status",[1,2,4]); 
+        }else{
+            $user = $user->whereIn("users.user_status",[1,2]); 
         }
-        $user = $user->where("users.user_status","1"); 
         $user = $user->get();
         $vCard = '';
         foreach($user as $k=>$v){
+            $getCompanyName = '';
+            if(!empty(explode(",",$v->multiple_compnay_id))){
+                $getCompanyList=$this->getCompanyLists($v->multiple_compnay_id);
+                if(count($getCompanyList) > 0){
+                    $companyCount =  count($getCompanyList);
+                    $getCompanyName .= ($companyCount > 0) ? $getCompanyList[$companyCount-1] : $getCompanyList[$companyCount];
+                }
+            }
+
             if($v->country!=NULL){
                 $countryName=$this->getCountryName($v->country);
             }else{
@@ -3195,6 +3213,10 @@ class ClientdashboardController extends BaseController
             $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
+            $vCard .= "BDAY:".(isset($v->dob)) ? date('Ymd', strtotime($v->dob)) : ''."\r\n"; 
+            $vCard .= "ORG:".$getCompanyName."\r\n"; 
+            $vCard .= "TITLE:".$v->job_title ?? ''."\r\n"; 
+            $vCard .= "NOTE:".$v->notes ?? ''."\r\n"; 
             $vCard .= "END:VCARD\r\n";
 
         }
@@ -3709,6 +3731,7 @@ class ClientdashboardController extends BaseController
                         if($userVal['first_name'] != '') {
                         $User = New User;
                         $User->user_level=$userVal['user_level'];
+                        $User->user_title = 'Client';
                         $User->first_name=$userVal['first_name'];
                         $User->last_name=$userVal['last_name'] ?? NULL;
                         $User->email=$userVal['email']?? NULL; 

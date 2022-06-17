@@ -9,6 +9,22 @@
             <div class="col-md-8 form-group mb-3">
                 <label for="firstName1">Send To</label>
                 <span id="to_user_input_area">
+                    @if($_REQUEST['page'] == 'user_id')
+                        <select class="form-control" id="sendtoclient" name="send_to[]" data-placeholder="Type a name" >
+                            @if($clientLists)
+                                <?php foreach($clientLists as $clientekey=>$clientval){ ?>
+                                    <option uType="client" data-set="client" value="client-{{$clientval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'user_id' && $_REQUEST['id'] == $clientval->id) ? "selected" : ""; ?>>
+                                        {{substr($clientval->first_name,0,100)}} {{substr($clientval->last_name,0,100)}} </option>
+                                <?php } ?>
+                            @endif
+                            @if(count($CaseMasterCompany))
+                                <?php foreach($CaseMasterCompany as $companykey=>$companyval){ ?>
+                                <option uType="company" data-set="company" value="company-{{$companyval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'user_id' && $_REQUEST['id'] == $companyval->id) ? "selected" : ""; ?>>
+                                    {{substr($companyval->first_name,0,100)}} </option>
+                                <?php } ?>
+                            @endif
+                        </select>
+                    @else
                     <select class="form-control contact_group" id="sendto" name="send_to[]" data-placeholder="Type a name"
                         multiple >
                         @if($clientLists)
@@ -45,6 +61,7 @@
                         </optgroup>
                         @endif
                     </select>
+                    @endif
                     <span id="callername"></span>
                 </span>
 
@@ -65,6 +82,7 @@
                 <label for="send_global">Send a global message</label>
             </div> --}}
         </div>
+        @if($_REQUEST['page'] == 'case_id')
         <hr>
         <table>
             <tbody>
@@ -88,6 +106,7 @@
 
             </tbody>
         </table>
+        @endif
         <div class="row">
             <div class="col-md-8 form-group mb-3">
                 <label for="firstName1">Case Link</label>
@@ -200,7 +219,7 @@
         // });
         $("#sendEmails").validate({
             rules: {
-                send_to: {
+                'send_to[]': {
                     required: true
                 },
                 subject: {
@@ -208,7 +227,7 @@
                 }
             },
             messages: {
-                send_to: {
+                'send_to[]': {
                     required: "Send To can't be blank",
                 },
                 subject: {
@@ -217,7 +236,7 @@
             },
 
             errorPlacement: function (error, element) {
-                if (element.is('#sendto')) {
+                if (element.is('#sendto') || element.is('#sendtoclient')) {
                     error.appendTo('#callername');
                 } else {
                     element.after(error);

@@ -883,7 +883,7 @@ class CaseController extends BaseController
        
 
         $validator = \Validator::make($request->all(), [
-            'case_name' => 'required|unique:case_master,case_title,'.$request->case_id
+            'case_name' => 'required|unique:case_master,case_title,'.$request->case_id.',id,deleted_at,NULL',
         ]);
         if ($validator->fails())
         {
@@ -1150,7 +1150,7 @@ class CaseController extends BaseController
             ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
             ->leftJoin('user_role','user_role.id','case_client_selection.user_role')
             ->leftJoin('client_group','client_group.id','users_additional_info.contact_group_id')
-            ->select("users.id","users.id as uid","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","case_client_selection.is_billing_contact","contact_group_id","users.profile_image","users.is_published","multiple_compnay_id","user_role.role_name","client_group.group_name")->where("case_client_selection.case_id",$case_id)->get();
+            ->select("users.id","users.id as uid","users.first_name","users.last_name","users.user_level","users.user_title","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","case_client_selection.is_billing_contact","contact_group_id","users.profile_image","users.is_published","multiple_compnay_id","user_role.role_name","client_group.group_name")->where("case_client_selection.case_id",$case_id)->get();
 
             $CompanyList=User::where("user_level","4")->where("parent_user",Auth::User()->id)->pluck("first_name","id");
 

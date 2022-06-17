@@ -908,7 +908,7 @@ class ContractController extends BaseController
         $user = $user->with("clientCases", "createdByUser");
         $user = $user->offset($requestData['start'])->limit($requestData['length']);
         $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $user = $user->get()->each->setAppends(['lastloginnewformate', 'full_name']);
+        $user = $user->get()->each->setAppends(['lastloginnewformate', 'full_name', 'created_date_new']);
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
             "recordsTotal"    => intval( $totalData ),  // total number of records
@@ -981,9 +981,11 @@ class ContractController extends BaseController
             if(isset($request->country)) { $user->country=$request->country; }
             if(isset(Auth::User()->firm_name)) { $user->firm_name=Auth::User()->firm_name; }
             
-            if(isset($request->contact_group)) { 
+            if(isset($request->contact_group) && !isset($request->contact_group_text)) { 
                 $ClientGroup=ClientGroup::find($request->contact_group);
                 $user->user_title=$ClientGroup->group_name; 
+            } else if(isset($request->contact_group_text))  {
+                $user->user_title = $request->contact_group_text;
             } else { $user->user_title="Client";}
 
             $user->token  = Str::random(40);
@@ -1185,6 +1187,12 @@ class ContractController extends BaseController
              $user->postal_code=$request->postal_code; 
              $user->country=$request->country; 
             $user->updated_by =Auth::User()->id;
+            if(isset($request->contact_group) && !isset($request->contact_group_text)) { 
+                $ClientGroup=ClientGroup::find($request->contact_group);
+                $user->user_title=$ClientGroup->group_name; 
+            } else if(isset($request->contact_group_text)) {
+                $user->user_title = $request->contact_group_text;            
+            } else { $user->user_title="Client";}
             $user->save();
             
             $UsersAdditionalInfo= UsersAdditionalInfo::updateOrCreate(array("user_id"=>$user_id));
@@ -1213,14 +1221,22 @@ class ContractController extends BaseController
                 $companyUser->save();
                 $UsersAdditionalInfo->company_id=$companyUser->id;
             }
-            if(isset($request->address2)) { $UsersAdditionalInfo->address2=$request->address2; }
+            /* if(isset($request->address2)) { $UsersAdditionalInfo->address2=$request->address2; }
             if(isset($request->fax_number)) { $UsersAdditionalInfo->fax_number=$request->fax_number; }
             if(isset($request->job_title)) { $UsersAdditionalInfo->job_title=$request->job_title; }
             if(isset($request->driver_license)) { $UsersAdditionalInfo->driver_license=$request->driver_license; }
             if(isset($request->driver_state)) { $UsersAdditionalInfo->license_state=$request->driver_state; }
             if(isset($request->website)) { $UsersAdditionalInfo->website=$request->website; }
             if(isset($request->case_name)) { $UsersAdditionalInfo->case_name=$request->case_name; }
-            if(isset($request->notes)) { $UsersAdditionalInfo->notes=$request->notes; }
+            if(isset($request->notes)) { $UsersAdditionalInfo->notes=$request->notes; } */
+            $UsersAdditionalInfo->address2=$request->address2;
+            $UsersAdditionalInfo->fax_number=$request->fax_number;
+            $UsersAdditionalInfo->job_title=$request->job_title;
+            $UsersAdditionalInfo->driver_license=$request->driver_license;
+            $UsersAdditionalInfo->license_state=$request->driver_state;
+            $UsersAdditionalInfo->website=$request->website;
+            // $UsersAdditionalInfo->case_name=$request->case_name;
+            $UsersAdditionalInfo->notes=$request->notes;
             if(isset($request->dob)) { $UsersAdditionalInfo->dob=date('Y-m-d',strtotime($request->dob)); }else{$UsersAdditionalInfo->dob=NULL;}
             if(isset($request->client_portal_enable)) { 
                 Log::info("client_portal_enable: ". $UsersAdditionalInfo->client_portal_enable);

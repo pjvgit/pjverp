@@ -6,11 +6,9 @@
             <div class="pl-0 col-2">
                 <div>
                     <div class="">
-                        <select id="reminder_user_type" onchange="chngeTy(this)" name="reminder_user_type[]" class="reminder_user_type form-control custom-select  ">
+                        <select onchange="chngeTy(this)" name="reminder_user_type[]" class="reminder_user_type form-control custom-select  " onchange="changeTaskReminderUserType(this)">
                             @forelse (reminderUserType() as $key => $item)
-                            @if($key != 'client-lead')
-                            <option value="{{ $key }}">{{ $item }}</option>
-                            @endif
+                            <option value="{{ $key }}" @if($key == 'client-lead') style="display: none;" @endif>{{ $item }}</option>
                             @empty
                             @endforelse
                         </select>
@@ -20,7 +18,7 @@
             <div class="pl-0 col-2">
                 <div>
                     <div class="">
-                        <select id="reminder_type" name="reminder_type[]"
+                        <select {{-- id="reminder_type" --}} name="reminder_type[]"
                             class="reminder_type form-control custom-select  ">
                             @foreach(getEventReminderTpe() as $k =>$v)
                                 <option value="{{$k}}" {{ ($rv->reminder_type == strtolower($k)) ? 'selected' : '' }} >{{$v}}</option>
@@ -33,8 +31,8 @@
             <div class="col-3">
                 <div>
                     <div class="">
-                        <select id="reminder_time_unit" name="reminder_time_unit[]"
-                            class="form-control custom-select  ">
+                        <select {{-- id="reminder_time_unit" --}} name="reminder_time_unit[]"
+                            class="form-control custom-select reminder_time_unit ">
                             <option value="day" {{ ($rv->reminder_frequncy == 'day') ? 'selected' : '' }}>days</option>
                             <option value="week" {{ ($rv->reminder_frequncy == 'week') ? 'selected' : '' }}>weeks</option>
                         </select>
