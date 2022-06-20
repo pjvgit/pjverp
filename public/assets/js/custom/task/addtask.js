@@ -13,11 +13,10 @@ $(document).on("change", ".load-client-reminder, .load-client-reminder-all", fun
     }
 });
 
-$('body').on("click", ".add-more-task-reminder", function() {
+$(document).on("click", ".add-more-task-reminder", function() {
     var modalId = $(this).parents('div.modal').attr("id");
     // alert(modalId);
-    var fieldHTML = '<div class="form-group task-fieldGroup">' + $(".task-fieldGroupCopy").html() +
-        '</div>';
+    var fieldHTML = '<div class="form-group task-fieldGroup">' + $(" .task-fieldGroupCopy").html() +'</div>';
     $('#'+modalId).find('.task-fieldGroup:last').after(fieldHTML);
     /* var checkedLen = $('input[name="linked_contact_checked_attend[]"]:checked').length;
     var checkedL = $('input[name="client-share-all"]:checked').length;

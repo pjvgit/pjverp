@@ -138,19 +138,24 @@ class FullBackUpOfApplication implements ShouldQueue
         $casesTimeEntriesCsvData[]=$casesTimeEntriesHeader;
 
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
-
-        if($request['export_cases'] == 1 && $authUser->parent_user==0){
-            $case = $case->where("case_master.is_entry_done","1");
+        $case = $case->where("case_master.is_entry_done","1");
+        if($request['export_cases'] == 0) {
+            $case = $case->whereHas("caseStaffAll", function($query) {
+                $query->where('user_id', auth()->id());
+            });
+        } else {
+            $case = $case->where("firm_id", $authUser->firm_name);
+        }
+        /* if($request['export_cases'] == 1 && $authUser->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');
             $getChildUsers[]=$authUser->id;
             $case = $case->whereIn("case_master.created_by",$getChildUsers);
         }else{
-            $case = $case->where("case_master.is_entry_done","1");
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',$authUser->id)->get()->pluck('case_id');
             $case = $case->whereIn("case_master.id",$childUSersCase);
-        }
-        if(!isset($request['include_archived'])){   
-            $case = $case->where("case_master.case_close_date", NULL);
+        } */
+        $case = $case->where("case_master.case_close_date", NULL);
+        if(isset($request['include_archived'])){   
             $case = $case->withTrashed();
         }
         $case = $case->get();  
@@ -169,7 +174,7 @@ class FullBackUpOfApplication implements ShouldQueue
                 ->leftJoin('client_group','client_group.id','users_additional_info.contact_group_id')
                 ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact")
                 ->where("case_client_selection.case_id",$v->id);
-                if(!isset($request['include_archived'])){
+                if(isset($request['include_archived'])){
                     $caseCllientSelection = $caseCllientSelection->withTrashed();
                 }
                 $caseCllientSelection =$caseCllientSelection->get();
@@ -203,13 +208,19 @@ class FullBackUpOfApplication implements ShouldQueue
                 $leadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("lead_attorney","!=",null)->first();
                 $originatingAttorney = CaseStaff::join('users','users.id','=','case_staff.originating_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("originating_attorney","!=",null)->first();
             
-                $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".(($v->case_close_date != NUll) ? date("m/d/Y",strtotime($v->case_close_date)) : '')."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."||0|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
+                $timezone = $authUser->user_timezone ?? 'UTC';
+                $caseOpenDate = ($v->case_open_date) ? convertUTCToUserDate($v->case_open_date, $timezone)->format('m/d/Y') : '';
+                $caseCloseDate = ($v->case_close_date) ? convertUTCToUserDate($v->case_close_date, $timezone)->format('m/d/Y') : '';
+                $solDate = ($v->case_statute_date) ? convertUTCToUserDate($v->case_statute_date, $timezone)->format('m/d/Y') : '';
+                $casesCsvData[]=$v->case_title."|".$v->case_number."|".$caseOpenDate."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".$caseCloseDate."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."|".$solDate."|".number_format($v->total_allocated_trust_balance ?? 0, 2)."|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
                 
                 // Notes Entry
                 $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
                 if(count($ClientNotesData) > 0){
                     foreach($ClientNotesData as $key=>$notes)
-                    $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".date("m/d/Y",strtotime($v->case_open_date))."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
+                    $createdAtDate = date('m/d/Y',strtotime(convertUTCToUserTime($notes->created_at, $authUser->user_timezone ?? 'UTC')));
+                    $updatedAtDate = date('m/d/Y',strtotime(convertUTCToUserTime($notes->updated_at, $authUser->user_timezone ?? 'UTC')));
+                    $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".$caseOpenDate."|".$createdAtDate."|".$updatedAtDate."|".$notes->note_subject."|". strip_tags($notes->notes);
                 }
                 
                 // Expenses Entry
@@ -217,13 +228,14 @@ class FullBackUpOfApplication implements ShouldQueue
                 ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
                 ->select('expense_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'))
                 ->where("expense_entry.case_id",$v->id);
-                if(!isset($request['include_archived'])){
+                if(isset($request['include_archived'])){
                     $ExpenseEntryCase = $ExpenseEntryCase->withTrashed();
                 }
-                $ExpenseEntryCase =$ExpenseEntryCase->get();
+                $ExpenseEntryCase =$ExpenseEntryCase->with('invoice')->get();
 
                 foreach($ExpenseEntryCase as $kk =>$vv){
-                    $casesExpensesCsvData[]=date("m/d/Y",strtotime($vv->entry_date))."|".$vv->activity_title."|".(int)$vv->duration."|".(int)$vv->cost."|".((int)$vv->cost * (int)$vv->duration)."|".$vv->description."|".$vv->user_name."|".$v->case_title."|".$vv->invoice_link."|".(($vv->time_entry_billable == 'yes') ? 'false' : 'true')."|".$vv->id;
+                    $entryDate = convertUTCToUserDate($vv->entry_date, $authUser->user_timezone ?? 'UTC')->format('m/d/Y');
+                    $casesExpensesCsvData[]=$entryDate."|".$vv->activity_title."|".(int)$vv->duration."|".(int)$vv->cost."|".((int)$vv->cost * (int)$vv->duration)."|".$vv->description."|".$vv->user_name."|".$v->case_title."|".@$vv->invoice->unique_invoice_number."|".(($vv->time_entry_billable == 'yes') ? 'false' : 'true')."|".$vv->id;
                 }
 
                 // TaskTimeEntry
@@ -231,14 +243,15 @@ class FullBackUpOfApplication implements ShouldQueue
                 ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
                 ->select('task_time_entry.*','task_time_entry.duration as tasktimeEntryDuration',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'))
                 ->where("task_time_entry.case_id",$v->id);
-                if(!isset($request['include_archived'])){
+                if(isset($request['include_archived'])){
                     $TaskTimeEntryCase = $TaskTimeEntryCase->withTrashed();
                 }
-                $TaskTimeEntryCase =$TaskTimeEntryCase->get();
+                $TaskTimeEntryCase =$TaskTimeEntryCase->with('invoice')->get();
 
                 foreach($TaskTimeEntryCase as $kk =>$vv){
+                    $entryDate = convertUTCToUserDate($vv->entry_date, $authUser->user_timezone ?? 'UTC')->format('m/d/Y');
                     $total = ($vv->rate_type == 'flat') ? (int)$vv->entry_rate : ( str_replace(",","",(int)$vv->entry_rate)  * (int)$vv->tasktimeEntryDuration);
-                    $casesTimeEntriesCsvData[]=date("m/d/Y",strtotime($vv->entry_date))."|".$vv->activity_title."|".(int)$vv->tasktimeEntryDuration."|".str_replace(",","",(int)$vv->entry_rate)."|".$vv->rate_type."|".$total."|".$vv->description."|".$vv->user_name."|".$v->case_title."|".$vv->invoice_link."|".(($vv->time_entry_billable == 'yes') ? 'false' : 'true')."|".$vv->id;
+                    $casesTimeEntriesCsvData[]=$entryDate."|".$vv->activity_title."|".(int)$vv->tasktimeEntryDuration."|".str_replace(",","",(int)$vv->entry_rate)."|".$vv->rate_type."|".$total."|".$vv->description."|".$vv->user_name."|".$v->case_title."|".@$vv->invoice->unique_invoice_number."|".(($vv->time_entry_billable == 'yes') ? 'false' : 'true')."|".$vv->id;
                 }
             }
             // echo json_encode($casesCsvData);
@@ -275,6 +288,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
+    
     public function generateAccountActivitiesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
 
@@ -289,7 +303,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $FetchQuery = $FetchQuery->where("invoice_payment.created_by",$authUser->id);
         }        
         $FetchQuery = $FetchQuery->where("entry_type","1");
-        $FetchQuery = $FetchQuery->orderBy("id", 'desc');        
+        $FetchQuery = $FetchQuery->with('invoice')->orderBy("id", 'desc');        
         if(isset($request['include_archived'])){  
             $FetchQuery = $FetchQuery->withTrashed();
         }
@@ -298,7 +312,8 @@ class FullBackUpOfApplication implements ShouldQueue
         if(count($FetchQuery) > 0){
             $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
             foreach($FetchQuery as $k=>$v){
-                $casesCsvData[] = date('m/d/Y', strtotime($v->payment_date))."|".$v->invoice_id."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->amount_refund > 0) ? "-".$v->amount_refund : $v->amount_paid)."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->total."|".$v->id;
+                $entryDate = convertUTCToUserDate($v->payment_date, $authUser->user_timezone ?? 'UTC')->format('m/d/Y');
+                $casesCsvData[] = $entryDate."|".@$v->invoice->unique_invoice_number."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->amount_refund > 0) ? "-".$v->amount_refund : $v->amount_paid)."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->total."|".$v->id;
             }
 
             $file_path =  $folderPath.'/account_activities.csv';  
@@ -500,7 +515,8 @@ class FullBackUpOfApplication implements ShouldQueue
             $casesCsvData[]="Date|Amount|Description|Entered By|Case Name|Invoice|Nonbillable|LegalCase ID";
             
             foreach ($FlatFeeEntry as $k=>$v){
-                $casesCsvData[]= date('m/d/Y', strtotime($v->entry_date))."|".$v->cost."|".$v->description."|".$v->entered_by."|".$v->case_title."|".$v->invoice_link."|".(($v->time_entry_billable == 'no') ? 'true' : 'false')."|".$v->id;
+                $entryDate = convertUTCToUserDate($v->entry_date, $authUser->user_timezone ?? 'UTC')->format('m/d/Y');
+                $casesCsvData[]= $entryDate."|".$v->cost."|".$v->description."|".$v->entered_by."|".$v->case_title."|".$v->invoice_link."|".(($v->time_entry_billable == 'no') ? 'true' : 'false')."|".$v->id;
             }
 
             $file_path =  $folderPath.'/flat_fees.csv';  

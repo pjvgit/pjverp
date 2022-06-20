@@ -3182,7 +3182,9 @@ class ClientdashboardController extends BaseController
 
     public function generateContactvCard($request){
         $authUser = auth()->user();
-        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct')
+        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+                ->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')
+                ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct')
                 ->where("user_level","2")->where("firm_name", $authUser->firm_name);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
             $user = $user->whereIn("users.user_status",[1,2,4]); 
@@ -3213,10 +3215,18 @@ class ClientdashboardController extends BaseController
             $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
-            $vCard .= "BDAY:".(isset($v->dob)) ? date('Ymd', strtotime($v->dob)) : ''."\r\n"; 
-            $vCard .= "ORG:".$getCompanyName."\r\n"; 
-            $vCard .= "TITLE:".$v->job_title ?? ''."\r\n"; 
-            $vCard .= "NOTE:".$v->notes ?? ''."\r\n"; 
+            if(!empty($v->dob)) {
+                $vCard .= "BDAY:".(isset($v->dob)) ? date('Y-m-d', strtotime($v->dob)) : ''."\r\n"; 
+            }
+            if($getCompanyName != '') {
+                $vCard .= "ORG:".$getCompanyName."\r\n"; 
+            }
+            if(!empty($v->job_title)) {
+                $vCard .= "TITLE:".$v->job_title ?? ''."\r\n"; 
+            }
+            if(!empty($v->notes)) {
+                $vCard .= "NOTE:".$v->notes ?? ''."\r\n"; 
+            }
             $vCard .= "END:VCARD\r\n";
 
         }
@@ -3235,11 +3245,16 @@ class ClientdashboardController extends BaseController
 
     public function generateCompanyvCard($request){
       
-        $user = User::select("*")->where("user_level","4")->where("parent_user",Auth::user()->id);
+        $authUser = auth()->user();
+        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+        ->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')
+        ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct')
+        ->where("user_level","4")->where("firm_name", $authUser->firm_name);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
-            $user = $user->orWhere("users.user_status","4"); 
+            $user = $user->whereIn("users.user_status",[1,2,4]); 
+        }else{
+            $user = $user->whereIn("users.user_status",[1,2]); 
         }
-        $user = $user->whereIn("users.user_status",["1","2"]);
         $user = $user->get();
         $vCard = '';
         foreach($user as $k=>$v){
@@ -3256,6 +3271,15 @@ class ClientdashboardController extends BaseController
             $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
+            if($v->website != '') {
+                $vCard .= "URL:".$v->website."\r\n"; 
+            }
+            if(!empty($v->job_title)) {
+                $vCard .= "TITLE:".$v->job_title ?? ''."\r\n"; 
+            }
+            if(!empty($v->notes)) {
+                $vCard .= "NOTE:".$v->notes ?? ''."\r\n"; 
+            }
             $vCard .= "END:VCARD\r\n";
         }
         // $filePath = '/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/companies.vcf"; // you can specify path here where you want to store file.
@@ -4580,18 +4604,10 @@ class ClientdashboardController extends BaseController
         $caseNotesCsvData[]=$caseNotesHeader;
         $authUser = auth()->user();
         $case = CaseMaster::where("firm_id", $authUser->firm_name)->leftjoin("users","case_master.created_by","=","users.id")
-                ->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+                ->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid", "case_master.created_at as case_created_at");
 
         if($request['export_cases'] == 0){
             $case = $case->where("case_master.is_entry_done","1");
-            /* if(Auth::user()->parent_user==0){
-                $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-                $getChildUsers[]=Auth::user()->id;
-                $case = $case->whereIn("case_master.created_by",$getChildUsers);
-            }else{
-                $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
-                $case = $case->whereIn("case_master.id",$childUSersCase);
-            } */
             $case = $case->whereHas("caseStaffDetails", function($query) {
                 $query->where("users.id", auth()->id());
             });
@@ -4647,14 +4663,35 @@ class ClientdashboardController extends BaseController
 
             $leadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("lead_attorney","!=",null)->first();
             $originatingAttorney = CaseStaff::join('users','users.id','=','case_staff.originating_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("originating_attorney","!=",null)->first();
-          
+            $timezone = $authUser->user_timezone ?? 'UTC';
+            $caseOpenDate = ($v->case_open_date) ? convertUTCToUserDate($v->case_open_date, $timezone)->format('m/d/Y') : '';
+            $caseCloseDate = ($v->case_close_date) ? convertUTCToUserDate($v->case_close_date, $timezone)->format('m/d/Y') : '';
+            $solDate = ($v->case_statute_date) ? convertUTCToUserDate($v->case_statute_date, $timezone)->format('m/d/Y') : '';
 
-            $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".(($v->case_close_date != NUll) ? date("m/d/Y",strtotime($v->case_close_date)) : '')."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."||0|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
+            $casesCsvData[]= $v->case_title."|".
+                $v->case_number."|".
+                $caseOpenDate."|".
+                $practiceArea."|".
+                $v->case_description."|".
+                (($v->case_close_date != NUll) ? 'TRUE' : 'FALSE')."|".
+                $caseCloseDate."|".
+                ( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".
+                ( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."|".
+                $solDate."|".
+                number_format($v->total_allocated_trust_balance ?? 0, 2)."|".
+                $v->id."|".
+                $contactList."|".
+                $v->billing_method."|".
+                $is_billing_contact."|".
+                $flatFee."|".
+                $caseStage."|0|".
+                (($v->conflict_check == '0') ? 'false' : 'true')."|".
+                (($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
             
             $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
             if(count($ClientNotesData) > 0){
                 foreach($ClientNotesData as $key=>$notes)
-                $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".date("m/d/Y",strtotime($v->case_open_date))."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
+                $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".$caseOpenDate."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
             }
         }
         // echo json_encode($casesCsvData);

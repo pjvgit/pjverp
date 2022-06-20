@@ -185,7 +185,15 @@
                                     <td style="width: 150px;">All days</td>
                                     <td class="event-text-format" style="width: 300px;">
                                         <div><div class="event-text-format agenda-title">
-                                            <span style="background-color: rgb(202, 66, 69);" class="badge badge-secondary">TASK</span>
+                                            <span 
+                                            @if($value->task_priority == "1")
+                                            style="background-color: rgb(202, 66, 69);" 
+                                            @elseif($value->task_priority == "2")
+                                            style="background-color: rgb(254, 193, 8);"
+                                            @else
+                                            style="background-color: rgb(40, 167, 68);"
+                                            @endif
+                                            class="badge badge-secondary">TASK</span>
                                             <b class="word-break">{{$value->task_title}}</b><br>
                                             {{ ($value->status == 1 ) ? 'Complete' : 'Incomplete'}}<br>
                                             Priority: <?php if($value->task_priority == "1"){?> Low <?php }else if($value->task_priority == "2"){?> Medium <?php }else if($value->task_priority == "3") {?> High <?php }else{ ?> No Priority <?php } ?>
@@ -287,12 +295,39 @@
         });
 
         // Initialize Date Pickers
-        $('#start_date, #end_date').datepicker({
+        /* $('#start_date, #end_date').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
+        }); */
+
+        $("#start_date").datepicker({
+            format: 'm/d/yyyy',
+            autoclose: true,
+            // 'todayBtn': "linked",
+            // 'clearBtn': true,
+            'todayHighlight': true
+        }).on('changeDate', function (selected) {
+            var startDate = new Date(selected.date.valueOf());
+            $('#end_date').datepicker('setStartDate', startDate);
+            $('#end_date').datepicker('setDate', startDate);
+        }).on('clearDate', function (selected) {
+            $('#end_date').datepicker('setStartDate', null);
+        });
+
+        $("#end_date").datepicker({
+            format: 'm/d/yyyy',
+            autoclose: true,
+            // 'todayBtn': "linked",
+            // 'clearBtn': true,
+            'todayHighlight': true
+        }).on('changeDate', function (selected) {
+            var endDate = new Date(selected.date.valueOf());
+            // $('#start_date').datepicker('setEndDate', endDate);
+        }).on('clearDate', function (selected) {
+            $('#start_date').datepicker('setEndDate', null);
         });
     });
                  

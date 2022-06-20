@@ -97,4 +97,14 @@ class TaskTimeEntry extends Authenticatable
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    
+    /**
+     * Get the invoice that owns the TaskTimeEntry
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'invoice_link');
+    }
 }
