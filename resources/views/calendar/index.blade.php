@@ -779,7 +779,7 @@ if(isset($_GET['view']) &&  $_GET['view']=='week'){
                                 }
                                 if (!!doc.mytask) {
                                     $.map(doc.mytask, function (r) {
-                                        if(r.task_priority==1){
+                                        if(r.task_priority==3){
                                             var cds="background-color: rgb(202, 66, 69); width: 30px;";
                                         }else if(r.task_priority==2){
                                             var cds="background-color: rgb(254, 193, 8); width: 30px;";
@@ -831,6 +831,33 @@ if(isset($_GET['view']) &&  $_GET['view']=='week'){
                         var dateText= $("#datepicker").val();
                         date = moment(currentdate).format('YYYY-MM-DD');
                         // $("#calendarq").fullCalendar('gotoDate', date);
+                    }
+                    if(view.name == "AgendaView") {
+                        $("#preloaderData").hide();
+                        if(localStorage.getItem('weekends')=='hide'){
+                            var chk="";
+                        }else{
+                            var chk="checked=checked";
+                        }
+                        
+                        $("#printicon").remove();
+                        $(".fc-right").append('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>'); 
+
+                        $("#settingicon").remove();
+                        $(".fc-right").append('<span id="settingicon"> <button class="btn btn-secondry dropdown-toggle" id="shuesuid" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i aria-hidden="true" class="fas fa-cog icon"></i> </button><div class="dropdown-menu bg-transparent shadow-none p-0 m-0" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 34px, 0px); top: 0px; left: 0px; will-change: transform "><div class="card"><div tabindex="-1" role="menu" aria-hidden="false" class="dropdown-menu dropdown-menu-right show" x-placement="top-end"> <b class="ml-2">Actions:</b> <button type="button" tabindex="0" role="menuitem" class="dropdown-item mb-1" onclick="markAsRead()">Mark All As Read</button>  <b class="ml-2">Settings:</b><a href="'+baseUrl+'/locations" tabindex="0" role="menuitem" class="dropdown-item">Locations</a> <b class="ml-2">Format Options:</b><label class="checkbox checkbox-outline-primary ml-2"><input type="checkbox" class="showweekend ml-2" '+chk+' value="1" onclick="callWeekend()"><span>Show Weekends</span><span class="checkmark"></span></label><span></span></button> </div> </div> </div> </span>'); 
+
+                        $("#addevbutton").remove();
+                        @can('event_add_edit')
+                        $(".fc-right").append(' <span id="addevbutton">\
+                            <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> \
+                                <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup(null, '+"'events'"+');">Add Event</button>\
+                            </a></span>'); 
+                        $( "#dp" ).insertBefore( ".fc-today-button" );
+                        @endcan
+                    
+                        $("#shuesuid").trigger('click');
+                        $("#preloaderData").hide();
+                        $('[data-toggle="tooltip"]').tooltip();
                     }
                 },
                 eventAfterAllRender: function (view) {
@@ -909,7 +936,7 @@ if(isset($_GET['view']) &&  $_GET['view']=='week'){
                 renderSelection: function(range) {
                 },
                 destroySelection: function() {
-                }
+                },
             });
             FC.views.custom = AgendaView; // register our class with the view system
 
@@ -922,13 +949,17 @@ if(isset($_GET['view']) &&  $_GET['view']=='week'){
             });
         
         
+        
         @if(isset($_GET['view']) && $_GET['view'] == 'agenda')
             $(document).find(".fc-agendaView-button").trigger('click');
-            $(document).find(".fc-agendaView-button").addClass('active');
         @elseif(isset($_GET['view']) && $_GET['view'] == 'day')
             $(document).find(".fc-staffView-button").trigger('click');
-            $(document).find(".fc-staffView-button").addClass('active');
         @endif
+
+        $('body').on("click", "#calendarq .fc-right .btn-group .btn", function() {
+            $("#calendarq .fc-right .btn-group .btn").not(this).removeClass('active');
+            $(this).addClass('active');
+        });
 
         $('#deleteFromCommentBox').on('hidden.bs.modal', function () {
             $('#calendarq').fullCalendar('refetchEvents');

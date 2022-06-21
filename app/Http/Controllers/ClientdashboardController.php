@@ -4690,8 +4690,9 @@ class ClientdashboardController extends BaseController
             
             $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
             if(count($ClientNotesData) > 0){
-                foreach($ClientNotesData as $key=>$notes)
+                foreach($ClientNotesData as $key=>$notes) {
                 $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".$caseOpenDate."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
+                }
             }
         }
         // echo json_encode($casesCsvData);

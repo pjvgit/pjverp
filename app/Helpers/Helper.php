@@ -697,3 +697,13 @@ function getUnreadTaskCount()
                 })->count();
     return $taskCount ?? 0;
 }
+
+/**
+ * COnvert UTC timestamp to user timezone
+ */
+function convertToUserTimezone($str, $timezone){
+    $str = date('Y-m-d H:i:s', strtotime($str));
+    $date = Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
+    $date->setTimezone($timezone ?? 'UTC');
+    return $date;
+}

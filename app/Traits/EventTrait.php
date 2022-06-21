@@ -249,7 +249,7 @@ trait EventTrait {
             "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
             "event_description" => $request->description,
             "is_recurring" => "yes",
-            "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
+            "event_location_id" => $locationID ?? NULL,
             "event_recurring_type" => $request->event_frequency,
             "event_interval_day" => $request->event_interval_day,
             "event_interval_month" => $request->event_interval_month,

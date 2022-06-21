@@ -1396,25 +1396,6 @@ class CalendarController extends BaseController
     public function eventDetail($event_id)
     {
         $event_recurring_id=base64_decode($event_id);
-        /* $evetData = CaseEvent::whereId($event_id);
-        if($evetData->first()) {
-            if(auth()->user()->parent_user != 0) {
-                $evetData = $evetData->whereHas('eventLinkedStaff', function($query) {
-                    $query->where('users.id', auth()->id());
-                });
-            }
-            $evetData = $evetData->with("eventLocation", "case", "eventLinkedStaff")->first();
-            if($evetData) {
-                $eventReminderData=CaseEventReminder::where('event_id',$event_id)->get();
-                $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$event_id)->get();
-                return view('calendar.index', compact('evetData', 'CaseEventLinkedContactLead'));
-            } else {
-                abort(403);
-            }
-        } else {
-            return redirect()->route('events/');
-        } */
-
         $eventRecurring = EventRecurring::whereId($event_recurring_id)->has('event')->first();
         if($eventRecurring) {
             $event = Event::whereId($eventRecurring->event_id)->with('eventType', 'eventLocation', 'case')->first();
@@ -1539,7 +1520,7 @@ class CalendarController extends BaseController
         $CaseEvent = EventRecurring::whereBetween('start_date', [convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start)))), $timezone), convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end)))), $timezone)]);
         $CaseEvent = $CaseEvent->whereHas("event", function($query) use($request) {
             if($request->event_type){
-                $query->whereIn('event_type_id', $request->event_type);
+                $query->where('event_type_id', $request->event_type);
             }
             if($request->case_or_lead) {
                 $query->where('case_id', $request->case_or_lead);
@@ -1583,34 +1564,25 @@ class CalendarController extends BaseController
 
         foreach($CaseEvent as $k=>$v){
             $event = $v->event;
-            
-            $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : convertUTCToUserTime($v->start_date.' 00:00:00', $timezone);
+            // $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : convertUTCToUserTime($v->start_date.' 00:00:00', $timezone);
             $eventData = [];
             $eventData["event_id"] = $event->id ?? Null;
             $eventData["event_recurring_id"] = $v->id;
             $eventData["event_title"] = $event->event_title ?? "<No Title>";
             $eventData["event_description"] = $event->event_description;
-            $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : convertUTCToUserTime($v->start_date.' 00:00:00', $timezone);
-            $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : convertUTCToUserTime($v->end_date.' 00:00:00', $timezone);
-            $eventData["start_date"] = date('m/d/Y', strtotime($startDateTime));
-            $eventData["start_time"] = date('h:ia', strtotime($startDateTime));
-            $eventData["end_date"] = date('m/d/Y', strtotime($endDateTime));
-            $eventData["end_time"] = date('h:ia', strtotime($endDateTime));
-            $eventData["start_date_time"] = $startDateTime;
+            $startDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->start_date.' '.$event->start_time, $timezone) : convertToUserTimezone($v->start_date.' 00:00:00', $timezone);
+            $endDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->end_date.' '.$event->end_time, $timezone) : convertToUserTimezone($v->end_date.' 00:00:00', $timezone);
+            $eventData["start_date"] = $startDateTime->format('m/d/Y');
+            $eventData["start_time"] = $startDateTime->format('h:ia');
+            $eventData["end_date"] = $endDateTime->format('m/d/Y');
+            $eventData["end_time"] = $endDateTime->format('h:ia');
+            $eventData["start_date_time"] = $startDateTime->format('Y-m-d H:i:s');
             $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->color_code : "";
             $eventData["caseTitle"] = ($event->case) ? $event->case->case_title : '';
             $eventData["caseNumber"] = ($event->case) ? $event->case->case_number : '';
             $decodeStaff = encodeDecodeJson($v->event_linked_staff);
             $eventData["staffName"] = $decodeStaff;
             $decodeContact = encodeDecodeJson($v->event_linked_contact_lead);
-            /* if(count($decodeContact) > 0){
-                $contactName = [];
-                foreach($decodeContact as $i => $j){
-                    $contactName[$i] = ($j->contact_id) ? @getUserDetail($j->contact_id)->full_name ?? '' : '';
-                }
-                $contactName = implode(",",$contactName);
-            } */
-            // $eventData["contactName"] = $contactName ?? '';
             $eventData["contactName"] = $decodeContact;
             $eventData["is_all_day"] = $event->is_full_day;
             $eventData["is_read"] = $v->is_read;
@@ -1618,32 +1590,6 @@ class CalendarController extends BaseController
 
             $finalDataList[] = (object)$eventData;
         }
-        /* $newarray = collect($newarray)->sortBy(function($col) {
-            return $col['start_date'].' '.$col['start_time'];
-        })->values()->all(); */
-        // return $newarray;
-        // print_r($CaseEvent);
-        /* if(isset($request->show_sol_checkbox) && $request->show_sol_checkbox=="on"){
-            $CaseEventSOL = CaseEvent::leftJoin('case_master','case_master.id','=','case_events.case_id')
-            ->select("case_master.case_number","case_master.sol_satisfied","case_events.*")
-            ->where('case_events.created_by',Auth::User()->id);
-            $CaseEventSOL=$CaseEventSOL->whereBetween('start_date', [convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start)))), auth()->user()->user_timezone ?? 'UTC'), convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end)))), auth()->user()->user_timezone ?? 'UTC')]);
-            $CaseEventSOL=$CaseEventSOL->where('is_SOL','yes');
-            $CaseEventSOL=$CaseEventSOL->whereNull('case_events.deleted_at')->orderBy('case_events.start_date')->get();
-        }else{
-            $CaseEventSOL='';
-        }
-        if(isset($request->show_task_checkbox) && $request->show_task_checkbox=="on"){
-            $Task=Task::leftJoin('case_master','case_master.id','=','task.case_id');
-            $Task=$Task->leftJoin('users','users.id','=','task.lead_id');
-            $Task=$Task->select('task.*','case_master.case_title','users.first_name','users.last_name');
-            $Task=$Task->where('task.created_by',Auth::User()->id);
-            $Task=$Task->whereBetween('task.task_due_on', [convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start)))), auth()->user()->user_timezone ?? 'UTC'), convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end)))), auth()->user()->user_timezone ?? 'UTC')]);
-            $Task=$Task->where('task.task_due_on',"!=",'9999-12-30');            
-            $Task=$Task->whereNull('task.deleted_at')->get();
-        }else{
-            $Task='';
-        } */
 
         if(isset($request->show_sol_checkbox) && $request->show_sol_checkbox=="on") {
             $solEvents = Event::where('is_SOL','yes')->leftJoin('case_master','case_master.id','=','events.case_id')

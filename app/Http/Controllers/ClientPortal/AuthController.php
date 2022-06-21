@@ -219,9 +219,15 @@ class AuthController extends Controller
                     }])->first();
         if($user) {
             Auth::logout();
-            session()->flush();
+            // session()->flush();
             if($user->user_level == '2' && $user->userAdditionalInfo && $user->userAdditionalInfo->client_portal_enable == '1') {
                 Auth::loginUsingId($user->id);
+                /* if((session()->has('intended_url'))) {
+                    $intendentUrl = session()->get('intended_url');
+                    $p=parse_url($intendentUrl);
+                    return $p['path'];
+                    return redirect()->intendent(session()->get('intended_url'));
+                } */
                 return redirect()->route('client/home')->with('success','Login Successfully');
             } else if($user->user_level == '3') {
                 Auth::loginUsingId($user->id);

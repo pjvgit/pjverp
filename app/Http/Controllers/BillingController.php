@@ -3163,6 +3163,7 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            // return $request->all();
 
             $FlatFeeEntry = new FlatFeeEntry;
             $FlatFeeEntry->case_id =($request->case_id)??0;
@@ -3178,7 +3179,7 @@ class BillingController extends BaseController
             $FlatFeeEntry->created_by=Auth::User()->id; 
             $FlatFeeEntry->token_id=9999999; 
             $FlatFeeEntry->save();
-
+            
             if(isset($request->invoice_id)){
                 $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
                 $FlatFeeEntryForInvoice->invoice_id=$FlatFeeEntry->invoice_link;                    
@@ -5811,8 +5812,8 @@ class BillingController extends BaseController
                 $filterByDate='yes';
             }        
             $case_id=$findInvoice->case_id;
-
-            if((isset($request->adjustment_delete) && $request->adjustment_delete!="") || isset($request->removeAllCreatedEntry)){
+            
+            if((isset($request->adjustment_delete) && $request->adjustment_delete!="" && $request->adjustment_delete!="undefined") || isset($request->removeAllCreatedEntry)){
                 $TimeEntry=TaskTimeEntry::where("task_time_entry.case_id",$case_id)
                 ->where("task_time_entry.status","unpaid")
                 ->where("task_time_entry.token_id","9999999")
@@ -5922,7 +5923,7 @@ class BillingController extends BaseController
             ->get();
                         
             //Get the flat fee Entry list
-            if((isset($request->adjustment_delete) && $request->adjustment_delete!="") || isset($request->removeAllCreatedEntry)){
+            if((isset($request->adjustment_delete) && $request->adjustment_delete!="" && $request->adjustment_delete!="undefined") || isset($request->removeAllCreatedEntry)){
                 $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
                 ->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.token_id","=",'9999999')
                 ->get();
@@ -5935,7 +5936,7 @@ class BillingController extends BaseController
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->leftJoin("users","users.id","=","flat_fee_entry.user_id");
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd");
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->where("flat_fee_entry_for_invoice.invoice_id",$invoiceID);
-            $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->whereNUll("flat_fee_entry_for_invoice.deleted_at");
+            $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->whereNull("flat_fee_entry_for_invoice.deleted_at");
             // if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
             //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
             //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));

@@ -55,12 +55,13 @@ class UserController extends BaseController
             if (Auth::guard('web')->attempt(['email' => $email, 'password' => $password, 'verified' => '1'])) {
                 Auth::logoutOtherDevices($password);
                 $user = User::find(Auth::User()->id);
-                $url = redirect()->intended()->getTargetUrl();
-                if(strpos($url, 'client/bills/') !== false/*  || strpos($url, 'client/tasks/') !== false */) { 
+                /* $url = redirect()->intended()->getTargetUrl();
+                if(strpos($url, 'client/bills/') !== false) { 
                     return redirect($url);
-                }
+                } */
                 // return $user->getUserFirms();
                 if($user->getUserFirms() > 1) {
+                    // session()->put('intended_url', $url);
                     return redirect()->intended(route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode')));
                 } else if($user->user_level == '2') {
                     if($user->userAdditionalInfo->client_portal_enable == '1') {

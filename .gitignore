@@ -16,5 +16,6 @@ public/images/Custom Fields_files/
 public/upload/
 public/import/
 public/export/
+public/backup/
 public/images/users/
 composer.lock
