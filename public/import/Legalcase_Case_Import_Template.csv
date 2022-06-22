@@ -1,4 +1,4 @@
 Case/Matter Name,Number,Open Date,Practice Area,Case Description,Case Closed,Closed Date,Lead Attorney,Originating Attorney,SOL Date,Outstanding Balance,Case Stage,Conflict Check?,Conflict Check Notes,Note: <Imported Note 1>,Note: <Imported Note 2>
 Sample imported case,100,1/31/2010,Criminal Defense,This is a sample file you can fill out to import your case/matter information into Legalcase.,,,,,,,,,,,
-Closed imported case,200,5/18/2010,DUI/DWI,"For closed cases, put 'true' in the Case Closed column, and optionally specify a Closed Date",TRUE,10/19/2010,,,,,,,,,
+Closed imported case,200,5/18/2010,DUI/DWI,"For closed cases, put 'true' in the Case Closed column, and optionally specify a Closed Date",TRUE/FALSE,10/19/2010,,,,0,,TRUE/FALSE,,,
 Other notes,,,,Name is the only required field. Be sure to include the header row with your data. Export your data as a CSV (comma separated value) file.,,,,,,,,,,,

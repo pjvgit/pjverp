@@ -300,15 +300,15 @@
            
         $('#deleteStatusForm').submit(function (e) {
             $("#submit").attr("disabled", true);
-            $("#innerLoader").css('display', 'block');
+            $("#innerLoader3").css('display', 'block');
             e.preventDefault();
 
             if (!$('#saveTypeForm').valid()) {
-                $("#innerLoader").css('display', 'none');
+                $("#innerLoader3").css('display', 'none');
                 $('#submit').removeAttr("disabled");
                 return false;
             }
-
+            
             var sortData = $("#sortable").sortable('serialize');
             var dataString = $("#saveTypeForm").serialize();
             $.ajax({
@@ -316,7 +316,7 @@
                 url: baseUrl + "/case_stages/saveTypeOfCase", // json datasource
                 data: "del="+arrayVal+"&"+dataString,
                 success: function (res) {
-                    $("#innerLoader").css('display', 'block');
+                    $("#innerLoader3").css('display', 'block');
                     if (res.errors != '') {
                         $('.showError').html('');
                         var errotHtml =
@@ -331,7 +331,7 @@
                     
                         return false;
                     } else {
-                        
+                        window.location.reload();
                        
                     }
                 },
@@ -406,7 +406,7 @@
                 url: baseUrl + "/case_stages/saveTypeOfCase", // json datasource
                 data: dataString,
                 success: function (res) {
-                    $("#innerLoader").css('display', 'block');
+                    $("#innerLoader3").css('display', 'block');
                     if (res.errors != '') {
                         $('.showError').html('');
                         var errotHtml =

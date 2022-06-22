@@ -32,6 +32,7 @@ use App\RequestedFundOnlinePayment;
 use App\Traits\UserCaseSharingTrait;
 use App\UserTrustCreditFundOnlinePayment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ClientdashboardController extends BaseController
 {
@@ -3213,19 +3214,23 @@ class ClientdashboardController extends BaseController
             $vCard .= "N:".$v->last_name.";".$v->first_name.";".$v->middle_name.";\r\n";
             $vCard .= "FN:".$v->first_name." ".$v->middle_name." ".$v->last_name."\r\n";
             $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
+            if(!empty($v->email)) {
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
+            }
+            if(!empty($v->mobile_number)) {
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
-            if(!empty($v->dob)) {
-                $vCard .= "BDAY:".(isset($v->dob)) ? date('Y-m-d', strtotime($v->dob)) : ''."\r\n"; 
             }
             if($getCompanyName != '') {
                 $vCard .= "ORG:".$getCompanyName."\r\n"; 
             }
             if(!empty($v->job_title)) {
-                $vCard .= "TITLE:".$v->job_title ?? ''."\r\n"; 
+                $vCard .= "TITLE:".$v->job_title."\r\n"; 
             }
             if(!empty($v->notes)) {
-                $vCard .= "NOTE:".$v->notes ?? ''."\r\n"; 
+                $vCard .= "NOTE:".$v->notes."\r\n"; 
+            }
+            if(!empty($v->dob)) {
+                $vCard .= "BDAY:".date('Ymd', strtotime($v->dob))."\r\n"; 
             }
             $vCard .= "END:VCARD\r\n";
 
@@ -3770,6 +3775,7 @@ class ClientdashboardController extends BaseController
                         $User->firm_name=Auth::User()->firm_name;
                         $User->created_by=Auth::User()->id;
                         $User->created_at=date('Y-m-d H:i:s');
+                        $User->bulk_id=$ClientCompanyImport->id;
                         $User->save();
                         
                         $UsersAdditionalInfo= new UsersAdditionalInfo;
@@ -3923,7 +3929,8 @@ class ClientdashboardController extends BaseController
     }
     public function revertImport(Request $request)
     {
-        $UserRemove=User::where("bulk_id",$request->import_id)->pluck("id");
+        // return $request->all();
+        $UserRemove=User::where("bulk_id",$request->import_id)->pluck("id")->toArray();
         $UsersAdditionalInfoRemove=UsersAdditionalInfo::whereIn("user_id",$UserRemove)->delete();
         User::where("bulk_id",$request->import_id)->delete();
 
@@ -4667,7 +4674,7 @@ class ClientdashboardController extends BaseController
             $caseOpenDate = ($v->case_open_date) ? convertUTCToUserDate($v->case_open_date, $timezone)->format('m/d/Y') : '';
             $caseCloseDate = ($v->case_close_date) ? convertUTCToUserDate($v->case_close_date, $timezone)->format('m/d/Y') : '';
             $solDate = ($v->case_statute_date) ? convertUTCToUserDate($v->case_statute_date, $timezone)->format('m/d/Y') : '';
-
+            $caseBalance = Invoices::where('case_id', $v->id)->sum('due_amount');
             $casesCsvData[]= $v->case_title."|".
                 $v->case_number."|".
                 $caseOpenDate."|".
@@ -4684,7 +4691,8 @@ class ClientdashboardController extends BaseController
                 $v->billing_method."|".
                 $is_billing_contact."|".
                 $flatFee."|".
-                $caseStage."|0|".
+                $caseStage."|".
+                $caseBalance."|".
                 (($v->conflict_check == '0') ? 'false' : 'true')."|".
                 (($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
             
@@ -4763,7 +4771,8 @@ class ClientdashboardController extends BaseController
 
                     $waringCount = 0;
                     $caseArray = [];
-                    // try{   
+                    try{   
+                        $authUser = auth()->user();
                     $errorString='<ul>';                     
                         foreach($csv_data as $key=>$val){
                             $caseArray[$key]['case_title'] = $val[0];
@@ -4798,9 +4807,11 @@ class ClientdashboardController extends BaseController
                                 $CaseMaster->sol_satisfied="yes";
                             }
                             if($finalOperationVal['conflict_check'] == 'true' || $finalOperationVal['conflict_check'] == 'TRUE'){
-                                $CaseMaster->conflict_check=1;
-                                $CaseMaster->conflict_check_description=$finalOperationVal['conflict_check_notes'];
+                                $CaseMaster->conflict_check='1';
+                            } else {
+                                $CaseMaster->conflict_check='0';
                             }
+                            $CaseMaster->conflict_check_description=$finalOperationVal['conflict_check_notes'] ?? Null;
 
                             if($finalOperationVal['practice_area'] != '') { 
                                 $caseArea =  CasePracticeArea::where('title','like','%'.$finalOperationVal['practice_area'].'%')->select('id')->first();
@@ -4818,7 +4829,8 @@ class ClientdashboardController extends BaseController
                             }
                             $caseStageId = 0;
                             if($finalOperationVal['case_stage'] != '') { 
-                                $caseStage =  CaseStage::where('title','like','%'.$finalOperationVal['case_stage'].'%')->select('id')->first();
+                                $caseStage =  CaseStage::where('title','like','%'.$finalOperationVal['case_stage'].'%')->where('firm_id', $authUser->firm_name)->select('id')->first();
+                                Log::info("case stage: ". $caseStage);
                                 if(!empty($caseStage)){
                                     $CaseMaster->case_status=$caseStage->id;
                                     $caseStageId = $caseStage->id;
@@ -4835,7 +4847,7 @@ class ClientdashboardController extends BaseController
                                     $caseStageId = $CaseStage->id;
                                 }
                             }
-                            if($finalOperationVal['case_close']) { 
+                            if($finalOperationVal['case_close_date'] != '') { 
                                 $CaseMaster->case_close_date= date('Y-m-d', strtotime($finalOperationVal['case_close_date']));
                             }
 
@@ -5023,12 +5035,12 @@ class ClientdashboardController extends BaseController
                         $CommonController= new CommonController();
                         $CommonController->addMultipleHistory($data);
 
-                    /* }  catch (\Exception $e) {
+                    }  catch (\Exception $e) {
                         $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
                         $ClientCompanyImport->error_code=$errorString;
                         $ClientCompanyImport->status=2;
                         $ClientCompanyImport->save();
-                    } */
+                    }
                 }else{
                     return response()->json(['errors'=>'Wrong file use for imports because columns are not matched. Make sure that you are copying the data into the right columns. Please Use Legal Case Import Template Spreadsheet... ',]);
                     exit;

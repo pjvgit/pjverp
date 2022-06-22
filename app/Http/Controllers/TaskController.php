@@ -1527,7 +1527,7 @@ class TaskController extends BaseController
 
       //Load Non link staff list
       $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
-      $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->orderBy('id',"ASC")->groupBy('id')->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
+      $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->orderBy('id',"ASC")->groupBy('id')->where("user_level","3")->whereIn("user_status",["1",'2'])->whereNotIn('id',$caseNoneLinkedStaffList)->get();
 
      //Load Linked staff
       $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')
