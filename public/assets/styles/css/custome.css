@@ -761,3 +761,13 @@ p {
 .agenda-shared-private-event {
     color: #ca4245;
 }
+
+.task-due-green {
+    color: rgb(40, 167, 68);
+}
+.task-due-red {
+    color: rgb(202, 66, 69);
+}
+.task-due-yellow {
+    color: rgb(254, 193, 8);
+}

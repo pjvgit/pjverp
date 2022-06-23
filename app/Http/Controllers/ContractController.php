@@ -1182,6 +1182,7 @@ class ContractController extends BaseController
              $user->work_phone=$request->work_phone; 
             $user->mobile_number=$request->cell_phone; 
              $user->street=$request->address; 
+             $user->apt_unit=$request->address2; 
              $user->city=$request->city; 
              $user->state=$request->state; 
              $user->postal_code=$request->postal_code; 

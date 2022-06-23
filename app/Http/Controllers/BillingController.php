@@ -4164,6 +4164,7 @@ class BillingController extends BaseController
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             // 'total_text' => 'required'
+            'discount_total_text' => 'nullable|lte:total_text',
         ];
         if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
             $rules['timeEntrySelectedArray'] = 'nullable|array';
@@ -4196,7 +4197,8 @@ class BillingController extends BaseController
             "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
             "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity",
             "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice.",
-            "number_installment_field.required"=>"Payment plans must required Amount/Installment as the invoice."
+            "number_installment_field.required"=>"Payment plans must required Amount/Installment as the invoice.",
+            "discount_total_text.lte" => "Discount should be less than $".$request->total_text,
         ]);      
         // dd($request->all());    
         dbStart();        
@@ -6005,6 +6007,7 @@ class BillingController extends BaseController
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             'total_text' => 'required',
+            'discount_total_text' => 'nullable|lte:total_text',
         ];
         if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
             $rules['timeEntrySelectedArray'] = 'nullable|array';
@@ -6035,7 +6038,8 @@ class BillingController extends BaseController
             "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
             "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity",
             "final_total_text.gte" => "You cannot lower the amount of this invoice below $".$InvoiceSave->total_amount." because payments have already been received for that amount.",
-            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice."
+            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice.",
+            "discount_total_text.lte" => "Discount should be less than $".$request->total_text,
         ]);
         
             // print_r($request->all());exit;

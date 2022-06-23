@@ -138,9 +138,11 @@ trait CreditAccountTrait {
      */
     public function updateInvoiceDraftStatus($invoiceId){
         $invoice = Invoices::whereId($invoiceId)->first();
+        if($invoice) {
         $invoice->fill([
             'is_force_status'=>0
         ])->save();
+        }
     }
 
     /**

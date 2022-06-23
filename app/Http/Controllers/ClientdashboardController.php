@@ -3377,15 +3377,15 @@ class ClientdashboardController extends BaseController
                             $UserArray[$key]['email']=$val[16];
                             $UserArray[$key]['website']=$val[17];
                             $UserArray[$key]['outstanding_amount']=$val[18];
-                            if(strtolower($val[19])=="true"){
-                                $UserArray[$key]['client_portal_enable']=1;
+                            if((strtolower($val[19])=="true" || strtolower($val[19])=="TRUE") && (strtolower($val[20])=="true" || strtolower($val[20])=="TRUE")){
+                                $UserArray[$key]['client_portal_enable']='1';
                             }else{
-                                $UserArray[$key]['client_portal_enable']=0;
+                                $UserArray[$key]['client_portal_enable']='0';
                             }
-                            if(strtolower($val[20])=="true"){
-                                $UserArray[$key]['user_status']=4;
+                            if(strtolower($val[20])=="true" || strtolower($val[20])=="TRUE"){
+                                $UserArray[$key]['user_status']='4';
                             }else{
-                                $UserArray[$key]['user_status']=1;
+                                $UserArray[$key]['user_status']='1';
                             }
 
                             if($val[21]!=""){
@@ -3418,6 +3418,8 @@ class ClientdashboardController extends BaseController
                             $User->home_phone=$finalOperationVal['home_phone'];
                             $User->mobile_number=$finalOperationVal['mobile_number'];
                             $User->user_level=$finalOperationVal['user_level'];
+                            $User->user_status=$finalOperationVal['user_status'];
+                            $User->user_title=$finalOperationVal['contact_group_name'] ?? 'Client';
                             $User->bulk_id=$ClientCompanyImport->id;
                             $User->parent_user=Auth::User()->id;
                             $User->firm_name=Auth::User()->firm_name;
@@ -3435,7 +3437,7 @@ class ClientdashboardController extends BaseController
                             $UsersAdditionalInfo->license_state=$finalOperationVal['license_state']; 
                             $UsersAdditionalInfo->website=$finalOperationVal['website']; 
                             $UsersAdditionalInfo->notes=$finalOperationVal['notes']; 
-                            $UsersAdditionalInfo->dob=date('Y-m-d',strtotime($finalOperationVal['dob'])); 
+                            $UsersAdditionalInfo->dob=$finalOperationVal['dob']; 
                             $UsersAdditionalInfo->client_portal_enable=$finalOperationVal['client_portal_enable']; 
                             $UsersAdditionalInfo->created_by =Auth::User()->id;
                             $UsersAdditionalInfo->created_at=date('Y-m-d H:i:s');
@@ -3528,10 +3530,10 @@ class ClientdashboardController extends BaseController
                             $UserArray[$key]['mobile_number']=$val[8];
                             $UserArray[$key]['email']=$val[9];
                             $UserArray[$key]['website']=$val[10];
-                            if(strtolower($val[11])=="true"){
-                                $UserArray[$key]['user_status']=4;
+                            if(strtolower($val[11])=="true" || strtolower($val[11])=="TRUE"){
+                                $UserArray[$key]['user_status']='4';
                             }else{
-                                $UserArray[$key]['user_status']=1;
+                                $UserArray[$key]['user_status']='1';
                             }
                             $UserArray[$key]['notes']=$val[13];
                             $UserArray[$key]['user_level']=$user_level;
@@ -3551,6 +3553,8 @@ class ClientdashboardController extends BaseController
                             $User->country=$finalOperationVal['country'];
                             $User->mobile_number=$finalOperationVal['mobile_number'];
                             $User->user_level=$finalOperationVal['user_level'];
+                            $User->user_status=$finalOperationVal['user_status'];
+                            $User->user_title= 'Company';
                             $User->bulk_id=$ClientCompanyImport->id;
                             $User->parent_user=Auth::User()->id;
                             $User->firm_name=Auth::User()->firm_name;
@@ -3720,12 +3724,16 @@ class ClientdashboardController extends BaseController
                                     $phone=explode(":",$v);
                                     $UserArray[$finalOperationKey]['mobile_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
                                 }
+                                if (strpos($v, 'TEL') !== false && strpos($v, 'FAX') !== false) { 
+                                    $phone=explode(":",$v);
+                                    $UserArray[$finalOperationKey]['fax_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
+                                }
                                 if (strpos($v, 'TITLE') !== false) { 
                                     $title=explode(":",$v);
                                     $UserArray[$finalOperationKey]['job_title'] = ($title[1] != '') ? str_replace(" ", "", $title[1]) : NULL;
                                 }
 
-                                /* if (strpos($v, 'ADR') !== false) { 
+                                if (strpos($v, 'ADR') !== false) { 
                                     $adr=explode(":",$v);
                                     if(count($adr) > 1) {
                                         $adr1 = explode(";", $adr[1]);
@@ -3737,14 +3745,14 @@ class ClientdashboardController extends BaseController
                                             $UserArray[$finalOperationKey]['postal_code'] = (isset($adr1[3]) && $adr1[3] != '') ? quoted_printable_decode($adr1[3]) : NULL;
                                         }
                                     }
-                                } */
+                                }
 
                                 if (strpos($v, 'ORG') !== false) { 
                                     $company_name = explode(":",$v);
                                     $UserArray[$finalOperationKey]['multiple_compnay_id'] = ($company_name[1] != '') ? $this->createOrReturn($company_name[1]) : NULL;
                                     $UserArray[$finalOperationKey]['company_name'] = ($company_name[1] != '') ? $company_name[1] : NULL;
                                 }
-                                if (strpos($v, 'URL;WORK') !== false) { 
+                                if (strpos($v, 'URL') !== false) { 
                                     $url = explode(":",$v);
                                     $UserArray[$finalOperationKey]['website'] = ($url[1] != '') ? $url[1] : NULL;
                                 }
@@ -3752,7 +3760,12 @@ class ClientdashboardController extends BaseController
                                 if (strpos($v, 'NOTE') !== false) { 
                                     $notes = explode(":",$v);
                                     $UserArray[$finalOperationKey]['UsersAdditionalInfoNotes'] = ($notes[1] != '') ? $notes[1] : NULL;
-                                } 
+                                }
+                                
+                                if (strpos($v, 'BDAY') !== false) { 
+                                    $bday = explode(":",$v);
+                                    $UserArray[$finalOperationKey]['dob'] = ($bday[1] != '') ? date('Y-m-d', strtotime($bday[1])) : NULL;
+                                }
                             }
                         // }
                     }
@@ -3784,6 +3797,8 @@ class ClientdashboardController extends BaseController
                         $UsersAdditionalInfo->website=$userVal['website']?? NULL; 
                         $UsersAdditionalInfo->multiple_compnay_id=$userVal['multiple_compnay_id'] ?? NULL; 
                         $UsersAdditionalInfo->notes=$userVal['UsersAdditionalInfoNotes'] ?? NULL; 
+                        $UsersAdditionalInfo->dob=$userVal['dob'] ?? NULL; 
+                        $UsersAdditionalInfo->fax_number=$userVal['fax_number'] ?? NULL; 
                         $UsersAdditionalInfo->created_by = Auth::User()->id;
                         $UsersAdditionalInfo->created_at=date('Y-m-d H:i:s');
                         $UsersAdditionalInfo->client_portal_enable='0';

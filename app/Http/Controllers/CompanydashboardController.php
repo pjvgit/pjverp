@@ -163,6 +163,7 @@ class CompanydashboardController extends BaseController
         if($request->search!=""){
             $clientList = $clientList->where(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name)'),'LIKE',"%$request->search%");
         }
+        $clientList = $clientList->whereIn("users.user_status",["1","2"]);
         $clientList = $clientList->get();
         
         return response()->json(["total_count"=>$clientList->count(),"incomplete_results"=>false,"items"=>$clientList]);

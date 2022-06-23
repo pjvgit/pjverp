@@ -219,7 +219,7 @@ class AuthController extends Controller
                     }])->first();
         if($user) {
             Auth::logout();
-            // session()->flush();
+            session()->flush();
             if($user->user_level == '2' && $user->userAdditionalInfo && $user->userAdditionalInfo->client_portal_enable == '1') {
                 Auth::loginUsingId($user->id);
                 /* if((session()->has('intended_url'))) {

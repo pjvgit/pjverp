@@ -98,7 +98,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Address2</label>
             <div class="col-md-10 form-group mb-3">
-                <input class="form-control" id="address2" name="address2" value="{{ $UsersAdditionalInfo->address2 ?? old('address2') }}" type="text" placeholder="Enter address2">
+                <input class="form-control" id="address2" name="address2" value="{{ $userData->apt_unit ?? old('address2') }}" type="text" placeholder="Enter address2">
             </div>
         </div>
 
