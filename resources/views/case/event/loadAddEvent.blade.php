@@ -144,7 +144,7 @@
                 </div>
             </span>
             
-            <div class="form-group row" id="repeat_dropdown">
+            <div class="form-group row recurring-div" id="repeat_dropdown">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Frequency</label>
                 <div class="col-md-3 form-group mb-3">
                     <select onchange="selectType(this.value, 'loadAddEventPopup')" id="event-frequency" name="event_frequency"
@@ -159,14 +159,14 @@
                     </select>
                 </div>
                 {{-- Commented. As per client's requirement --}}
-                {{-- <div class="col-md-5 form-group mb-3 repeat_yearly ">
+                {{-- <div class="col-md-5 form-group mb-3 repeat_yearly recurring-div">
                     <select id="yearly-frequency" name="yearly_frequency" class="form-control custom-select  ">
                         <option value="YEARLY_ON_DAY">On day {{date('d')}} of {{date('F')}}</option>
                         <option value="YEARLY_ON_THE">On the fourth {{date('l')}} of {{date('F')}}</option>
                         <option value="YEARLY_ON_THE_LAST">On the last {{date('l')}} of {{date('F')}}</option>
                     </select>
                 </div> --}}
-                <div class="col-md-5 form-group mb-3 repeat_monthly">
+                <div class="col-md-5 form-group mb-3 repeat_monthly recurring-div">
                     <select id="monthly-frequency" name="monthly_frequency" class="form-control custom-select  ">
                         <option value="MONTHLY_ON_DAY">On day {{date('d')}}</option>
                         <option value="MONTHLY_ON_THE">On the fourth {{date('l')}}</option>
@@ -174,7 +174,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group row" id="repeat_custom">
+            <div class="form-group row recurring-div" id="repeat_custom">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                 <div class="custom-box">
                     <div>
@@ -217,26 +217,26 @@
             </div>
 
             {{-- Commented. As per client's requirement --}}
-            {{-- <div class="form-group row repeat_yearly" id="repeat_yearly">
+            {{-- <div class="form-group row repeat_yearly recurring-div" id="repeat_yearly">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>Repeat every</span><input
                         class="form-control mx-2 w-25"  name="event_interval_year" type="number" value="1" min="1" max="100"><span>year(s)</span>
                 </div>
             </div> --}}
-            <div class="form-group row repeat_monthly" id="repeat_monthly">
+            <div class="form-group row repeat_monthly recurring-div" id="repeat_monthly">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>Repeat every</span><input
                         class="form-control mx-2 w-25" name="event_interval_month" type="number" min="1" max="100"
                         value="1"><span>month(s)</span></div>
             </div>
-            <div class="form-group row" id="repeat_daily">
+            <div class="form-group row recurring-div" id="repeat_daily">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                 <div class="d-flex flex-row align-items-center w-50"><span>Repeat every</span>
                     <input class="form-control mx-2 w-25" name="event_interval_day" type="number" min="1" max="100"
                         value="1"><span>day(s)</span>
                 </div>
             </div>
-            <div class="form-group row endondiv" id="endondiv">
+            <div class="form-group row endondiv recurring-div" id="endondiv">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
                     <input class="mx-2 w-50 form-control" id="end_on" value="" readonly name="end_on" type="text"
@@ -539,9 +539,10 @@
                         }
                     }
                 },
-                postal_code:{
+                // As per client's requirement
+                /* postal_code:{
                     required:true
-                },
+                }, */
                 start_date:{
                     required:true
                 },
@@ -579,10 +580,11 @@
                     required: "Please provide an end date or select no end date."
 
                 },
-                postal_code: {
+                // As per client's requirement
+                /* postal_code: {
                     required: "Please provide numeric value."
 
-                },
+                }, */
                 start_date: {
                     required: "Start date is invalid"
 
@@ -729,6 +731,7 @@
                 $("#endondiv").hide();
 
                 $('#repeat_dropdown').hide();
+                $("#loadAddEventPopup .recurring-div").hide();
             }
         });
       

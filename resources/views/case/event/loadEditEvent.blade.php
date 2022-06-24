@@ -89,8 +89,8 @@
                                 <input class="form-control" id="event_name" value="{{$evetData->event_title}}" name="event_name" type="text" maxlength="512">
                             </div>
                             <div class="col-md-2 form-group mb-3">
-                                <div class="form-category-picker h-100 dropdown-color">
-                                    <input type="hidden" value="" id="event_type" name="event_type">
+                                <input type="hidden" value="" id="event_type" name="event_type">
+                                {{-- <div class="form-category-picker h-100 dropdown-color">
                                     <button type="button" aria-haspopup="true" aria-expanded="false"
                                         class="align-items-start btn-rounded p-0 h-100 w-80 btn btn-secondary">
                                         <div id="chosen-category" class="d-flex justify-content-start" data-color="#6edcff"
@@ -101,16 +101,45 @@
                                             <span class="Select-arrow ml-1 mt-3"></span>
                                         </div>
                                     </button>
-                                    <div tabindex="-1" role="menu" aria-hidden="true" id="dropdown-menu"
+                                    <div tabindex="-1" role="menu" aria-hidden="true" id="dropdown-menu-edit"
                                         class="color-drop-down p-1 dropdown-menu">
-                                        <div onclick="selectColor('#E5E5E5','0')" id="no-item-category"
+                                        <div onclick="selectColorEdit('#E5E5E5','0')" id="no-item-category"
                                             class="d-flex align-items-center justify-content-center"
                                             style="border-bottom: 1px solid rgb(229, 229, 229); color: rgb(229, 229, 229); cursor: pointer; height: 25px; margin: 5px; padding-bottom: 5px;"
                                             data-color="#E5E5E5">None</div>
                                         <?php
                                         foreach($allEventType as $ekey=>$eval){
                                         ?>
-                                            <div onclick="selectColor('{{$eval->color_code}}','{{$eval->id}}')"
+                                            <div onclick="selectColorEdit('{{$eval->color_code}}','{{$eval->id}}')"
+                                                id="item_category_928233" class="item_category d-flex justify-content-start"
+                                                data-color="#ceaff2" data-value="928233" style="cursor: pointer; text-align: center;">
+                                                <div id="{{$eval->id}}"
+                                                    style="background-color: {{$eval->color_code}}; border-radius: 2px; height: 25px; margin: 5px; width: 24px;">
+                                                </div>
+                                                <div style="line-height: 35px;">{{$eval->title}}</div>
+                                            </div>
+                                        <?php } ?>
+                                        <div id="customize-types" class="align-items-start"
+                                            style="border-top: 1px solid rgb(229, 229, 229); color: rgb(0, 112, 187); cursor: pointer; height: 25px; margin: 5px; padding-top: 5px;"
+                                            data-color="#0070bb"><a href="{{BASE_URL}}item_categories">Customize Types</a></div>
+                                    </div>
+                                </div> --}}
+
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary btn-rounded dropdown-toggle event-type-button" type="button" id="eventTypeDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <div id="colorSet"
+                                            style="background-color:#B9AFAF; border-radius: 2px; height: 25px; margin: 5px; width: 24px;">
+                                        </div>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="eventTypeDropdownMenuButton">
+                                        <div onclick="selectColorEdit('#E5E5E5','0')" id="no-item-category"
+                                                class="d-flex align-items-center justify-content-center"
+                                                style="border-bottom: 1px solid rgb(229, 229, 229); color: rgb(229, 229, 229); cursor: pointer; height: 25px; margin: 5px; padding-bottom: 5px;"
+                                                data-color="#E5E5E5">None</div>
+                                        <?php
+                                        foreach($allEventType as $ekey=>$eval){
+                                        ?>
+                                            <div onclick="selectColorEdit('{{$eval->color_code}}','{{$eval->id}}')"
                                                 id="item_category_928233" class="item_category d-flex justify-content-start"
                                                 data-color="#ceaff2" data-value="928233" style="cursor: pointer; text-align: center;">
                                                 <div id="{{$eval->id}}"
@@ -124,7 +153,6 @@
                                             data-color="#0070bb"><a href="{{BASE_URL}}item_categories">Customize Types</a></div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                         <span id="dateInputPanel">
@@ -165,7 +193,7 @@
                                 
                             </div>
                             </span>
-                        <div class="form-group row" id="repeat_dropdown">
+                        <div class="form-group row recurring-div" id="repeat_dropdown">
                             <label for="inputEmail3" class="col-sm-2 col-form-label">Frequency</label>
                             <div class="col-md-3 form-group mb-3">
                                 <select onchange="selectType(this.value, 'loadEditEventPopup')" id="event-frequency" name="event_frequency"
@@ -195,7 +223,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group row" id="repeat_custom">
+                        <div class="form-group row recurring-div" id="repeat_custom">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="custom-box">
                                 <div>
@@ -254,26 +282,26 @@
                             </div>
                         </div>
                         {{-- Commented. As per client's requirement --}}
-                        {{-- <div class="form-group row repeat_yearly" id="repeat_yearly">
+                        {{-- <div class="form-group row repeat_yearly recurring-div" id="repeat_yearly">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>Repeat every</span><input
                                     class="form-control mx-2 w-25" id="event-interval"  name="event_interval_year" type="number" value="{{($evetData->event_interval_year)??'1'}}" min="1" max="100"><span>year(s)</span>
                             </div>
                         </div> --}}
-                        <div class="form-group row repeat_monthly" id="repeat_monthly">
+                        <div class="form-group row repeat_monthly recurring-div" id="repeat_monthly">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>Repeat every</span><input
                                     class="form-control mx-2 w-25" name="event_interval_month" type="number" min="1" max="100"
                                     value="{{($evetData->event_interval_month)??'1'}}"><span>month(s)</span></div>
                         </div>
-                        <div class="form-group row" id="repeat_daily">
+                        <div class="form-group row recurring-div" id="repeat_daily">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="d-flex flex-row align-items-center w-50"><span>Repeat every</span>
                                 <input class="form-control mx-2 w-25" name="event_interval_day" type="number" min="1" max="100"
                                 value="{{($evetData->event_interval_day)??'1'}}"><span>day(s)</span>
                             </div>
                         </div>
-                        <div class="form-group row endondiv" id="endondiv">
+                        <div class="form-group row endondiv recurring-div" id="endondiv">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
                                 <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->is_no_end_date=='no' && $evetData->end_on)) ? \Carbon\Carbon::parse($evetData->end_on)->format('m/d/Y') : "" }}" 
@@ -558,12 +586,12 @@
         // loadCaseLinkedStaff({{$case_id}});
 
         @if($evetData->is_recurring == 'no')
-            $("#endondiv").hide();
-            $('#repeat_dropdown').hide();
-            $('#repeat_custom').hide();
-            $('#repeat_monthly').hide();
-            $('#repeat_yearly').hide();
-            $('#repeat_daily').hide();
+            $("#loadEditEventPopup #endondiv").hide();
+            $('#loadEditEventPopup #repeat_dropdown').hide();
+            $('#loadEditEventPopup #repeat_custom').hide();
+            $('#loadEditEventPopup #repeat_monthly').hide();
+            $('#loadEditEventPopup #repeat_yearly').hide();
+            $('#loadEditEventPopup #repeat_daily').hide();
         @endif
         //disabled datepicker when checkbox is checked
         /* if($("input:checkbox#no_end_date_checkbox").is(":checked")) {
@@ -584,14 +612,14 @@
             dropdownParent: $("#loadEditEventPopup"),
         });
         changeCaseUser();        
-        $('#dateInputPanel .input-time').timepicker({
+        $('#loadEditEventPopup #dateInputPanel .input-time').timepicker({
             'showDuration': false,
             'timeFormat': 'g:i A',
             'forceRoundTime': true 
         });
 
         // Initialize Date Pickers
-        $('#dateInputPanel .input-date').datepicker({
+        $('#loadEditEventPopup #dateInputPanel .input-date').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
@@ -601,12 +629,28 @@
       
         // Initialize Datepair
         var dateContainer = document.getElementById('dateInputPanel');
-        var datepair = new Datepair(dateContainer, {
+        var datepair = new Datepair($("#loadEditEventPopup #dateInputPanel"), {
             'dateClass': 'input-date',
             'timeClass': 'input-time',
             'startClass': 'input-start',
             'endClass': 'input-end'
         });
+
+        /* $("#loadEditEventPopup #start_date").datepicker({
+            format: 'm/d/yyyy',
+            autoclose: true,
+            'todayHighlight': true
+        }).on('changeDate', function (selected) {
+            var startDate = new Date(selected.date.valueOf());
+            $('#loadEditEventPopup #end_date').datepicker('setStartDate', startDate);
+            $('#loadEditEventPopup #end_date').datepicker('setDate', startDate);
+            $(this).removeClass('error');
+            $("#start_date-error").text('');
+            $("#this_event_radio_div").hide();
+            updateMonthlyWeeklyOptions();
+        }).on('clearDate', function (selected) {
+            $('#loadEditEventPopup #end_date').datepicker('setStartDate', null);
+        }); */
         
         $("#start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
@@ -616,6 +660,18 @@
             $("#end_date").datepicker('setDate', selected);
             updateMonthlyWeeklyOptions();
         });
+
+        /* $("#loadEditEventPopup #end_date").datepicker({
+            format: 'm/d/yyyy',
+            autoclose: true,
+            'todayHighlight': true
+        }).on('changeDate', function (selected) {
+            $(this).removeClass('error');
+            $("#end_date-error").text('');
+        }).on('clearDate', function (selected) {
+            $('#loadEditEventPopup #start_date').datepicker('setEndDate', null);
+        }); */
+
         $("#end_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
             $("#end_date-error").text('');
@@ -638,10 +694,10 @@
         $(".add-new").hide();
         $("#cancel_new_label").hide();
         $("#add_new_label").show();
-        $(".dropdown-color").on('click', function () {
-            $("#dropdown-menu").toggle();
-        });
-
+        /* $("#loadEditEventPopup").on('click', ".dropdown-color", function () {
+            $("#loadEditEventPopup #dropdown-menu-edit").dropdown('toggle');
+        }); */
+        $("#loadEditEventPopup .event-type-button").trigger("click");
          
         $("#HideShowNonlink").on('click', function () {
             $(".staff-table-nonlinked").toggle();
@@ -866,9 +922,9 @@
 
         $("#loadEditEventPopup input:checkbox.recuring_event").change(function () {
             if ($(this).is(":checked")) {
-                $("#repeat_dropdown").show();
-                $("#endondiv").show();
-                $("#no_end_date_checkbox").prop("checked", true);
+                $("#loadEditEventPopup #repeat_dropdown").show();
+                $("#loadEditEventPopup #endondiv").show();
+                $("#loadEditEventPopup #no_end_date_checkbox").prop("checked", true);
                 if ($("input:checkbox#no_end_date_checkbox").is(":checked")) {
                     $("#end_on").attr("disabled", true);
                 } else {
@@ -876,26 +932,26 @@
                 }
 
             } else {
-                $("#endondiv").hide();
+                $("#loadEditEventPopup #endondiv").hide();
 
-                $('#repeat_dropdown').hide();
-                $('#repeat_custom').hide();
+                $('#loadEditEventPopup #repeat_dropdown').hide();
+                $('#loadEditEventPopup #repeat_custom').hide();
                 
-                $('#repeat_monthly').hide();
-                $('#repeat_yearly').hide();
-                $('#repeat_daily').hide();
-                
+                $('#loadEditEventPopup #repeat_monthly').hide();
+                $('#loadEditEventPopup #repeat_yearly').hide();
+                $('#loadEditEventPopup #repeat_daily').hide();
+                $("#loadEditEventPopup .recurring-div").hide();
             }
         });
 
 
     });
 
-    function selectColor(c, id) {
-        $('#colorSet').css('background-color', c);
-        $(".item_category div i").remove();
-        $('#' + id).html('<i aria-hidden="true" class="fa fa-check icon-check icon text-white mt-2"></i>');
-        $("#event_type").val(id);
+    function selectColorEdit(c, id) {
+        $('#loadEditEventPopup #colorSet').css('background-color', c);
+        $("#loadEditEventPopup .item_category div i").remove();
+        $('#loadEditEventPopup #' + id).html('<i aria-hidden="true" class="fa fa-check icon-check icon text-white mt-2"></i>');
+        $("#loadEditEventPopup #event_type").val(id);
     }
 
     function openAddLocation() {
@@ -1202,9 +1258,9 @@
             $("#repeat_dropdown").hide();
             $("#endondiv").hide();
     <?php } ?>
-
+        
     <?php if($evetData->event_type_id!=NULL){?>
-     selectColor('{{$getEventColorCode}}', '{{$evetData->event_type_id}}');
+     selectColorEdit('{{$getEventColorCode}}', '{{$evetData->event_type_id}}');
     <?php } ?>
 
     // Get weekdays name

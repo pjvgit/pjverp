@@ -20,7 +20,7 @@
                                 <div>
                                     <div>
                                         <button type="button" class="ocs mr-2 btn btn-link cancel" style="display:none;">Cancel</button>
-                                        <button type="button" class="mr-2 btn btn-secondary" onclick="addNewType()">Add Event Type</button>
+                                        <button type="button" class="mr-2 btn btn-secondary add-new-type" onclick="addNewType()">Add Event Type</button>
                                         <button type="button" class="ocs mr-2 btn btn-outline-primary  submit" onclick="checkBeforeSubmit()" style="display:none;">  Save Changes</button>
                                     </div>
                                 </div>
@@ -68,8 +68,9 @@
                                             <div style="cursor: grab;"><i aria-hidden="true" class="fa fa-bars text-black-50"></i></div>
                                         </div>
                                         <div class="col-2">  
-                                            <div id="newType"  class="cursor-pointer colorSelector colorSelector_newType"  ></div>
+                                            <div id="newType"  class="cursor-pointer colorSelector colorSelector_newType"  >
                                             <input type="hidden"  class="colorSelectorText" name="NewCcode" value="" id="Ccode_newType">
+                                            </div>
                                         </div>
                                         <div class="col-7">
                                             <input type="text" disabled name="Newtitle"  id="Newtitle" class="form-control" value="">
@@ -248,6 +249,7 @@
         $('.colorSelector_newType').ColorPicker({
             flat:false,
             livePreview:true,
+            color: '#6edcff',
             onShow: function (colpkr) {
                 $(colpkr).fadeIn(500);
                 return false;
@@ -294,6 +296,7 @@
             $(".ocs").hide();
             $("#RownewType").hide();
             $("#Newtitle").attr("disabled", true);
+            $(".add-new-type").show();
         });
         $("#RownewType").hide();
 
@@ -387,7 +390,7 @@
             $("#RownewType").show();
             $(".ocs").show();
             $("#Newtitle").removeAttr("disabled");
-
+            $(".add-new-type").hide();
         }
         function checkBeforeSubmit(){
             if(arrayVal!=""){

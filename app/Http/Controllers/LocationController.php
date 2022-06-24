@@ -27,6 +27,7 @@ class LocationController extends BaseController
         
         $CaseEventLocation = CaseEventLocation::leftJoin("users","case_event_location.created_by","=","users.id")->leftJoin('countries','case_event_location.country',"=","countries.id")->select(DB::raw('CONCAT_WS(",",address1,address2,case_event_location.city,case_event_location.state,name) as map_address'),'case_event_location.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid",'countries.name');
         $CaseEventLocation=$CaseEventLocation->where("location_future_use","yes");
+        $CaseEventLocation=$CaseEventLocation->where("case_event_location.firm_id", auth()->user()->firm_name);
         $totalData=$CaseEventLocation->count();
         $totalFiltered = $totalData; 
         if( !empty($requestData['search']['value']) ) {   
@@ -66,6 +67,7 @@ class LocationController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            $authUser = auth()->user();
             $CaseEventLocation=new CaseEventLocation;
             $CaseEventLocation->location_name=$request->location_name; 
             $CaseEventLocation->address1=$request->address1;
@@ -75,7 +77,8 @@ class LocationController extends BaseController
             $CaseEventLocation->postal_code=$request->zip;
             $CaseEventLocation->country=$request->country;
             $CaseEventLocation->location_future_use='yes';
-            $CaseEventLocation->created_by =Auth::User()->id;
+            $CaseEventLocation->firm_id = $authUser->firm_name;
+            $CaseEventLocation->created_by = $authUser->id;
             $CaseEventLocation->save();
             return response()->json(['errors'=>'','id'=>$CaseEventLocation->id]);
             exit;
@@ -97,6 +100,7 @@ class LocationController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            $authUser = auth()->user();
             $CaseEventLocation=CaseEventLocation::find($request->id);
             $CaseEventLocation->location_name=$request->location_name; 
             $CaseEventLocation->address1=$request->address1;
@@ -105,7 +109,8 @@ class LocationController extends BaseController
             $CaseEventLocation->state=$request->state;
             $CaseEventLocation->postal_code=$request->zip;
             $CaseEventLocation->country=$request->country;
-            $CaseEventLocation->updated_by =Auth::User()->id;
+            $CaseEventLocation->firm_id = $authUser->firm_id;
+            $CaseEventLocation->updated_by = $authUser->id;
             $CaseEventLocation->save();
             return response()->json(['errors'=>'','id'=>$CaseEventLocation->id]);
             exit;

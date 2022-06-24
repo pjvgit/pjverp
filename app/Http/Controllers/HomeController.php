@@ -633,7 +633,7 @@ class HomeController extends BaseController
         
         if($result) {
             foreach($result as $key => $item) {
-                \Log::info("popup event recurring id > ".$item->id);
+                // \Log::info("popup event recurring id > ".$item->id);
                 $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'popup')->where('is_dismiss', 'no');
                 foreach($decodeReminders as $rkey => $ritem){
                     $parseRemindAt = (isset($ritem->remind_at)) ? Carbon::parse($ritem->remind_at)->isToday() : false;
@@ -647,9 +647,9 @@ class HomeController extends BaseController
                         if(isset($ritem->user_popup_remind_detail)) {
                             $isExist = collect($ritem->user_popup_remind_detail)->where('user_id', auth()->id())->where("is_dismiss", "no")->first();
                             if($isExist && isset($isExist->snooze_remind_at)) {
-                                Log::info("user popup remid detail user id: ". $isExist->user_id);
-                                Log::info("user popup remid detail exist: ". $isExist->snooze_remind_at);
-                                Log::info("current time: ". Carbon::now());
+                                // Log::info("user popup remid detail user id: ". $isExist->user_id);
+                                // Log::info("user popup remid detail exist: ". $isExist->snooze_remind_at);
+                                // Log::info("current time: ". Carbon::now());
                                 $remindTime = Carbon::parse($isExist->snooze_remind_at);
                                 if(Carbon::parse($currentTime)->gte($remindTime) && Carbon::parse($eventStartTime)->gt(Carbon::parse($currentTime))) {
                                     Log::info("if time matched: ");

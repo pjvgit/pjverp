@@ -2119,7 +2119,7 @@ class CaseController extends BaseController
             ->where("lead_additional_info.is_converted","no")->get();
 
         $country = Countries::get();
-        $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
+        $eventLocation = CaseEventLocation::where("location_future_use","yes")->where('firm_id', $authUser->firm_name)->get();
         $currentDateTime=$this->getCurrentDateAndTime();
         $currentDate = $request->selectedate;
 
@@ -3619,7 +3619,7 @@ class CaseController extends BaseController
             $CaseMasterData = CaseMaster::where("firm_id", $authUser->firm_name)->where('is_entry_done',"1")->get();
 
             $country = Countries::get();
-            $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
+            $eventLocation = CaseEventLocation::where("location_future_use","yes")->where('firm_id', $authUser->firm_name)->get();
             $currentDateTime=$this->getCurrentDateAndTime();
         
             //Get event type 
@@ -4430,7 +4430,7 @@ class CaseController extends BaseController
         // $CaseEvent->save();
     }
     public function saveLocationOnce($locationdata){
-      
+        $authUser = auth()->user();
         $CaseEventLocation = new CaseEventLocation;
         $CaseEventLocation->location_name=$locationdata['location_name'];
         $CaseEventLocation->address1=$locationdata['address'];
@@ -4440,7 +4440,8 @@ class CaseController extends BaseController
         $CaseEventLocation->postal_code=$locationdata['postal_code'];
         $CaseEventLocation->country=$locationdata['country'];
         $CaseEventLocation->location_future_use=($locationdata['location_future_use'])?'yes':'no';
-        $CaseEventLocation->created_by=Auth::user()->id; 
+        $CaseEventLocation->firm_id = $authUser->firm_name;
+        $CaseEventLocation->created_by= $authUser->id; 
         $CaseEventLocation->save();
         return $CaseEventLocation->id;
     }

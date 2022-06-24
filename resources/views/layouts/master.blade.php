@@ -203,6 +203,7 @@
     <script src="{{asset('assets/js/select2.min.js')}}"></script>
     <script src="{{asset('assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
     <script src="{{asset('assets/js/datepair.js')}}" type="text/javascript"></script>
+    <script src="{{asset('assets/js/jquery.datepair.js')}}" type="text/javascript"></script>
     <script src="{{asset('assets/js/timer.jquery.min.js')}}" type="text/javascript"></script> 
     <script src="{{asset('assets/js/jquery.number.js')}}" type="text/javascript"></script> 
     <script src="{{asset('assets/js/scripts/script.min.js')}}" type="text/javascript"></script> 

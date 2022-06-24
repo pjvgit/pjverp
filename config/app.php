@@ -80,7 +80,7 @@ return [
     |
     */
 
-    'locale' => 'sp', // Change language english to spanish for some spanish text
+    'locale' => 'en', // Change language english to spanish for some spanish text
 
     /*
     |--------------------------------------------------------------------------

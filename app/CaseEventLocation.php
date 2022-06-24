@@ -15,7 +15,7 @@ class CaseEventLocation extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'title','status'
+        'title','status', 'firm_id'
     ];
     protected $appends = ['createdby','created_new_date','created_new_date_only', 'full_address'];
 
