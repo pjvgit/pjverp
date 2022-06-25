@@ -11,14 +11,14 @@
         @php
             $userTimezone = auth()->user()->user_timezone ?? 'UTC';
             if($event->is_full_day == 'no') {
-                $startDateTime= convertUTCToUserTime($eventRecurring->start_date.' '.$event->start_time, $userTimezone);
-                $endDateTime= convertUTCToUserTime($eventRecurring->end_date.' '.$event->end_time, $userTimezone);
+                $startDateTime= convertToUserTimezone($eventRecurring->start_date.' '.$event->start_time, $userTimezone);
+                $endDateTime= convertToUserTimezone($eventRecurring->end_date.' '.$event->end_time, $userTimezone);
             }
             $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('F d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "";
         @endphp
         @if($event->is_full_day == 'no')
-        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y, h:ia',strtotime($startDateTime))}} —
-            {{date('D, M jS Y, h:ia',strtotime($endDateTime))}}</h6>
+        <h6 class="modal-subtitle mt-2 mb-0">{{ $startDateTime->format('D, M jS Y, h:ia') }} —
+            {{ $endDateTime->format('D, M jS Y, h:ia') }}</h6>
         @else
         <h6 class="modal-subtitle mt-2 mb-0">{{ date('D, M j Y',strtotime($eventRecurring->start_date)) }}, All day </h6>
         @endif

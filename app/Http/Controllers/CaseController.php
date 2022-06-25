@@ -2174,8 +2174,10 @@ class CaseController extends BaseController
         $end_time = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'time');
 
         if(!isset($request->recuring_event)) {
-            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+            // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            $start_date = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'onlyDate');
+            $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
 
             $caseEvent = Event::create([
                 "event_title" => $request->event_name,
@@ -2213,8 +2215,10 @@ class CaseController extends BaseController
                 } */
             }
         } else {  
-            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+            // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            $start_date = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'onlyDate');
+            $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
 
             $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $recurringEndDate, $locationID);
         }
@@ -2227,7 +2231,6 @@ class CaseController extends BaseController
      */
     public function saveEditEventPage(Request $request)
     {
-        // return $request->custom;
         // return $request->all();
         if(!isset($request->no_case_link)){
             $validator = \Validator::make($request->all(), [
@@ -2248,7 +2251,7 @@ class CaseController extends BaseController
         } else {
             $locationID = $request->case_location_list;
         }
-        // return $locationID;
+        
         //Single event
         if(!isset($request->recuring_event)) {
             $startDate = strtotime(date("Y-m-d", strtotime($request->start_date)));
@@ -2267,11 +2270,13 @@ class CaseController extends BaseController
         // $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
         $start_time = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'time');
         $end_time = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'time');
-
+        
         if($request->delete_event_type=='SINGLE_EVENT') {
             
-            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            /* $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone); */
+            $start_date = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'onlyDate');
+            $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
             $request->start_date = $start_date; // This is for event reminders
 
             $caseEvent = Event::find($request->event_id);
@@ -2478,8 +2483,11 @@ class CaseController extends BaseController
                 }
             }
         } elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS') {
-            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+            // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            $start_date = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'onlyDate');
+            $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
+
             $caseEvent = Event::find($request->event_id);
             if($caseEvent->event_recurring_type != $request->event_frequency) {
                 $allEventIds = Event::where("parent_event_id", $request->event_id)->orWhere("id", $request->event_id)->pluck("id")->toArray();
@@ -3284,8 +3292,10 @@ class CaseController extends BaseController
                 } */
             }
         } elseif($request->delete_event_type=='ALL_EVENTS') {
-            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+            // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
+            $start_date = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'onlyDate');
+            $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
 
             $caseEvent = Event::find($request->event_id);
             if($caseEvent->event_recurring_type != $request->event_frequency) {

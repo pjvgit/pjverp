@@ -306,8 +306,6 @@
         $("#start_date").datepicker({
             format: 'm/d/yyyy',
             autoclose: true,
-            // 'todayBtn': "linked",
-            // 'clearBtn': true,
             'todayHighlight': true
         }).on('changeDate', function (selected) {
             var startDate = new Date(selected.date.valueOf());
@@ -320,12 +318,9 @@
         $("#end_date").datepicker({
             format: 'm/d/yyyy',
             autoclose: true,
-            // 'todayBtn': "linked",
-            // 'clearBtn': true,
             'todayHighlight': true
         }).on('changeDate', function (selected) {
             var endDate = new Date(selected.date.valueOf());
-            // $('#start_date').datepicker('setEndDate', endDate);
         }).on('clearDate', function (selected) {
             $('#start_date').datepicker('setEndDate', null);
         });

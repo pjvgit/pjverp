@@ -109,7 +109,7 @@ class LocationController extends BaseController
             $CaseEventLocation->state=$request->state;
             $CaseEventLocation->postal_code=$request->zip;
             $CaseEventLocation->country=$request->country;
-            $CaseEventLocation->firm_id = $authUser->firm_id;
+            $CaseEventLocation->firm_id = $authUser->firm_name;
             $CaseEventLocation->updated_by = $authUser->id;
             $CaseEventLocation->save();
             return response()->json(['errors'=>'','id'=>$CaseEventLocation->id]);

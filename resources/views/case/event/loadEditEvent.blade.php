@@ -155,19 +155,19 @@
                                 </div>
                             </div>
                         </div>
-                        <span id="dateInputPanel">
+                        <span id="editDateInputPanel">
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($eventRecurring->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
-                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($startDate))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
+                                    <input class="form-control edit-input-date edit-input-start" id="start_date" value="{{date('m/d/Y',strtotime($eventRecurring->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    {{-- <input class="form-control edit-input-date edit-input-start" id="start_date" value="{{date('m/d/Y',strtotime($startDate))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php 
                                     $time=date('H:i',strtotime($currentDateTime));
                                     $new_time= date('H:i', strtotime($time.'+1 hour')); ?>
-                                    <input class="form-control  input-time input-start" id="start_time" value="{{date('h:i A',strtotime($evetData->user_start_time))}}" name="start_time" type="text" placeholder="">
+                                    <input class="form-control  edit-input-time edit-input-start" id="start_time" value="{{date('h:i A',strtotime($evetData->user_start_time))}}" name="start_time" type="text" placeholder="">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3 pt-2">
@@ -183,12 +183,12 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($eventRecurring->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
-                                    {{-- <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($endDate))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
+                                    <input class="form-control edit-input-date edit-input-end" id="end_date" value="{{date('m/d/Y',strtotime($eventRecurring->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
+                                    {{-- <input class="form-control edit-input-date edit-input-end" id="end_date" value="{{date('m/d/Y',strtotime($endDate))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
-                                    <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($evetData->user_end_time))}}" name="end_time" type="text" placeholder="">
+                                    <input class="form-control  edit-input-time edit-input-end" id="end_time" value="{{date('h:i A',strtotime($evetData->user_end_time))}}" name="end_time" type="text" placeholder="">
                                 </div>
                                 
                             </div>
@@ -611,46 +611,35 @@
             allowClear: true,
             dropdownParent: $("#loadEditEventPopup"),
         });
-        changeCaseUser();        
-        $('#loadEditEventPopup #dateInputPanel .input-time').timepicker({
+        changeCaseUser();  
+
+        $('#editDateInputPanel .edit-input-time').timepicker({
             'showDuration': false,
             'timeFormat': 'g:i A',
             'forceRoundTime': true 
         });
+      
+        // Initialize Datepair
+        var dateContainer = document.getElementById('editDateInputPanel');
+        var datepair = new Datepair(dateContainer, {
+            'dateClass': 'edit-input-date',
+            'timeClass': 'edit-input-time',
+            'startClass': 'edit-input-start',
+            'endClass': 'edit-input-end'
+        });
+
+        /* $('#editDateInputPanel').on('change', '.edit-input-start', function() {
+            $('#editDateInputPanel .edit-input-end').timepicker('option', 'minTime', $(this).val());
+        }); */
 
         // Initialize Date Pickers
-        $('#loadEditEventPopup #dateInputPanel .input-date').datepicker({
+        $('#editDateInputPanel .edit-input-date').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
         });
-      
-        // Initialize Datepair
-        var dateContainer = document.getElementById('dateInputPanel');
-        var datepair = new Datepair($("#loadEditEventPopup #dateInputPanel"), {
-            'dateClass': 'input-date',
-            'timeClass': 'input-time',
-            'startClass': 'input-start',
-            'endClass': 'input-end'
-        });
-
-        /* $("#loadEditEventPopup #start_date").datepicker({
-            format: 'm/d/yyyy',
-            autoclose: true,
-            'todayHighlight': true
-        }).on('changeDate', function (selected) {
-            var startDate = new Date(selected.date.valueOf());
-            $('#loadEditEventPopup #end_date').datepicker('setStartDate', startDate);
-            $('#loadEditEventPopup #end_date').datepicker('setDate', startDate);
-            $(this).removeClass('error');
-            $("#start_date-error").text('');
-            $("#this_event_radio_div").hide();
-            updateMonthlyWeeklyOptions();
-        }).on('clearDate', function (selected) {
-            $('#loadEditEventPopup #end_date').datepicker('setStartDate', null);
-        }); */
         
         $("#start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
@@ -660,17 +649,6 @@
             $("#end_date").datepicker('setDate', selected);
             updateMonthlyWeeklyOptions();
         });
-
-        /* $("#loadEditEventPopup #end_date").datepicker({
-            format: 'm/d/yyyy',
-            autoclose: true,
-            'todayHighlight': true
-        }).on('changeDate', function (selected) {
-            $(this).removeClass('error');
-            $("#end_date-error").text('');
-        }).on('clearDate', function (selected) {
-            $('#loadEditEventPopup #start_date').datepicker('setEndDate', null);
-        }); */
 
         $("#end_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
@@ -720,7 +698,7 @@
         $(".fieldGroupEventReminder input").on('input', function() {
             $("#is_reminder_updated").val("yes");
         });
-        $(".input-date, .input-time").on('input change', function() {
+        $(".edit-input-date, .edit-input-time").on('input change', function() {
             $("#is_reminder_updated").val("yes");
         });
 
@@ -855,13 +833,10 @@
                 return false;
             }
             var dataString ='';
-            // if($("input[name=delete_event_type][value=SINGLE_EVENT]").is(':checked')) {
-                dataString = $("#EditEventForm").serialize(); 
-            // } else {
-                var currentItems = convertSerializedArrayToHash($("#EditEventForm").serializeArray());
-                itemsToSubmit = hashDiff( startItems, currentItems);
-            // }
-            console.log(dataString + '&' + $.param(itemsToSubmit));
+            dataString = $("#EditEventForm").serialize(); 
+            var currentItems = convertSerializedArrayToHash($("#EditEventForm").serializeArray());
+            itemsToSubmit = hashDiff( startItems, currentItems);
+            
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveEditEventPage", // json datasource

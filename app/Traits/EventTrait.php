@@ -633,6 +633,8 @@ trait EventTrait {
         $date->setTimezone('UTC');
         if($responseType == 'time') {
             return $date->format("H:i:s");
+        } elseif($responseType == 'onlyDate') {
+            return $date->format("Y-m-d");
         }
         return $date;
     }
