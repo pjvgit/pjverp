@@ -2244,9 +2244,11 @@ class CaseController extends BaseController
         }
         $authUser = auth()->user();
         $authUserId = $authUser->id;
-        $location = CaseEventLocation::find($request->case_location_list);
+        $caseEvent = Event::find($request->event_id);
         //If new location is creating.
-        if($request->location_name!='' && $request->location_name != $location->location_name){
+        if(isset($request->case_location_list)) {
+            $locationID = $request->case_location_list;
+        } else if($request->location_name!=''){
             $locationID= $this->saveLocationOnce($request);
         } else {
             $locationID = $request->case_location_list;
@@ -2279,7 +2281,6 @@ class CaseController extends BaseController
             $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
             $request->start_date = $start_date; // This is for event reminders
 
-            $caseEvent = Event::find($request->event_id);
             if($caseEvent && $caseEvent->is_recurring == 'no' && !isset($request->recuring_event)) {
                 $caseEvent->fill([
                     "event_title" => $request->event_name,
@@ -3660,7 +3661,7 @@ class CaseController extends BaseController
                 $isAuthUserLinked = encodeDecodeJson($eventRecurring->event_linked_staff)->where('user_id', auth()->id())->first();
             }
             $fromPageRoute = $request->from_page_route ?? Null;
-            return view('case.event.loadEditEvent',compact(/* 'CaseMasterClient', */'CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','eventRecurring', 'fromPageRoute', 'isAuthUserLinked'));          
+            return view('case.event.loadEditEvent',compact(/* 'CaseMasterClient', */'CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','eventRecurring', 'fromPageRoute', 'isAuthUserLinked', 'authUser'));          
     }
     // Made common code. This code is not in use
      /* public function loadSingleEditEventPage(Request $request)
@@ -5319,7 +5320,7 @@ class CaseController extends BaseController
         if(isset($request['Newtitle']) && $request['Newtitle']==""){
             $validator = \Validator::make($request->all(), [
                 'Newtitle' => 'required'
-            ],["Newtitle.required"=>"1Event type name cannot be empty"]);
+            ],["Newtitle.required"=>"Event type name cannot be empty"]);
         }else{
             $validator = \Validator::make($request->all(), [
                 'title.*' => 'required'

@@ -73,7 +73,7 @@
                                             </div>
                                         </div>
                                         <div class="col-7">
-                                            <input type="text" disabled name="Newtitle"  id="Newtitle" class="form-control" value="">
+                                            <input type="text" disabled name="Newtitle"  id="Newtitle" class="form-control required" value="">
                                         </div>
                                         <div class="col-2">
                                             
@@ -393,7 +393,7 @@
             $(".add-new-type").hide();
         }
         function checkBeforeSubmit(){
-            if(arrayVal!=""){
+            if(arrayVal!="" && $('#saveTypeForm').valid()){
                 $("#deleteTypeBox").modal("show");
                 return false;
             }else{
