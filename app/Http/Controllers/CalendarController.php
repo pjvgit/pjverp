@@ -82,12 +82,12 @@ class CalendarController extends BaseController
                 $eventData["event_id"] = $event->id ?? Null;
                 $eventData["event_recurring_id"] = $v->id;
                 $eventData["event_title"] = $event->event_title ?? "<No Title>";
-                $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : convertUTCToUserTime($v->start_date.' 00:00:00', $timezone);
-                $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : convertUTCToUserTime($v->end_date.' 00:00:00', $timezone);
-                $eventData["st"] = date('Y-m-d H:i:s', strtotime($startDateTime));
-                $eventData["et"] = date('Y-m-d H:i:s', strtotime($endDateTime));
-                $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->color_code : "";
-                $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));
+                $startDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->start_date.' '.$event->start_time, $timezone) : convertToUserTimezone($v->start_date.' 00:00:00', $timezone);
+                $endDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->end_date.' '.$event->end_time, $timezone) : convertToUserTimezone($v->end_date.' 00:00:00', $timezone);
+                $eventData["st"] = $startDateTime->format('Y-m-d H:i:s');
+                $eventData["et"] = $endDateTime->format('Y-m-d H:i:s');
+                $eventData["etext"] = ($v->event && $event->eventType) ? $event->eventType->color_code : "";
+                $eventData["start_time_user"] = $startDateTime->format('h:ia');
                 $eventData["event_linked_staff"] = encodeDecodeJson($v->event_linked_staff);
                 $eventData["is_all_day"] = $event->is_full_day;
                 $eventData["is_read"] = $v->is_read;
@@ -230,7 +230,7 @@ class CalendarController extends BaseController
         $solEvents = [];
         if(isset($request->searchbysol) && $request->searchbysol=="true" && $request->taskLoad != 'unread') {
             $solEvents = Event::where('is_SOL','yes')->leftJoin('case_master','case_master.id','=','events.case_id')
-                ->where('events.created_by', $authUserId)->where('firm_id', $authUser->firm_name)
+                ->where('events.created_by', $authUserId)->where('events.firm_id', $authUser->firm_name)
                 ->whereBetween('start_date', [$request->start, $request->end]);
             if($request->case_id != "") {
                 $solEvents = $solEvents->where('case_id',$request->case_id);

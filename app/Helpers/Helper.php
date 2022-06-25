@@ -704,10 +704,7 @@ function getUnreadTaskCount()
  */
 function convertToUserTimezone($str, $timezone){
     $str = date('Y-m-d H:i:s', strtotime($str));
-    Log::info("end date: ". $str);
     $date = Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
-    Log::info("end date utc: ". $date->format('Y-m-d H:i:s'));
     $date->setTimezone($timezone ?? 'UTC');
-    Log::info("end date converted: ". $date->format('Y-m-d H:i:s'));
     return $date;
 }

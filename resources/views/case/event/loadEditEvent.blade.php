@@ -159,8 +159,7 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control edit-input-date edit-input-start" id="start_date" value="{{date('m/d/Y',strtotime($eventRecurring->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
-                                    {{-- <input class="form-control edit-input-date edit-input-start" id="start_date" value="{{date('m/d/Y',strtotime($startDate))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
+                                    <input class="form-control edit-input-date edit-input-start" id="start_date" value="{{ convertToUserTimezone($eventRecurring->start_date.' '.$evetData->start_time , $authUser->user_timezone)->format('m/d/Y') }}" name="start_date" type="text" placeholder="mm/dd/yyyy">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
@@ -183,8 +182,7 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control edit-input-date edit-input-end" id="end_date" value="{{date('m/d/Y',strtotime($eventRecurring->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
-                                    {{-- <input class="form-control edit-input-date edit-input-end" id="end_date" value="{{date('m/d/Y',strtotime($endDate))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
+                                    <input class="form-control edit-input-date edit-input-end" id="end_date" value="{{ convertToUserTimezone($eventRecurring->end_date.' '.$evetData->end_time , $authUser->user_timezone)->format('m/d/Y') }}" name="end_date" type="text" placeholder="mm/dd/yyyy">
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
@@ -934,7 +932,7 @@
         $(".add-new").show();
         $("#cancel_new_label").show();
         $("#add_new_label").hide();
-
+        $("#case_location_list").val('');
     }
 
     function closeAddLocation() {
@@ -942,6 +940,7 @@
         $(".add-new").hide();
         $("#cancel_new_label").hide();
         $("#add_new_label").show();
+        $("#case_location_list").val("{{ $evetData->event_location_id }}");
     }
     
     function selectTypeload(selectdValue) {
