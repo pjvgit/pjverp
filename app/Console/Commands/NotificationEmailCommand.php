@@ -64,8 +64,8 @@ class NotificationEmailCommand extends Command
                     "case_master.case_unique_number", "case_events.event_title as eventTitle", 
                     "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",
                     'task.task_title as taskTitle', "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact")
-            ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
-            // ->whereDate("all_history.created_at", date('Y-m-d'))
+            // ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
+            ->whereDate("all_history.created_at", date('Y-m-23'))
             ->where('all_history.is_for_client','no')
             ->with('caseFirm')
             ->get()->groupBy('firm_id');
@@ -126,8 +126,7 @@ class NotificationEmailCommand extends Command
         
         // for firm User
         // $firmData = array_map('array_values', $firmData);
-        $caseData = [];
-        $itemData = [];        
+        
                                         
         $ignoreTypes = ['fundrequest','credit','deposit'];
         $ignoreActions = ['pay_delete'];  
@@ -136,6 +135,9 @@ class NotificationEmailCommand extends Command
             $fitem = array_map('array_values', $fitem);
         foreach($fitem as $key => $item) {
             if(count($item) > 0) {
+                $caseData = [];
+                $itemData = [];        
+
                 $firmId = $item[0]->caseFirm->parent_user_id;
                 echo $firmId ."-->"; echo PHP_EOL;  
                 $userNotificationSetting =  DB::select('SELECT uns.notification_id, uns.for_email, ns.topic, ns.type, ns.action, ns.sub_type
@@ -197,11 +199,12 @@ class NotificationEmailCommand extends Command
         }
 
         // for staff
-        $caseStaffData = [];
-        $itemStaffData = [];
+        
         foreach($staffData as $fkey => $fitem) {
         foreach($fitem as $key => $item) {
             if(count($item) > 0) {                
+                $caseStaffData = [];
+                $itemStaffData = [];
                 echo $key;echo PHP_EOL;
                 $explodeKey = explode('|', $key);            
                 $preparedFor = $explodeKey[0];
