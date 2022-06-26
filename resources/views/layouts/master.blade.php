@@ -49,7 +49,7 @@
 </head>
 
 {{-- <body class="text-left" onload="StartTimers();" onmousemove="ResetTimers();"> --}}
-<body class="text-left">
+<body class="text-left" id="app">
     <input type="hidden" name="auth_login_user_id" id="auth_login_user_id" value="{{Auth::user()->id ?? ''}}">
     <input type="hidden" name="auth_login_firm_id" id="auth_login_firm_id" value="{{Auth::user()->firm_name ?? ''}}">
     @php
@@ -304,65 +304,80 @@
         }
 
         function ResetTimers(){
+            checkAuthSession();
             $("#timeoutPopup").modal("hide");
         }
        
+        var counter = {{(Auth::User()->sessionTime * 60)}};
         var dont_logout_while_timer_runnig = "{{Auth::User()->dont_logout_while_timer_runnig}}";
         console.log("auto_logout > dont_logout_while_timer_runnig > " + dont_logout_while_timer_runnig);
         
         
-        console.log("auto_logout > AuthSessionTime > "+ localStorage.getItem("AuthSessionTime"));
-        if(localStorage.getItem("AuthSessionTime")){
-            localStorage.setItem("AuthSessionTime",  parseInt(localStorage.getItem("AuthSessionTime")) + 1)
-        }else{
-            localStorage.setItem("AuthSessionTime", 0)
+        // checkAuthSession();
+        function checkAuthSession(){
+            if(localStorage.getItem("AuthSessionTime")){
+                localStorage.setItem("AuthSessionTime",  parseInt(localStorage.getItem("AuthSessionTime")) + 1)
+                counter = {{Auth::User()->sessionTime * 60}};
+            }else{
+                localStorage.setItem("AuthSessionTime", 0)
+            }            
         }
+
+        $('#app').on('mousedown', function () {
+            checkAuthSession();
+        });
         
         <?php if(Auth::User()->auto_logout=="on"){?>
-        if (localStorage.getItem("pauseCounter") == "no"){
-        console.log("auto_logout > on ");
+        // if (localStorage.getItem("pauseCounter") == "yes"){
+        console.log("auto_logout functionality > on ");
+        console.log("logout in "+ {{(Auth::User()->sessionTime * 60)}});
         $(document).ready(function () {
             //----------------------------------------------------------------------------------
-            setTimeout(function(){
-                IdleWarning();
-            }, {{(Auth::User()->sessionTime * 60000) - 50000}}); //
-            
-            var counter = 50;
-            $("#ReminingTimeForLogout").html(counter);
-            
-            setTimeout(function(){
+            // setTimeout(function(){
+            //     IdleWarning();
+            // }, {{(Auth::User()->sessionTime * 1000) - 50000}}); //
+            checkAuthSession();
+
+            // setTimeout(function(){
                 var interval = setInterval(function () {
-                    counter--;
-                    $("#ReminingTimeForLogout").html(counter);
-                    if (counter == 0) {
-                        if(localStorage.getItem("AuthSessionTime") == 0){
-                            localStorage.removeItem('AuthSessionTime');
-                            IdleTimeout();
-                            clearInterval(interval);
-                        }else{
-                            if(localStorage.getItem("pauseCounter") == 'yes'){
-                                clearInterval(interval);
-                                localStorage.removeItem('AuthSessionTime');
-                                window.location.reload();
-                            }else{
+                    if (localStorage.getItem("smart_timer_running") === "no" || dont_logout_while_timer_runnig === 'off'){
+                        counter--;
+                        console.log("auto_logout counter > ", counter);
+                        $("#ReminingTimeForLogout").html(counter);
+                        if(counter === 50){
+                            IdleWarning();
+                            $("#ReminingTimeForLogout").html(counter);
+                        }
+                        if (counter == 0) {
+                            if(localStorage.getItem("AuthSessionTime") == 0){
                                 localStorage.removeItem('AuthSessionTime');
                                 IdleTimeout();
                                 clearInterval(interval);
+                            }else{
+                                if(localStorage.getItem("pauseCounter") == 'yes'){
+                                    clearInterval(interval);
+                                    localStorage.removeItem('AuthSessionTime');
+                                    // window.location.reload();
+                                }else{
+                                    localStorage.removeItem('AuthSessionTime');
+                                    IdleTimeout();
+                                    clearInterval(interval);
+                                }
                             }
                         }
                     }
                 }, 1000);
-            }, {{(Auth::User()->sessionTime * 60000) - 50000}}); //{{Auth::User()->sessionTime * 60000}}
+            // }, {{(Auth::User()->sessionTime * 1000) - 50000}}); //{{Auth::User()->sessionTime * 1000}}
             //----------------------------------------------------------------------------------
             $('#timeoutPopup').on('hidden.bs.modal', function () {
-                window.location.reload();
+                // window.location.reload();
             });
 
             $('body').hover(function(){
                 ResetTimers()
             });
         });
-        }
+        // }
         <?php } ?>
         
     </script>

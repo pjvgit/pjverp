@@ -275,10 +275,11 @@ if(!localStorage.getItem('smart_timer_id')){
 
 var smart_timer_id = localStorage.getItem("smart_timer_id");
 var smart_timer_created_by = localStorage.getItem("smart_timer_created_by");
-console.log("smart_timer_id : " + smart_timer_id);
+// console.log("smart_timer_id : " + smart_timer_id);
 console.log("localStorage > smart_timer_id : " + localStorage.getItem("smart_timer_id"));
-console.log("localStorage > pauseCounter : " + localStorage.getItem("pauseCounter"));
-console.log("localStorage > smart_timer_created_by : " + smart_timer_created_by);
+// console.log("localStorage > pauseCounter : " + localStorage.getItem("pauseCounter"));
+// console.log("localStorage > smart_timer_created_by : " + smart_timer_created_by);
+console.log("localStorage > smart_timer_running : " + localStorage.getItem("smart_timer_running"));
 $(".timer-actions-button").hide();
 $.ajax({
     url: baseUrl + "/checkTimerExits",
@@ -301,6 +302,7 @@ $.ajax({
                     $(".logoutTimerAlert").show();
                     $(".js-timer-root .text-nowrap").html('');
                     localStorage.setItem("pauseCounter", 'yes');
+                    localStorage.setItem("smart_timer_running", 'yes');
                     intervalId = setInterval(timerstart, 1000);
                     $(".timer-actions-button").hide();
                 } else {
@@ -308,6 +310,7 @@ $.ajax({
                     $(".timerAction").removeClass("fa-pause").addClass("fa-play");
                     $(".timerAction").attr('id', 'startCounter');
                     localStorage.setItem("pauseCounter", 'no');
+                    localStorage.setItem("smart_timer_running", 'no');
                     $(".timer-actions-button").show();
                 }
             } else {
@@ -315,6 +318,7 @@ $.ajax({
                     $(".logoutTimerAlert").show();
                     $(".js-timer-root .text-nowrap").html('');
                     localStorage.setItem("pauseCounter", 'yes');
+                    localStorage.setItem("smart_timer_running", 'yes');
                     intervalId = setInterval(timerstart, 1000);
                     $(".timer-actions-button").hide();
                 } else {
@@ -322,6 +326,7 @@ $.ajax({
                     $(".timerAction").removeClass("fa-pause").addClass("fa-play");
                     $(".timerAction").attr('id', 'startCounter');
                     localStorage.setItem("pauseCounter", 'no');
+                    localStorage.setItem("smart_timer_running", 'no');
                     $(".timer-actions-button").show();
                 }
             }
@@ -410,6 +415,7 @@ $(".startTimer").on('click', function() {
             success: function(data) {
                 if (data.status == "success") {
                     $(".logoutTimerAlert").show();
+                    localStorage.setItem("smart_timer_running", 'yes');
                     localStorage.setItem("pauseCounter", 'no');
                     localStorage.setItem("smart_timer_id", data.smart_timer_id);
                     localStorage.setItem("smart_timer_created_by", data.smart_timer_created_by);
@@ -435,6 +441,7 @@ $(document).on("click", "#startCounter", function() {
     resumeTimer();
     $(".logoutTimerAlert").show();
     if (!intervalId) {
+        localStorage.setItem("smart_timer_running", 'yes');
         localStorage.setItem("pauseCounter", 'yes');
         intervalId = setInterval(timerstart, 1000);
     }
@@ -448,6 +455,7 @@ $(document).on("click", "#pauseCounter", function() {
     $(".logoutTimerAlert").hide();
     if (intervalId) {
         clearInterval(intervalId);
+        localStorage.setItem("smart_timer_running", 'no');
         localStorage.setItem("pauseCounter", 'no');
         intervalId = null;
     }
@@ -612,6 +620,7 @@ function deleteTimerInStorage(){
 }
 
 function removeLocalStorage() {
+    localStorage.setItem("smart_timer_running", 'no');
     localStorage.setItem("smart_timer_created_by", '');
     localStorage.setItem("smart_timer_id", '');
     localStorage.setItem("pauseCounter", 'no');
