@@ -3377,7 +3377,7 @@ class ClientdashboardController extends BaseController
                             $UserArray[$key]['email']=$val[16];
                             $UserArray[$key]['website']=$val[17];
                             $UserArray[$key]['outstanding_amount']=$val[18];
-                            if((strtolower($val[19])=="true" || strtolower($val[19])=="TRUE") && (strtolower($val[20])=="true" || strtolower($val[20])=="TRUE")){
+                            if((strtolower($val[19])=="true" || strtolower($val[19])=="TRUE") && (strtolower($val[20])=="false" || strtolower($val[20])=="")){
                                 $UserArray[$key]['client_portal_enable']='1';
                             }else{
                                 $UserArray[$key]['client_portal_enable']='0';
@@ -3731,20 +3731,6 @@ class ClientdashboardController extends BaseController
                                 if (strpos($v, 'TITLE') !== false) { 
                                     $title=explode(":",$v);
                                     $UserArray[$finalOperationKey]['job_title'] = ($title[1] != '') ? str_replace(" ", "", $title[1]) : NULL;
-                                }
-
-                                if (strpos($v, 'ADR') !== false) { 
-                                    $adr=explode(":",$v);
-                                    if(count($adr) > 1) {
-                                        $adr1 = explode(";", $adr[1]);
-                                        $adr1 = array_filter($adr1, fn($value) => !is_null($value) && $value !== '');
-                                        if(count($adr1)) {
-                                            $UserArray[$finalOperationKey]['street'] = (isset($adr1[0]) && $adr1[0] != '') ? quoted_printable_decode($adr1[0]) : NULL;
-                                            $UserArray[$finalOperationKey]['city'] = (isset($adr1[1]) && $adr1[1] != '') ? quoted_printable_decode($adr1[1]) : NULL;
-                                            $UserArray[$finalOperationKey]['state'] = (isset($adr1[2]) && $adr1[2] != '') ? quoted_printable_decode($adr1[2]) : NULL;
-                                            $UserArray[$finalOperationKey]['postal_code'] = (isset($adr1[3]) && $adr1[3] != '') ? quoted_printable_decode($adr1[3]) : NULL;
-                                        }
-                                    }
                                 }
 
                                 if (strpos($v, 'ORG') !== false) { 

@@ -404,7 +404,7 @@
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Close</button>
             </a>
-            <button class="btn btn-primary example-button m-1 submit" type="submit" data-style="expand-left">Save Event </button>
+            <button class="btn btn-primary example-button m-1 add-event-submit" type="submit" data-style="expand-left">Save Event </button>
         </div>
     </div>
 </form>
@@ -630,7 +630,7 @@
             $(".innerLoader").css('display', 'block');
             if (!$('#createEvent').valid()) {
                 $(".innerLoader").css('display', 'none');
-                $('.submit').removeAttr("disabled");
+                $('.add-event-submit').removeAttr("disabled");
                 return false;
             }
             var dataString = $("#createEvent").serialize();
@@ -652,7 +652,7 @@
                         $('#showError').append(errotHtml);
                         $('#showError').show();
                         $(".innerLoader").css('display', 'none');
-                        $('.submit').removeAttr("disabled");
+                        $('.add-event-submit').removeAttr("disabled");
                         $('#loadAddEventPopup').animate({ scrollTop: 0 }, 'slow');
 
                         return false;

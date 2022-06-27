@@ -23,10 +23,10 @@
 
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
             @csrf
-            <input type="hidden" class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id">
-            <input type="hidden" class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" id="event_recurring_id">
-            <input type="hidden" class="form-control" value="no" name="is_reminder_updated" id="is_reminder_updated">
-            <input type="hidden" class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" id="edit_recurring_pattern">
+            <input type="text" class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id">
+            <input type="text" class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" id="event_recurring_id">
+            <input type="s" class="form-control" value="no" name="is_reminder_updated" id="is_reminder_updated">
+            <input type="text" class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" id="edit_recurring_pattern">
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8">
@@ -567,7 +567,7 @@
                     <div>
                      
                         <button class="btn btn-secondary  m-1" type="button" onclick="goBack();" >Go Back</button>
-                        <button class="btn btn-primary example-button m-1 submit" data-style="expand-left">Ok </button>
+                        <button class="btn btn-primary example-button m-1 edit-event-submit" data-style="expand-left">Ok </button>
                         
                     </div>
                 </div>
@@ -823,11 +823,11 @@
 
         $('#EditEventForm').submit(function (e) {
             e.preventDefault();
-            $(".submit").attr("disabled", true);
+            $(".edit-event-submit").attr("disabled", true);
             $(".innerLoader").css('display', 'block');
             if (!$('#EditEventForm').valid()) {
                 $(".innerLoader").css('display', 'none');
-                $('.submit').removeAttr("disabled");
+                $('.edit-event-submit').removeAttr("disabled");
                 return false;
             }
             var dataString ='';
@@ -854,7 +854,7 @@
                         goBack();
                         $('#showError').show();
                         $(".innerLoader").css('display', 'none');
-                        $('.submit').removeAttr("disabled");
+                        $('.edit-event-submit').removeAttr("disabled");
                         $('#loadEditEventPopup').animate({ scrollTop: 0 }, 'slow');
 
                         return false;
@@ -1143,15 +1143,15 @@
     function deleteEventFunction1() {
         if (!$('#EditEventForm').valid()) {
             $(".innerLoader").css('display', 'none');
-            $('.submit').removeAttr("disabled");
+            $('.edit-event-submit').removeAttr("disabled");
             return false;
         }
         if(!$("#recuring_event").is(":checked") || $("#edit_recurring_pattern").val() == "single event") {
             $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
-            $(".submit").trigger("click");
+            $(".edit-event-submit").trigger("click");
         } else if($("#recuring_event").is(":checked") && "{{ $evetData->is_recurring }}" == 'no') {
             $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
-            $(".submit").trigger("click");
+            $(".edit-event-submit").trigger("click");
         } else {
             $("input[name=delete_event_type][value=ALL_EVENTS]").attr('checked', 'checked');
             $("#confirmSave").css('display','block');
