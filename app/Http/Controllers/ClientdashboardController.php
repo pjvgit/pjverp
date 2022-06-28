@@ -3873,12 +3873,14 @@ class ClientdashboardController extends BaseController
                 if(!empty($User)){
                     $fetchedIds[]=$User['id'];
                 }else{
+                    $authUser = auth()->user();
                     $companyUser=new User;
                     $companyUser->first_name=$val; 
                     $companyUser->created_by =Auth::User()->id;
                     $companyUser->user_level="4";
                     $companyUser->user_title="Company";
-                    $companyUser->parent_user=Auth::User()->id;
+                    $companyUser->parent_user= $authUser->id;
+                    $companyUser->firm_name = $authUser->firm_name;
                     $companyUser->save();
                     $fetchedIds[]=$companyUser->id;
                 }

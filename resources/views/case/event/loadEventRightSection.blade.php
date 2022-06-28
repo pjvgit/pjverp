@@ -65,7 +65,7 @@
     </div>
 </div>
 
-<button type="button" class="btn btn-link" bladeName="resources/views/case/event/loadEventRightSection.blade.php" id="HideShowNonlink">Include staff member not linked to this case</button>
+<button type="button" class="btn btn-link HideShowNonlink" bladeName="resources/views/case/event/loadEventRightSection.blade.php" id="HideShowNonlink">Include staff member not linked to this case</button>
 <div class="sharing-table staff-table-nonlinked" @if(count($caseNonLinkeSaved) == 0) style="display:none;" @endif>
     <div class="table-responsive">
         <table class="table table-lg" id="CaseNoneLinkedStaffSection">
@@ -317,8 +317,9 @@
             }
         });
 
-        $("#HideShowNonlink").on('click', function () {
-            $(".staff-table-nonlinked").toggle();
+        $('.HideShowNonlink').on('click', function () {
+            var modalId = $(this).parents('div.modal').attr("id");
+            $("#"+modalId+" .staff-table-nonlinked").toggle();
         });
 
         $(document).on("click", "#SelectAllLeadShare", function () {

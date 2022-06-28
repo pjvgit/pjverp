@@ -465,7 +465,7 @@
             $("#start_date-error").text('');
         });
      
-        $("#end_on").datepicker({
+        $("#loadAddEventPopup #end_on").datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
@@ -488,9 +488,9 @@
         });
 
          
-        $("#HideShowNonlink").on('click', function () {
-            $(".staff-table-nonlinked").toggle();
-        });
+        /* $("#loadAddEventPopup").on('click', '#HideShowNonlink', function () {
+            $("#loadAddEventPopup .staff-table-nonlinked").toggle();
+        }); */
         
         
         $("#endondiv").hide();
@@ -523,7 +523,7 @@
                     required: {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                            if ($("#loadAddEventPopup #no_end_date_checkbox:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -532,7 +532,7 @@
                     dateGreaterThan:  {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                            if ($("#loadAddEventPopup #no_end_date_checkbox:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -694,22 +694,22 @@
             }
         });
 
-        $("input:checkbox#no_end_date_checkbox").click(function () {
+        $("#loadAddEventPopup input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
-                $('#end_on').val('');
-                $("#end_on").attr("disabled", true);
+                $('#loadAddEventPopup #end_on').val('');
+                $("#loadAddEventPopup #end_on").attr("disabled", true);
             } else {
-                $('#end_on').removeAttr("disabled");
+                $('#loadAddEventPopup #end_on').removeAttr("disabled");
             }
         });
 
-        $("#end_on").on('changeDate', function() {
+        $("#loadAddEventPopup #end_on").on('changeDate', function() {
             if($('#end_on').valid()){
             $('#datepicker').removeClass('invalid').addClass('success');   
             }
         });
 
-        $("input:checkbox#no_end_date_checkbox").click(function(){
+        $("#loadAddEventPopup input:checkbox#no_end_date_checkbox").click(function(){
             if ($(this).is(":checked")) {
             $('#datepicker').removeClass('invalid').addClass('success');
             } 
@@ -720,8 +720,8 @@
             if ($(this).is(":checked")) {
                 $("#repeat_dropdown").show();
                 $("#endondiv").show();
-                $("#no_end_date_checkbox").prop("checked", true);
-                if ($("input:checkbox#no_end_date_checkbox").is(":checked")) {
+                $("#loadAddEventPopup #no_end_date_checkbox").prop("checked", true);
+                if ($("#loadAddEventPopup input:checkbox#no_end_date_checkbox").is(":checked")) {
                     $("#end_on").attr("disabled", true);
                 } else {
                     $('#end_on').removeAttr("disabled");
@@ -882,7 +882,7 @@
         if(selectdValue!=''){
             if(uType=="case"){
                 $("#text_case_id").val(selectdValue);
-                $("#HideShowNonlink").show();
+                $("#loadAddEventPopup #HideShowNonlink").show();
                 loadRightSection(selectdValue);
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
@@ -893,7 +893,7 @@
         }else{
            $(".hideUser").show();
             $("#add_event_right_section").html('');
-            $("#HideShowNonlink").hide();
+            $("#loadAddEventPopup #HideShowNonlink").hide();
            
         }
     }
@@ -937,7 +937,7 @@
             
             $('#case_or_lead').val('').trigger('change');
             $('#case_or_lead').prop('selectedIndex',0);
-            $("#HideShowNonlink").hide();
+            $("#loadAddEventPopup #HideShowNonlink").hide();
             $("#add_event_right_section").html('');
             firmStaff();
         } else {

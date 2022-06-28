@@ -648,15 +648,15 @@
             $("#end_date-error").text('');
         });
 
-        $("#end_on").datepicker({
+        $("#loadEditEventPopup #end_on").datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
         }).on('changeDate', function(ev) {
-            if($('#end_on').valid()){
-            $('#datepicker').removeClass('invalid').addClass('success');   
+            if($('#loadEditEventPopup #end_on').valid()){
+            $('#loadEditEventPopup #datepicker').removeClass('invalid').addClass('success');   
             }
         });
 
@@ -670,9 +670,9 @@
         }); */
         $("#loadEditEventPopup .event-type-button").trigger("click");
          
-        $("#HideShowNonlink").on('click', function () {
-            $(".staff-table-nonlinked").toggle();
-        });
+        /* $("#loadEditEventPopup").on('click', '#HideShowNonlink', function () {
+            $("#loadEditEventPopup .staff-table-nonlinked").toggle();
+        }); */
        
         $(".hide").hide();
         /* $("#firstStep .add-more").click(function () {
@@ -712,7 +712,7 @@
                     required: {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                            if ($("#loadEditEventPopup #no_end_date_checkbox:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -721,7 +721,7 @@
                     dateGreaterThan:  {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                            if ($("#loadEditEventPopup #no_end_date_checkbox:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -878,12 +878,12 @@
         });
         
         // No end date checkbox click event
-        $("input:checkbox#no_end_date_checkbox").click(function () {
+        $("#loadEditEventPopup input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
-                $('#end_on').val('');
-                $("#end_on").attr("disabled", true);
+                $('#loadEditEventPopup #end_on').val('');
+                $("#loadEditEventPopup #end_on").attr("disabled", true);
             } else {
-                $('#end_on').removeAttr("disabled");
+                $('#loadEditEventPopup #end_on').removeAttr("disabled");
             }
         });
 
@@ -894,9 +894,9 @@
                 $("#loadEditEventPopup #endondiv").show();
                 $("#loadEditEventPopup #no_end_date_checkbox").prop("checked", true);
                 if ($("input:checkbox#no_end_date_checkbox").is(":checked")) {
-                    $("#end_on").attr("disabled", true);
+                    $("#loadEditEventPopup #end_on").attr("disabled", true);
                 } else {
-                    $('#end_on').removeAttr("disabled");
+                    $('#loadEditEventPopup #end_on').removeAttr("disabled");
                 }
 
             } else {
@@ -1082,7 +1082,7 @@
         if(selectdValue!=''){
             if(uType=="case"){
                 $("#text_case_id").val(selectdValue);
-                $("#HideShowNonlink").show();
+                $("#loadEditEventPopup #HideShowNonlink").show();
                 loadRightSection(selectdValue);
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
@@ -1092,7 +1092,7 @@
             $(".hideUser").hide();
         }else{
             $("#edit_event_right_section").html('');
-            $("#HideShowNonlink").hide();
+            $("#loadEditEventPopup #HideShowNonlink").hide();
             $(".hideUser").show();
             // loadDefaultContent();  // This function is for Task, not for event
         }
@@ -1175,7 +1175,7 @@
         if ($(this).is(":checked")) {
             $("#case_or_lead").attr("disabled", true);
             $('#case_or_lead').prop('selectedIndex',0);
-            $("#HideShowNonlink").hide();
+            $("#loadEditEventPopup #HideShowNonlink").hide();
             firmStaff();
             $("#edit_event_right_section").html('');
             $(".hideUser").hide();
