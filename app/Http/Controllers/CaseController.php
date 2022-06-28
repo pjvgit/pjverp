@@ -2197,7 +2197,7 @@ class CaseController extends BaseController
                 "event_description" => $request->description,
                 "is_recurring" => "no",
                 "event_location_id" => $locationID ?? NULL,
-                "is_event_read" => (isset($request->is_event_private)) ? 'yes' : 'no',
+                "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
                 "firm_id" => $authUser->firm_name,
                 "created_by" => $authUser->id,
             ]);

@@ -76,7 +76,18 @@ class ClientdashboardController extends Controller
             }
 
             // read mesages 
-            $messagesData->is_read = 0;
+            $authUserId = (string) auth()->id();
+            $linkedContact = encodeDecodeJson($messagesData->users_json);
+            if(count($linkedContact)) {
+                foreach($linkedContact as $key => $item) {
+                    if($item->user_id == $authUserId) {
+                        $item->is_read = 'yes';
+                    }
+                    $updatedLinkedContact[] = $item;
+                }
+                $messagesData->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
+            }
+            // $messagesData->is_read = 0;
             $messagesData->save();
     
             $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
@@ -188,6 +199,16 @@ class ClientdashboardController extends Controller
 
             $Messages=Messages::find($request->message_id);
             $Messages->message=substr($request->delta,0,50);
+            $authUser = auth()->user();
+            $authUserId = (string) $authUser->id;
+            $linkedContact = encodeDecodeJson($Messages->users_json);
+            if(count($linkedContact)) {
+                foreach($linkedContact as $key => $item) {
+                    $item->is_read = 'no';
+                    $updatedLinkedContact[] = $item;
+                }
+                $Messages->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
+            }
             $Messages->save();
             
             $this->sendMailGlobal($request, $request->selected_user_id, $request->message_id);

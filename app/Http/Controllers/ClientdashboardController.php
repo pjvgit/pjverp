@@ -2440,6 +2440,19 @@ class ClientdashboardController extends BaseController
                     $Messages->message=substr(strip_tags($request->delta),0,50);
                     $Messages->created_by =Auth::User()->id;
                     $Messages->firm_id =Auth::User()->firm_name;
+                    $jsonData = [];
+                    foreach($request->send_to as $uid) {
+                        $decideCode=explode("-",$uid);        
+                        $jsonData[] = [
+                            'user_id' => $decideCode[1],
+                            'is_read' => 'no'
+                        ];
+                    }
+                    $jsonData[] = [
+                        "user_id" => auth()->id(),
+                        'is_read' => 'yes'
+                    ];
+                    $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
                     $Messages->save();
 
                     $ReplyMessages=new ReplyMessages;
@@ -3728,6 +3741,21 @@ class ClientdashboardController extends BaseController
                                     $phone=explode(":",$v);
                                     $UserArray[$finalOperationKey]['fax_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
                                 }
+
+                                /* if (strpos($v, 'ADR') !== false) { 
+                                    $adr=explode(":",$v);
+                                    if(count($adr) > 1) {
+                                        $adr1 = explode(";", $adr[1]);
+                                        $adr1 = array_filter($adr1, fn($value) => !is_null($value) && $value !== '');
+                                        if(count($adr1)) {
+                                            $UserArray[$finalOperationKey]['street'] = (isset($adr1[0]) && $adr1[0] != '') ? quoted_printable_decode($adr1[0]) : NULL;
+                                            $UserArray[$finalOperationKey]['city'] = (isset($adr1[1]) && $adr1[1] != '') ? quoted_printable_decode($adr1[1]) : NULL;
+                                            $UserArray[$finalOperationKey]['state'] = (isset($adr1[2]) && $adr1[2] != '') ? quoted_printable_decode($adr1[2]) : NULL;
+                                            $UserArray[$finalOperationKey]['postal_code'] = (isset($adr1[3]) && $adr1[3] != '') ? quoted_printable_decode($adr1[3]) : NULL;
+                                        }
+                                    }
+                                } */
+
                                 if (strpos($v, 'TITLE') !== false) { 
                                     $title=explode(":",$v);
                                     $UserArray[$finalOperationKey]['job_title'] = ($title[1] != '') ? str_replace(" ", "", $title[1]) : NULL;
@@ -4497,6 +4525,20 @@ class ClientdashboardController extends BaseController
         ->where('messages.id', $request->message_id)
         ->first();
 
+        // read mesages 
+        $authUserId = (string) auth()->id();
+        $linkedContact = encodeDecodeJson($messagesData->users_json);
+        if(count($linkedContact)) {
+            foreach($linkedContact as $key => $item) {
+                if($item->user_id == $authUserId) {
+                    $item->is_read = 'yes';
+                }
+                $updatedLinkedContact[] = $item;
+            }
+            $messagesData->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
+        }
+        $messagesData->save();
+
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
         ->leftJoin("users","users.id","=","messages.created_by")
         ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), "messages.updated_at as last_posts",'users.id as staff_id','users.first_name','users.last_name')
@@ -4815,7 +4857,7 @@ class ClientdashboardController extends BaseController
                             $CaseMaster->conflict_check_description=$finalOperationVal['conflict_check_notes'] ?? Null;
 
                             if($finalOperationVal['practice_area'] != '') { 
-                                $caseArea =  CasePracticeArea::where('title','like','%'.$finalOperationVal['practice_area'].'%')->select('id')->first();
+                                $caseArea =  CasePracticeArea::where('title','like','%'.$finalOperationVal['practice_area'].'%')->where('firm_id', $authUser->firm_name)->select('id')->first();
                                 if(!empty($caseArea)){
                                     $CaseMaster->practice_area=$caseArea->id;
                                 }else{

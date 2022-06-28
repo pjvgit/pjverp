@@ -13,8 +13,8 @@ class Messages extends Authenticatable
     protected $table = "messages";
     public $primaryKey = 'id';
 
-    protected $fillable = ['status', 'title'];    
-    protected $appends  = ['decode_id','last_post', 'client_last_post'];
+    protected $fillable = ['status', 'title', 'users_json'];    
+    protected $appends  = ['decode_id','last_post', 'client_last_post', 'is_read_msg'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     }  
@@ -29,5 +29,15 @@ class Messages extends Authenticatable
             $userTime = convertUTCToUserTime($this->updated_at, auth()->user()->user_timezone ?? 'UTC');
             return date('M d, Y',strtotime($userTime));
         }
+    }
+
+    /**
+     * Check messages is read by firm user/staff attribute
+     */
+    public function getIsReadMsgAttribute()
+    {
+        $authUserId = (string) auth()->id();
+        $decodeJson = encodeDecodeJson($this->users_json)->where("user_id", $authUserId)->first();
+        return $decodeJson->is_read ?? "no";
     }
 }

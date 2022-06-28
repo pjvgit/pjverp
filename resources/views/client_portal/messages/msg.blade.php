@@ -23,7 +23,7 @@
     }
     ?>
     @if ($item->user_id != '' || $item->subject != '' || $item->message != '')
-    <li class="list-row <?php echo ($item->is_read) ? 'is-unread' : ''; ?>">
+    <li class="list-row <?php echo ($item->is_read_msg == 'no') ? 'is-unread' : ''; ?>">
         @if ($item->is_draft == 1)
         <a href="javascript:void(0);" onclick="openDraftMessage({{$item->id}})">
         @else

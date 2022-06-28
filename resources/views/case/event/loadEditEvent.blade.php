@@ -5,11 +5,6 @@
         text-indent: 20px;
     }
     </style>
- <?php
-//  $CommonController= new App\Http\Controllers\CommonController();
-//  $convertedStartDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($evetData->start_date .$evetData->start_time)),Auth::User()->user_timezone);
-//  $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($evetData->end_date .$evetData->end_time)),Auth::User()->user_timezone);
- ?>
   <div class="modal-header">
     <h5 class="modal-title" id="editEtitle">Edit Event Details</h5>
     <h5 class="modal-title" id="editRtitle">Edit Event Details</h5>
@@ -25,8 +20,8 @@
             @csrf
             <input type="text" class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id">
             <input type="text" class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" id="event_recurring_id">
-            <input type="s" class="form-control" value="no" name="is_reminder_updated" id="is_reminder_updated">
-            <input type="text" class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" id="edit_recurring_pattern">
+            <input type="hidden" class="form-control" value="no" name="is_reminder_updated" id="is_reminder_updated">
+            <input type="hidden" class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" id="edit_recurring_pattern">
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8">
