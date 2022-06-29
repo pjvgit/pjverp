@@ -46,7 +46,7 @@
                             <label for="inputEmail3" class="col-sm-2 col-form-label">Case or Lead</label>
                             <div class="col-8 form-group mb-3">
                                 <select onChange="changeCaseUser()" class="form-control case_or_lead" id="case_or_lead" name="case_or_lead"
-                                    data-placeholder="Search for an existing contact or company">
+                                    data-placeholder="Search for an existing contact or company" {{ ($evetData->case_id=='' && $evetData->lead_id == '') ? 'disabled' : '' }}>
                                     <option value="">Search for an existing Case or Lead</option>
                                     <optgroup label="Court Cases">
                                         <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
@@ -154,7 +154,7 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control edit-input-date edit-input-start" id="start_date" value="{{ convertToUserTimezone($eventRecurring->start_date.' '.$evetData->start_time , $authUser->user_timezone)->format('m/d/Y') }}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control edit-input-date edit-input-start event_start_date" id="start_date" value="{{ convertToUserTimezone($eventRecurring->start_date.' '.$evetData->start_time , $authUser->user_timezone)->format('m/d/Y') }}" name="start_date" type="text" placeholder="mm/dd/yyyy">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
@@ -923,19 +923,19 @@
     }
 
     function openAddLocation() {
-        $(".pre-load-location").hide();
-        $(".add-new").show();
-        $("#cancel_new_label").show();
-        $("#add_new_label").hide();
-        $("#case_location_list").val('');
+        $("#loadEditEventPopup .pre-load-location").hide();
+        $("#loadEditEventPopup .add-new").show();
+        $("#loadEditEventPopup #cancel_new_label").show();
+        $("#loadEditEventPopup #add_new_label").hide();
+        $("#loadEditEventPopup #case_location_list").val('');
     }
 
     function closeAddLocation() {
-        $(".pre-load-location").show();
-        $(".add-new").hide();
-        $("#cancel_new_label").hide();
-        $("#add_new_label").show();
-        $("#case_location_list").val("{{ $evetData->event_location_id }}");
+        $("#loadEditEventPopup .pre-load-location").show();
+        $("#loadEditEventPopup .add-new").hide();
+        $("#loadEditEventPopup #cancel_new_label").hide();
+        $("#loadEditEventPopup #add_new_label").show();
+        $("#loadEditEventPopup #case_location_list").val("{{ $evetData->event_location_id }}");
     }
     
     function selectTypeload(selectdValue) {
@@ -1171,9 +1171,10 @@
 
     }
    
-    $("input:checkbox#no_case_link").click(function () {
+    $("#loadEditEventPopup input:checkbox#no_case_link").click(function () {
         if ($(this).is(":checked")) {
-            $("#case_or_lead").attr("disabled", true);
+            $('#loadEditEventPopup #case_or_lead').val('').trigger('change');
+            $("#loadEditEventPopup #case_or_lead").attr("disabled", true);
             $('#case_or_lead').prop('selectedIndex',0);
             $("#loadEditEventPopup #HideShowNonlink").hide();
             firmStaff();
@@ -1186,6 +1187,7 @@
             $("#edit_event_right_section").html('');
             $(".hideUser").show();
             $('#case_or_lead').removeAttr("disabled");
+            $("#loadEditEventPopup #case_or_lead").attr("disabled", false);
         }
     });
   
@@ -1214,18 +1216,18 @@
 
     $("#editRtitle").hide();
     <?php  if($evetData->is_full_day=='yes'){  ?>
-            $('input:checkbox.all_day').trigger('click');
-            $("#start_time").val('').attr("readonly", true);
-            $("#end_time").val('').attr("readonly", true);
+            $('#loadEditEventPopup input:checkbox.all_day').trigger('click');
+            $("#loadEditEventPopup #start_time").val('').attr("readonly", true);
+            $("#loadEditEventPopup #end_time").val('').attr("readonly", true);
     <?php }  ?>
 
     <?php  if(isset($evetData->event_recurring_type)){ ?>
             selectTypeload('{{$evetData->event_recurring_type}}');
-            $("#endondiv").show();
+            $("#loadEditEventPopup #endondiv").show();
     <?php }else{  ?>
             selectType(null, 'loadEditEventPopup');
-            $("#repeat_dropdown").hide();
-            $("#endondiv").hide();
+            $("#loadEditEventPopup #repeat_dropdown").hide();
+            $("#loadEditEventPopup #endondiv").hide();
     <?php } ?>
         
     <?php if($evetData->event_type_id!=NULL){?>
@@ -1248,8 +1250,8 @@
     function updateMonthlyWeeklyOptions() {
         var date = new Date($("#start_date").val());
         // for month
-        $("#monthly-frequency").find('option').remove();
-        $("#monthly-frequency").append(
+        $("#loadEditEventPopup #monthly-frequency").find('option').remove();
+        $("#loadEditEventPopup #monthly-frequency").append(
             '<option value="MONTHLY_ON_DAY">On day '+date.getDate()+'</option><option value="MONTHLY_ON_THE">'+getNthDayOfMonth(date)+'</option>'
         );
         // Commented. As per client's requirement
@@ -1260,7 +1262,7 @@
             '<option value="YEARLY_ON_DAY">On day '+date.getDate()+' of '+monthName+'</option><option value="YEARLY_ON_THE">'+getNthDayOfMonth(date)+' of '+monthName+'</option>'
         ); */
         // for week
-        $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
+        $("#loadEditEventPopup #event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
     }
 
 function MarkAsChanged(){

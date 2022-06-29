@@ -15,8 +15,8 @@
                     $linkedUserPortalDisabled = $caseCllientSelection->whereIn('id', $caseLinkeSavedInviteContact)->where('client_portal_enable', '0')->pluck('id')->toArray();
                 @endphp
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" class="load-default-reminder-all" <?php if(count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
-                <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>></td>
+                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" class="load-default-reminder-all SelectAllLeadShare" <?php if(count($caseCllientSelection) > 0 && count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
+                <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" class="SelectAllLeadAttend" <?php if(count($caseCllientSelection) > 0 && count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>></td>
             </tr>
             <?php 
             foreach($caseCllientSelection as $key=>$val){?>
@@ -117,21 +117,21 @@
                 <td><b>Select All</b></td>
                 <td sr-count="{{ count(collect($caseLinkeSaved)->where('is_linked', 'yes')) .' = '. count($caseLinkedStaffList) }}">
                     <?php if(isset($from) && $from=="edit"){?>
-                        <input name="client_share_all" id="client_share_all"
+                        <input name="client_share_all" id="client_share_all" class="client_share_all"
                         <?php if(count($caseLinkeSaved)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     <?php }else{ ?>
-                    <input name="client_share_all" id="client_share_all" checked="checked" type="checkbox">
+                    <input name="client_share_all" id="client_share_all" checked="checked" type="checkbox" class="client_share_all">
                     <?php } ?>
                 </td>
                 <td sr-count="{{ count($caseLinkedStaffList) .' = '. count($caseLinkeSavedAttending) }}">
                     <?php if(isset($from) && $from=="edit"){?>
-                        <input name="client-attend-all" id="client_attend_all"
+                        <input name="client-attend-all" id="client_attend_all" class="client_attend_all"
                         <?php if(count($caseLinkedStaffList)==count($caseLinkeSavedAttending)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     
                     <?php }else{ ?>
-                        <input name="client-attend-all" id="client_attend_all" type="checkbox">                    
+                        <input name="client-attend-all" id="client_attend_all" class="client_attend_all" type="checkbox">                    
                     <?php } ?>
                     
                 </td>
@@ -209,53 +209,57 @@
             });
 
         $(".share_checkbox_nonlinked").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
             var id = $(this).attr('rowVal');
-            $("#attend_checkbox_nonlinked_" + id).prop('disabled', !$(this).prop('checked'));
+            $("#"+modalId+" #attend_checkbox_nonlinked_" + id).prop('disabled', !$(this).prop('checked'));
         });
-        $("#client_attend_all").click(function () {
-            if ($("#client_share_all").prop('checked')) {
-                $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
+        $(".client_attend_all").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
+            if ($("#"+modalId+" .client_share_all").prop('checked')) {
+                $("#"+modalId+" .client_attend_all_users").prop('checked', $(this).prop('checked'));
             }
-            $(".client_attend_all_users").each(function(element, index, set) {
+            $("#"+modalId+" .client_attend_all_users").each(function(element, index, set) {
                 if($(this).prop("disabled") === false){
-                    $(this).prop('checked', $("#client_attend_all").prop('checked'));
+                    $(this).prop('checked', $("#"+modalId+" .client_attend_all").prop('checked'));
                 }
             });
-            if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
+            /* if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
-            }
+            } */
         });
 
         $(".share_checkbox_nonlinked").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
             var id = $(this).attr('rowVal');
             if ($(this).prop('checked') == false) {
-                $("#attend_checkbox_nonlinked_" + id).prop('checked', $(this).prop('checked'));
+                $("#"+modalId+" #attend_checkbox_nonlinked_" + id).prop('checked', $(this).prop('checked'));
             }
-            if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
+            /* if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
-            }
+            } */
         });
-        $("#client_share_all").click(function () {
+        $(".client_share_all").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
 
-            $(".client_share_all_users").prop('checked', $(this).prop('checked'));
+            $("#"+modalId+" .client_share_all_users").prop('checked', $(this).prop('checked'));
             if(!$(this).is(":checked")) {
-                $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
-                $("#client_attend_all").prop('checked', $(this).prop('checked'));
-                $(".client_attend_all_users").prop("disabled", true)
+                $("#"+modalId+" .client_attend_all_users").prop('checked', $(this).prop('checked'));
+                $("#"+modalId+" .client_attend_all").prop('checked', $(this).prop('checked'));
+                $("#"+modalId+" .client_attend_all_users").prop("disabled", true)
             } else {
-                $(".client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+                $("#"+modalId+" .client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             }
-            if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
+            /* if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
-            }
+            } */
             // check if login user is checked or not for showing default reminder
             <?php if(isset($from) && $from != "edit"){?>
-            $(".client_share_all_users").each(function (i) {
+            $("#"+modalId+" .client_share_all_users").each(function (i) {
                 if($(this).val() == '{{auth::user()->id}}'){
-                    $('.reminder_user_type').each(function (j) {
+                    $("#"+modalId+" .reminder_user_type").each(function (j) {
                         if($(this).val() == 'me'){
                             $(this).parents('.fieldGroupEventReminder').remove();
                         }
@@ -268,21 +272,23 @@
             <?php } ?>   
 
         });
-        $("#client_attend_all").click(function () {
-            if ($("#client_share_all").prop('checked')) {
-                $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
+        $(".client_attend_all").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
+            if ($("#"+modalId+" .client_share_all").prop('checked')) {
+                $("#"+modalId+" .client_attend_all_users").prop('checked', $(this).prop('checked'));
             }
-            if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
+            /* if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
-            }
+            } */
         });
         $(".client_share_all_users").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
             var id = $(this).attr('rowVal');
             // check if login user is checked or not for showing default reminder
             <?php if(isset($from) && $from != "edit"){?>
             if(id == '{{auth::user()->id}}'){
-                $('.reminder_user_type').each(function (j) {
+                $("#"+modalId+" .reminder_user_type").each(function (j) {
                     if($(this).val() == 'me'){
                         $(this).parents('.fieldGroupEventReminder').remove();
                     }
@@ -292,28 +298,30 @@
                 }
             }
             <?php } ?>   
-            $("#linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
+            $("#"+modalId+" #linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
             if ($(this).prop('checked') == false) {
-                $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
+                $("#"+modalId+" #linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
             }
-            if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
+            $("#"+modalId+" .client_attend_all").prop('checked', false)
+            /* if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
-            }
+            } */
         // });
 
         // $(".client_share_all_users").click(function () {
-            if ($('.client_share_all_users:checked').length == $('.client_share_all_users').length) {
-                $("#client_share_all").prop('checked', "checked")
+            if ($("#"+modalId+" .client_share_all_users:checked").length == $("#"+modalId+" .client_share_all_users").length) {
+                $("#"+modalId+" .client_share_all").prop('checked', "checked")
             } else {
-                $("#client_share_all").prop('checked', false)
+                $("#"+modalId+" .client_share_all").prop('checked', false)
             }
         });
         $(".client_attend_all_users").click(function () {
-            if ($('.client_attend_all_users:checked').length == $('.client_attend_all_users').length) {
-                $("#client_attend_all").prop('checked', "checked")
+            var modalId = $(this).parents('div.modal').attr("id");
+            if ($("#"+modalId+" .client_attend_all_users:checked").length == $("#"+modalId+" .client_attend_all_users").length) {
+                $("#"+modalId+" .client_attend_all").prop('checked', "checked")
             } else {
-                $("#client_attend_all").prop('checked', false)
+                $("#"+modalId+" .client_attend_all").prop('checked', false)
             }
         });
 
@@ -322,9 +330,9 @@
             $("#"+modalId+" .staff-table-nonlinked").toggle();
         });
 
-        $(document).on("click", "#SelectAllLeadShare", function () {
-        // $("#SelectAllLeadShare").click(function () {
-            var multi = $('.lead_client_share_all_users');
+        $(document).on("click", ".SelectAllLeadShare", function () {
+            var modalId = $(this).parents('div.modal').attr("id");
+            var multi = $("#"+modalId+" .lead_client_share_all_users");
             var winners_array = [];
             $.each(multi, function (index, item) {
                 if($(item).attr('data-client_portal_enable') == 0){
@@ -333,65 +341,66 @@
                 }
             });
 
-            $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
+            $("#"+modalId+" .lead_client_share_all_users").prop('checked', $(this).prop('checked'));
             if(winners_array.length > 0){
                 $.each(winners_array, function (index, item) {
                     // $(".tooltip-alert").show();
-                    $("#cleintUSER_"+item.name).prop('checked',false);
+                    $("#"+modalId+" #cleintUSER_"+item.name).prop('checked',false);
                 });
-                $("#SelectAllLeadAttend").prop('checked', false);
+                $("#"+modalId+" .SelectAllLeadAttend").prop('checked', false);
             }
-            $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
-            $(".not-enable-portal").prop('disabled', true);
+            $("#"+modalId+" .lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+            $("#"+modalId+" .not-enable-portal").prop('disabled', true);
             if(!$(this).is(":checked")) {
-                $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
-                $("#SelectAllLeadAttend").prop('checked', $(this).prop('checked'));
-                $(".not-enable-portal").prop('checked', false);
-                $(".not-enable-portal").prop('disabled', true);
+                $("#"+modalId+" .lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
+                $("#"+modalId+" .SelectAllLeadAttend").prop('checked', $(this).prop('checked'));
+                $("#"+modalId+" .not-enable-portal").prop('checked', false);
+                $("#"+modalId+" .not-enable-portal").prop('disabled', true);
             }            
         });
         $(".lead_client_share_all_users ").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
             var userId = $(this).val();
-            if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
-                $("#SelectAllLeadShare").prop('checked', true);
+            if ($("#"+modalId+" .lead_client_share_all_users:checked").length == $("#"+modalId+" .lead_client_share_all_users").length) {
+                $("#"+modalId+" .SelectAllLeadShare").prop('checked', true);
             } else {
-                $("#SelectAllLeadShare").prop('checked', false);
+                $("#"+modalId+" .SelectAllLeadShare").prop('checked', false);
             }
             if($(this).is(":checked")){
-                $("#attend_user_"+userId).prop('disabled', false);
+                $("#"+modalId+" #attend_user_"+userId).prop('disabled', false);
             }else{
-                $("#attend_user_"+userId).prop('disabled', true);
-                $("#attend_user_"+userId).prop('checked', false);
-                $("#SelectAllLeadAttend").prop('checked', false);
+                $("#"+modalId+" #attend_user_"+userId).prop('disabled', true);
+                $("#"+modalId+" #attend_user_"+userId).prop('checked', false);
+                $("#"+modalId+" .SelectAllLeadAttend").prop('checked', false);
             }       
-            if($('.lead_client_share_all_users:checked').length) {
-                $(".reminder_user_type").children("option[value='client-lead']").show();
+            if($("#"+modalId+" .lead_client_share_all_users:checked").length) {
+                $("#"+modalId+" .reminder_user_type").children("option[value='client-lead']").show();
             } else {
-                $(".reminder_user_type").children("option[value='client-lead']").hide();
+                $("#"+modalId+" .reminder_user_type").children("option[value='client-lead']").hide();
             }
         });
-        $("#SelectAllLeadAttend").click(function () {
-            // $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
+        $(".SelectAllLeadAttend").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
             var checkVal = $(this).prop('checked');
-            $(".lead_client_attend_all_users").each(function() {
+            $("#"+modalId+" .lead_client_attend_all_users").each(function() {
                 if(!$(this).is(":disabled")) {
                     $(this).prop('checked', checkVal);
                 }
             });
-            $(".not-enable-portal").prop('checked', false);
+            $("#"+modalId+" .not-enable-portal").prop('checked', false);
         });
         $(".lead_client_attend_all_users ").click(function () {
-            if ($('.lead_client_attend_all_users:checked').length == $('.lead_client_attend_all_users').length) {
-                $("#SelectAllLeadAttend").prop('checked', "checked")
+            var modalId = $(this).parents('div.modal').attr("id");
+            if ($("#"+modalId+" .lead_client_attend_all_users:checked").length == $("#"+modalId+" .lead_client_attend_all_users").length) {
+                $("#"+modalId+" .SelectAllLeadAttend").prop('checked', "checked")
             } else {
-                $("#SelectAllLeadAttend").prop('checked', false)
+                $("#"+modalId+" .SelectAllLeadAttend").prop('checked', false)
             }
         });
 
         // check if login user is checked or not for showing default reminder
         <?php if(isset($from) && $from != "edit"){?>
         $('input[name="linked_staff_checked_share[]"]:checked').each(function (i) {
-            console.log($(this).attr("defaultreminder"));
             if($(this).attr("defaultreminder") == 'yes'){
                 loadDefaultEventReminder();
             }

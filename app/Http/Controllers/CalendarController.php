@@ -1584,7 +1584,7 @@ class CalendarController extends BaseController
             $eventData["end_date"] = $endDateTime->format('m/d/Y');
             $eventData["end_time"] = $endDateTime->format('h:ia');
             $eventData["start_date_time"] = $startDateTime->format('Y-m-d H:i:s');
-            $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->color_code : "";
+            $eventData["etext"] = ($v->event && $event->eventType) ? $event->eventType->color_code : "";
             $eventData["caseTitle"] = ($event->case) ? $event->case->case_title : '';
             $eventData["caseNumber"] = ($event->case) ? $event->case->case_number : '';
             $decodeStaff = encodeDecodeJson($v->event_linked_staff);

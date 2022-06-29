@@ -14,14 +14,18 @@
                     <td>
                         <?php 
                         if(isset($from) && $from=="edit"){?>
-                        <input class="client_share_all" name="client_share_all" id="client_share_all"
+                        <input class="staff_share_all" name="staff_share_all" id="staff_share_all"
                             <?php if(count($staffData)==count($alreadySelected)){?> checked="checked" <?php } ?> type="checkbox">
                         <?php }else{ ?>
-                        <input class="client_share_all" name="client_share_all" id="client_share_all" type="checkbox">
+                        <input class="staff_share_all" name="client_share_all" id="staff_share_all" type="checkbox">
                         <?php } ?>
                     </td>
                     <td>
-                        <input class="client_attend_all" name="client-attend-all" id="client_attend_all" type="checkbox">
+                        @if(isset($from) && $from=="edit")
+                        <input class="staff_attend_all" name="client-attend-all" id="staff_attend_all" type="checkbox" {{ (count($staffData) == count($isAttending)) ? 'checked' : '' }}>
+                        @else
+                        <input class="staff_attend_all" name="client-attend-all" id="staff_attend_all" type="checkbox">
+                        @endif
                     </td>
                 </tr>
                 <?php foreach($staffData as $key=>$val){?>
@@ -35,11 +39,11 @@
                             <input name="linked_staff_checked_share[]" id="linked_staff_checked_share_{{$val->id}}"
                                 rowVal="{{$val->id}}" value="{{$val->id}}" <?php if(in_array($val->id,$alreadySelected)){ ?>
                                 checked="checked" <?php } ?> type="checkbox"
-                                class="client-login-not-enabled handler-attached client_share_all_users">
+                                class="client-login-not-enabled handler-attached staff_share_all_users">
                             <?php } else {  ?>
                             <input name="linked_staff_checked_share[]" id="linked_staff_checked_share_{{$val->id}}"
                                 rowVal="{{$val->id}}" value="{{$val->id}}" <?php if($val->id==Auth::User()->id){ ?> checked="checked"
-                                <?php } ?> type="checkbox" <?php if($val->id == Auth::User()->id){ ?> defaultreminder="yes" <?php } ?> class="client-login-not-enabled handler-attached client_share_all_users">
+                                <?php } ?> type="checkbox" <?php if($val->id == Auth::User()->id){ ?> defaultreminder="yes" <?php } ?> class="client-login-not-enabled handler-attached staff_share_all_users">
                             <?php } ?>
                         </label>
                     </td>
@@ -48,11 +52,11 @@
                             <?php 
                             if(isset($from) && $from=="edit"){?>
                             <input name="linked_staff_checked_attend[]" <?php if(in_array($val->id,$isAttending)){ ?> checked="checked"
-                                <?php } ?> value="{{$val->id}}" class="client_attend_all_users"
+                                <?php } ?> value="{{$val->id}}" class="staff_attend_all_users"
                                 id="linked_staff_checked_attend_{{$val->id}}" type="checkbox">
                 
                             <?php } else {  ?>
-                            <input name="linked_staff_checked_attend[]" value="{{$val->id}}" class="client_attend_all_users"
+                            <input name="linked_staff_checked_attend[]" value="{{$val->id}}" class="staff_attend_all_users"
                                 id="linked_staff_checked_attend_{{$val->id}}" type="checkbox">
                             <?php } ?>
                 
@@ -71,17 +75,18 @@
         <?php if(isset($from) && $from != "edit"){?>   
         $(".fieldGroup").empty();
         <?php } ?>   
-        $(".client_share_all").click(function () {
-            $(".client_share_all_users").prop('checked', $(this).prop('checked'));
-            $(".client_attend_all_users").prop('disabled', !$(this).prop('checked'));
-            $(".client_attend_all_users").prop('checked', false);
-            $('.client_attend_all').prop('checked', false);
+        $(".staff_share_all").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
+            $("#"+modalId+" .staff_share_all_users").prop('checked', $(this).prop('checked'));
+            $("#"+modalId+" .staff_attend_all_users").prop('disabled', !$(this).prop('checked'));
+            $("#"+modalId+" .staff_attend_all_users").prop('checked', false);
+            $("#"+modalId+" .staff_attend_all").prop('checked', false);
 
             // check if login user is checked or not for showing default reminder
             <?php if(isset($from) && $from != "edit"){?>
-            $(".client_share_all_users").each(function (i) {
+            $("#"+modalId+" .staff_share_all_users").each(function (i) {
                 if($(this).val() == '{{auth::user()->id}}'){
-                    $('.reminder_user_type').each(function (j) {
+                    $("#"+modalId+" .reminder_user_type").each(function (j) {
                         if($(this).val() == 'me'){
                             $(this).parents('.fieldGroup').remove();
                         }
@@ -93,17 +98,19 @@
             });
             <?php } ?>   
         });
-        $(".client_attend_all").click(function () {
-            if ($("#client_share_all").prop('checked')) {
-                $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
+        $(".staff_attend_all").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
+            if ($("#"+modalId+" .staff_share_all").prop('checked')) {
+                $("#"+modalId+" .staff_attend_all_users").prop('checked', $(this).prop('checked'));
             }
         });
-        $(".client_share_all_users").click(function () {
+        $(".staff_share_all_users").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
             var id = $(this).attr('rowVal');
             // check if login user is checked or not for showing default reminder
             <?php if(isset($from) && $from != "edit"){?>
             if(id == '{{auth::user()->id}}'){
-                $('.reminder_user_type').each(function (j) {
+                $("#"+modalId+" .reminder_user_type").each(function (j) {
                     if($(this).val() == 'me'){
                         $(this).parents('.fieldGroup').remove();
                     }
@@ -113,54 +120,56 @@
                 }
             }
             <?php } ?>   
-            $("#linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
+            $("#"+modalId+" #linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
             if ($(this).prop('checked') == false) {
-                $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
+                $("#"+modalId+" #linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
             }
-            if ($('.client_share_all_users:checked').length == $('.client_share_all_users').length) {
-                $('.client_share_all').prop('checked', true);
+            if ($("#"+modalId+" .staff_share_all_users:checked").length == $("#"+modalId+" .staff_share_all_users").length) {
+                $("#"+modalId+" .staff_share_all").prop('checked', true);
             } else {
-                $('.client_share_all').prop('checked', false);
+                $("#"+modalId+" .staff_share_all").prop('checked', false);
+                $("#"+modalId+" .staff_attend_all").prop('checked', false);
             }
         });
 
         /**********************/
-        $(".client_attend_all").click(function () {
+        $(".staff_attend_all").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
             if ($(this).is(':checked')) {
-                $(".client_share_all_users").each(function () {
+                $("#"+modalId+" .staff_share_all_users").each(function () {
                     var id = $(this).attr('rowVal');
                     if ($(this).is(':checked')) {
                     
-                        if ($("#linked_staff_checked_share_" + id).prop('checked') == true) {
-                            $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop(
+                        if ($("#"+modalId+" #linked_staff_checked_share_" + id).prop('checked') == true) {
+                            $("#"+modalId+" #linked_staff_checked_attend_" + id).prop('checked', $(this).prop(
                                 'checked'));
                         }
                     }else{
-                        $("#linked_staff_checked_attend_" + id).prop('checked',false);
+                        $("#"+modalId+" #linked_staff_checked_attend_" + id).prop('checked',false);
                     }
                 })
              }else{
-                $(".client_attend_all_users").prop('checked', false);
+                $("#"+modalId+" .staff_attend_all_users").prop('checked', false);
             }
         });
 
-        $(".client_attend_all_users").click(function () {
+        $(".staff_attend_all_users").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
             var id = $(this).attr('rowVal');
-            $("#linked_staff_checked_share_" + id).prop('disabled', !$(this).prop('checked'));
+            $("#"+modalId+" #linked_staff_checked_share_" + id).prop('disabled', !$(this).prop('checked'));
             if ($(this).prop('checked') == false) {
-                $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
+                $("#"+modalId+" #linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
             }
-            if ($('.client_attend_all_users:checked').length == $('.client_attend_all_users').length) {
-                $('.client_attend_all').prop('checked', true);
+            if ($("#"+modalId+" .staff_attend_all_users:checked").length == $("#"+modalId+" .staff_attend_all_users").length) {
+                $("#"+modalId+" .staff_attend_all").prop('checked', true);
             } else {
-                $('.client_attend_all').prop('checked', false);
+                $("#"+modalId+" .staff_attend_all").prop('checked', false);
             }
         });
 
         // check if login user is checked or not for showing default reminder
         <?php if(isset($from) && $from != "edit"){?>
         $('input[name="linked_staff_checked_share[]"]:checked').each(function (i) {
-            console.log($(this).attr("defaultreminder"));
             if($(this).attr("defaultreminder") == 'yes'){
                 loadDefaultEventReminder();
             }

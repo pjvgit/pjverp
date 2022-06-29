@@ -310,8 +310,12 @@ function markEventAsRead(eventId) {
 
 // Validation to check end on date is greater than start date
 $.validator.addMethod("dateGreaterThan", function(value, element) {
-    var startDate = $('#start_date').val();
-    return Date.parse(startDate) <= Date.parse(value) || value == "";
+    var startDate = $('.event_start_date').val();
+    // if(Date.parse(startDate) < Date.parse(value) || value == "") {
+    if(new Date(startDate) < new Date(value) || value == "") {
+        return true;
+    }
+    return false;
 }, "The end date must be after the start date");
 
 // Hide comment count after the read comment from comment popup
