@@ -2182,7 +2182,7 @@ class CaseController extends BaseController
             // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
             // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
             $start_date = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'onlyDate');
-            $end_date = $this->eventConvertTimestampToUtc($request->start_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
+            $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
 
             $caseEvent = Event::create([
                 "event_title" => $request->event_name,
