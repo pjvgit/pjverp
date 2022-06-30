@@ -303,6 +303,7 @@ $.ajax({
                     $(".js-timer-root .text-nowrap").html('');
                     localStorage.setItem("pauseCounter", 'yes');
                     localStorage.setItem("smart_timer_running", 'yes');
+                    localStorage.setItem("resumeCounterClicked", 'yes');
                     intervalId = setInterval(timerstart, 1000);
                     $(".timer-actions-button").hide();
                 } else {
@@ -338,39 +339,39 @@ $.ajax({
 
 $(window).on('storage', function (e) {
     var storageEvent = e.originalEvent;
-    console.log("335 > "+ localStorage.getItem("smart_timer_id"));
+    // console.log("335 > "+ localStorage.getItem("smart_timer_id"));
     if(localStorage.getItem("smart_timer_id").length > 0) {
-        console.log("storage > event > key > " + storageEvent.key);
-        if ((storageEvent.key == 'pauseCounter')) {
-            console.log("storage > event > new value > " + storageEvent.newValue);
-            console.log("storage > event > value > " + storageEvent.oldValue);
-            if(storageEvent.oldValue == 'yes'){
-                console.log('storage > Pause Timer');
-                $(".timerCounter").hide();
-                $(".logoutTimerAlert").hide();
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    localStorage.setItem("pauseCounter", 'no');
-                    intervalId = null;
-                }
-                $(".timerAction").removeClass("fa-pause").addClass("fa-play");
-                $(".timerAction").attr('id', 'startCounter');
-                $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
-                $(".timer-actions-button").show();
-            }
-            if(storageEvent.oldValue == 'no'){   
-            // Event detected, do some really useful thing here ;)
-                console.log('storage > Resume Timer');
-                $(".timerCounter").hide();
-                $(".logoutTimerAlert").show();
-                if (!intervalId) {
-                    localStorage.setItem("pauseCounter", 'yes');
-                    intervalId = setInterval(timerstart, 1000);
-                }
-                $(".timerAction").removeClass("fa-play").addClass("fa-pause");
-                $(".timerAction").attr('id', 'pauseCounter');
-                $(".timer-actions-button").hide();
-            }
+//         console.log("storage > event > key > " + storageEvent.key);
+//         if ((storageEvent.key == 'pauseCounter')) {
+//             console.log("storage > event > new value > " + storageEvent.newValue);
+//             console.log("storage > event > value > " + storageEvent.oldValue);
+//             if(storageEvent.oldValue == 'yes'){
+//                 console.log('storage > Pause Timer');
+//                 $(".timerCounter").hide();
+//                 $(".logoutTimerAlert").hide();
+//                 if (intervalId) {
+//                     clearInterval(intervalId);
+//                     localStorage.setItem("pauseCounter", 'no');
+//                     intervalId = null;
+//                 }
+//                 $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+//                 $(".timerAction").attr('id', 'startCounter');
+//                 $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+//                 $(".timer-actions-button").show();
+//             }
+//             if(storageEvent.oldValue == 'no'){   
+//             // Event detected, do some really useful thing here ;)
+//                 console.log('storage > Resume Timer');
+//                 $(".timerCounter").hide();
+//                 $(".logoutTimerAlert").show();
+//                 if (!intervalId) {
+//                     localStorage.setItem("pauseCounter", 'yes');
+//                     intervalId = setInterval(timerstart, 1000);
+//                 }
+//                 $(".timerAction").removeClass("fa-play").addClass("fa-pause");
+//                 $(".timerAction").attr('id', 'pauseCounter');
+//                 $(".timer-actions-button").hide();
+//             }
             if(storageEvent.newValue == 'delete'){   
                 console.log("storage > delete timer event fire");
                 $(".timerCounter").hide();
@@ -388,18 +389,53 @@ $(window).on('storage', function (e) {
                 $(".timerAction").removeClass("fa-pause").addClass("fa-play");
                 $(".timerAction").attr('id', 'startCounter');
             }
-        }else{
-            $(".timerCounter").hide();
-            $(".logoutTimerAlert").show();
-            if (!intervalId) {
-                localStorage.setItem("pauseCounter", 'yes');
-                intervalId = setInterval(timerstart, 1000);
-            }
-            $(".timerAction").removeClass("fa-play").addClass("fa-pause");
-            $(".timerAction").attr('id', 'pauseCounter');
-        }
+//         }else{
+//             $(".timerCounter").hide();
+//             $(".logoutTimerAlert").show();
+//             if (!intervalId) {
+//                 localStorage.setItem("pauseCounter", 'yes');
+//                 intervalId = setInterval(timerstart, 1000);
+//             }
+//             $(".timerAction").removeClass("fa-play").addClass("fa-pause");
+//             $(".timerAction").attr('id', 'pauseCounter');
+//         }
     }
 });
+
+var interval = setInterval(function () {
+    if(localStorage.getItem("pauseCounterClicked") === 'yes') {
+        console.log('storage > Pause Timer');
+        $(".timerCounter").hide();
+        $(".logoutTimerAlert").hide();
+        if (intervalId) {
+            clearInterval(intervalId);
+            localStorage.setItem("pauseCounter", 'no');
+            intervalId = null;
+        }
+        $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+        $(".timerAction").attr('id', 'startCounter');
+        $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+        $(".timer-actions-button").show();
+        setTimeout(function () {
+            localStorage.setItem("pauseCounterClicked", 'no');
+        }, 1000);
+    }
+    if(localStorage.getItem("resumeCounterClicked") === 'yes') {
+        console.log('storage > Resume Timer');
+        $(".timerCounter").hide();
+        $(".logoutTimerAlert").show();
+        if (!intervalId) {
+            localStorage.setItem("pauseCounter", 'yes');
+            intervalId = setInterval(timerstart, 1000);
+        }
+        $(".timerAction").removeClass("fa-play").addClass("fa-pause");
+        $(".timerAction").attr('id', 'pauseCounter');
+        $(".timer-actions-button").hide();
+        setTimeout(function () {
+            localStorage.setItem("resumeCounterClicked", 'no');
+        }, 1000);
+    }
+}, 1000);
 
 if (smart_timer_created_by == null) {
     removeLocalStorage();
@@ -416,6 +452,7 @@ $(".startTimer").on('click', function() {
                 if (data.status == "success") {
                     $(".logoutTimerAlert").show();
                     localStorage.setItem("smart_timer_running", 'yes');
+                    localStorage.setItem("resumeCounterClicked", 'yes');
                     localStorage.setItem("pauseCounter", 'no');
                     localStorage.setItem("smart_timer_id", data.smart_timer_id);
                     localStorage.setItem("smart_timer_created_by", data.smart_timer_created_by);
@@ -443,6 +480,7 @@ $(document).on("click", "#startCounter", function() {
     if (!intervalId) {
         localStorage.setItem("smart_timer_running", 'yes');
         localStorage.setItem("pauseCounter", 'yes');
+        localStorage.setItem("resumeCounterClicked", 'yes');
         intervalId = setInterval(timerstart, 1000);
     }
     $(".timerAction").removeClass("fa-play").addClass("fa-pause");
@@ -457,6 +495,7 @@ $(document).on("click", "#pauseCounter", function() {
         clearInterval(intervalId);
         localStorage.setItem("smart_timer_running", 'no');
         localStorage.setItem("pauseCounter", 'no');
+        localStorage.setItem("pauseCounterClicked", 'yes');
         intervalId = null;
     }
     $(".timerAction").removeClass("fa-pause").addClass("fa-play");
