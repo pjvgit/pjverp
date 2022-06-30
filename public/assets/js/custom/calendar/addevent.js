@@ -310,9 +310,13 @@ function markEventAsRead(eventId) {
 
 // Validation to check end on date is greater than start date
 $.validator.addMethod("dateGreaterThan", function(value, element) {
-    var startDate = $('.event_start_date').val();
+    var modalId = $(element).parents('div.modal').attr("id");
+    console.log("modal id: "+ modalId);
+    console.log("selected date: "+ new Date(value));
+    var startDate = $('#'+modalId+' .event_start_date').val();
+    console.log("start date: "+ new Date(startDate));
     // if(Date.parse(startDate) < Date.parse(value) || value == "") {
-    if(new Date(startDate) < new Date(value) || value == "") {
+    if(Date.parse(startDate) <= Date.parse(value)) {
         return true;
     }
     return false;

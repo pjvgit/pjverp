@@ -75,18 +75,25 @@
             @endif
         </td>
         <td class="c-pointer">
-            @if(!empty($item->event->eventType) && ($isAuthUserLinked || auth()->user()->hasPermissionTo('access_all_cases')))
-            <div class="d-flex align-items-center mt-3">
-                <div class="mr-1"
-                    style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$item->event->eventType->color_code }}">
-                </div><span>{{ @$item->event->eventType->title }}</span>
-            </div>
+            @if(!empty($item->event->eventType))
+                @if($item->event->is_event_private=='yes' && !$isAuthUserLinked) 
+                    <i class="table-cell-placeholder mt-3"></i>
+                @elseif($isAuthUserLinked || auth()->user()->hasPermissionTo('access_all_cases'))
+                    <div class="d-flex align-items-center mt-3">
+                        <div class="mr-1"
+                            style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$item->event->eventType->color_code }}">
+                        </div><span>{{ @$item->event->eventType->title }}</span>
+                    </div>
+                @else
+                @endif
             @else
             <i class="table-cell-placeholder mt-3"></i>
             @endif
         </td>
         <td class="event-users">
-            @if(!empty($item->event_linked_staff) && ($isAuthUserLinked || auth()->user()->hasPermissionTo('access_all_cases')))
+            @if($item->event->is_event_private=='yes' && !$isAuthUserLinked) 
+                <i class="table-cell-placeholder mt-3"></i>
+            @elseif(!empty($item->event_linked_staff) && ($isAuthUserLinked || auth()->user()->hasPermissionTo('access_all_cases')))
                 @php    
                     $linkedUser = [];
                     $linkedStaff = encodeDecodeJson($item->event_linked_staff);

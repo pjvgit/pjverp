@@ -261,37 +261,7 @@ class ContractController extends BaseController
 
         // Link user with events
         if(isset($request->sharing_setting_1)) {
-            $this->shareEventToUser($request->case_list, $user->id, (isset($request->sharing_setting_2)) ? 'yes' : 'no');
-            /* $eventRecurrings = EventRecurring::whereHas('event', function($query) use($request) {
-                $query->where('case_id', $request->case_id)->where('is_event_private', 'no');
-            })->get();
-            if($eventRecurrings) {
-                foreach($eventRecurrings as $key => $item) {
-                    $decodeStaff = encodeDecodeJson($item->event_linked_staff);
-                    if($decodeStaff->where('user_id', $request->user_id)->where('is_linked', 'no')->first()) {
-                        $newArray = [];
-                        foreach($decodeStaff as $skey => $sitem) {
-                            if($sitem->user_id == $request->user_id) {
-                                $sitem->is_linked = 'yes';
-                            }
-                            $newArray[] = $sitem;
-                        }
-                        $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
-                    } else {
-                        $eventLinkedStaff = [
-                            'event_id' => $item->event_id,
-                            'user_id' => $request->user_id,
-                            'is_linked' => 'yes',
-                            'attending' => "no",
-                            'comment_read_at' => Carbon::now(),
-                            'created_by' => auth()->id(),
-                            'is_read' => (isset($request->sharing_setting_2)) ? 'yes' : 'no',
-                        ];
-                        $decodeStaff->push($eventLinkedStaff);
-                        $item->fill(['event_linked_staff' => encodeDecodeJson($decodeStaff, 'encode')])->save();
-                    }
-                }
-            } */
+            $this->shareEventToUser((isset($request->case_list) && $request->case_list !='') ? $request->case_list : Null, $user->id, (isset($request->sharing_setting_2)) ? 'yes' : 'no');
         }
 
         return response()->json(['errors'=>'','user_id'=>$user->id]);

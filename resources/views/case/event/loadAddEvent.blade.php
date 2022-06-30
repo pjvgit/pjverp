@@ -608,11 +608,11 @@
             errorPlacement: function (error, element) {
                 if (element.is('#add_event_case_or_lead')) {
                     $('.select2-container--classic .select2-selection--single').addClass("input-border-error");
-                    error.appendTo('#CaseListError');
+                    error.appendTo('#createEvent #CaseListError');
                 }else if (element.is('#add_event_end_on')) {
-                    error.appendTo('#EndOnListError');
+                    error.appendTo('#createEvent #EndOnListError');
                 }else if (element.attr('name') == 'custom[]') {
-                    error.appendTo('.custom-error');
+                    error.appendTo('#createEvent .custom-error');
                 } else {
                     element.after(error);
                 }

@@ -2840,7 +2840,7 @@ class CaseController extends BaseController
                             "end_date" => (isset($request->updated_end_date)) ? $end_date : $oldEvent->end_date,
                             "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : Null,
                             "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : Null,
-                            "recurring_event_end_date" => ($request->end_on) ? convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone) : $eitem->recurring_event_end_date,
+                            "recurring_event_end_date" => ($request->end_on) ? convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone) : $oldEvent->recurring_event_end_date,
                             "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
                             "event_description" => $request->description,
                             "is_recurring" => "yes",
@@ -3346,7 +3346,7 @@ class CaseController extends BaseController
                             "start_time" => ($request->updated_start_time && !isset($request->all_day)) ? $start_time : $eitem->start_time,
                             "end_time" => ($request->updated_end_time && !isset($request->all_day)) ? $end_time : $eitem->end_time,
                             "recurring_event_end_date" => ($request->updated_end_on) ? convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone) : $eitem->recurring_event_end_date,
-                            "is_full_day" => (isset($request->updated_all_day)) ? "yes" : $eitem->is_full_day,
+                            "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
                             "event_description" => ($eitem->description != '') ? $eitem->description : $request->description,
                             "is_recurring" => "yes",
                             "event_location_id" => ($request->updated_case_location_list) ? $request->updated_case_location_list : $eitem->event_location_id,
@@ -3367,7 +3367,7 @@ class CaseController extends BaseController
                 } else if($request->event_frequency == 'EVERY_BUSINESS_DAY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        if($eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on)) {
+                        if($eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on) || isset($request->updated_start_time)) {
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
                             $eventRecurring = $this->saveBusinessDayRecurringEvent($eitem, $eitem->start_date, $request, $recurringEndDate);
                         } else {
@@ -3397,7 +3397,7 @@ class CaseController extends BaseController
                             "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : $eitem->start_time,
                             "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : $eitem->end_time,
                             "recurring_event_end_date" => ($request->end_on) ? convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone) : $eitem->recurring_event_end_date,
-                            "is_full_day" => (isset($request->all_day)) ? "yes" : $eitem->is_full_day,
+                            "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
                             "event_description" => ($request->description) ? $request->description : $eitem->description,
                             "is_recurring" => "yes",
                             "event_location_id" => $locationID ?? NULL,

@@ -11,11 +11,15 @@ trait UserCaseSharingTrait {
     /**
      * Link firm user/staff to case events
      */
-    public function shareEventToUser($caseId, $staffUserId, $isEventRead = 'no')
+    public function shareEventToUser($caseId = null, $staffUserId, $isEventRead = 'no')
     {
         // Link user with events
-        $eventRecurrings = EventRecurring::whereHas('event', function($query) use($caseId) {
-            $query->where('case_id', $caseId)->where('is_event_private', 'no');
+        $authUser = auth()->user();
+        $eventRecurrings = EventRecurring::whereHas('event', function($query) use($caseId, $authUser) {
+            $query->where("firm_id", $authUser->firm_name)->where('is_event_private', 'no');
+            if($caseId) {
+                $query->where('case_id', $caseId);
+            }
         })->get();
         if($eventRecurrings) {
             foreach($eventRecurrings as $key => $item) {

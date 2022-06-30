@@ -62,7 +62,8 @@ class UserController extends BaseController
                 // return $user->getUserFirms();
                 if($user->getUserFirms() > 1) {
                     // session()->put('intended_url', $url);
-                    return redirect()->intended(route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode')));
+                    // return redirect()->intended(route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode')));
+                    return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
                 } else if($user->user_level == '2') {
                     if($user->userAdditionalInfo->client_portal_enable == '1') {
                         $user->last_login = Carbon::now()->format('Y-m-d H:i:s');

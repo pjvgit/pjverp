@@ -151,10 +151,14 @@
                             </div>
                         </div>
                         <span id="editDateInputPanel">
+                            @php
+                                $startDate = ($evetData->is_full_day=='yes') ? $eventRecurring->user_start_date->format('m/d/Y') : convertToUserTimezone($eventRecurring->start_date.' '.$evetData->start_time , $authUser->user_timezone)->format('m/d/Y');
+                                $endDate = ($evetData->is_full_day=='yes') ? $eventRecurring->user_end_date->format('m/d/Y') : convertToUserTimezone($eventRecurring->end_date.' '.$evetData->end_time , $authUser->user_timezone)->format('m/d/Y');
+                            @endphp
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control edit-input-date edit-input-start event_start_date" id="start_date" value="{{ convertToUserTimezone($eventRecurring->start_date.' '.$evetData->start_time , $authUser->user_timezone)->format('m/d/Y') }}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control edit-input-date edit-input-start event_start_date" id="start_date" value="{{ $startDate }}" name="start_date" type="text" placeholder="mm/dd/yyyy">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
@@ -177,7 +181,7 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control edit-input-date edit-input-end" id="end_date" value="{{ convertToUserTimezone($eventRecurring->end_date.' '.$evetData->end_time , $authUser->user_timezone)->format('m/d/Y') }}" name="end_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control edit-input-date edit-input-end" id="end_date" value="{{ $endDate }}" name="end_date" type="text" placeholder="mm/dd/yyyy">
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
@@ -798,11 +802,11 @@
             errorPlacement: function (error, element) {
                 if (element.is('#case_or_lead')) {
                     $('.select2-container--classic .select2-selection--single').addClass("input-border-error");
-                    error.appendTo('#CaseListError');
+                    error.appendTo('#EditEventForm #CaseListError');
                 }else if (element.is('#end_on')) {
-                    error.appendTo('#EndOnListError');
+                    error.appendTo('#EditEventForm #EndOnListError');
                 }else if (element.attr('name') == 'custom[]') {
-                    error.appendTo('.custom-error');
+                    error.appendTo('#EditEventForm .custom-error');
                 } else {
                     element.after(error);
                 }
