@@ -304,27 +304,13 @@
         }
 
         function ResetTimers(){
-            checkAuthSession();
+            localStorage.setItem("AuthSessionTime", {{(Auth::User()->sessionTime * 60)}})
             $("#timeoutPopup").modal("hide");
         }
        
-        var counter = {{(Auth::User()->sessionTime * 60)}};
-        var dont_logout_while_timer_runnig = "{{Auth::User()->dont_logout_while_timer_runnig}}";
-        console.log("auto_logout > dont_logout_while_timer_runnig > " + dont_logout_while_timer_runnig);
         
-        
-        // checkAuthSession();
-        function checkAuthSession(){
-            if(localStorage.getItem("AuthSessionTime")){
-                localStorage.setItem("AuthSessionTime",  parseInt(localStorage.getItem("AuthSessionTime")) + 1)
-                counter = {{Auth::User()->sessionTime * 60}};
-            }else{
-                localStorage.setItem("AuthSessionTime", 0)
-            }            
-        }
-
-        $('#app').on('mousedown', function () {
-            checkAuthSession();
+        $(document).on('click', '#app', function(){
+            localStorage.setItem("AuthSessionTime", {{(Auth::User()->sessionTime * 60)}})
         });
         
         <?php if(Auth::User()->auto_logout=="on"){?>
@@ -332,38 +318,26 @@
         console.log("auto_logout functionality > on ");
         console.log("logout in "+ {{(Auth::User()->sessionTime * 60)}});
         $(document).ready(function () {
-            //----------------------------------------------------------------------------------
-            // setTimeout(function(){
-            //     IdleWarning();
-            // }, {{(Auth::User()->sessionTime * 1000) - 50000}}); //
-            checkAuthSession();
-
+            localStorage.setItem("AuthSessionTime", {{(Auth::User()->sessionTime * 60)}})
+            var dont_logout_while_timer_runnig = "{{Auth::User()->dont_logout_while_timer_runnig}}";
+            console.log("auto_logout > dont_logout_while_timer_runnig > " + dont_logout_while_timer_runnig);
+        
             // setTimeout(function(){
                 var interval = setInterval(function () {
                     if (localStorage.getItem("smart_timer_running") === "no" || dont_logout_while_timer_runnig === 'off'){
-                        counter--;
-                        console.log("auto_logout counter > ", counter);
-                        $("#ReminingTimeForLogout").html(counter);
-                        if(counter === 50){
+                        console.log("AuthSessionTime > ", localStorage.getItem("AuthSessionTime"));
+                        cnt = parseInt(localStorage.getItem("AuthSessionTime"));
+                        localStorage.setItem("AuthSessionTime", cnt-1);
+                        
+
+                        if(localStorage.getItem("AuthSessionTime") === '50'){
                             IdleWarning();
-                            $("#ReminingTimeForLogout").html(counter);
+                            $("#ReminingTimeForLogout").html(localStorage.getItem("AuthSessionTime"));
                         }
-                        if (counter == 0) {
-                            if(localStorage.getItem("AuthSessionTime") == 0){
-                                localStorage.removeItem('AuthSessionTime');
-                                IdleTimeout();
-                                clearInterval(interval);
-                            }else{
-                                if(localStorage.getItem("pauseCounter") == 'yes'){
-                                    clearInterval(interval);
-                                    localStorage.removeItem('AuthSessionTime');
-                                    // window.location.reload();
-                                }else{
-                                    localStorage.removeItem('AuthSessionTime');
-                                    IdleTimeout();
-                                    clearInterval(interval);
-                                }
-                            }
+                        if(localStorage.getItem("AuthSessionTime") <= 0){
+                            localStorage.setItem('AuthSessionTime', 0);
+                            IdleTimeout();
+                            clearInterval(interval);
                         }
                     }
                 }, 1000);
