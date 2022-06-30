@@ -529,6 +529,26 @@ if(isset($_GET['view']) &&  $_GET['view']=='week'){
 
 <script type="text/javascript">
     $(document).ready(function () {
+        /* $('#calendarq1').fullCalendar({
+        // plugins: [ momentTimezonePlugin ],
+        timeZone: 'Australia/Sydney',
+        events: [
+            { start: '2022-06-27T12:30:00Z' }, // will be shifted to America/New_York
+            { start: '2022-06-27T13:30:00-05:00' }, // will be shifted to America/New_York
+            { start: '2022-06-27T04:30:00' } // will be parsed as America/New_York
+        ],
+        dateClick: function(arg) {
+            // millisecond value is correctly in America/New_York
+            console.log(arg.date.valueOf())
+
+            // use the plugin for manipulation and formatting
+            let m = toMoment(arg.date, calendar)
+            console.log(m.format()) // something like '2018-09-01T12:30:00-05:00'
+        }
+        }); */
+
+
+
         $("#datepicker").datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -579,6 +599,7 @@ if(isset($_GET['view']) &&  $_GET['view']=='week'){
                 // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
                 lazyFetching:false,
                 firstDay: 0,
+                timezone: 'Pacific/Midway',
                 // timezone: "@if(auth()->user()->user_timezone) {{auth()->user()->user_timezone}} @else 'UTC' @endif",
                 // defaultDate: moment('2020-09-01'),
                 displayEventTime: false,

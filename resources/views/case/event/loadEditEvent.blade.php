@@ -5,11 +5,6 @@
         text-indent: 20px;
     }
     </style>
- <?php
-//  $CommonController= new App\Http\Controllers\CommonController();
-//  $convertedStartDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($evetData->start_date .$evetData->start_time)),Auth::User()->user_timezone);
-//  $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($evetData->end_date .$evetData->end_time)),Auth::User()->user_timezone);
- ?>
   <div class="modal-header">
     <h5 class="modal-title" id="editEtitle">Edit Event Details</h5>
     <h5 class="modal-title" id="editRtitle">Edit Event Details</h5>
@@ -23,8 +18,8 @@
 
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
             @csrf
-            <input type="hidden" class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id">
-            <input type="hidden" class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" id="event_recurring_id">
+            <input type="text" class="form-control changed" id="event_id" value="{{ $evetData->id}}" name="event_id">
+            <input type="text" class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" id="event_recurring_id">
             <input type="hidden" class="form-control" value="no" name="is_reminder_updated" id="is_reminder_updated">
             <input type="hidden" class="form-control" value="{{ $evetData->edit_recurring_pattern }}" name="edit_recurring_pattern" id="edit_recurring_pattern">
             <div id="firstStep">
@@ -51,7 +46,7 @@
                             <label for="inputEmail3" class="col-sm-2 col-form-label">Case or Lead</label>
                             <div class="col-8 form-group mb-3">
                                 <select onChange="changeCaseUser()" class="form-control case_or_lead" id="case_or_lead" name="case_or_lead"
-                                    data-placeholder="Search for an existing contact or company">
+                                    data-placeholder="Search for an existing contact or company" {{ ($evetData->case_id=='' && $evetData->lead_id == '') ? 'disabled' : '' }}>
                                     <option value="">Search for an existing Case or Lead</option>
                                     <optgroup label="Court Cases">
                                         <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
@@ -159,7 +154,7 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control edit-input-date edit-input-start" id="start_date" value="{{ convertToUserTimezone($eventRecurring->start_date.' '.$evetData->start_time , $authUser->user_timezone)->format('m/d/Y') }}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control edit-input-date edit-input-start event_start_date" id="start_date" value="{{ convertToUserTimezone($eventRecurring->start_date.' '.$evetData->start_time , $authUser->user_timezone)->format('m/d/Y') }}" name="start_date" type="text" placeholder="mm/dd/yyyy">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
@@ -567,7 +562,7 @@
                     <div>
                      
                         <button class="btn btn-secondary  m-1" type="button" onclick="goBack();" >Go Back</button>
-                        <button class="btn btn-primary example-button m-1 submit" data-style="expand-left">Ok </button>
+                        <button class="btn btn-primary example-button m-1 edit-event-submit" data-style="expand-left">Ok </button>
                         
                     </div>
                 </div>
@@ -653,15 +648,15 @@
             $("#end_date-error").text('');
         });
 
-        $("#end_on").datepicker({
+        $("#loadEditEventPopup #end_on").datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
         }).on('changeDate', function(ev) {
-            if($('#end_on').valid()){
-            $('#datepicker').removeClass('invalid').addClass('success');   
+            if($('#loadEditEventPopup #end_on').valid()){
+            $('#loadEditEventPopup #datepicker').removeClass('invalid').addClass('success');   
             }
         });
 
@@ -675,9 +670,9 @@
         }); */
         $("#loadEditEventPopup .event-type-button").trigger("click");
          
-        $("#HideShowNonlink").on('click', function () {
-            $(".staff-table-nonlinked").toggle();
-        });
+        /* $("#loadEditEventPopup").on('click', '#HideShowNonlink', function () {
+            $("#loadEditEventPopup .staff-table-nonlinked").toggle();
+        }); */
        
         $(".hide").hide();
         /* $("#firstStep .add-more").click(function () {
@@ -717,7 +712,7 @@
                     required: {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                            if ($("#loadEditEventPopup #no_end_date_checkbox:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -726,7 +721,7 @@
                     dateGreaterThan:  {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                            if ($("#loadEditEventPopup #no_end_date_checkbox:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -823,11 +818,11 @@
 
         $('#EditEventForm').submit(function (e) {
             e.preventDefault();
-            $(".submit").attr("disabled", true);
+            $(".edit-event-submit").attr("disabled", true);
             $(".innerLoader").css('display', 'block');
             if (!$('#EditEventForm').valid()) {
                 $(".innerLoader").css('display', 'none');
-                $('.submit').removeAttr("disabled");
+                $('.edit-event-submit').removeAttr("disabled");
                 return false;
             }
             var dataString ='';
@@ -854,7 +849,7 @@
                         goBack();
                         $('#showError').show();
                         $(".innerLoader").css('display', 'none');
-                        $('.submit').removeAttr("disabled");
+                        $('.edit-event-submit').removeAttr("disabled");
                         $('#loadEditEventPopup').animate({ scrollTop: 0 }, 'slow');
 
                         return false;
@@ -883,12 +878,12 @@
         });
         
         // No end date checkbox click event
-        $("input:checkbox#no_end_date_checkbox").click(function () {
+        $("#loadEditEventPopup input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
-                $('#end_on').val('');
-                $("#end_on").attr("disabled", true);
+                $('#loadEditEventPopup #end_on').val('');
+                $("#loadEditEventPopup #end_on").attr("disabled", true);
             } else {
-                $('#end_on').removeAttr("disabled");
+                $('#loadEditEventPopup #end_on').removeAttr("disabled");
             }
         });
 
@@ -899,9 +894,9 @@
                 $("#loadEditEventPopup #endondiv").show();
                 $("#loadEditEventPopup #no_end_date_checkbox").prop("checked", true);
                 if ($("input:checkbox#no_end_date_checkbox").is(":checked")) {
-                    $("#end_on").attr("disabled", true);
+                    $("#loadEditEventPopup #end_on").attr("disabled", true);
                 } else {
-                    $('#end_on').removeAttr("disabled");
+                    $('#loadEditEventPopup #end_on').removeAttr("disabled");
                 }
 
             } else {
@@ -928,19 +923,19 @@
     }
 
     function openAddLocation() {
-        $(".pre-load-location").hide();
-        $(".add-new").show();
-        $("#cancel_new_label").show();
-        $("#add_new_label").hide();
-        $("#case_location_list").val('');
+        $("#loadEditEventPopup .pre-load-location").hide();
+        $("#loadEditEventPopup .add-new").show();
+        $("#loadEditEventPopup #cancel_new_label").show();
+        $("#loadEditEventPopup #add_new_label").hide();
+        $("#loadEditEventPopup #case_location_list").val('');
     }
 
     function closeAddLocation() {
-        $(".pre-load-location").show();
-        $(".add-new").hide();
-        $("#cancel_new_label").hide();
-        $("#add_new_label").show();
-        $("#case_location_list").val("{{ $evetData->event_location_id }}");
+        $("#loadEditEventPopup .pre-load-location").show();
+        $("#loadEditEventPopup .add-new").hide();
+        $("#loadEditEventPopup #cancel_new_label").hide();
+        $("#loadEditEventPopup #add_new_label").show();
+        $("#loadEditEventPopup #case_location_list").val("{{ $evetData->event_location_id }}");
     }
     
     function selectTypeload(selectdValue) {
@@ -1087,7 +1082,7 @@
         if(selectdValue!=''){
             if(uType=="case"){
                 $("#text_case_id").val(selectdValue);
-                $("#HideShowNonlink").show();
+                $("#loadEditEventPopup #HideShowNonlink").show();
                 loadRightSection(selectdValue);
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
@@ -1097,7 +1092,7 @@
             $(".hideUser").hide();
         }else{
             $("#edit_event_right_section").html('');
-            $("#HideShowNonlink").hide();
+            $("#loadEditEventPopup #HideShowNonlink").hide();
             $(".hideUser").show();
             // loadDefaultContent();  // This function is for Task, not for event
         }
@@ -1143,15 +1138,15 @@
     function deleteEventFunction1() {
         if (!$('#EditEventForm').valid()) {
             $(".innerLoader").css('display', 'none');
-            $('.submit').removeAttr("disabled");
+            $('.edit-event-submit').removeAttr("disabled");
             return false;
         }
         if(!$("#recuring_event").is(":checked") || $("#edit_recurring_pattern").val() == "single event") {
             $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
-            $(".submit").trigger("click");
+            $(".edit-event-submit").trigger("click");
         } else if($("#recuring_event").is(":checked") && "{{ $evetData->is_recurring }}" == 'no') {
             $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
-            $(".submit").trigger("click");
+            $(".edit-event-submit").trigger("click");
         } else {
             $("input[name=delete_event_type][value=ALL_EVENTS]").attr('checked', 'checked');
             $("#confirmSave").css('display','block');
@@ -1176,11 +1171,12 @@
 
     }
    
-    $("input:checkbox#no_case_link").click(function () {
+    $("#loadEditEventPopup input:checkbox#no_case_link").click(function () {
         if ($(this).is(":checked")) {
-            $("#case_or_lead").attr("disabled", true);
+            $('#loadEditEventPopup #case_or_lead').val('').trigger('change');
+            $("#loadEditEventPopup #case_or_lead").attr("disabled", true);
             $('#case_or_lead').prop('selectedIndex',0);
-            $("#HideShowNonlink").hide();
+            $("#loadEditEventPopup #HideShowNonlink").hide();
             firmStaff();
             $("#edit_event_right_section").html('');
             $(".hideUser").hide();
@@ -1191,6 +1187,7 @@
             $("#edit_event_right_section").html('');
             $(".hideUser").show();
             $('#case_or_lead').removeAttr("disabled");
+            $("#loadEditEventPopup #case_or_lead").attr("disabled", false);
         }
     });
   
@@ -1219,18 +1216,18 @@
 
     $("#editRtitle").hide();
     <?php  if($evetData->is_full_day=='yes'){  ?>
-            $('input:checkbox.all_day').trigger('click');
-            $("#start_time").val('').attr("readonly", true);
-            $("#end_time").val('').attr("readonly", true);
+            $('#loadEditEventPopup input:checkbox.all_day').trigger('click');
+            $("#loadEditEventPopup #start_time").val('').attr("readonly", true);
+            $("#loadEditEventPopup #end_time").val('').attr("readonly", true);
     <?php }  ?>
 
     <?php  if(isset($evetData->event_recurring_type)){ ?>
             selectTypeload('{{$evetData->event_recurring_type}}');
-            $("#endondiv").show();
+            $("#loadEditEventPopup #endondiv").show();
     <?php }else{  ?>
             selectType(null, 'loadEditEventPopup');
-            $("#repeat_dropdown").hide();
-            $("#endondiv").hide();
+            $("#loadEditEventPopup #repeat_dropdown").hide();
+            $("#loadEditEventPopup #endondiv").hide();
     <?php } ?>
         
     <?php if($evetData->event_type_id!=NULL){?>
@@ -1253,8 +1250,8 @@
     function updateMonthlyWeeklyOptions() {
         var date = new Date($("#start_date").val());
         // for month
-        $("#monthly-frequency").find('option').remove();
-        $("#monthly-frequency").append(
+        $("#loadEditEventPopup #monthly-frequency").find('option').remove();
+        $("#loadEditEventPopup #monthly-frequency").append(
             '<option value="MONTHLY_ON_DAY">On day '+date.getDate()+'</option><option value="MONTHLY_ON_THE">'+getNthDayOfMonth(date)+'</option>'
         );
         // Commented. As per client's requirement
@@ -1265,7 +1262,7 @@
             '<option value="YEARLY_ON_DAY">On day '+date.getDate()+' of '+monthName+'</option><option value="YEARLY_ON_THE">'+getNthDayOfMonth(date)+' of '+monthName+'</option>'
         ); */
         // for week
-        $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
+        $("#loadEditEventPopup #event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
     }
 
 function MarkAsChanged(){

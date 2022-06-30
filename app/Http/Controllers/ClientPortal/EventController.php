@@ -147,7 +147,8 @@ class EventController extends Controller
     {
         $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->first();
         $commentData = encodeDecodeJson($eventRecurring->event_comments)->where('action_type', "0");
-        $view = view('client_portal.events.load_comment_history',compact('commentData'))->render();
+        $authUser = auth()->user();
+        $view = view('client_portal.events.load_comment_history',compact('commentData', 'authUser'))->render();
         return response()->json(['totalComment' => $commentData->count(), 'view' => $view]);
     }  
 }

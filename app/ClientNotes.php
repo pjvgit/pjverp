@@ -22,25 +22,27 @@ class ClientNotes extends Authenticatable
     protected $appends  = ['created_date_new','updated_date_new','note_date_new'];
 
     public function getCreatedDateNewAttribute(){
-        $CommonController= new CommonController();
+        // $CommonController= new CommonController();
         if(isset(Auth::User()->user_timezone) && $this->created_at!=null) 
         {
             $timezone=Auth::User()->user_timezone;
-            $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->created_at)),$timezone);
-            return date('M j, Y h:i A',strtotime($convertedDate));
-
+            // $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->created_at)),$timezone);
+            $convertedDate = convertToUserTimezone($this->created_at, $timezone);
+            // return date('M j, Y h:i A',strtotime($convertedDate));
+            return $convertedDate->format('M j, Y h:i A');
         }else{
             return null;
         }
     }
     public function getUpdatedDateNewAttribute(){
-        $CommonController= new CommonController();
+        // $CommonController= new CommonController();
         if(isset(Auth::User()->user_timezone) && $this->updated_at!=null) 
         {
             $timezone=Auth::User()->user_timezone;
-            $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->updated_at)),$timezone);
-            return date('M j, Y h:i A',strtotime($convertedDate));
-
+            // $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->updated_at)),$timezone);
+            $convertedDate = convertToUserTimezone($this->updated_at, $timezone);
+            // return date('M j, Y h:i A',strtotime($convertedDate));
+            return $convertedDate->format('M j, Y h:i A');
         }else{
             return null;
         }

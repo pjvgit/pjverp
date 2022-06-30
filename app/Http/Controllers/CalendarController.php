@@ -82,8 +82,8 @@ class CalendarController extends BaseController
                 $eventData["event_id"] = $event->id ?? Null;
                 $eventData["event_recurring_id"] = $v->id;
                 $eventData["event_title"] = $event->event_title ?? "<No Title>";
-                $startDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->start_date.' '.$event->start_time, $timezone) : convertToUserTimezone($v->start_date.' 00:00:00', $timezone);
-                $endDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->end_date.' '.$event->end_time, $timezone) : convertToUserTimezone($v->end_date.' 00:00:00', $timezone);
+                $startDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->start_date.' '.$event->start_time, $timezone) : convertToUserTimezone($v->start_date.' 00:01:00', $timezone);
+                $endDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->end_date.' '.$event->end_time, $timezone) : convertToUserTimezone($v->end_date.' 11:59:00', $timezone);
                 $eventData["st"] = $startDateTime->format('Y-m-d H:i:s');
                 $eventData["et"] = $endDateTime->format('Y-m-d H:i:s');
                 $eventData["etext"] = ($v->event && $event->eventType) ? $event->eventType->color_code : "";
@@ -1584,7 +1584,7 @@ class CalendarController extends BaseController
             $eventData["end_date"] = $endDateTime->format('m/d/Y');
             $eventData["end_time"] = $endDateTime->format('h:ia');
             $eventData["start_date_time"] = $startDateTime->format('Y-m-d H:i:s');
-            $eventData["etext"] = ($v->event && $event->event_type_id) ? $event->eventType->color_code : "";
+            $eventData["etext"] = ($v->event && $event->eventType) ? $event->eventType->color_code : "";
             $eventData["caseTitle"] = ($event->case) ? $event->case->case_title : '';
             $eventData["caseNumber"] = ($event->case) ? $event->case->case_number : '';
             $decodeStaff = encodeDecodeJson($v->event_linked_staff);

@@ -17,14 +17,16 @@
     @php
         $eventLinkedStaff = encodeDecodeJson($item->event_linked_staff);
         $isAuthUserLinked = $eventLinkedStaff->where('user_id', $authUser->id)->first();
+        $startDateTime= convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone);
+        $endDateTime= convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone);
     @endphp
     <tr class="{{ ($item->is_read == 'no' && $isAuthUserLinked) ? 'font-weight-bold' : '' }}">
         <td class="event-date-and-time  c-pointer" style="width: 50px;">
             @if(isset($oDate) && $item->start_date==$oDate)
             @else
                 @php
-                    $dateandMonth= date('d',strtotime($item->user_start_date));
-                    $dateOfEvent=date('M',strtotime($item->user_start_date)); 
+                    $dateandMonth= $startDateTime->format('d');
+                    $dateOfEvent = $startDateTime->format('M'); 
                     $oDate=$item->start_date;
                 @endphp
                 <div class="d-flex">

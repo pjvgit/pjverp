@@ -192,6 +192,7 @@
     {{-- <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.js"></script> --}}
     <script src="{{asset('assets/js/additional-methods.js')}}"></script>
     <script src="{{asset('assets/js/plugins/bootstrap.bundle.min.js')}}"></script>
+    <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script>
     <script src="{{asset('assets/js/vendor/calendar/fullcalendar.min.js')}}"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.js" ></script>
     {{-- <script src="{{asset('assets/js/calendar.script.js')}}"></script> --}}

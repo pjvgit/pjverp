@@ -23,12 +23,12 @@
                 <label for="inputEmail3" class="col-sm-1 col-form-label"></label>
             </div>
 
-            <input type="hidden" id="text_case_id" value="" name="text_case_id">
-            <input type="hidden" id="text_lead_id" value="" name="text_lead_id">
+            <input type="hidden" id="add_event_text_case_id" value="" name="text_case_id">
+            <input type="hidden" id="add_event_text_lead_id" value="" name="text_lead_id">
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Case or Lead</label>
                 <div class="col-8 form-group mb-3">
-                    <select onChange="changeCaseUser()" class="form-control case_or_lead" id="case_or_lead" name="case_or_lead"
+                    <select onChange="changeCaseUser()" class="form-control case_or_lead" id="add_event_case_or_lead" name="case_or_lead"
                         data-placeholder="Search for an existing contact or company">
                         <option value="">Search for an existing Case or Lead</option>
                         <optgroup label="Court Cases">
@@ -50,7 +50,7 @@
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                 <div class="col-md-8 form-group mb-3">
                     <label class="form-check-label">
-                        <input class="mr-2 no_case_link" type="checkbox" id="no_case_link" name="no_case_link">
+                        <input class="mr-2 add_event_no_case_link" type="checkbox" id="add_event_no_case_link" name="no_case_link">
                         <span>This event is not linked to a case</span>
                     </label>
 
@@ -105,7 +105,7 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                     <div class="col-md-2 form-group mb-3">
-                        <input class="form-control input-date input-start" id="start_date" value="{{ (!empty($currentDate)) ? date('m/d/Y',strtotime($currentDate)) : convertUTCToUserTimeZone('dateOnly') }}" name="start_date" type="text"
+                        <input class="form-control input-date input-start event_start_date" id="add_event_start_date" value="{{ (!empty($currentDate)) ? date('m/d/Y',strtotime($currentDate)) : convertUTCToUserTimeZone('dateOnly') }}" name="start_date" type="text"
                             placeholder="mm/dd/yyyy">
 
                     </div>
@@ -113,7 +113,7 @@
                         <?php 
                         $time=date('H:i',strtotime($currentDateTime));
                         $new_time= date('H:i', strtotime($time.'+1 hour')); ?>
-                        <input class="form-control input-time input-start" id="start_time" value="{{date('h:i A',strtotime($new_time))}}" name="start_time" type="text" placeholder="">
+                        <input class="form-control input-time input-start" id="add_event_start_time" value="{{date('h:i A',strtotime($new_time))}}" name="start_time" type="text" placeholder="">
                     </div>
                     <div class="col-md-2 form-group mb-3 pt-2">
                         <label class="form-check-label"><input class="mr-2 all-day all_day" type="checkbox" id="all_day" name="all_day"><span>All day</span></label>
@@ -128,14 +128,14 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                     <div class="col-md-2 form-group mb-3 ">
-                        <input class="form-control input-date input-end" id="end_date" value="{{ (!empty($currentDate)) ? date('m/d/Y',strtotime($currentDate)) : convertUTCToUserTimeZone('dateOnly') }}" name="end_date" type="text"
+                        <input class="form-control input-date input-end" id="add_event_end_date" value="{{ (!empty($currentDate)) ? date('m/d/Y',strtotime($currentDate)) : convertUTCToUserTimeZone('dateOnly') }}" name="end_date" type="text"
                             placeholder="mm/dd/yyyy">
 
                     </div>
                   
                     <div class="col-md-2 form-group mb-3">
                         <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
-                        <input class="form-control input-time input-end" id="end_time" value="{{date('h:i A',strtotime($new_time))}}"
+                        <input class="form-control input-time input-end" id="add_event_end_time" value="{{date('h:i A',strtotime($new_time))}}"
                             name="end_time" type="text" placeholder="">
 
                     </div>
@@ -239,7 +239,7 @@
             <div class="form-group row endondiv recurring-div" id="endondiv">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
-                    <input class="mx-2 w-50 form-control" id="end_on" value="" readonly name="end_on" type="text"
+                    <input class="mx-2 w-50 form-control" id="add_event_end_on" value="" readonly name="end_on" type="text"
                         placeholder="mm/dd/yyyy"><label class="form-check-label" >
                         <input class=" pt-2" type="checkbox" checked="checked" id="no_end_date_checkbox"
                             name="no_end_date_checkbox">
@@ -404,7 +404,7 @@
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Close</button>
             </a>
-            <button class="btn btn-primary example-button m-1 submit" type="submit" data-style="expand-left">Save Event </button>
+            <button class="btn btn-primary example-button m-1 add-event-submit" type="submit" data-style="expand-left">Save Event </button>
         </div>
     </div>
 </form>
@@ -416,7 +416,7 @@
         // loadCaseLinkedStaff({{$case_id}});
 
         // set default disabled end time
-        $("#end_on").attr("disabled", true);
+        $("#add_event_end_on").attr("disabled", true);
 
         $(".case_or_lead").select2({
             placeholder: "Select...",
@@ -455,17 +455,17 @@
             'endClass': 'input-end'
         });
 
-        $("#start_date").datepicker().on('change',function(e){
+        $("#add_event_start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
             $("#end_date-error").text('');
             updateMonthlyWeeklyOptions();
         });
-        $("#end_date").datepicker().on('change',function(e){
+        $("#add_event_end_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
             $("#start_date-error").text('');
         });
      
-        $("#end_on").datepicker({
+        $("#loadAddEventPopup #add_event_end_on").datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
@@ -488,9 +488,9 @@
         });
 
          
-        $("#HideShowNonlink").on('click', function () {
-            $(".staff-table-nonlinked").toggle();
-        });
+        /* $("#loadAddEventPopup").on('click', '#HideShowNonlink', function () {
+            $("#loadAddEventPopup .staff-table-nonlinked").toggle();
+        }); */
         
         
         $("#endondiv").hide();
@@ -512,7 +512,7 @@
                     required: {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_case_link:checked").val() !== undefined) {
+                            if ($("#add_event_no_case_link:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -523,7 +523,7 @@
                     required: {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                            if ($("#loadAddEventPopup #no_end_date_checkbox:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -532,7 +532,7 @@
                     dateGreaterThan:  {
                         depends: function (element) {
                             var status = true;
-                            if ($("#no_end_date_checkbox:checked").val() !== undefined) {
+                            if ($("#loadAddEventPopup #no_end_date_checkbox:checked").val() !== undefined) {
                                 var status = false;
                             }
                             return status;
@@ -606,10 +606,10 @@
                 }
             },
             errorPlacement: function (error, element) {
-                if (element.is('#case_or_lead')) {
+                if (element.is('#add_event_case_or_lead')) {
                     $('.select2-container--classic .select2-selection--single').addClass("input-border-error");
                     error.appendTo('#CaseListError');
-                }else if (element.is('#end_on')) {
+                }else if (element.is('#add_event_end_on')) {
                     error.appendTo('#EndOnListError');
                 }else if (element.attr('name') == 'custom[]') {
                     error.appendTo('.custom-error');
@@ -630,7 +630,7 @@
             $(".innerLoader").css('display', 'block');
             if (!$('#createEvent').valid()) {
                 $(".innerLoader").css('display', 'none');
-                $('.submit').removeAttr("disabled");
+                $('.add-event-submit').removeAttr("disabled");
                 return false;
             }
             var dataString = $("#createEvent").serialize();
@@ -652,7 +652,7 @@
                         $('#showError').append(errotHtml);
                         $('#showError').show();
                         $(".innerLoader").css('display', 'none');
-                        $('.submit').removeAttr("disabled");
+                        $('.add-event-submit').removeAttr("disabled");
                         $('#loadAddEventPopup').animate({ scrollTop: 0 }, 'slow');
 
                         return false;
@@ -667,49 +667,53 @@
                 }
             });
         });
-        $("input:checkbox.all_day").click(function () {
+        $("#loadAddEventPopup input:checkbox.all_day").click(function () {
             if ($(this).is(":checked")) {
-                $("#start_time").attr("readonly", true);
-                $("#end_time").attr("readonly", true);
+                $("#add_event_start_time").attr("readonly", true);
+                $("#add_event_end_time").attr("readonly", true);
 
             } else {
-                $('#start_time').removeAttr("readonly");
-                $('#end_time').removeAttr("readonly");
+                $('#add_event_start_time').removeAttr("readonly");
+                $('#add_event_end_time').removeAttr("readonly");
 
             }
         });
-        $("input:checkbox.no_case_link").click(function () {
+        $("input:checkbox.add_event_no_case_link").click(function () {
             if ($(this).is(":checked")) {
-                $("#case_or_lead").attr("disabled", true);
-                $('#case_or_lead').prop('selectedIndex',0);
+                $('#add_event_case_or_lead').val('').trigger('change');
+                $("#add_event_case_or_lead").attr("disabled", true);
+                $('#add_event_case_or_lead').prop('selectedIndex',0);
+                $("#loadAddEventPopup #HideShowNonlink").hide();
                 
                 changeCaseUser();
                 $(".hideUser").hide();
                 if($(".fieldGroupEventReminder").length > 1) {
                     $(".fieldGroupEventReminder").not(':first-child').remove();
                 }
+                $("#add_event_right_section").html('');
+                firmStaff();
             } else {
                 $(".hideUser").show();
-                $('#case_or_lead').removeAttr("disabled");
+                $('#add_event_case_or_lead').removeAttr("disabled");
             }
         });
 
-        $("input:checkbox#no_end_date_checkbox").click(function () {
+        $("#loadAddEventPopup input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
-                $('#end_on').val('');
-                $("#end_on").attr("disabled", true);
+                $('#loadAddEventPopup #add_event_end_on').val('');
+                $("#loadAddEventPopup #add_event_end_on").attr("disabled", true);
             } else {
-                $('#end_on').removeAttr("disabled");
+                $('#loadAddEventPopup #add_event_end_on').removeAttr("disabled");
             }
         });
 
-        $("#end_on").on('changeDate', function() {
-            if($('#end_on').valid()){
+        $("#loadAddEventPopup #add_event_end_on").on('changeDate', function() {
+            if($('#add_event_end_on').valid()){
             $('#datepicker').removeClass('invalid').addClass('success');   
             }
         });
 
-        $("input:checkbox#no_end_date_checkbox").click(function(){
+        $("#loadAddEventPopup input:checkbox#no_end_date_checkbox").click(function(){
             if ($(this).is(":checked")) {
             $('#datepicker').removeClass('invalid').addClass('success');
             } 
@@ -720,11 +724,11 @@
             if ($(this).is(":checked")) {
                 $("#repeat_dropdown").show();
                 $("#endondiv").show();
-                $("#no_end_date_checkbox").prop("checked", true);
-                if ($("input:checkbox#no_end_date_checkbox").is(":checked")) {
-                    $("#end_on").attr("disabled", true);
+                $("#loadAddEventPopup #no_end_date_checkbox").prop("checked", true);
+                if ($("#loadAddEventPopup input:checkbox#no_end_date_checkbox").is(":checked")) {
+                    $("#add_event_end_on").attr("disabled", true);
                 } else {
-                    $('#end_on').removeAttr("disabled");
+                    $('#add_event_end_on').removeAttr("disabled");
                 }
 
             } else {
@@ -740,25 +744,25 @@
     });
 
     function selectColor(c, id) {
-        $('#colorSet').css('background-color', c);
-        $(".item_category div i").remove();
-        $('#' + id).html('<i aria-hidden="true" class="fa fa-check icon-check icon text-white mt-2"></i>');
-        $("#event_type").val(id);
+        $('#loadAddEventPopup #colorSet').css('background-color', c);
+        $("#loadAddEventPopup .item_category div i").remove();
+        $('#loadAddEventPopup #' + id).html('<i aria-hidden="true" class="fa fa-check icon-check icon text-white mt-2"></i>');
+        $("#loadAddEventPopup #event_type").val(id);
     }
 
     function openAddLocation() {
-        $(".pre-load-location").hide();
-        $(".add-new").show();
-        $("#cancel_new_label").show();
-        $("#add_new_label").hide();
+        $("#loadAddEventPopup .pre-load-location").hide();
+        $("#loadAddEventPopup .add-new").show();
+        $("#loadAddEventPopup #cancel_new_label").show();
+        $("#loadAddEventPopup #add_new_label").hide();
 
     }
 
     function closeAddLocation() {
-        $(".pre-load-location").show();
-        $(".add-new").hide();
-        $("#cancel_new_label").hide();
-        $("#add_new_label").show();
+        $("#loadAddEventPopup .pre-load-location").show();
+        $("#loadAddEventPopup .add-new").hide();
+        $("#loadAddEventPopup #cancel_new_label").hide();
+        $("#loadAddEventPopup #add_new_label").show();
     }
 
     // Below all commented functions are not in use
@@ -875,25 +879,25 @@
         })
     }
     function changeCaseUser() {
-        $("#text_lead_id").val('');
-        $("#text_case_id").val('');
-        var uType=$("#loadAddEventPopup #case_or_lead option:selected").attr('uType');
-        var selectdValue = $("#loadAddEventPopup #case_or_lead option:selected").val();
+        $("#add_event_text_lead_id").val('');
+        $("#add_event_text_case_id").val('');
+        var uType=$("#loadAddEventPopup #add_event_case_or_lead option:selected").attr('uType');
+        var selectdValue = $("#loadAddEventPopup #add_event_case_or_lead option:selected").val();
         if(selectdValue!=''){
             if(uType=="case"){
-                $("#text_case_id").val(selectdValue);
-                $("#HideShowNonlink").show();
+                $("#add_event_text_case_id").val(selectdValue);
+                $("#loadAddEventPopup #HideShowNonlink").show();
                 loadRightSection(selectdValue);
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
-                $("#text_lead_id").val(selectdValue);
+                $("#add_event_text_lead_id").val(selectdValue);
                 loadLeadUsers(selectdValue);
             }
             $(".hideUser").hide();
         }else{
            $(".hideUser").show();
             $("#add_event_right_section").html('');
-            $("#HideShowNonlink").hide();
+            $("#loadAddEventPopup #HideShowNonlink").hide();
            
         }
     }
@@ -932,19 +936,19 @@
         })
     }
     
-    $("input:checkbox#no_case_link").click(function () {
+    /* $("input:checkbox#add_event_no_case_link").click(function () {
         if ($(this).is(":checked")) {
             
-            $('#case_or_lead').val('').trigger('change');
-            $('#case_or_lead').prop('selectedIndex',0);
-            $("#HideShowNonlink").hide();
+            $('#add_event_case_or_lead').val('').trigger('change');
+            $('#add_event_case_or_lead').prop('selectedIndex',0);
+            $("#loadAddEventPopup #HideShowNonlink").hide();
             $("#add_event_right_section").html('');
             firmStaff();
         } else {
            
             $("#add_event_right_section").html('');
         }
-    });
+    }); */
 
     // Get weekdays name
     function getWeekdays(date) {
@@ -960,10 +964,10 @@
 
     // Get updated option of weekly/monthly/yearly recurring
     function updateMonthlyWeeklyOptions() {
-        var date = new Date($("#start_date").val());
+        var date = new Date($("#add_event_start_date").val());
         // for month
-        $("#monthly-frequency").find('option').remove();
-        $("#monthly-frequency").append(
+        $("#loadAddEventPopup #monthly-frequency").find('option').remove();
+        $("#loadAddEventPopup #monthly-frequency").append(
             '<option value="MONTHLY_ON_DAY">On day '+date.getDate()+'</option><option value="MONTHLY_ON_THE">'+getNthDayOfMonth(date)+'</option>'
         );
         // Commented. As per client's requirement
@@ -974,6 +978,6 @@
             '<option value="YEARLY_ON_DAY">On day '+date.getDate()+' of '+monthName+'</option><option value="YEARLY_ON_THE">'+getNthDayOfMonth(date)+' of '+monthName+'</option>'
         ); */
         // for week
-        $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
+        $("#loadAddEventPopup #event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
     }
 </script>

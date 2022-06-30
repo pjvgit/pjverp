@@ -84,8 +84,8 @@ trait FirmDefaultSettingTrait {
         $ClientGroup = ClientGroup::where('firm_id', $user->firm_name)->get();
         if(count($ClientGroup) == 0){
             $data = array(
-                array("group_name" => 'Client', "status" => 1, "firm_id" => $user->firm_name, "is_default" => 1, "created_by" => $user->id, "created_at" => date('Y-m-d')),
-                array("group_name" => 'Unassigned', "status" => 1, "firm_id" => $user->firm_name, "is_default" => 1, "created_by" => $user->id, "created_at" => date('Y-m-d')),
+                array("group_name" => 'Client', "status" => '1', "firm_id" => $user->firm_name, "is_default" => '1', "created_by" => $user->id, "created_at" => date('Y-m-d')),
+                array("group_name" => 'Unassigned', "status" => '1', "firm_id" => $user->firm_name, "is_default" => '1', "created_by" => $user->id, "created_at" => date('Y-m-d')),
             );        
             ClientGroup::insert($data);
         }

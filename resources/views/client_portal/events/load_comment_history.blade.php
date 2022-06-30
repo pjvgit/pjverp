@@ -19,7 +19,7 @@
     <li class="comment"><span class="author-avatar">{{ $createdByUser->first_name[0] ?? '' }}</span>
 		<div class="comment__header">
 			<p class="comment__author">{{ $createdByUser->full_name ?? '' }}</p>
-			<p class="comment__date">{{ date('M d, Y h:i A', strtotime($item->created_at)) }}</p>
+			<p class="comment__date">{{ convertToUserTimezone($item->created_at, $authUser->user_timezone)->format('M d, Y h:i A') }}</p>
 		</div>
 		<p class="comment__content">{!! $item->comment !!}</p>
 	</li>

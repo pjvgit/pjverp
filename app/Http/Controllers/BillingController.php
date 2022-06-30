@@ -6138,6 +6138,7 @@ class BillingController extends BaseController
                     $FlatFeeEntryForInvoice->save();
                     DB::table('flat_fee_entry')->where("id",$v)->update([
                         'status'=>'paid',
+                        'token_id' => Null,
                         'invoice_link'=>$InvoiceSave->id
                     ]);
                 }
@@ -6162,6 +6163,7 @@ class BillingController extends BaseController
                     // if(empty($request->linked_staff_checked_share) || !in_array($v,$request->linked_staff_checked_share)){
                         DB::table('task_time_entry')->where("id",$v)->update([
                             'status'=>'paid',
+                            'token_id' => Null,
                             'invoice_link'=>$InvoiceSave->id
                         ]);
                     // }
@@ -6195,6 +6197,7 @@ class BillingController extends BaseController
                     // if(empty($request->invoice_expense_entry_nonbillable_time) || !in_array($v,$request->invoice_expense_entry_nonbillable_time)){
                         DB::table('expense_entry')->where("id",$v)->update([
                             'status'=>'paid',
+                            'token_id' => Null,
                             'invoice_link'=>$InvoiceSave->id
                         ]);
                     // }

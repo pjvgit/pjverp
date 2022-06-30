@@ -2440,6 +2440,19 @@ class ClientdashboardController extends BaseController
                     $Messages->message=substr(strip_tags($request->delta),0,50);
                     $Messages->created_by =Auth::User()->id;
                     $Messages->firm_id =Auth::User()->firm_name;
+                    $jsonData = [];
+                    foreach($request->send_to as $uid) {
+                        $decideCode=explode("-",$uid);        
+                        $jsonData[] = [
+                            'user_id' => $decideCode[1],
+                            'is_read' => 'no'
+                        ];
+                    }
+                    $jsonData[] = [
+                        "user_id" => auth()->id(),
+                        'is_read' => 'yes'
+                    ];
+                    $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
                     $Messages->save();
 
                     $ReplyMessages=new ReplyMessages;
@@ -3377,7 +3390,7 @@ class ClientdashboardController extends BaseController
                             $UserArray[$key]['email']=$val[16];
                             $UserArray[$key]['website']=$val[17];
                             $UserArray[$key]['outstanding_amount']=$val[18];
-                            if((strtolower($val[19])=="true" || strtolower($val[19])=="TRUE") && (strtolower($val[20])=="true" || strtolower($val[20])=="TRUE")){
+                            if((strtolower($val[19])=="true" || strtolower($val[19])=="TRUE") && (strtolower($val[20])=="false" || strtolower($val[20])=="")){
                                 $UserArray[$key]['client_portal_enable']='1';
                             }else{
                                 $UserArray[$key]['client_portal_enable']='0';
@@ -3728,12 +3741,8 @@ class ClientdashboardController extends BaseController
                                     $phone=explode(":",$v);
                                     $UserArray[$finalOperationKey]['fax_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
                                 }
-                                if (strpos($v, 'TITLE') !== false) { 
-                                    $title=explode(":",$v);
-                                    $UserArray[$finalOperationKey]['job_title'] = ($title[1] != '') ? str_replace(" ", "", $title[1]) : NULL;
-                                }
 
-                                if (strpos($v, 'ADR') !== false) { 
+                                /* if (strpos($v, 'ADR') !== false) { 
                                     $adr=explode(":",$v);
                                     if(count($adr) > 1) {
                                         $adr1 = explode(";", $adr[1]);
@@ -3745,6 +3754,11 @@ class ClientdashboardController extends BaseController
                                             $UserArray[$finalOperationKey]['postal_code'] = (isset($adr1[3]) && $adr1[3] != '') ? quoted_printable_decode($adr1[3]) : NULL;
                                         }
                                     }
+                                } */
+
+                                if (strpos($v, 'TITLE') !== false) { 
+                                    $title=explode(":",$v);
+                                    $UserArray[$finalOperationKey]['job_title'] = ($title[1] != '') ? str_replace(" ", "", $title[1]) : NULL;
                                 }
 
                                 if (strpos($v, 'ORG') !== false) { 
@@ -3859,12 +3873,14 @@ class ClientdashboardController extends BaseController
                 if(!empty($User)){
                     $fetchedIds[]=$User['id'];
                 }else{
+                    $authUser = auth()->user();
                     $companyUser=new User;
                     $companyUser->first_name=$val; 
                     $companyUser->created_by =Auth::User()->id;
                     $companyUser->user_level="4";
                     $companyUser->user_title="Company";
-                    $companyUser->parent_user=Auth::User()->id;
+                    $companyUser->parent_user= $authUser->id;
+                    $companyUser->firm_name = $authUser->firm_name;
                     $companyUser->save();
                     $fetchedIds[]=$companyUser->id;
                 }
@@ -4511,6 +4527,20 @@ class ClientdashboardController extends BaseController
         ->where('messages.id', $request->message_id)
         ->first();
 
+        // read mesages 
+        $authUserId = (string) auth()->id();
+        $linkedContact = encodeDecodeJson($messagesData->users_json);
+        if(count($linkedContact)) {
+            foreach($linkedContact as $key => $item) {
+                if($item->user_id == $authUserId) {
+                    $item->is_read = 'yes';
+                }
+                $updatedLinkedContact[] = $item;
+            }
+            $messagesData->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
+        }
+        $messagesData->save();
+
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
         ->leftJoin("users","users.id","=","messages.created_by")
         ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), "messages.updated_at as last_posts",'users.id as staff_id','users.first_name','users.last_name')
@@ -4829,7 +4859,7 @@ class ClientdashboardController extends BaseController
                             $CaseMaster->conflict_check_description=$finalOperationVal['conflict_check_notes'] ?? Null;
 
                             if($finalOperationVal['practice_area'] != '') { 
-                                $caseArea =  CasePracticeArea::where('title','like','%'.$finalOperationVal['practice_area'].'%')->select('id')->first();
+                                $caseArea =  CasePracticeArea::where('title','like','%'.$finalOperationVal['practice_area'].'%')->where('firm_id', $authUser->firm_name)->select('id')->first();
                                 if(!empty($caseArea)){
                                     $CaseMaster->practice_area=$caseArea->id;
                                 }else{
