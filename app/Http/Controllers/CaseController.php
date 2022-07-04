@@ -3770,36 +3770,41 @@ class CaseController extends BaseController
     {
         $event = Event::whereId($request->event_id)->with('eventType', 'eventLocation', 'case')->first();
         $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->where("event_id", $request->event_id)->first();
-        $linkedStaff = encodeDecodeJson($eventRecurring->event_linked_staff);
-        $linkedUser = [];
-        if(count($linkedStaff)) {
-            foreach($linkedStaff as $key => $item) {
-                $user = getUserDetail($item->user_id);
-                $linkedUser[] = (object)[
-                    'user_id' => $item->user_id,
-                    'full_name' => $user->full_name,
-                    'user_type' => $user->user_type_text,
-                    'attending' => $item->attending,
-                    'utype' => 'staff',
-                ];
+        if($eventRecurring) {
+            $linkedStaff = encodeDecodeJson($eventRecurring->event_linked_staff);
+            $linkedUser = [];
+            if(count($linkedStaff)) {
+                foreach($linkedStaff as $key => $item) {
+                    $user = getUserDetail($item->user_id);
+                    $linkedUser[] = (object)[
+                        'user_id' => $item->user_id,
+                        'full_name' => $user->full_name,
+                        'user_type' => $user->user_type_text,
+                        'attending' => $item->attending,
+                        'utype' => 'staff',
+                    ];
+                }
             }
-        }
-        $linkedContact = encodeDecodeJson($eventRecurring->event_linked_contact_lead);
-        if(count($linkedContact)) {
-            foreach($linkedContact as $key => $item) {
-                $user = getUserDetail(($item->user_type == 'lead') ? $item->lead_id : $item->contact_id);
-                $linkedUser[] = (object)[
-                    'user_id' => ($item->user_type == 'lead') ? $item->lead_id : $item->contact_id,
-                    'full_name' => $user->full_name,
-                    'user_type' => $user->user_type_text,
-                    'attending' => $item->attending,
-                    'utype' => $item->user_type,
-                ];
+            $linkedContact = encodeDecodeJson($eventRecurring->event_linked_contact_lead);
+            if(count($linkedContact)) {
+                foreach($linkedContact as $key => $item) {
+                    $user = getUserDetail(($item->user_type == 'lead') ? $item->lead_id : $item->contact_id);
+                    $linkedUser[] = (object)[
+                        'user_id' => ($item->user_type == 'lead') ? $item->lead_id : $item->contact_id,
+                        'full_name' => $user->full_name,
+                        'user_type' => $user->user_type_text,
+                        'attending' => $item->attending,
+                        'utype' => $item->user_type,
+                    ];
+                }
             }
-        }
-        $fromPageRoute = $request->from_page_route ?? Null;
+            $fromPageRoute = $request->from_page_route ?? Null;
 
-        return view('case.event.loadEventCommentPopup',compact('event', 'eventRecurring', 'linkedUser', 'fromPageRoute'));     
+            $view = view('case.event.loadEventCommentPopup',compact('event', 'eventRecurring', 'linkedUser', 'fromPageRoute'))->render();
+            return response()->json(['errors' => "", 'view' => $view]);   
+        } else {
+            return response()->json(['errors' => "No record found"]);
+        }  
         exit;    
     }
 

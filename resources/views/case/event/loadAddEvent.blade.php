@@ -659,7 +659,8 @@
                     } else {
                         $('#loadAddEventPopup').modal("hide");
                         @if($fromPageRoute == "events")
-                            $('#calendarq').fullCalendar('refetchEvents');
+                            // $('#calendarq').fullCalendar('refetchEvents');
+                            calendar.refetchEvents();
                         @else
                             window.location.reload();
                         @endif

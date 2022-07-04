@@ -209,9 +209,14 @@ function loadEventComment(event_id, event_recurring_id, fromPageRoute = null) {
                 "from_page_route": fromPageRoute,
             },
             success: function (res) {
-                $("#eventCommentPopup").html('Loading...');
-                $("#eventCommentPopup").html(res);
-                $("#preloader").hide();
+                if(res.errors != '') {
+                    $("#loadCommentPopup").modal('hide');
+                    $("#preloader").hide();
+                } else {
+                    $("#eventCommentPopup").html('Loading...');
+                    $("#eventCommentPopup").html(res.view);
+                    $("#preloader").hide();
+                }
             }
         })
     })
@@ -303,7 +308,8 @@ function markEventAsRead(eventId) {
             'event_id': eventId,
         },
         success: function (res) {
-            $('#calendarq').fullCalendar('refetchEvents');
+            // $('#calendarq').fullCalendar('refetchEvents');
+            calendar.refetchEvents();
         }
     })
 }

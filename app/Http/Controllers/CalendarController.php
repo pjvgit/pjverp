@@ -27,6 +27,10 @@ class CalendarController extends BaseController
     }
     public function index($calendarView = null)
     {
+        // $date = Carbon::createFromFormat('Y-m-d', '2022-07-04', "UTC");
+        // $date->setTimezone('Pacific/Kiritimati');
+        // return $date->format("Y-m-d");
+
         $authUser = auth()->user();
         $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1")->get();
         $EventType = EventType::where('status','1')->where('firm_id',$authUser->firm_name)->orderBy("status_order","ASC")->get();
@@ -48,7 +52,7 @@ class CalendarController extends BaseController
         $CaseEvent = '';
         $byuser=json_decode($request->byuser, TRUE);
         if(count($byuser)) {
-            $CaseEvent = EventRecurring::whereBetween('start_date',  [$request->start, $request->end]);
+            $CaseEvent = EventRecurring::whereBetween('start_date',  [$request->start, $request->end])->has('event');
             $CaseEvent = $CaseEvent->whereHas("event", function($query) use($request, $authUser) {
                 $query->where('firm_id', $authUser->firm_name);
                 if($request->event_type!="[]"){
@@ -90,6 +94,13 @@ class CalendarController extends BaseController
                 $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : $v->user_end_date /* convertUTCToUserTime($v->end_date.' 00:00:00', $timezone) */;
                 $eventData["st"] = $startDateTime;
                 $eventData["et"] = $endDateTime;
+                if(($event->is_full_day == 'no')) {
+                    $eventData["start_date_time"] = $v->start_date.'T'.$event->start_time.'Z';
+                    $eventData["end_date_time"] = $v->end_date.'T'.$event->end_time.'Z';
+                } else {
+                    $eventData["start_date_time"] = $v->start_date;
+                    $eventData["end_date_time"] = $v->end_date;
+                }
                 $eventData["etext"] = ($v->event && $event->eventType) ? $event->eventType->color_code : "";
                 // $eventData["start_time_user"] = $startDateTime->format('h:ia');
                 $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));

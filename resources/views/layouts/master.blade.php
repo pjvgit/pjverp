@@ -28,8 +28,8 @@
     <link rel="stylesheet" href="{{asset('assets/styles/css/jquery-ui.css')}}">
     <link rel="stylesheet" href="{{asset('assets/styles/css/jquery.timepicker.css')}}">
     <link href="{{asset('assets/styles/css/quill.snow.css')}}" rel="stylesheet">
-    <link rel="stylesheet" href="{{asset('assets/styles/vendor/calendar/fullcalendar.min.css')}}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.css">
+    {{-- <link rel="stylesheet" href="{{asset('assets/styles/vendor/calendar/fullcalendar.min.css')}}"> --}}
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.css"> --}}
     {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.1/main.min.css"> --}}
     <link rel="stylesheet" href="{{asset('assets/styles/css/plugins/hopscotch.css')}}" />
     {{-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" /> --}}
@@ -193,8 +193,8 @@
     <script src="{{asset('assets/js/additional-methods.js')}}"></script>
     <script src="{{asset('assets/js/plugins/bootstrap.bundle.min.js')}}"></script>
     <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script>
-    <script src="{{asset('assets/js/vendor/calendar/fullcalendar.min.js')}}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.js" ></script>
+    {{-- <script src="{{asset('assets/js/vendor/calendar/fullcalendar.min.js')}}"></script> --}}
+    {{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.js" ></script> --}}
     {{-- <script src="{{asset('assets/js/calendar.script.js')}}"></script> --}}
     {{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.1/main.min.js"></script> --}}
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script> --}}
