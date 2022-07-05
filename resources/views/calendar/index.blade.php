@@ -3,7 +3,7 @@
 
 @section('page-css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.css">
 <style>
 .agenda-table th, .agenda-table td {
     padding: 5px 10px !important;
@@ -529,10 +529,13 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 /* .fc-time{display: none;} */
 .agenda-custom-view { overflow: auto;}
 .agenda-custom-view table { width: 100%; }
+.fc-daygrid-event-dot { display: none; }
 </style>
 @section('page-js')
+{{-- <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script> --}}
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.js"></script>
+{{-- <script src="{{ asset('assets\plugins\fullcalendar-5.10.2\lib\main.js') }}"></script> --}}
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\calendar\viewevent.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
@@ -543,65 +546,71 @@ var calendar;
 $(document).ready(function () {
     const { sliceEvents, createPlugin, Calendar } = FullCalendar
 
-        const CustomViewConfig = {
-            classNames: [ 'agenda-custom-view' ],
-            duration: { days: 31 },
-            visibleRange: function(currentDate) {
-                return {
-                start: currentDate.clone(),
-                end: currentDate.clone().add(31, 'days') // exclusive end, so 3
-                };
-            },
-            content: function(props) {
-                // var viewData = '';
-                $("#preloaderData").show();
-                var eventTypes = [];
-                $.each($("input[name='event_type[]']:checked"), function(){
-                    eventTypes.push($(this).val());
-                });
-                var byuser = getByUser();
-                var bysol=getSOL();
-                var mytask=getMytask();
-                $.ajax({
-                    url: 'loadEventCalendar/loadAgendaView',
-                    type: 'POST',
-                    data: {
-                        start: props.dateProfile.currentRange.start.toUTCString(),
-                        end: props.dateProfile.currentRange.end.toUTCString(),
-                        event_type: JSON.stringify(eventTypes),
-                        byuser: JSON.stringify(byuser),
-                        case_id: $(".case_or_lead option:selected").val(),
-                        searchbysol:bysol,
-                        searchbymytask:mytask,
-                        dateFilter:getDate(),
-                        taskLoad:$("#loadType").val()
-                    },
-                    success: function (doc) {
-                        // viewData = doc;
-                        $('.agenda-custom-view').html(doc);
-                        $("#preloaderData").hide();
-                    },
-                });
-                // return {html: viewData};
-            }
-
+    const CustomViewConfig = {
+        classNames: [ 'agenda-custom-view' ],
+        duration: { days: 31 },
+        visibleRange: function(currentDate) {
+            return {
+            start: currentDate.clone(),
+            end: currentDate.clone().add(31, 'days') // exclusive end, so 3
+            };
+        },
+        content: function(props) {
+            // var viewData = '';
+            $("#preloaderData").show();
+            var eventTypes = [];
+            $.each($("input[name='event_type[]']:checked"), function(){
+                eventTypes.push($(this).val());
+            });
+            var byuser = getByUser();
+            var bysol=getSOL();
+            var mytask=getMytask();
+            $.ajax({
+                url: 'loadEventCalendar/loadAgendaView',
+                type: 'POST',
+                data: {
+                    start: props.dateProfile.currentRange.start.toUTCString(),
+                    end: props.dateProfile.currentRange.end.toUTCString(),
+                    event_type: JSON.stringify(eventTypes),
+                    byuser: JSON.stringify(byuser),
+                    case_id: $(".case_or_lead option:selected").val(),
+                    searchbysol:bysol,
+                    searchbymytask:mytask,
+                    dateFilter:getDate(),
+                    taskLoad:$("#loadType").val()
+                },
+                success: function (doc) {
+                    // viewData = doc;
+                    $('.agenda-custom-view').html(doc);
+                    $("#preloaderData").hide();
+                },
+            });
+            // return {html: viewData};
         }
 
-        const CustomViewPlugin = createPlugin({
+    }
+
+    const CustomViewPlugin = createPlugin({
         views: {
             agendaview: CustomViewConfig
         }
-        });
+    });
+    
+    if(localStorage.getItem('weekends')=='hide'){
+        var hd=[0, 6];
+    }else{
+        var hd=[];
+    }
     var calendarEl = document.getElementById('calendarq');
-
     calendar = new FullCalendar.Calendar(calendarEl, {
-        schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-        timeZone: "{{ auth()->user()->user_timezone ?? 'local' }}",
+        // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
+        // timeZone: "{{ auth()->user()->user_timezone ?? 'local' }}",
+        // timeZone: 'America/New_York',
         plugins: [ CustomViewPlugin, ],
         initialView: "{{ $defaultView }}",
         themeSystem: "bootstrap4",
         height: 700,
-        // hiddenDays: hd ?? [],
+        hiddenDays: hd,
         dayMaxEvents: true, // allow "more" link when too many events
         headerToolbar: {
             left: 'prev,next today',
@@ -637,7 +646,7 @@ $(document).ready(function () {
                 type: 'resourceTimeGridDay',
             },    
         },
-        displayEventTime: true,
+        displayEventTime: false,
         eventTimeFormat: { // like '14:30:00'
             hour: '2-digit',
             minute: '2-digit',
@@ -705,25 +714,21 @@ $(document).ready(function () {
                             events.push({
                                 id: r.event_recurring_id,
                                 event_id: r.event_id,
-                                // title: t,
-                                // tTitle: r.event_title,
-                                title: r.event_title,
+                                title: t,
+                                tTitle: r.event_title,
+                                // title: r.event_title,
                                 start: r.start_date_time,
                                 end: r.end_date_time,
-                                // start: r.st,
-                                // end: r.et,
                                 allDay: (r.is_all_day == 'yes') ? true : false, 
-                                eventColor: (r.is_all_day == 'yes') ? color : '#d5e9ce',
+                                color: (r.is_all_day == 'yes') ? color : '#d5e9ce',
                                 backgroundColor: (r.is_all_day == 'yes') ? color : '#d5e9ce',
                                 textColor:'#000000',
-                                eventTextColor: color,
                                 resourceIds: resource_id,
                             });
                         });
                     }
                     if (!!doc.sol_result) {
                         $.map(doc.sol_result, function (r) {
-                            console.log(r);
                             if(r.sol_satisfied == 'yes') {
                                 var t = '<span class="calendar-badge d-inline-block undefined badge badge-success" style="width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
                             } else {
@@ -776,13 +781,11 @@ $(document).ready(function () {
                 },
             });
         },
-        /* events: [
-            { start: '2022-07-01T12:30:00Z' }, // will be shifted to local
-            { start: '2022-07-01T12:30:00+XX:XX' }, // already same offset as local, so won't shift
-            { start: '2022-07-02T12:30:00' } // will be parsed as if it were '2018-09-01T12:30:00+XX:XX'
-        ], */
         eventDidMount: function(info) {
-            info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.el.querySelectorAll('.fc-event-title')[0].innerText;
+            info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.event.title;
+            /* $(info.el).tooltip({
+                title: event.tTitle
+            }); */
         },
         viewDidMount: function(arg){
             var view = arg.view;
@@ -824,23 +827,22 @@ $(document).ready(function () {
         },
         eventClick: function(info) {
             var event = info.event;
-            console.log(info.event);
-            if(event.mytask=="yes"){
+            if(event.extendedProps.mytask=="yes"){
                 var redirectURL=baseUrl+'/tasks?id='+event.id;
                 window.location.href=redirectURL;
-            }else if(event.mysol=="yes"){
-                var redirectURL=baseUrl+'/court_cases/'+event.case_id+'/info';
+            }else if(event.extendedProps.mysol=="yes"){
+                var redirectURL=baseUrl+'/court_cases/'+event.extendedProps.case_id+'/info';
                 window.location.href=redirectURL;
             }else {
                 loadEventComment(event.extendedProps.event_id, event.id, 'events');
             }
         },
-        dayClick: function(date, jsEvent, view) {
-            // loadAddEventPopupFromCalendar(date.format());
-            loadAddEventPopup(date.format(), 'events');
+        dateClick: function(info) {
+            loadAddEventPopup(info.dateStr, 'events');
         }
     });
     calendar.render();
+
         $("#datepicker").datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -880,11 +882,7 @@ $(document).ready(function () {
                 date = newDate.getDate(),
                 month = newDate.getMonth(),
                 year = newDate.getFullYear();
-                if(localStorage.getItem('weekends')=='hide'){
-                    var hd=[0, 6];
-                }else{
-                    var hd=[];
-                }
+                
                 var today = moment().day();
             /* $('#calendarq').fullCalendar({
                 // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',

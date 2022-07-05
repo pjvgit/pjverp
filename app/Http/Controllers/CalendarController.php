@@ -90,17 +90,17 @@ class CalendarController extends BaseController
                 // $endDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->end_date.' '.$event->end_time, $timezone) : convertToUserTimezone($v->end_date.' 11:59:00', $timezone);
                 // $eventData["st"] = $startDateTime->format('Y-m-d H:i:s');
                 // $eventData["et"] = $endDateTime->format('Y-m-d H:i:s');
-                $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date /* convertUTCToUserTime($v->start_date.' 00:00:00', $timezone) */;
-                $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : $v->user_end_date /* convertUTCToUserTime($v->end_date.' 00:00:00', $timezone) */;
-                $eventData["st"] = $startDateTime;
-                $eventData["et"] = $endDateTime;
-                if(($event->is_full_day == 'no')) {
+                $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date;
+                $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : $v->user_end_date;
+                $eventData["start_date_time"] = $startDateTime;
+                $eventData["end_date_time"] = $endDateTime;
+                /* if(($event->is_full_day == 'no')) {
                     $eventData["start_date_time"] = $v->start_date.'T'.$event->start_time.'Z';
                     $eventData["end_date_time"] = $v->end_date.'T'.$event->end_time.'Z';
                 } else {
                     $eventData["start_date_time"] = $v->start_date;
                     $eventData["end_date_time"] = $v->end_date;
-                }
+                } */
                 $eventData["etext"] = ($v->event && $event->eventType) ? $event->eventType->color_code : "";
                 // $eventData["start_time_user"] = $startDateTime->format('h:ia');
                 $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));
@@ -111,7 +111,7 @@ class CalendarController extends BaseController
                 $newarray[] = $eventData;
             }
             $newarray = collect($newarray)->sortBy(function($col) {
-                return $col['st'];
+                return $col['start_date_time'];
             })->values()->all();
         }
 
@@ -155,7 +155,7 @@ class CalendarController extends BaseController
     public function loadStaffView (Request $request)
     {      
         // return $request->all()  ;
-        if($request->resType == "resources") {
+        if($request->resType == "resources" && $request->byuser) {
             $resources = [];
             $users = User::where("firm_name", auth()->user()->firm_name);
             if($request->byuser) {
@@ -170,6 +170,7 @@ class CalendarController extends BaseController
             }
             return response()->json($resources);
         }        
+        return response()->json([]);
         exit;    
     }
 
@@ -212,8 +213,12 @@ class CalendarController extends BaseController
             $events = $events->with('event', 'event.case', 'event.leadUser')->get();
             if(count($events)) {
                 foreach($events as $key => $item) {
-                    $startDateTime= ($item->event->is_full_day == 'no') ? convertUTCToUserTime($item->start_date.' '.$item->event->start_time, $timezone) : convertUTCToUserTime($item->start_date.' 00:00:00', $timezone);
-                    $endDateTime= ($item->event->is_full_day == 'no') ? convertUTCToUserTime($item->end_date.' '.$item->event->end_time, $timezone) : convertUTCToUserTime($item->end_date.' 00:00:00', $timezone);
+                    $startDateTime= ($item->event->is_full_day == 'no') ? convertUTCToUserTime($item->start_date.' '.$item->event->start_time, $timezone) : $item->user_start_date;
+                    $endDateTime= ($item->event->is_full_day == 'no') ? convertUTCToUserTime($item->end_date.' '.$item->event->end_time, $timezone) : $item->user_end_date;
+                    /* $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date;
+                    $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : $v->user_end_date;
+                    $eventData["start_date_time"] = $startDateTime;
+                    $eventData["end_date_time"] = $endDateTime; */
                     $finalDataList[] = (object)[
                         'event_id' => $item->event_id,
                         'event_recurring_id' => $item->id,

@@ -84,7 +84,7 @@
                         </div>
                     </div>
                     </form>
-                    <div class="row mt-2">
+                    <div class="row mt-2 m2">
                         <div class="col-6">
                         <form class="saveEventPrefernace" id="saveEventPrefernace" name="saveEventPrefernace" method="POST">
                             @csrf

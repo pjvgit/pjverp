@@ -192,7 +192,7 @@
     {{-- <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.js"></script> --}}
     <script src="{{asset('assets/js/additional-methods.js')}}"></script>
     <script src="{{asset('assets/js/plugins/bootstrap.bundle.min.js')}}"></script>
-    <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script>
+    {{-- <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script> --}}
     {{-- <script src="{{asset('assets/js/vendor/calendar/fullcalendar.min.js')}}"></script> --}}
     {{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.js" ></script> --}}
     {{-- <script src="{{asset('assets/js/calendar.script.js')}}"></script> --}}
@@ -373,7 +373,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" tabindex="-1" data-
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <p>You will be automatically logged out in <strong><span id="ReminingTimeForLogout"></span> </strong><br />
+                        <p>You will be automatically logged out in <strong><span id="ReminingTimeForLogout"></span> </strong> seconds<br />
                             To remain logged in please move the mouse on the screen.
                     </div>
                 </div><!-- end of main-content -->

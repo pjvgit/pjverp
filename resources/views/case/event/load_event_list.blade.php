@@ -47,7 +47,7 @@
         <td>
             <div class="ml-2 mt-3">
             @php
-            if($item->event->start_time==NULL || $item->event->end_time==NULL && $item->event->is_full_day == "yes"){
+            if($item->event->is_full_day == "yes"){
                 echo "All Day";
             }else{                        
                 echo $item->event->user_start_time;

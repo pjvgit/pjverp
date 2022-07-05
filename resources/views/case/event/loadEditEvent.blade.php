@@ -1143,17 +1143,17 @@
     function deleteEventFunction1() {
         if (!$('#EditEventForm').valid()) {
             $(".innerLoader").css('display', 'none');
-            $('.edit-event-submit').removeAttr("disabled");
+            $('#loadEditEventPopup .edit-event-submit').removeAttr("disabled");
             return false;
         }
-        if(!$("#recuring_event").is(":checked") || $("#edit_recurring_pattern").val() == "single event") {
-            $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
-            $(".edit-event-submit").trigger("click");
-        } else if($("#recuring_event").is(":checked") && "{{ $evetData->is_recurring }}" == 'no') {
-            $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
-            $(".edit-event-submit").trigger("click");
+        if(!$("#loadEditEventPopup #recuring_event").is(":checked") || $("#loadEditEventPopup #edit_recurring_pattern").val() == "single event") {
+            $("#loadEditEventPopup input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
+            $("#loadEditEventPopup .edit-event-submit").trigger("click");
+        } else if($("#loadEditEventPopup #recuring_event").is(":checked") && "{{ $evetData->is_recurring }}" == 'no') {
+            $("#loadEditEventPopup input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
+            $("#loadEditEventPopup .edit-event-submit").trigger("click");
         } else {
-            $("input[name=delete_event_type][value=ALL_EVENTS]").attr('checked', 'checked');
+            $("#loadEditEventPopup input[name=delete_event_type][value=ALL_EVENTS]").attr('checked', 'checked');
             $("#confirmSave").css('display','block');
             $("#firstStep").css('display','none');
             $("#loadEditEventPopup .modal-dialog").removeClass("modal-xl");
