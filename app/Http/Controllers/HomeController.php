@@ -731,7 +731,9 @@ class HomeController extends BaseController
         $result = TaskReminder::where("reminder_type", "popup")
                     ->where(function($query) {
                         $query->whereDate("remind_at", Carbon::now()) 
-                        ->orWhereDate("snooze_remind_at", Carbon::now());
+                        ->orWhereDate("snooze_remind_at", Carbon::now())
+                        ->orWhereJsonContains('staff_remind_detail', ['remind_at' => date("Y-m-d")])
+                        ->orWhereJsonContains('staff_remind_detail', ["snooze_remind_at" => date("Y-m-d")]);
                     })   
                     // ->where("is_dismiss", "no")
                     // ->where("task_id", 90)
@@ -783,6 +785,8 @@ class HomeController extends BaseController
                     ->where(function($query) {
                         $query->whereDate("remind_at", Carbon::now()) 
                         ->orWhereDate("snooze_remind_at", Carbon::now());
+                        // ->orWhereJsonContains('staff_remind_detail', ['remind_at' => date("Y-m-d")])
+                        // ->orWhereJsonContains('staff_remind_detail', ["snooze_remind_at" => date("Y-m-d")]);
                     })   
                     // ->where("is_dismiss", "no")
                     ->with('case', 'case.caseStaffAll', 'case.caseCreatedByUser')
@@ -1120,7 +1124,8 @@ class HomeController extends BaseController
                                     'snooze_time' => $request->snooze_time,
                                     'snooze_type' => $request->snooze_type,
                                     'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
-                                    'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                    // 'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                    'snooze_remind_at' => $this->getSnoozeRemindAtAttribute($request),
                                 )];
                             }else{
                                 foreach(collect($reminder->staff_remind_detail) as $staff => $item){    
@@ -1140,7 +1145,8 @@ class HomeController extends BaseController
                                         'snooze_time' => $request->snooze_time,
                                         'snooze_type' => $request->snooze_type,
                                         'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
-                                        'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                        // 'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                        'snooze_remind_at' => $this->getSnoozeRemindAtAttribute($request),
                                     );                                
                                 }
                             }
@@ -1162,7 +1168,8 @@ class HomeController extends BaseController
                                     'snooze_time' => $request->snooze_time,
                                     'snooze_type' => $request->snooze_type,
                                     'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
-                                    'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                    // 'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                    'snooze_remind_at' => $this->getSnoozeRemindAtAttribute($request),
                                 )];
                             }else{
                                 foreach(collect($reminder->staff_remind_detail) as $staff => $item){    
@@ -1182,7 +1189,8 @@ class HomeController extends BaseController
                                         'snooze_time' => $request->snooze_time,
                                         'snooze_type' => $request->snooze_type,
                                         'snoozed_at' => Carbon::now()->format('Y-m-d H:i:00'),
-                                        'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                        // 'snooze_remind_at' => Carbon::now()->addMinutes($snooze_time)->format('Y-m-d H:i:00'),
+                                        'snooze_remind_at' => $this->getSnoozeRemindAtAttribute($request),
                                     );                                
                                 }
                             }
