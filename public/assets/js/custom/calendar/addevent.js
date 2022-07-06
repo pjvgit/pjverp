@@ -20,27 +20,32 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
                         $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder-number').attr("id", "reminder_number_" + lastNo);
                         $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_time_unit').attr("id", "reminder_time_unit_" + lastNo);
 
-                        $('body').find("#" + lastNo + " option[value='client-lead']").show();
-                        $('body').find('#' + lastNo).val(item.reminder_user_type);
-                        $('#' + lastNo).trigger("change");
-                        $('body').find('#reminder_number_' + lastNo).val(item.reminer_number);
-                        $('body').find('#reminder_time_unit_' + lastNo).val(item.reminder_frequncy);
-                        $('body').find('#reminder_type_' + lastNo).val(item.reminder_type);
+                        /* $('body').find("#"+modalId+" .fieldGroupEventReminder #" + lastNo + " option[value='client-lead']").show();
+                        $('body').find("#"+modalId+" .fieldGroupEventReminder #" + lastNo).val(item.reminder_user_type);
+                        $("#"+modalId+" #" + lastNo).trigger("change");
+                        $('body').find("#"+modalId+" .fieldGroupEventReminder #reminder_number_" + lastNo).val(item.reminer_number);
+                        $('body').find("#"+modalId+" .fieldGroupEventReminder #reminder_time_unit_" + lastNo).val(item.reminder_frequncy);
+                        $('body').find("#"+modalId+" .fieldGroupEventReminder #reminder_type_" + lastNo).val(item.reminder_type); */
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_user_type').val(item.reminder_user_type);
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_user_type').trigger("change")
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_type').val(item.reminder_type);
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder-number').val(item.reminer_number);
+                        $('body').find('#'+modalId+' .fieldGroupEventReminder:last .reminder_time_unit').val(item.reminder_frequncy);
                     });
                     reminderAdded = true;
                 }
             }
         });
     } else {
-        var checkedLen = $('input[name="ContactInviteClientCheckbox[]"]:checked').length;
+        var checkedLen = $('#'+modalId+' input[name="ContactInviteClientCheckbox[]"]:checked').length;
         // var checkedL = $('input[name="client-share-all"]:checked').length;
         // if (checkedLen <= 0 && checkedL <= 0) {
         if (checkedLen > 0) {
-            $(".reminder_user_type option[value='client-lead']").show();
+            $("#"+modalId+" .reminder_user_type option[value='client-lead']").show();
         } else {
-            $(".reminder_user_type option[value='client-lead']:selected").parents('.fieldGroupEventReminder').remove();
+            $("#"+modalId+" .reminder_user_type option[value='client-lead']:selected").parents('.fieldGroupEventReminder').remove();
             reminderAdded = false;
-            $(".reminder_user_type option[value='client-lead']").hide();
+            $("#"+modalId+" .reminder_user_type option[value='client-lead']").hide();
         }
     }
 });
@@ -150,10 +155,6 @@ function selectType(selectdValue = null, modalId) {
     }
     $(".innerLoader").css('display', 'none');
 }
-
-/* $('#loadEditEventPopup,#loadAddEventPopup').on('shown.bs.modal', function () {
-    reminderAdded = false; 
-}); */
 
 function loadDefaultEventReminder() {
     $.ajax({

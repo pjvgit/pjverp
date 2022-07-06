@@ -27,7 +27,7 @@
         </div>
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label"></label>
-            <label for="inputEmail3" class="col-sm-9 col-form-label"><span id="UserTypeError" class="error">Staff member is already linked to this case.</span></label>
+            <label for="inputEmail3" class="col-sm-9 col-form-label"><span id="StaffTypeError" class="error">Staff member is already linked to this case.</span></label>
         </div>
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Sharing</label>
@@ -81,7 +81,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $("#innerLoader").css('display', 'none');
-        $("#UserTypeError").css('display', 'none');
+        $("#StaffTypeError").hide();
         
         $("#submit_with_user").attr("disabled", true);
         $("#saveExistingStaff").validate({
@@ -162,11 +162,11 @@
             },
             success: function (res) {
                 if(res.count!=0){
-                    $("#UserTypeError").css('display', 'block');
+                    $("#StaffTypeError").css('display', 'block');
                     $("#submit_with_user").attr("disabled", true);
 
                 }else{
-                    $("#UserTypeError").css('display', 'none');
+                    $("#StaffTypeError").hide();
                     $('#submit_with_user').removeAttr("disabled");
                 }
                 $("#innerLoader").css('display', 'none');

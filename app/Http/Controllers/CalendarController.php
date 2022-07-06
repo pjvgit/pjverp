@@ -27,10 +27,6 @@ class CalendarController extends BaseController
     }
     public function index($calendarView = null)
     {
-        // $date = Carbon::createFromFormat('Y-m-d', '2022-07-04', "UTC");
-        // $date->setTimezone('Pacific/Kiritimati');
-        // return $date->format("Y-m-d");
-
         $authUser = auth()->user();
         $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1")->get();
         $EventType = EventType::where('status','1')->where('firm_id',$authUser->firm_name)->orderBy("status_order","ASC")->get();

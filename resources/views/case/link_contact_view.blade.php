@@ -53,7 +53,7 @@
 						Share all existing case events and documents with selected contacts
 					</label>
 					<br>
-					<label id="court_case_user_link_share_read_label" style="color: gray;">
+					<label id="court_case_user_link_share_read_label" class="text-muted">
 						<input type="checkbox" name="user_link_share_read" id="court_case_user_link_share_read" disabled="">
 						Automatically mark all items as read
 					</label>
@@ -72,7 +72,7 @@
                 Share all existing case events and documents with selected contacts
               </label>
               <br>
-              <label id="court_case_user_link_share_read_label" style="color: gray;">
+              <label id="court_case_user_link_share_read_label" class="text-muted">
                 <input type="checkbox" name="user_link_share_read" id="court_case_user_link_share_read" disabled="">
                 Automatically mark all items as read
               </label>
@@ -102,9 +102,11 @@
       $("#court_case_user_link_share").on("click", function() {
           if($(this).is(":checked")) {
             $("#court_case_user_link_share_read").removeAttr("disabled");
+            $("#court_case_user_link_share_read").parent('label').removeClass('text-muted');
           } else {
             $("#court_case_user_link_share_read").prop("checked", false);
             $("#court_case_user_link_share_read").attr("disabled", true);
+            $("#court_case_user_link_share_read").parent('label').addClass('text-muted');
           }
       })
   <?php if($isExists>0){?>

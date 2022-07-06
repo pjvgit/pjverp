@@ -200,9 +200,10 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     </li>
                     @endif
                     @can(['messaging_add_edit'])
-                    <li class="nav-item">
+                    {{-- Removed as per client's requirement --}}
+                    {{-- <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/messages')}}" >Messages</a>
-                    </li>
+                    </li> --}}
                     <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_email"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/email')}}" >Emails</a>
                     </li>
                     @endcan
@@ -362,11 +363,12 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @endif
                         </div>             
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_messages"){ echo "active show"; } ?> " id="contactMessages" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    {{-- Removed as per client's requirement --}}
+                    {{-- <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_messages"){ echo "active show"; } ?> " id="contactMessages" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_company_messages"){ ?>
                             @include('company_dashboard.messages')
                         <?php } ?>                    
-                    </div>
+                    </div> --}}
                    
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_email"){ echo "active show"; } ?> " id="contactEmails" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_company_email"){ ?>

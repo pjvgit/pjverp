@@ -260,8 +260,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                                             name="reminder_user_type[]"
                                                                                             class="form-control custom-select  ">
                                                                                             <option
-                                                                                                <?php if($rval->reminder_user_type=="me"){ echo "selected=selected"; } ?>
-                                                                                                value="me">Clients/Leads
+                                                                                                <?php if($rval->reminder_user_type=="client-lead"){ echo "selected=selected"; } ?>
+                                                                                                value="client-lead">Clients/Leads
                                                                                             </option>
 
                                                                                         </select>

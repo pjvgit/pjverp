@@ -785,8 +785,6 @@ class HomeController extends BaseController
                     ->where(function($query) {
                         $query->whereDate("remind_at", Carbon::now()) 
                         ->orWhereDate("snooze_remind_at", Carbon::now());
-                        // ->orWhereJsonContains('staff_remind_detail', ['remind_at' => date("Y-m-d")])
-                        // ->orWhereJsonContains('staff_remind_detail', ["snooze_remind_at" => date("Y-m-d")]);
                     })   
                     // ->where("is_dismiss", "no")
                     ->with('case', 'case.caseStaffAll', 'case.caseCreatedByUser')

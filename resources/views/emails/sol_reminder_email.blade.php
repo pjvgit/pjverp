@@ -79,7 +79,8 @@
 
                 <td style="padding:5px;font-weight:bold;vertical-align:top">Statute of Limitations:</td>
 
-                <td style="padding:5px;vertical-align:top">{{ date('M d, Y', strtotime(convertUTCToUserTime(@$case->case_statute_date." 00:00:00", @$user->user_timezone))) }}
+                {{-- <td style="padding:5px;vertical-align:top">{{ date('M d, Y', strtotime(convertUTCToUserTime(@$case->case_statute_date." 00:00:00", @$user->user_timezone))) }} --}}
+                <td style="padding:5px;vertical-align:top">{{ convertUTCToUserDate(@$case->case_statute_date, @$user->user_timezone)->format('M d, Y') }}
 
                 </td>
 

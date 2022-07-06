@@ -872,7 +872,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('contacts/companies/{id}/billing/trust_history', 'CompanydashboardController@companyDashboardView')->name('contacts_company_billing_trust_history');
     Route::get('contacts/companies/{id}/billing/request_fund', 'CompanydashboardController@companyDashboardView')->name('contacts_company_billing_trust_request_fund');
     Route::get('contacts/companies/{id}/billing/invoice', 'CompanydashboardController@companyDashboardView')->name('contacts_company_billing_invoice');
-    Route::get('contacts/companies/{id}/messages', 'CompanydashboardController@companyDashboardView')->name('contacts_company_messages');
+    // Removed as per client's requirement
+    // Route::get('contacts/companies/{id}/messages', 'CompanydashboardController@companyDashboardView')->name('contacts_company_messages');
     Route::get('contacts/companies/{id}/email', 'CompanydashboardController@companyDashboardView')->name('contacts_company_email');
     Route::get('contacts/companies/{id}/billing/credit/history', 'CompanydashboardController@companyDashboardView')->name('contacts/company/billing/credit/history');
     Route::get('contacts/companies/{id}/billing/trust/allocation', 'CompanydashboardController@companyDashboardView')->name('contacts/companies/billing/trust/allocation');

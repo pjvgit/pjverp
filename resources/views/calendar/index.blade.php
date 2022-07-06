@@ -530,6 +530,7 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 .agenda-custom-view { overflow: auto;}
 .agenda-custom-view table { width: 100%; }
 .fc-daygrid-event-dot { display: none; }
+.fc-event-title { font-weight: 500 !important; }
 </style>
 @section('page-js')
 {{-- <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script> --}}
@@ -798,7 +799,7 @@ $(document).ready(function () {
                 date = moment(currentdate).format('YYYY-MM-DD');
                 calendar.gotoDate( date );
             }
-            
+            calendar.refetchEvents();
             $("#preloaderData").hide();
             if(localStorage.getItem('weekends')=='hide'){
                 var chk="";
