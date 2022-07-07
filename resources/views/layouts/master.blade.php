@@ -317,7 +317,7 @@
         <?php if(Auth::User()->auto_logout=="on"){?>
         // if (localStorage.getItem("pauseCounter") == "yes"){
         console.log("auto_logout functionality > on ");
-        console.log("logout in "+ {{(Auth::User()->sessionTime * 60)}});
+        console.log("logout in "+ {{(Auth::User()->sessionTime * 60)}} + " Seconds");
         $(document).ready(function () {
             localStorage.setItem("AuthSessionTime", {{(Auth::User()->sessionTime * 60)}})
             var dont_logout_while_timer_runnig = "{{Auth::User()->dont_logout_while_timer_runnig}}";
@@ -325,13 +325,13 @@
         
             // setTimeout(function(){
                 var interval = setInterval(function () {
-                    if (localStorage.getItem("smart_timer_running") === "no" || dont_logout_while_timer_runnig === 'off'){
+                    if (localStorage.getItem("smart_timer_running") === "no" || dont_logout_while_timer_runnig === "off"){
                         console.log("AuthSessionTime > ", localStorage.getItem("AuthSessionTime"));
                         cnt = parseInt(localStorage.getItem("AuthSessionTime"));
                         localStorage.setItem("AuthSessionTime", cnt-1);
                         
 
-                        if(localStorage.getItem("AuthSessionTime") === '50'){
+                        if(localStorage.getItem("AuthSessionTime") <= 50){
                             IdleWarning();
                             $("#ReminingTimeForLogout").html(localStorage.getItem("AuthSessionTime"));
                         }
