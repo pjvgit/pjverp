@@ -681,6 +681,7 @@ class ReportsController extends BaseController
             $export_csv_path = asset($fileDestination.'/'.str_replace("/","-",$from).'_to_'.str_replace("/","-",$to).'_case_revenue_reports.pdf');
         }
         // dd($cases);      
+        // return $cases;
         return view('reports.case_revenue_reports.index', compact("from", "to", "case_status","staff_id", "practice_area", "office", "billing_type", "lead_id", "export_csv_path", "cases", "show_case_with_daterange"));
     }
 }

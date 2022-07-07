@@ -629,11 +629,13 @@ trait EventTrait {
     public function eventConvertTimestampToUtc($date, $time, $authUserTimezone, $responseType = null)
     {
         $timestamp = date('Y-m-d H:i:s',strtotime($date.' '.$time));
-        $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);
-        $date->setTimezone('UTC');
-        if($responseType == 'time') {
-            return $date->format("H:i:s");
+        if($responseType == 'time' || $responseType == 'dateFromTime') {
+            $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);
+            $date->setTimezone('UTC');
+            return ($responseType == 'dateFromTime') ? $date->format("Y-m-d") : $date->format("H:i:s");
         } elseif($responseType == 'onlyDate') {
+            $date = Carbon::createFromFormat('Y-m-d', date('Y-m-d',strtotime($date)), $authUserTimezone);
+            $date->setTimezone('UTC');
             return $date->format("Y-m-d");
         }
         return $date;

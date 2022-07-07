@@ -16,7 +16,7 @@
                             <div class="row form-group fieldGroup">
                                 <div class="">
                                     <div class="d-flex col-10 pl-0 align-items-center">
-                                        <div class="pl-0 col-5">
+                                        <div class="pl-0 col-6">
                                             <div>
                                                 <div class="">
                                                     <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
@@ -26,7 +26,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div><input name="reminder_days[]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
+                                        </div><input type="number" name="reminder_days[]" class="form-control col-4 reminder-number" value="{{$rval->reminer_number}}" min="0" max="1000">
                                         <div class="col-4">
                                             days
                                         </div>
@@ -48,7 +48,7 @@
                 <div class="">
                     <div class="d-flex col-10 pl-0 align-items-center">
                         
-                        <div class="pl-0 col-5">
+                        <div class="pl-0 col-6">
                             <div>
                                 <div class="">
                                     <select id="reminder_type" name="reminder_type[]"
@@ -59,7 +59,7 @@
                                     </select>
                                 </div>
                             </div>
-                        </div><input name="reminder_days[]" class="form-control col-2 reminder-number" value="1">
+                        </div><input type="number" name="reminder_days[]" class="form-control col-4 reminder-number" value="1" min="0" max="1000">
                         <div class="col-4">
                             days    
                         </div>

@@ -636,6 +636,7 @@ $(document).ready(function () {
                 click: function () {
                     calendar.changeView('staffView');
                     calendar.refetchResources();
+                    calendar.refetchEvents();
                 }
             },                
         },
@@ -797,9 +798,8 @@ $(document).ready(function () {
                 $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
                 var dateText= $("#datepicker").val();
                 date = moment(currentdate).format('YYYY-MM-DD');
-                calendar.gotoDate( date );
             }
-            calendar.refetchEvents();
+            
             $("#preloaderData").hide();
             if(localStorage.getItem('weekends')=='hide'){
                 var chk="";

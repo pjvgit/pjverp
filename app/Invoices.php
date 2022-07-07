@@ -72,31 +72,7 @@ class Invoices extends Model
         $userTime = convertUTCToUserDate($this->attributes['invoice_date'], auth()->user()->user_timezone  ?? 'UTC');            
         return date('Y-m-d', strtotime($userTime));            
     } 
-    // public function getCurrentStatusAttribute(){
-
-    //     if($this->is_sent=="yes"){
-    //         if($this->due_amount =="0.00"){
-    //             return "Paid";
-    //         }else if($this->due_amount!="0.00" && $this->paid_amount!="0.00" ){
-    //              return "Partial";
-    //         }else if($this->due_date!=NULL && strtotime($this->due_date) < strtotime(date('Y-m-d')) && $this->paid_amount=="0.00" ){
-    //             return "Overdue";
-    //         }else{
-    //             return "Sent";
-    //         }
-    //     }else{
-    //         if($this->due_amount =="0.00"){
-    //             return "Paid";
-    //         }else if($this->due_amount!="0.00" && $this->paid_amount!="0.00" ){
-    //              return "Partial";
-    //         }else if($this->due_date!=NULL && strtotime($this->due_date) < strtotime(date('Y-m-d')) && $this->paid_amount=="0.00" ){
-    //             return "Overdue";
-    //         }else{
-    //             return "Unsent";
-    //         }
-    //     }
-        
-    // }
+    
     public function getCurrentStatusAttribute(){
         $due_amount =  str_replace(",","",number_format($this->total_amount,2)) - str_replace(",","",number_format($this->paid_amount,2));
         if($this->is_sent=="yes"){

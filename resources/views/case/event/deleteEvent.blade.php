@@ -1,8 +1,8 @@
 <form class="deleteEvent" id="deleteEventForm" name="deleteEvent" method="POST">
     <div id="showError2" style="display:none"></div>
     @csrf
-    <input class="form-control" id="event_id" value="{{ $event_id}}" name="event_id" type="text">
-    <input class="form-control" id="event_recurring_id" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="text">
+    <input class="form-control" id="delete_event_id" value="{{ $event_id}}" name="event_id" type="text">
+    <input class="form-control" id="delete_event_recurring_id" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="text">
     <div class=" col-md-12">
 
       
@@ -72,8 +72,8 @@
                 type: "POST",
                 url: baseUrl + "/court_cases/deleteEvent", // json datasource
                 data: {
-                    'event_id': $('#event_id').val(),
-                    'event_recurring_id': $('#event_recurring_id').val(),
+                    'event_id': $('#deleteEventForm #delete_event_id').val(),
+                    'event_recurring_id': $('#deleteEventForm #delete_event_recurring_id').val(),
                     'delete_event_type': $('#deleteEventForm input[name="delete_event_type"]:checked').val(),
                 },
                 success: function (res) {

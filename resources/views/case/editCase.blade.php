@@ -134,7 +134,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3 form-group mb-3">
-                                <input class="form-control" id="reminder_days" value="{{ @$item->reminer_days }}" name="reminder_days[]" type="number" min="0"> 
+                                <input class="form-control" id="reminder_days" value="{{ @$item->reminer_days }}" name="reminder_days[]" type="number" min="0" max="1000"> 
                             </div> <span class="pt-2">Days</span>
                             <div class="col-md-3 form-group mb-3">   
                                 <button class="btn remove" type="button"><i class="fa fa-trash" aria-hidden="true"></i></button>
@@ -160,7 +160,7 @@
                 </select>
             </div>
             <div class="col-md-3 form-group mb-3">
-                <input class="form-control" id="reminder_days" value="1" name="reminder_days[]" type="number" > 
+                <input class="form-control" id="reminder_days" value="1" name="reminder_days[]" type="number" min="0" max="1000">  
             </div> <span class="pt-2">Days</span>
             <div class="col-md-3 form-group mb-3">   
                 <button class="btn remove" type="button"><i class="fa fa-trash"
