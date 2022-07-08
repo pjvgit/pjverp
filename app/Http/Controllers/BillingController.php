@@ -1470,6 +1470,12 @@ class BillingController extends BaseController
                 });
                 $Invoices = $Invoices->orWhere("invoices.created_by", $authUser->id);
             }
+            /* if($authUser->hasPermissionTo('access_only_linked_cases')) {
+                $Invoices = $Invoices->whereHas('case.caseStaffAll', function($query) {
+                                $query->where('user_id', auth()->id());
+                            });
+                $Invoices = $Invoices->orWhere("invoices.created_by", $authUser->id);
+            } */
         }
          if(isset($requestData['type']) && in_array($requestData['type'],['unsent','sent','partial','forwarded','draft','paid','overdue'])){
             $Invoices = $Invoices->where("invoices.status",ucfirst($requestData['type']));

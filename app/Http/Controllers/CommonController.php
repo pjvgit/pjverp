@@ -35,7 +35,8 @@ class CommonController extends BaseController {
     //Return remains days
     public function daysReturns($date1){
         $date1 = $date1;
-        $date2 = date('Y-m-d');
+        // $date2 = date('Y-m-d');
+        $date2 = convertUTCToUserTimeZone('dateOnly');
         
         $diff = abs(strtotime($date2) - strtotime($date1));
         

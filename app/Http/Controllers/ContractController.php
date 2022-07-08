@@ -295,7 +295,7 @@ class ContractController extends BaseController
         $user = User::whereId($request->user_id)->first();
         $permissions = [
             (isset($request->access_case) && $request->access_case == '0') ? 'access_all_cases' : 'access_only_linked_cases',
-            (isset($request->add_new) && $request->add_new == '0') ? 'add_firm_user' : 'no',
+            (isset($request->add_new) && $request->add_new == '0') ? 'add_firm_user' : '',
             (isset($request->edit_permisssion) && $request->edit_permisssion == '0') ? 'edit_firm_user_permission' : '',
             (isset($request->delete_item) && $request->delete_item == '0') ? 'delete_items' : '',
             (isset($request->empty_trash_permission) && $request->empty_trash_permission == '0') ? 'empty_trash_permission' : '',

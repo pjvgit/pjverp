@@ -245,7 +245,7 @@ trait EventTrait {
             "end_date" => $end_date,
             "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
             "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
-            "recurring_event_end_date" => convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone),
+            "recurring_event_end_date" => $recurringEndDate,
             "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
             "event_description" => $request->description,
             "is_recurring" => "yes",
@@ -315,7 +315,7 @@ trait EventTrait {
         $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
         $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
         $eventHistory = $this->getAddEventHistoryJson($caseEvent->id);
-        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', date("Y-m-d", $recurringEndDate));
+        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', $recurringEndDate);
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {
             $request->start_date = $date->format('Y-m-d');
@@ -340,7 +340,7 @@ trait EventTrait {
         $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
         $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
         $eventHistory = $this->getAddEventHistoryJson($caseEvent->id);
-        $period = \Carbon\CarbonPeriod::create($start_date, '1 days', date("Y-m-d", $recurringEndDate));
+        $period = \Carbon\CarbonPeriod::create($start_date, '1 days', $recurringEndDate);
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {          
             if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
@@ -415,7 +415,7 @@ trait EventTrait {
         $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
         $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
         $eventHistory = $this->getAddEventHistoryJson($caseEvent->id);
-        $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
+        $period = \Carbon\CarbonPeriod::create($start_date, '7 days', $recurringEndDate);
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {              
             $request->start_date = $date->format('Y-m-d');
@@ -440,7 +440,7 @@ trait EventTrait {
         $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
         $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
         $eventHistory = $this->getAddEventHistoryJson($caseEvent->id);
-        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', date("Y-m-d", $recurringEndDate));
+        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', $recurringEndDate);
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {       
             $currentWeekDay = strtolower(date('l', strtotime($request->start_date))); 
@@ -479,7 +479,7 @@ trait EventTrait {
         $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
         $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
         $eventHistory = $this->getAddEventHistoryJson($caseEvent->id);
-        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_year.' years', date("Y-m-d", $recurringEndDate));
+        $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_year.' years', $recurringEndDate);
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {       
             $currentWeekDay = strtolower(date('l', strtotime($request->start_date))); 

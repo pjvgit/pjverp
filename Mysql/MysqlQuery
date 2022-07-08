@@ -1,3 +1,9 @@
+------------------------------------ 08-JUL-2022 ------------------------------
+ALTER TABLE `case_master`
+CHANGE `case_open_date` `case_open_date` date NULL AFTER `case_status`,
+CHANGE `case_close_date` `case_close_date` date NULL AFTER `case_open_date`,
+CHANGE `case_statute_date` `case_statute_date` date NULL AFTER `case_office`;
+
 ------------------------------------ 28-JUN-2022 ------------------------------
 ALTER TABLE `messages`
 ADD `users_json` json NULL AFTER `for_staff`;

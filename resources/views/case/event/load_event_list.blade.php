@@ -17,23 +17,31 @@
     @php
         $eventLinkedStaff = encodeDecodeJson($item->event_linked_staff);
         $isAuthUserLinked = $eventLinkedStaff->where('user_id', $authUser->id)->first();
-        $startDateTime= convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone);
-        $endDateTime= convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone);
+        if($item->event->start_time && $item->event->is_full_day == 'no' && $item->event->is_SOL == 'no') {
+            $startDateTime= convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone);
+            $endDateTime= convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone);
+        } else {
+            $startDateTime= convertUTCToUserDate($item->start_date, $authUser->user_timezone);
+            $endDateTime= convertUTCToUserDate($item->end_date, $authUser->user_timezone);
+        }
+        $sDate = $startDateTime->format('Y-m-d');
+        // dd($startDateTime->format('d'));
     @endphp
     <tr class="{{ ($item->is_read == 'no' && $isAuthUserLinked) ? 'font-weight-bold' : '' }}">
         <td class="event-date-and-time  c-pointer" style="width: 50px;">
-            @if(isset($oDate) && $item->start_date==$oDate)
+            @if(isset($oDate) && $sDate == $oDate)
             @else
                 @php
                     $dateandMonth= $startDateTime->format('d');
                     $dateOfEvent = $startDateTime->format('M'); 
-                    $oDate=$item->start_date;
+                    // $oDate=$item->start_date;
+                    $oDate = $sDate;
                 @endphp
                 <div class="d-flex">
                     <div style="width: 45px;">
                         <div
                             class="col-12 p-0 text-center text-white bg-dark font-weight-bold rounded-top">
-                            <?php echo $dateOfEvent; ?></div>
+                            {{ $dateOfEvent }}</div>
                         <div class="col-12 p-0 text-center rounded-bottom"
                             style="background-color: rgb(237, 237, 235); color: rgb(70, 74, 76);">
                             <h4 class="py-1 m-0 font-weight-bold">
@@ -196,7 +204,8 @@
                             <i class="fas fa-bell pr-2 align-middle"></i>
                         </a>
                     @endif
-                    @canany(['commenting_add_edit', 'commenting_view'])
+                    {{-- @canany(['commenting_add_edit', 'commenting_view']) --}}
+                    @canany(['event_add_edit', 'event_view'])
                         <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup"
                             data-placement="bottom" href="javascript:;"
                             onclick="loadEventComment({{$item->event_id}}, {{$item->id}});">

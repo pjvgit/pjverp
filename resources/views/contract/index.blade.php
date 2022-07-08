@@ -262,8 +262,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         });
 
         $('#DeleteModal').on('hidden.bs.modal', function () {
-            dataTable.ajax.reload(null, false);
-            // window.location = baseUrl+"/contacts/attorneys";
+            // dataTable.ajax.reload(null, false);
+            window.location = baseUrl+"/contacts/attorneys";
         });
 
         $('#ShowColorPicker').on('hidden.bs.modal', function () {

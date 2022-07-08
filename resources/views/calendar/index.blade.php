@@ -839,7 +839,9 @@ $(document).ready(function () {
             }
         },
         dateClick: function(info) {
+            @can('event_add_edit')
             loadAddEventPopup(info.dateStr, 'events');
+            @endcan
         }
     });
     calendar.render();

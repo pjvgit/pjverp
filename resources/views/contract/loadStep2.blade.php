@@ -183,6 +183,9 @@
                 $("input[name='sharing_setting_3']").attr('disabled', false);
                 $('.case_rate').attr('disabled', false);
                 $(".case_list").attr('disabled', false);
+                $("input[name='sharing_setting_1']").parent('label').addClass('text-dark');
+                $("input[name='sharing_setting_2']").parent('label').addClass('text-dark');
+                $("input[name='sharing_setting_3']").parent('label').addClass('text-dark');
             } else if (radioValue == "2") {
                 $("input[name='sharing_setting_3']").prop('checked', false);
                 $("input[name='sharing_setting_1']").attr('disabled', false);
@@ -190,6 +193,9 @@
                 $("input[name='sharing_setting_3']").attr('disabled', true);
                 $(".case_rate").attr('disabled', true);
                 $(".case_list").attr('disabled', true);
+                $("input[name='sharing_setting_1']").parent('label').addClass('text-dark');
+                $("input[name='sharing_setting_2']").parent('label').addClass('text-dark');
+                $("input[name='sharing_setting_3']").parent('label').removeClass('text-dark');
             } else {
                 $("input[name='sharing_setting_1']").prop('checked', false);
                 $("input[name='sharing_setting_2']").prop('checked', false);
@@ -199,6 +205,9 @@
                 $("input[name='sharing_setting_3']").attr('disabled', true);
                 $(".case_rate").attr('disabled', true);
                 $(".case_list").attr('disabled', true);
+                $("input[name='sharing_setting_1']").parent('label').removeClass('text-dark');
+                $("input[name='sharing_setting_2']").parent('label').removeClass('text-dark');
+                $("input[name='sharing_setting_3']").parent('label').removeClass('text-dark');
             }
         });
     });

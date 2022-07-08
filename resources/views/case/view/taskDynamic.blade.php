@@ -65,8 +65,8 @@ foreach ($task as $element) {
             <td class="text-center"></td>
             <td colspan="7">
                 <div><strong>Due {{date('M j, Y',strtotime($key))}}
-                    {{-- </strong>&nbsp;<small class="text-muted">- in {{$CommonController->daysReturns($key)}} </small> --}}
-                    </strong>&nbsp;<small class="text-muted">- in {{ \Carbon\Carbon::parse($key)->diffInDays(\Carbon\Carbon::parse(convertUTCToUserTimeZone('dateOnly'))) }} </small>
+                    </strong>&nbsp;<small class="text-muted">- in {{$CommonController->daysReturns($key)}} </small>
+                    {{-- </strong>&nbsp;<small class="text-muted">- in {{ \Carbon\Carbon::parse($key)->diffInDays(\Carbon\Carbon::parse(convertUTCToUserTimeZone('dateOnly'))) }} days</small> --}}
                 </div>
             </td>
         </tr>

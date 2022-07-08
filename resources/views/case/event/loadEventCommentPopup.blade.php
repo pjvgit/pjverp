@@ -9,7 +9,7 @@
             }?>
         </h5>
         @php
-            $userTimezone = auth()->user()->user_timezone ?? 'UTC';
+            $userTimezone = auth()->user()->user_timezone;
             if($event->is_full_day == 'no') {
                 $startDateTime= convertToUserTimezone($eventRecurring->start_date.' '.$event->start_time, $userTimezone);
                 $endDateTime= convertToUserTimezone($eventRecurring->end_date.' '.$event->end_time, $userTimezone);
