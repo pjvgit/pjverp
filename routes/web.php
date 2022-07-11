@@ -651,9 +651,9 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      Route::get('leads/{id}/case_details/notes','LeadController@leadIno')->name('case_details/notes');
      Route::get('leads/{id}/case_details/calendars','LeadController@leadIno')->name('case_details/calendars');
      Route::get('leads/{id}/case_details/intake_forms','LeadController@leadIno')->name('case_details/intake_forms');
-     Route::get('leads/{id}/case_details/invoices','LeadController@leadIno')->name('case_details/invoices');
-     Route::get('leads/{id}/case_details/trust_history','LeadController@leadIno')->name('case_details/trust_history');
-     Route::get('leads/{id}/case_details/credit_history','LeadController@leadIno')->name('case_details/credit_history');
+     Route::get('leads/{id}/case_details/invoices','LeadController@leadIno')->name('case_details/invoices')->middleware('permission:billing_add_edit|billing_view');
+     Route::get('leads/{id}/case_details/trust_history','LeadController@leadIno')->name('case_details/trust_history')->middleware('permission:billing_add_edit|billing_view');
+     Route::get('leads/{id}/case_details/credit_history','LeadController@leadIno')->name('case_details/credit_history')->middleware('permission:billing_add_edit|billing_view');
 
      Route::get('leads/{id}/communications/text_messages','LeadController@leadIno')->name('communications/text_messages');
      Route::get('leads/{id}/communications/calls','LeadController@leadIno')->name('communications/calls');

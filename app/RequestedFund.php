@@ -17,7 +17,7 @@ class RequestedFund extends Authenticatable
 
     protected $fillable = ['client_id', 'deposit_into', 'deposit_into_type', 'amount_requested', 'amount_due', 'amount_paid', 'payment_date', 'due_date', 
                 'email_message', 'status', 'is_viewed', 'reminder_sent_counter', 'last_reminder_sent_on', 'created_by', 'updated_by', 'allocated_to_case_id', 
-                'allocated_to_lead_case_id', 'online_payment_status'];
+                'allocated_to_lead_case_id', 'online_payment_status', 'firm_id'];
 
     protected $appends  = ['padding_id','amt_requested','amt_paid','amt_due','due_date_format','send_date_format','is_due','last_send','current_status', 'payment_at'];
     public function getPaddingIdAttribute(){

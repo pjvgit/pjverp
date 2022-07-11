@@ -66,10 +66,31 @@ if(isset($_GET['type'])){
                             <label for="picker1">Filter bills by billing contact</label>
                             <select id="c" name="c" class="form-control custom-select col filterbycase formSubmit">
                                 <option value=""></option>
-                                @foreach($clientList as $k=>$v)
+                                {{-- @foreach($clientList as $k=>$v)
                                 <option <?php if($c==$v->uid){ echo "selected=selected"; } ?> value="{{$v->uid}}">
                                     {{$v->contact_name}}</option>
-                                @endforeach
+                                @endforeach --}}
+                                @if(count($clientList))
+                                <optgroup label="Contacts">
+                                    @foreach($clientList as $ckey=>$cval){ ?>
+                                    <option uType="contact"  <?php if($cval->id==$c){ echo "selected=selected"; } ?> value="{{ $cval->id }}"> {{ $cval->name }}</option>
+                                    @endforeach
+                                </optgroup>
+                                @endif
+                                @if(count($companyList))
+                                <optgroup label="Companies">
+                                    @foreach($companyList as $ckey=>$cval){ ?>
+                                    <option uType="company"  <?php if($cval->id==$c){ echo "selected=selected"; } ?> value="{{ $cval->id }}"> {{ $cval->name }}</option>
+                                    @endforeach
+                                </optgroup>
+                                @endif
+                                @if(count($leadList))
+                                <optgroup label="Leads">
+                                    @foreach($leadList as $ckey=>$cval){ ?>
+                                    <option uType="lead"  <?php if($cval->id==$c){ echo "selected=selected"; } ?> value="{{ $cval->id }}"> {{ $cval->name }}</option>
+                                    @endforeach
+                                </optgroup>
+                                @endif
                             </select>
                         </div>
                     </div>

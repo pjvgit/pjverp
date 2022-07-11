@@ -5,6 +5,7 @@
         <div class="float-right">          
             <div id="bulk-dropdown" class="mr-2 actions-button btn-group">
                 <div class="mx-2">
+                    @if(auth()->user()->hasAnyPermission(['billing_add_edit', 'billing_view']) && auth()->user()->cannot('billing_restrict_time_entry_and_expense'))
                     <div class="btn-group show">
                         <button class="btn btn-info m-1 dropdown-toggle" data-toggle="dropdown"
                             id="actionbutton" disabled="disabled" aria-haspopup="true" aria-expanded="false">
@@ -22,6 +23,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

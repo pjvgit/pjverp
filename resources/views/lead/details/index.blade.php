@@ -115,6 +115,7 @@ if(isset($_GET['type'])){
                 <div>Created at {{date('M d, Y',strtotime($LeadData['created_date_new']))}}</div>by 
                 <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($createdByAndDate['id'])}}" class=" align-items-center user-link" title="{{$createdByAndDate['user_title']}}">{{$createdByAndDate['first_name']}} {{$createdByAndDate['last_name']}}</a>
                 <hr>
+                @can('add_edit_lead')
                 <div class="opportunity-details-buttons">
                     <div>
                         <?php
@@ -127,6 +128,7 @@ if(isset($_GET['type'])){
                     </div>
                     <a data-toggle="modal"  data-target="#deleteLead" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-outline-danger btn-block  delete-opportunity" >Delete</a>
                 </div>
+                @endcan
             </div>
         </div>
     </div>
@@ -145,9 +147,11 @@ if(isset($_GET['type'])){
                     <li class="nav-item">
                         <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('leads/'.$user_id.'/communications/calls')}}">Communications</a>
                     </li>
+                    @if(auth()->user()->hasAnyPermission(['billing_add_edit', 'billing_view']) && auth()->user()->cannot('billing_restrict_time_entry_and_expense'))
                     <li class="nav-item">
                         <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["case_details/invoices","case_details/trust_history","case_details/credit_history"])){ echo "active show"; } ?>" id="billing-basic-tab" href="{{URL::to('leads/'.$user_id.'/case_details/invoices')}}">Billing</a>
                     </li>
+                    @endif
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["lead_details/info","lead_details/notes","lead_details/activity"])){ echo "active show"; } ?> " id="intemInfo" role="tabpanel" aria-labelledby="profile-basic-tab">

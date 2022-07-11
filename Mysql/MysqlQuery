@@ -1,3 +1,6 @@
+------------------------------------ 11-JUL-2022 ------------------------------
+ALTER TABLE `requested_fund`
+ADD `firm_id` int(11) NULL AFTER `online_payment_status`;
 ------------------------------------ 08-JUL-2022 ------------------------------
 ALTER TABLE `case_master`
 CHANGE `case_open_date` `case_open_date` date NULL AFTER `case_status`,

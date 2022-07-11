@@ -999,7 +999,9 @@ class HomeController extends BaseController
                     $reminder = CaseSolReminder::whereId($item)->first();
                     if($reminder) {
                         $newArray = [];                    
-                        $countOfRecord = count(collect($reminder->staff_remind_detail));
+                        // $countOfRecord = count(collect($reminder->staff_remind_detail));
+                        $decodeSOLData = encodeDecodeJson($reminder->staff_remind_detail);
+                        $countOfRecord = count($decodeSOLData);
                         if($countOfRecord == 0){
                             $newArray = [array(
                                 'user_id' => Auth::user()->id,
@@ -1010,8 +1012,32 @@ class HomeController extends BaseController
                                 'snooze_remind_at' => null,
                             )];
                         }else{
-                            foreach(collect($reminder->staff_remind_detail) as $staff => $item){    
-                                $oldArray = json_decode($item);
+                            $newArray = [];
+                            $ifExist = collect($decodeSOLData)->where('user_id', $authUserId)->first();
+                            if($ifExist) {
+                                foreach($decodeSOLData as $staff => $sritem){    
+                                    if($ifExist && $sritem->user_id == $authUserId) {
+                                        $sritem->is_dismiss = 'yes';
+                                        $sritem->reminded_at = Carbon::now();
+                                        array_push($newArray, $sritem);
+                                    } else {
+                                        array_push($newArray, $sritem);
+                                    }
+                                }
+                            } else {
+                                $newArray = collect($decodeSOLData);
+                                $newData = [
+                                    'user_id' => auth()->id(),
+                                    'is_dismiss' => 'yes',
+                                    'snooze_time' => null,
+                                    'snooze_type' => null,
+                                    'snoozed_at' => null,
+                                    'snooze_remind_at' => null,
+                                ];
+                                $newArray->push($newData);
+                            }
+                            // return $newArray;
+                                /* $oldArray = json_decode($item);
                                 // dd($oldArray);
                                 $indexKey = 0;
                                 foreach($oldArray as $key => $value){
@@ -1025,8 +1051,7 @@ class HomeController extends BaseController
                                 $newArray[$indexKey]->snooze_time = null;
                                 $newArray[$indexKey]->snooze_type = null;
                                 $newArray[$indexKey]->snoozed_at = null;
-                                $newArray[$indexKey]->snooze_remind_at = null;                            
-                            }
+                                $newArray[$indexKey]->snooze_remind_at = null;    */
                         }
                         // dd($newArray);
                         $reminder->fill(['staff_remind_detail' => encodeDecodeJson($newArray, 'encode')])->save();

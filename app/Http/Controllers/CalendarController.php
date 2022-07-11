@@ -28,7 +28,13 @@ class CalendarController extends BaseController
     public function index($calendarView = null)
     {
         $authUser = auth()->user();
-        $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1")->get();
+        $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1");
+        if($authUser->hasPermissionTo('access_only_linked_cases')) {
+            $CaseMasterData = $CaseMasterData->whereHas('caseStaffAll', function($query) {
+                            $query->where('user_id', auth()->id());
+                        });
+        }
+        $CaseMasterData = $CaseMasterData->get();
         $EventType = EventType::where('status','1')->where('firm_id',$authUser->firm_name)->orderBy("status_order","ASC")->get();
         // $staffData = User::select("first_name","last_name","id","user_level","default_color")->where('user_level',3)->where("firm_name",Auth::user()->firm_name)->get();
         $staffData = firmUserList();

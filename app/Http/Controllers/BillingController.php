@@ -117,8 +117,8 @@ class BillingController extends BaseController
 
         $columns = array('id','entry_date', 'entry_date', 'activity_title', 'duration', 'case_status','case_unique_number','user_name','user_name','user_name');
         $requestData= $_REQUEST;
-        
-        $case = TaskTimeEntry::leftJoin("users","task_time_entry.user_id","=","users.id")
+        $authUser = auth()->user();
+        $case = TaskTimeEntry::where('task_time_entry.firm_id', $authUser->firm_name)->leftJoin("users","task_time_entry.user_id","=","users.id")
         ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
         ->leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
         ->leftJoin("invoices","invoices.id","=","task_time_entry.invoice_link")
@@ -528,7 +528,7 @@ class BillingController extends BaseController
             $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
             $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
             $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
-            $getChildUsers=$this->getParentAndChildUserIds();
+            // $getChildUsers=$this->getParentAndChildUserIds();
             $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
             $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
             // $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
@@ -1055,10 +1055,12 @@ class BillingController extends BaseController
           $user = User::find($id);
          if(!empty($user)){
             
-            $clientList = RequestedFund::leftJoin("users","requested_fund.client_id","=","users.id")
-            ->select('requested_fund.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid")->groupBy("requested_fund.client_id")->get();
- 
-             return view('billing.requested_fund.retainer_requests', compact('user','clientList'));
+            // $clientList = RequestedFund::leftJoin("users","requested_fund.client_id","=","users.id")
+            // ->select('requested_fund.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid")->groupBy("requested_fund.client_id")->get();
+            $clientList = firmClientList();
+            $companyList = firmCompanyList();
+            $leadList = firmLeadList();
+             return view('billing.requested_fund.retainer_requests', compact('user','clientList', 'companyList', 'leadList'));
          }else{
              return view('pages.404');
          }
@@ -1068,13 +1070,13 @@ class BillingController extends BaseController
          $columns = array('requested_fund.id', 'requested_fund.id','contact_name', 'deposit_into_type', 'trust_account', 'amount_requested', 'amount_paid','amount_due','due_date','last_reminder_sent_on','user_name','id',);
          $requestData= $_REQUEST;
         //  return $columns[$requestData['order'][0]['column']];
-         
-         $case = RequestedFund::leftJoin("users","requested_fund.client_id","=","users.id")
+        $authUser = auth()->user();
+         $case = RequestedFund::where('requested_fund.firm_id', $authUser->firm_name)->leftJoin("users","requested_fund.client_id","=","users.id")
          ->leftJoin("users as u2","u2.id","=","requested_fund.deposit_into")
          ->select('requested_fund.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),DB::raw('CONCAT_WS(" ",u2.first_name,u2.last_name) as trust_account'),"users.id as uid");
         
         $getFirmsAllUserIds = User::where("firm_name", auth()->user()->firm_name)->pluck('id')->toArray();
-        $case = $case->whereIn("requested_fund.created_by", $getFirmsAllUserIds);
+        $case = $case->orWhereIn("requested_fund.created_by", $getFirmsAllUserIds);
 
          if(isset($requestData['c']) && $requestData['c']!=''){
              $case = $case->where("requested_fund.client_id",$requestData['c']);
@@ -2354,6 +2356,13 @@ class BillingController extends BaseController
             });
 
         }
+        if($authUser->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+            $caseListByClient = $caseListByClient->where('firm_id', $authUser->firm_name);
+        }else{
+            $caseListByClient = $caseListByClient->whereHas('caseStaffAll', function($query) {
+                $query->where('user_id', auth()->id());
+            });
+        }
         //Filters
         if($request->practice_area_id != 'all') {
             $Invoices = $Invoices->where("case_master.practice_area", $request->practice_area_id);
@@ -2397,7 +2406,7 @@ class BillingController extends BaseController
     {   
         $columns = array('contact_name', 'contact_name', 'id', 'contact_name', 'id','id','id','id','id','id',);
         $requestData= $_REQUEST;
-        
+        $authUser = auth()->user();
         $Invoices = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
         ->leftJoin("users","case_client_selection.selected_user","=","users.id")
         // ->leftjoin("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
@@ -2413,7 +2422,7 @@ class BillingController extends BaseController
         $Invoices = $Invoices->where("case_client_selection.is_billing_contact","yes");
         // $Invoices = $Invoices->where("task_time_entry.status","unpaid");
         // $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
-        if(Auth::user()->parent_user==0)
+        /* if(Auth::user()->parent_user==0)
         {
             $getChildUsers=$this->getParentAndChildUserIds();
             $Invoices = $Invoices->whereIn("case_master.created_by",$getChildUsers);
@@ -2426,6 +2435,13 @@ class BillingController extends BaseController
             // $Invoices = $Invoices->where("case_master.created_by",Auth::User()->id);
             $Invoices = $Invoices->whereHas('caseStaffAll', function($query) {
                 $query->where('user_id', auth()->id());
+            });
+        } */
+        if($authUser->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+            $Invoices = $Invoices->where('case_master.firm_id', $authUser->firm_name);
+        }else{
+            $Invoices = $Invoices->whereHas('caseStaffAll', function($query) {
+                $query->where('case_staff.user_id', auth()->id());
             });
         }
         //Filters
@@ -2491,16 +2507,43 @@ class BillingController extends BaseController
 
     public function getInvoicePendingCase()
     {
-        $getChildUsers=$this->getParentAndChildUserIds();
-
+        // $getChildUsers=$this->getParentAndChildUserIds();
+        $authUser = auth()->user();
         $FlatFeeEntryIds = CaseMaster::join("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
-        ->select("case_master.id","flat_fee_entry.case_id")->where("flat_fee_entry.status","unpaid")->whereNull("flat_fee_entry.deleted_at")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
+        ->select("case_master.id","flat_fee_entry.case_id")->where("flat_fee_entry.status","unpaid")->whereNull("flat_fee_entry.deleted_at");
+        // ->whereIn("case_master.created_by",$getChildUsers)
+        if($authUser->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+            $FlatFeeEntryIds = $FlatFeeEntryIds->where('case_master.firm_id', $authUser->firm_name);
+        }else{
+            $FlatFeeEntryIds = $FlatFeeEntryIds->whereHas('caseStaffAll', function($query) {
+                $query->where('case_staff.user_id', auth()->id());
+            });
+        }
+        $FlatFeeEntryIds = $FlatFeeEntryIds->get()->pluck('case_id')->toArray();
         
         $TaskTimeEntryIds = CaseMaster::join("task_time_entry","task_time_entry.case_id","=","case_master.id")
-        ->select("case_master.id","task_time_entry.case_id")->where("task_time_entry.status","unpaid")->whereNull("task_time_entry.deleted_at")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
+        ->select("case_master.id","task_time_entry.case_id")->where("task_time_entry.status","unpaid")->whereNull("task_time_entry.deleted_at");
+        // ->whereIn("case_master.created_by",$getChildUsers)
+        if($authUser->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+            $TaskTimeEntryIds = $TaskTimeEntryIds->where('case_master.firm_id', $authUser->firm_name);
+        }else{
+            $TaskTimeEntryIds = $TaskTimeEntryIds->whereHas('caseStaffAll', function($query) {
+                $query->where('case_staff.user_id', auth()->id());
+            });
+        }
+        $TaskTimeEntryIds = $TaskTimeEntryIds->get()->pluck('case_id')->toArray();
         
         $ExpenseEntryIds = CaseMaster::join("expense_entry","expense_entry.case_id","=","case_master.id")
-        ->select("case_master.id","expense_entry.case_id")->where("expense_entry.status","unpaid")->whereNull("expense_entry.deleted_at")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
+        ->select("case_master.id","expense_entry.case_id")->where("expense_entry.status","unpaid")->whereNull("expense_entry.deleted_at");
+        // ->whereIn("case_master.created_by",$getChildUsers)
+        if($authUser->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+            $ExpenseEntryIds = $ExpenseEntryIds->where('case_master.firm_id', $authUser->firm_name);
+        }else{
+            $ExpenseEntryIds = $ExpenseEntryIds->whereHas('caseStaffAll', function($query) {
+                $query->where('case_staff.user_id', auth()->id());
+            });
+        }
+        $ExpenseEntryIds = $ExpenseEntryIds->get()->pluck('case_id')->toArray();
         
         $uniqueCase=array_unique(array_merge($FlatFeeEntryIds,$TaskTimeEntryIds,$ExpenseEntryIds));
         return $uniqueCase;
@@ -2613,6 +2656,7 @@ class BillingController extends BaseController
         $bill_to_date='';
         $filterByDate='';
         $tempInvoiceToken = $request->token;
+        $authUser = auth()->user();
         /* if(!$request->temp_invoice_token) {
             $tempInvoiceToken = round(microtime(true) * 1000);
         } */        
@@ -2671,7 +2715,14 @@ class BillingController extends BaseController
 
             //List all case by client 
             $caseListByClient = CaseMaster::select("id", "case_title")->whereIn('case_master.id',$caseCllientSelection);
-            if(auth()->user()->parent_user != 0) {
+            /* if(auth()->user()->parent_user != 0) {
+                $caseListByClient = $caseListByClient->whereHas('caseStaffAll', function($query) {
+                    $query->where('user_id', auth()->id());
+                });
+            } */
+            if($authUser->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+                $caseListByClient = $caseListByClient->where('firm_id', $authUser->firm_name);
+            }else{
                 $caseListByClient = $caseListByClient->whereHas('caseStaffAll', function($query) {
                     $query->where('user_id', auth()->id());
                 });

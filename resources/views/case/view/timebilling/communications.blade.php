@@ -2,10 +2,12 @@
 <div class="container-fluid">
     <div class="justify-content-end pt-2 d-print-none row ">
         <div class="align-self-end text-right col-6">
+            @can(['messaging_add_edit', 'case_add_edit'])
             <a data-toggle="modal" data-target="#addNewMessagePopup" data-placement="bottom" href="javascript:;"
                 onclick="addNewMessagePopup('case_id',{{$CaseMaster['case_id']}});">
                 <button type="button" class="mx-1 btn btn-primary">New Message</button>
             </a>
+            @endcan
         </div>
     </div>
 </div>

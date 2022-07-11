@@ -1741,6 +1741,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            $authUser = auth()->user();
             $user = User::whereId($request->contact)->select("user_level")->first();
             $RequestedFund=new RequestedFund;
             $RequestedFund->client_id=$request->contact;
@@ -1754,7 +1755,8 @@ class ClientdashboardController extends BaseController
             $RequestedFund->status='sent';
             $RequestedFund->allocated_to_case_id= ($user->user_level != 5 && $request->case_id != "") ? $request->case_id : NULL;
             $RequestedFund->allocated_to_lead_case_id= ($user->user_level == 5 && $request->case_id != "") ? $request->contact : NULL;
-            $RequestedFund->created_by=Auth::user()->id; 
+            $RequestedFund->created_by= $authUser->id; 
+            $RequestedFund->firm_id = $authUser->firm_name; 
             $RequestedFund->save();
 
             $data=[];
@@ -1770,7 +1772,7 @@ class ClientdashboardController extends BaseController
             $CommonController->addMultipleHistory($data);
 
 
-            $firmData=Firm::find(Auth::User()->firm_name);
+            $firmData=Firm::find($authUser->firm_name);
             $getTemplateData = EmailTemplate::find(10);
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{message}', $request->message, $mail_body);
