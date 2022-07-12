@@ -2265,6 +2265,7 @@ class CaseController extends BaseController
         if(!isset($request->recuring_event)) {
             $startDate = strtotime(date("Y-m-d", strtotime($request->start_date)));
             $endDate = strtotime(date("Y-m-d",strtotime($request->end_date)));
+            $recurringEndDate =  strtotime(date('Y-m-d'));
         }else{
             //recurring event
             $startDate = strtotime(date("Y-m-d",  strtotime($request->start_date)));

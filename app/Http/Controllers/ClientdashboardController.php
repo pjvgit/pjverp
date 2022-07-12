@@ -2485,6 +2485,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            $authUser = auth()->user();
             $ReplyMessages=new ReplyMessages;
             $ReplyMessages->message_id=$request->message_id;
             $ReplyMessages->reply_message=$request->delta;
@@ -2494,6 +2495,19 @@ class ClientdashboardController extends BaseController
             $Messages=Messages::find($request->message_id);
             $Messages->is_read = 1;
             $Messages->message=substr(strip_tags($request->delta),0,50);
+            $jsonData = [];
+            $decodeData = encodeDecodeJson($Messages->users_json);
+            if(count($decodeData)) {
+                foreach($decodeData as $item) {
+                    if($authUser->id == $item->user_id)       {
+                        $item->is_read = 'yes';
+                    } else {
+                        $item->is_read = 'no';
+                    }
+                    $jsonData[] = $item;
+                }
+                $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
+            }
             $Messages->save();
 
             $senderName= Auth::User()->first_name." ".Auth::User()->last_name;
@@ -2565,7 +2579,8 @@ class ClientdashboardController extends BaseController
         ->get();
     
         $clientList = [];    
-        if($messagesData->for_staff == 'yes'){
+        // if($messagesData->for_staff == 'yes'){
+        if($messagesData->created_by != auth()->id()) {
             $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level')->first();
             $clientList[$messagesData->created_by] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
         }
@@ -4550,7 +4565,8 @@ class ClientdashboardController extends BaseController
         ->get();
     
         $clientList = [];    
-        if($messagesData->for_staff == 'yes'){
+        // if($messagesData->for_staff == 'yes'){
+        if($messagesData->created_by != auth()->id()) {
             $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level')->first();
             $clientList[$messagesData->created_by] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
         }

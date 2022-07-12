@@ -402,7 +402,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('court_cases/{id}/invoices','CaseController@showCaseDetails')->name('invoices'); 
     Route::get('court_cases/{id}/payment_activity','CaseController@showCaseDetails')->name('payment_activity');
     
-    Route::get('court_cases/{id}/communications/messages','CaseController@showCaseDetails')->name('communications/messages');
+    Route::get('court_cases/{id}/communications/messages','CaseController@showCaseDetails')->name('communications/messages')->middleware('permission:messaging_add_edit');
     Route::post('court_cases/communications/loadMessagesEntry', 'CaseController@loadMessagesEntry')->name('court_cases/communications/loadMessagesEntry');
     Route::get('court_cases/{id}/communications/calls','CaseController@showCaseDetails')->name('communications/calls');
     
@@ -773,7 +773,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('contacts/clients/{id}/billing/trust_history', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_billing_trust_history');
     Route::get('contacts/clients/{id}/billing/request_fund', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_billing_trust_request_fund');
     Route::get('contacts/clients/{id}/billing/invoice', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_billing_invoice');
-    Route::get('contacts/clients/{id}/messages', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_messages');
+    Route::get('contacts/clients/{id}/messages', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_messages')->middleware('permission:messaging_add_edit');
     Route::get('contacts/clients/{id}/text_messages', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_text_messages');
     Route::get('contacts/clients/{id}/email', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_email');
     Route::get('contacts/clients/{id}/billing/credit/history', 'ClientdashboardController@clientDashboardView')->name('contacts/clients/billing/credit/history');

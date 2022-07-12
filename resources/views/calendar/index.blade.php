@@ -531,6 +531,7 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 .agenda-custom-view table { width: 100%; }
 .fc-daygrid-event-dot { display: none; }
 .fc-event-title { font-weight: 500 !important; }
+.fc-event { overflow: hidden; }
 </style>
 @section('page-js')
 {{-- <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script> --}}
@@ -639,6 +640,13 @@ $(document).ready(function () {
                     calendar.refetchEvents();
                 }
             },                
+            timeGridDay: {
+                text: 'Day',
+                click: function () {
+                    calendar.changeView('timeGridDay');
+                    calendar.refetchEvents();
+                }
+            },                
         },
         views: {
             agendaview: {
@@ -702,6 +710,8 @@ $(document).ready(function () {
                             }
                             var sTime = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +' -';
                             var eTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.event_title +'</span>' : r.event_title;
+                            // var className = (r.is_read == 'no') ? 'font-weight-bold' : '';
+                            // var eTitle = r.event_title;
                             if (r.is_all_day == 'yes') {
                                 var t = eTitle;
                             } else {
@@ -718,9 +728,9 @@ $(document).ready(function () {
                                 event_id: r.event_id,
                                 title: t,
                                 tTitle: r.event_title,
-                                // title: r.event_title,
                                 start: r.start_date_time,
                                 end: r.end_date_time,
+                                // classNames: [className],
                                 allDay: (r.is_all_day == 'yes') ? true : false, 
                                 color: (r.is_all_day == 'yes') ? color : '#d5e9ce',
                                 backgroundColor: (r.is_all_day == 'yes') ? color : '#d5e9ce',
@@ -785,9 +795,9 @@ $(document).ready(function () {
         },
         eventDidMount: function(info) {
             info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.event.title;
-            /* $(info.el).tooltip({
-                title: event.tTitle
-            }); */
+            $(info.el).tooltip({
+                title: info.event.extendedProps.tTitle,
+            });
         },
         viewDidMount: function(arg){
             var view = arg.view;
@@ -857,7 +867,7 @@ $(document).ready(function () {
             calendar.gotoDate( date );
 
         });
-        function initEvent() {
+        /* function initEvent() {
             $('#external-events .fc-event').each(function () {
 
                 // store data so the calendar knows to render an event upon drop
@@ -877,7 +887,7 @@ $(document).ready(function () {
 
             });
         }
-        initEvent();
+        initEvent(); */
 
             /* initialize the calendar
             -----------------------------------------------------------------*/
@@ -1253,26 +1263,13 @@ $(document).ready(function () {
             });
             FC.views.custom = AgendaView; // register our class with the view system */
 
-            jQuery(".js-form-add-event").on("submit", function (e) {
+            /* jQuery(".js-form-add-event").on("submit", function (e) {
                 e.preventDefault();
                 var data = $('#newEvent').val();
                 $('#newEvent').val('');
                 $('#external-events').prepend('<li class="list-group-item bg-success fc-event">' + data + '</li>');
                 initEvent();
-            });
-        
-        
-        
-        @if(isset($_GET['view']) && $_GET['view'] == 'agenda')
-            // $(document).find(".fc-agendaView-button").trigger('click');
-        @elseif(isset($_GET['view']) && $_GET['view'] == 'day')
-            // $(document).find(".fc-staffView-button").trigger('click');
-        @endif
-
-        /* $('body').on("click", "#calendarq .fc-right .btn-group .btn", function() {
-            $("#calendarq .fc-right .btn-group .btn").not(this).removeClass('active');
-            $(this).addClass('active');
-        }); */
+            }); */
 
         $('#deleteFromCommentBox').on('hidden.bs.modal', function () {
             // $('#calendarq').fullCalendar('refetchEvents');

@@ -254,7 +254,7 @@ class CalendarController extends BaseController
         if(isset($request->searchbysol) && $request->searchbysol=="true" && $request->taskLoad != 'unread') {
             $solEvents = Event::where('is_SOL','yes')->leftJoin('case_master','case_master.id','=','events.case_id')
                 ->where('events.created_by', $authUserId)->where('events.firm_id', $authUser->firm_name)
-                ->whereBetween('start_date', [$request->start, $request->end]);
+                ->whereBetween('start_date', [$startDate, $endDate]);
             if($request->case_id != "") {
                 $solEvents = $solEvents->where('case_id',$request->case_id);
             }
@@ -281,7 +281,7 @@ class CalendarController extends BaseController
         }
         $tasks = [];
         if(isset($request->searchbymytask) && $request->searchbymytask=="true" && $request->taskLoad != 'unread'){
-            $tasks = Task::whereBetween('task_due_on', [$request->start, $request->end])->where('firm_id', $authUser->firm_name)
+            $tasks = Task::whereBetween('task_due_on', [$startDate, $endDate])->where('firm_id', $authUser->firm_name)
                     ->whereHas('taskLinkedStaff', function($query) use($authUserId) {
                         $query->where('users.id', $authUserId);
                     })->where('task_due_on',"!=",'9999-12-30')

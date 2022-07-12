@@ -229,11 +229,12 @@
                             <div class="mt-3 mb-3"><p id="cannot-post-comment">You cannot post comments on this item.</p></div>
                             @endcan
                             <hr>
+                            @can('commenting_add_edit')
                             <div class="detail-label">History</div>
                             <div class="history-contents container-fluid" id="commentHistory">
 
                             </div>
-                          
+                            @endcan
                         </div>
                 </div>
             </div>
@@ -270,7 +271,7 @@
                     </a>
             <?php } ?>
             @endcan
-            @can(['case_add_edit','event_add_edit'])
+            @can(['billing_add_edit','case_add_edit'])
             <?php if(!empty($event->case)){?>
                 <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
                     <button class="btn  btn-outline-primary m-1" type="button" id="button" onclick="loadTimeEntryPopupByCaseWithoutRefresh('{{$event->case->id}}');">

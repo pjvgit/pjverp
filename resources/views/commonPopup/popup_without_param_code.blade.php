@@ -1397,6 +1397,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 data: {"message_id": id},
                 success: function (res) {
                     $("#loadMessagesEntryPopupArea").html(res);
+                    $("#messagesGrid").DataTable().ajax.reload(null, false);
                     $("#preloader").hide();
                 }
             })

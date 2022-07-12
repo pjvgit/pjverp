@@ -133,7 +133,6 @@
                                     @if($isAuthUserLinked)
                                     <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup" data-placement="bottom" href="javascript:;" onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->event_recurring_id}});"> <i class="fas fa-bell pr-2 align-middle"></i> </a>
                                     @endif
-                                    @canany(['commenting_add_edit', 'commenting_view'])
                                     <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup" data-placement="bottom" href="javascript:;" onclick="loadEventComment({{$item->event_id}}, {{$item->event_recurring_id}}, 'events');">
                                         @php
                                             $commentCount = 0;
@@ -149,7 +148,6 @@
                                         <span class="badge badge-danger comment-count comment-count-{{ $item->event_recurring_id }}">{{ $commentCount }}</span>
                                         @endif
                                     </a>
-                                    @endcanany
                                     @can('event_add_edit')
                                     <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->event_id}}, {{$item->event_recurring_id}}, 'events');">
                                         <i class="fas fa-pen pr-2  align-middle"></i> 
