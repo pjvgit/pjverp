@@ -24,8 +24,8 @@
                     <div style="margin-left: 50px;">
                         <h2 class="details_header" style="margin-bottom: 0px; padding-bottom: 10px; font-weight: normal;">{{$messagesData->subject}}</h2>
                         <!-- A {{ucwords($messagesData->replies_is)}} Message Sent To: -->
-                        A Conversation Between: You,
-                        @if($messagesData->user_id != '')
+                        A {{ ($messagesData->replies_is == 'private') ? 'Private' : '' }} Conversation Between:
+                        {{-- @if($messagesData->user_id != '')
                             @php $i = count($clientList); @endphp            
                             @foreach($clientList as $k=>$v)
                                 @php $i = $i - 1; @endphp    
@@ -38,7 +38,22 @@
                                 @endif
                             </span>
                             @endforeach
-                        @endif
+                        @endif --}}
+                        @forelse ($clientList as $key => $item)
+                            @if($key == auth()->id())
+                                You
+                            @else
+                                @if($item['user_level'] == '2')
+                                <a href="{{ route('contacts/clients/view', $key) }}">{{ $item['full_name'] }}{{ '('.$item['user_title'].')' }}</a>                
+                                @else
+                                <a href="{{ route('contacts/attorneys/info', base64_encode($key)) }}">{{ $item['full_name'] }}{{ '('.$item['user_title'].')' }}</a>
+                                @endif
+                            @endif
+                            @if(!$loop->last)
+                                ,
+                            @endif
+                        @empty
+                        @endforelse
                         <br>
                         <div class="clearfix">
                             <div style="float: left; margin-top: 3px;">
@@ -174,7 +189,7 @@
 </style>
 
 <script type="text/javascript">
-<?php if($messagesData->is_archive == 1){?>
+<?php if($messagesData->is_archive_msg == 'yes'){?>
     $(".archiveMessage").css("display","none");
     $(".unarchiveMessage").css("display","block");
 <?php }else{?>

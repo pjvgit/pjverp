@@ -2429,9 +2429,11 @@ class ClientdashboardController extends BaseController
                         $sendToClient = $sendToClient + 1; 
                     }
                 }}
-                if($sendToClient > 0){                    
+                if($sendToClient > 0){   
+                    $sendTo = $request->send_to;     
+                    array_push($sendTo, 'staff-'.auth()->id());
                     $Messages=new Messages;
-                    $Messages->user_id=str_replace(['client-','staff-'],'',implode(',',$request->send_to));
+                    $Messages->user_id=str_replace(['client-','staff-'],'',implode(',',$sendTo));
                     if(isset($request['message']['private_reply']) && $request['message']['private_reply'] =="false"){
                         $Messages->replies_is='public';
                     }else{
@@ -2443,17 +2445,19 @@ class ClientdashboardController extends BaseController
                     $Messages->created_by =Auth::User()->id;
                     $Messages->firm_id =Auth::User()->firm_name;
                     $jsonData = [];
-                    foreach($request->send_to as $uid) {
+                    foreach($sendTo as $uid) {
                         $decideCode=explode("-",$uid);        
                         $jsonData[] = [
                             'user_id' => $decideCode[1],
-                            'is_read' => 'no'
+                            'is_read' => (auth()->id() == $decideCode[1]) ? 'yes' : 'no',
+                            'is_archive' => 'no',
                         ];
                     }
-                    $jsonData[] = [
+                    /* $jsonData[] = [
                         "user_id" => auth()->id(),
-                        'is_read' => 'yes'
-                    ];
+                        'is_read' => 'yes',
+                        'is_archive' => 'no',
+                    ]; */
                     $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
                     $Messages->save();
 
@@ -2462,10 +2466,10 @@ class ClientdashboardController extends BaseController
                     $ReplyMessages->reply_message=$request['delta'];
                     $ReplyMessages->created_by =Auth::User()->id;                    
                     $ReplyMessages->save();
-
-                    foreach($request->send_to as $k=>$v){     
+                    foreach($sendTo as $k=>$v){     
                         $decideCode=explode("-",$v);
-                        \App\Jobs\SendMessageJob::dispatch($request->all(), $decideCode[1], $Messages->id, $senderName, $firmData, $getTemplateData);
+                        if($decideCode[1] != auth()->id())
+                            \App\Jobs\SendMessageJob::dispatch($request->all(), $decideCode[1], $Messages->id, $senderName, $firmData, $getTemplateData);
                     }  
                 }
                 session(['popup_success' => 'Your message has been sent']);
@@ -2489,7 +2493,7 @@ class ClientdashboardController extends BaseController
             $ReplyMessages=new ReplyMessages;
             $ReplyMessages->message_id=$request->message_id;
             $ReplyMessages->reply_message=$request->delta;
-            $ReplyMessages->created_by =Auth::User()->id;
+            $ReplyMessages->created_by =$authUser->id;
             $ReplyMessages->save();
 
             $Messages=Messages::find($request->message_id);
@@ -2510,26 +2514,32 @@ class ClientdashboardController extends BaseController
             }
             $Messages->save();
 
-            $senderName= Auth::User()->first_name." ".Auth::User()->last_name;
-            $firmData=Firm::find(Auth::User()->firm_name);
+            $senderName= $authUser->first_name." ".$authUser->last_name;
+            $firmData=Firm::find($authUser->firm_name);
             $getTemplateData = EmailTemplate::find(11);
+            $userlist = explode(",",$Messages->user_id);
             if($request->is_global_for != ''){
-                if($request->created_by == Auth::User()->id){
+                /* if($request->created_by == $authUser->id){
                     $v = $request->selected_user_id;     
                 }
-                if($request->selected_user_id == Auth::User()->id){
+                if($request->selected_user_id == $authUser->id){
                     $v = $request->created_by;
-                }
-                \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $request->message_id, $senderName, $firmData, $getTemplateData);
-            }else{                
-                if($Messages->for_staff == 'yes'){
-                    \App\Jobs\SendMessageJob::dispatch($request->all(), $Messages->created_by, $request->message_id, $senderName, $firmData, $getTemplateData);
-                }else{
-                    $userlist = explode(",",$request->selected_user_id);
-                    foreach ($userlist as $k=>$v){
-                        \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $request->message_id, $senderName, $firmData, $getTemplateData);
+                } */
+                foreach($userlist as $uitem) {
+                    if($uitem != $authUser->id) {
+                        \App\Jobs\SendMessageJob::dispatch($request->all(), $uitem, $request->message_id, $senderName, $firmData, $getTemplateData);
                     }
                 }
+            }else{                
+                /* if($Messages->for_staff == 'yes'){
+                    \App\Jobs\SendMessageJob::dispatch($request->all(), $Messages->created_by, $request->message_id, $senderName, $firmData, $getTemplateData);
+                }else{ */
+                    foreach ($userlist as $k=>$v){
+                        if($v != $authUser->id) {
+                            \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $request->message_id, $senderName, $firmData, $getTemplateData);
+                        }
+                    }
+                // }
             }
             session(['popup_success' => 'Your message has been sent']);
             return response()->json(['errors'=>'']);
@@ -2540,14 +2550,36 @@ class ClientdashboardController extends BaseController
 
     public function archiveMessageToUserCase(Request $request){
         $Messages=Messages::find($request->message_id);
-        $Messages->is_archive = "1";
+        // $Messages->is_archive = "1";
+        $jsonData = [];
+        $decodeData = encodeDecodeJson($Messages->users_json);
+        if(count($decodeData)) {
+            foreach($decodeData as $item) {
+                if(auth()->id() == $item->user_id) {
+                    $item->is_archive = 'yes';
+                }
+                $jsonData[] = $item;
+            }
+            $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
+        }
         $Messages->save();
         return response()->json(['errors'=>'']);
     }
 
     public function unarchiveMessageToUserCase(Request $request){
         $Messages=Messages::find($request->message_id);
-        $Messages->is_archive = 0;
+        // $Messages->is_archive = 0;
+        $jsonData = [];
+        $decodeData = encodeDecodeJson($Messages->users_json);
+        if(count($decodeData)) {
+            foreach($decodeData as $item) {
+                if(auth()->id() == $item->user_id) {
+                    $item->is_archive = 'no';
+                }
+                $jsonData[] = $item;
+            }
+            $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
+        }
         $Messages->save();
         return response()->json(['errors'=>'']);
     }
@@ -2579,19 +2611,30 @@ class ClientdashboardController extends BaseController
         ->get();
     
         $clientList = [];    
-        // if($messagesData->for_staff == 'yes'){
-        if($messagesData->created_by != auth()->id()) {
-            $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level')->first();
-            $clientList[$messagesData->created_by] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
+        if($messagesData->for_staff == 'yes'){
+            $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level','user_title')->first();
+            $clientList[$messagesData->created_by] = [
+                'full_name' => $userInfo['first_name'].' '.$userInfo['last_name'],
+                'user_level' => $userInfo['user_level'],
+                'user_title' => $userInfo['user_title'],
+            ];
         }
         $userlist = explode(',', $messagesData->user_id);
         foreach ($userlist as $key => $value) {
-            if($value != Auth::User()->id){
-                $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
-                $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
-            }
+            // if($value != Auth::User()->id){
+                $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level','user_title')->first();
+                $clientList[$value] = [
+                    'full_name' => $userInfo['first_name'].' '.$userInfo['last_name'],
+                    'user_level' => $userInfo['user_level'],
+                    'user_title' => $userInfo['user_title'],
+                ];
+            // }
         }
-        
+        if(isset($clientList[auth()->id()])) {
+            $new_value[auth()->id()] = $clientList[auth()->id()];
+            unset($clientList[auth()->id()]);
+            $clientList = $new_value + $clientList;
+        }
         return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
         }else{
             abort(404);
@@ -4566,17 +4609,31 @@ class ClientdashboardController extends BaseController
     
         $clientList = [];    
         // if($messagesData->for_staff == 'yes'){
-        if($messagesData->created_by != auth()->id()) {
-            $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level')->first();
-            $clientList[$messagesData->created_by] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
-        }
+            $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level','user_title')->first();
+            // $clientList[$messagesData->created_by] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
+            $clientList[$messagesData->created_by] = [
+                'full_name' => $userInfo['first_name'].' '.$userInfo['last_name'],
+                'user_level' => $userInfo['user_level'],
+                'user_title' => $userInfo['user_title'],
+            ];
+        // }
         $userlist = explode(',', $messagesData->user_id);
         foreach ($userlist as $key => $value) {
-            if($value != Auth::User()->id){
-                $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
-                $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
-            }
+            // if($value != Auth::User()->id){
+                $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level','user_title')->first();
+                $clientList[$value] = [
+                    'full_name' => $userInfo['first_name'].' '.$userInfo['last_name'],
+                    'user_level' => $userInfo['user_level'],
+                    'user_title' => $userInfo['user_title'],
+                ];
+            // }
         }
+        if(isset($clientList[auth()->id()])) {
+            $new_value[auth()->id()] = $clientList[auth()->id()];
+            unset($clientList[auth()->id()]);
+            $clientList = $new_value + $clientList;
+        }
+        // return $clientList;
         return view('client_dashboard.viewMessage',compact('messagesData','messageList','clientList'));   
         exit;  
     }

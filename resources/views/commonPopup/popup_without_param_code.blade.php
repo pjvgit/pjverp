@@ -1371,7 +1371,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     } 
 
-    function addNewMessagePopup(page, id) {        
+    function addNewMessagePopup(page = null, id = null) {        
         $("#preloader").show();
         $("#addNewMessagePopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {

@@ -14,7 +14,7 @@ class Messages extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = ['status', 'title', 'users_json'];    
-    protected $appends  = ['decode_id','last_post', 'client_last_post', 'is_read_msg'];
+    protected $appends  = ['decode_id','last_post', 'client_last_post', 'is_read_msg', 'is_archive_msg'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     }  
@@ -38,6 +38,16 @@ class Messages extends Authenticatable
     {
         $authUserId = (string) auth()->id();
         $decodeJson = encodeDecodeJson($this->users_json)->where("user_id", $authUserId)->first();
-        return $decodeJson->is_read ?? "no";
+        return $decodeJson->is_read ?? "yes";
+    }
+
+    /**
+     * Check messages is archived by firm user/staff attribute
+     */
+    public function getIsArchiveMsgAttribute()
+    {
+        $authUserId = (string) auth()->id();
+        $decodeJson = encodeDecodeJson($this->users_json)->where("user_id", $authUserId)->first();
+        return $decodeJson->is_archive ?? "no";
     }
 }

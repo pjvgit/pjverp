@@ -115,7 +115,7 @@ if(isset($_GET['type'])){
                 <div>Created at {{date('M d, Y',strtotime($LeadData['created_date_new']))}}</div>by 
                 <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($createdByAndDate['id'])}}" class=" align-items-center user-link" title="{{$createdByAndDate['user_title']}}">{{$createdByAndDate['first_name']}} {{$createdByAndDate['last_name']}}</a>
                 <hr>
-                @can('add_edit_lead')
+                @can('lead_add_edit')
                 <div class="opportunity-details-buttons">
                     <div>
                         <?php

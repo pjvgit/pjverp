@@ -31,7 +31,8 @@ class ClientdashboardController extends Controller
             $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
         });
         if($request->folder == 'archived'){
-            $messages = $messages->where("messages.is_archive",1);
+            // $messages = $messages->where("messages.is_archive",1);
+            $messages = $messages->whereJsonContains('users_json', ['user_id' => (string)auth()->id(), "is_archive" => 'yes']);
         }else if($request->folder == 'draft'){
             $messages = $messages->where("messages.is_draft",1);
         }else if($request->folder == 'sent'){
@@ -98,8 +99,10 @@ class ClientdashboardController extends Controller
             $clientList = [];    
             $userlist = explode(',', $messagesData->user_id);
             foreach ($userlist as $key => $value) {
+                if($value != auth()->id()) {
                 $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
                 $clientList[$value] =  strtolower($userInfo['first_name'].' '.$userInfo['last_name']);
+                }
             }
 
             // return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
@@ -113,18 +116,22 @@ class ClientdashboardController extends Controller
     {
         $firmData=Firm::find(Auth::User()->firm_name);
         $getTemplateData = EmailTemplate::find(11);
+        $clientData=User::find($id);
         $mail_body = $getTemplateData->content;
         $senderName=Auth::User()->first_name." ".Auth::User()->last_name;
         $mail_body = str_replace('{sender}', $senderName, $mail_body);
         $mail_body = str_replace('{subject}', $request['subject'], $mail_body);
         $mail_body = str_replace('{loginurl}', route('login'), $mail_body);
+        if($clientData->user_level == '3') {
         $mail_body = str_replace('{url}', route('messages/info',$messageID), $mail_body);
+        } else {
+        $mail_body = str_replace('{url}', route('client/messages/info',$messageID), $mail_body);
+        }
         $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
         $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
         $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
         $mail_body = str_replace('{year}', date('Y'), $mail_body);        
 
-        $clientData=User::find($id);
         if(isset($clientData->email)){
             $user = [
                 "from" => FROM_EMAIL,
@@ -166,7 +173,18 @@ class ClientdashboardController extends Controller
 
     public function archiveMessageToUserCase(Request $request){
         $Messages=Messages::find($request->message_id);
-        $Messages->is_archive = 1;
+        // $Messages->is_archive = 1;
+        $jsonData = [];
+        $decodeData = encodeDecodeJson($Messages->users_json);
+        if(count($decodeData)) {
+            foreach($decodeData as $item) {
+                if(auth()->id() == $item->user_id) {
+                    $item->is_archive = 'yes';
+                }
+                $jsonData[] = $item;
+            }
+            $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
+        }
         $Messages->save();
         session(['popup_success' => 'Message was archived']);
         return response()->json(['errors'=>'']);
@@ -174,7 +192,18 @@ class ClientdashboardController extends Controller
 
     public function unarchiveMessageToUserCase(Request $request){
         $Messages=Messages::find($request->message_id);
-        $Messages->is_archive = 0;
+        // $Messages->is_archive = 0;
+        $jsonData = [];
+        $decodeData = encodeDecodeJson($Messages->users_json);
+        if(count($decodeData)) {
+            foreach($decodeData as $item) {
+                if(auth()->id() == $item->user_id) {
+                    $item->is_archive = 'no';
+                }
+                $jsonData[] = $item;
+            }
+            $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
+        }
         $Messages->save();
         session(['popup_success' => 'Message was unarchived']);
         return response()->json(['errors'=>'']);
@@ -200,19 +229,25 @@ class ClientdashboardController extends Controller
             $Messages=Messages::find($request->message_id);
             $Messages->message=substr($request->delta,0,50);
             $authUser = auth()->user();
-            $authUserId = (string) $authUser->id;
             $linkedContact = encodeDecodeJson($Messages->users_json);
             if(count($linkedContact)) {
                 foreach($linkedContact as $key => $item) {
-                    $item->is_read = 'no';
+                    if($authUser->id == $item->user_id)       {
+                        $item->is_read = 'yes';
+                    } else {
+                        $item->is_read = 'no';
+                    }
                     $updatedLinkedContact[] = $item;
                 }
                 $Messages->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
             }
             $Messages->save();
-            
-            $this->sendMailGlobal($request, $request->selected_user_id, $request->message_id);
-
+            $userList = explode(',', $Messages->user_id);
+            foreach($userList as $uitem) {
+                if($uitem != $authUser->id) {
+                    $this->sendMailGlobal($request, $uitem, $request->message_id);
+                }
+            }
             session(['popup_success' => 'Your message has been sent']);
             return response()->json(['errors'=>'']);
             exit;       
@@ -252,12 +287,14 @@ class ClientdashboardController extends Controller
     }
 
     public function sendOrDraftMessage(Request $request){
+        $sendTo = $request->send_to;
+        array_push($sendTo, auth()->id()); 
         $redirect = 'no';
         $Messages= Messages::find($request->message_id);
         $Messages->case_id=$request->case_id ?? NUll;
         $Messages->user_id=NUll;
-        if(isset($request->send_to) && count($request->send_to) >= 0){
-            $Messages->user_id= implode(",",$request->send_to);
+        if(isset($sendTo) && count($sendTo) >= 0){
+            $Messages->user_id= implode(",",$sendTo);
         }
         $Messages->subject=$request->subject ?? NUll;
         $Messages->message=$request->msg ?? NUll;
@@ -277,12 +314,14 @@ class ClientdashboardController extends Controller
             $ReplyMessages->created_by = Auth::User()->id;
             $ReplyMessages->save();
 
-            if(isset($request->send_to) && count($request->send_to) > 1){
-                foreach($request->send_to as $k => $staff_id){
-                    $this->sendMailGlobal($request, $staff_id, $request->message_id);    
+            if(isset($sendTo) && count($sendTo) > 1){
+                foreach($sendTo as $k => $staff_id){
+                    if($staff_id != auth()->id()) {
+                        $this->sendMailGlobal($request, $staff_id, $request->message_id);    
+                    }
                 }                
             }else{
-                $this->sendMailGlobal($request, $request->send_to[0], $request->message_id);
+                $this->sendMailGlobal($request, $sendTo[0], $request->message_id);
             }
             
         }

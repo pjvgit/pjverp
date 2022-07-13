@@ -86,7 +86,7 @@
 <script src="{{ asset('assets\client_portal\js\messages\messages.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script>
 $(document).ready(function() {
-    <?php if($messagesData->is_archive == 1){?>
+    <?php if($messagesData->is_archive_msg == 'yes'){?>
         $(".archiveMessage").css("display","none");
         $(".unarchiveMessage").css("display","block");
     <?php }else{?>
