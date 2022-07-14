@@ -263,7 +263,8 @@ class CompanydashboardController extends BaseController
         ->select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'),"users.id","user_level")->where("users.user_level","2")->where("parent_user",Auth::user()->id)->whereRaw("find_in_set($company_id,`multiple_compnay_id`)")->get();
         return view('company_dashboard.addExistingCase',compact('company_id','companyData','clientList'));
     }
-    public function loadCaseData(Request $request)
+    // Made common code. This is not in use
+    /* public function loadCaseData(Request $request)
     {
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
 
@@ -282,7 +283,7 @@ class CompanydashboardController extends BaseController
         $case = $case->where("case_master.is_entry_done","1")->get();
         
         return response()->json(["total_count"=>$case->count(),"incomplete_results"=>false,"items"=>$case]);
-    }
+    } */
     public function saveLinkCase(Request $request)
     {
         // print_r($request->all());exit;

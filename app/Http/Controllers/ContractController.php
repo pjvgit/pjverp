@@ -207,14 +207,15 @@ class ContractController extends BaseController
                 }
                 break; 
             case '2':
-                if(Auth::user()->parent_user==0){
+                /* if(Auth::user()->parent_user==0){
                     $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
                     $getChildUsers[]=Auth::user()->id;
                     $caseMaster = CaseMaster::whereIn('created_by', $getChildUsers)->get();
                 }else{
                     $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
                     $caseMaster = CaseMaster::where('created_by', $childUSersCase)->get();
-                }                
+                } */
+                $caseMaster = CaseMaster::where('firm_id', $user->firm_name)->whereNull('case_close_date')->get();
                 foreach ($caseMaster as $case){
                     // if(isset($request->case_list) && $request->case_list !=''){
                         $CaseStaff = new CaseStaff;
@@ -320,7 +321,8 @@ class ContractController extends BaseController
     {
         $user = User::whereId($request->user_id)->first();
         $permissions = [
-            (isset($request->clientsPermission)) ? 'client_add_edit' : 'client_view',
+            // (isset($request->clientsPermission)) ? 'client_add_edit' : 'client_view',
+            (isset($request->clientsPermission) && $request->clientsPermission == '3') ? 'client_add_edit' : (($request->clientsPermission == '2') ? 'client_view' : ''),
             (isset($request->leadsPermission) && $request->leadsPermission == '3') ? 'lead_add_edit' : (($request->leadsPermission == '2') ? 'lead_view' : ''),
             (isset($request->casesPermission) && $request->casesPermission == '3') ? 'case_add_edit' : (($request->casesPermission == '2') ? 'case_view' : ''),
             (isset($request->eventsPermission) && $request->eventsPermission == '3') ? 'event_add_edit' : (($request->eventsPermission == '2') ? 'event_view' : ''),

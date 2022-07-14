@@ -228,6 +228,7 @@ class ClientdashboardController extends Controller
 
             $Messages=Messages::find($request->message_id);
             $Messages->message=substr($request->delta,0,50);
+            $Messages->is_sent=1;
             $authUser = auth()->user();
             $linkedContact = encodeDecodeJson($Messages->users_json);
             if(count($linkedContact)) {

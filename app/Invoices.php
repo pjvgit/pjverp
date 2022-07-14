@@ -53,7 +53,8 @@ class Invoices extends Model
     }
     public function getDueDateNewAttribute(){
         if($this->due_date!=NULL){
-            return date('M j, Y',strtotime($this->due_date));
+            // return date('M j, Y',strtotime($this->due_date));
+            return convertUTCToUserDate($this->due_date, auth()->user()->user_timezone)->format('M j, Y');
         }else{
             return '--';
         }
@@ -368,5 +369,17 @@ class Invoices extends Model
             $pendingAmount = $this->due_amount_new;
         }
         return $pendingAmount;
+    }
+
+    /**
+     * Set due date attribute
+     */
+    public function setDueDateAttribute($value)
+    {
+        if($value) {
+            $this->attributes['due_date'] = convertDateToUTCzone($value, auth()->user()->user_timezone);
+        } else {
+            $this->attributes['due_date'] = $value;
+        }
     }
 }

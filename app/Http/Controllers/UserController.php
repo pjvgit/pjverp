@@ -932,7 +932,7 @@ class UserController extends BaseController
                 // Insert default practice area
                 $this->saveFirmDefaultPracticeArea($verifyUser);
                 // Set user default permissions
-                $this->saveUserDefaultPermission($verifyUser);
+                $this->saveUserDefaultPermission($verifyUser, 'firmowner');
                 // Set Firm client group 
                 $this->saveFirmClientGroup($verifyUser);
                 

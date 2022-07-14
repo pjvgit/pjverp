@@ -24,12 +24,14 @@ use App\UserInterestedModule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Traits\EventTrait;
+use App\Traits\UserTrait;
 
 class HomeController extends BaseController
 {
     use TaskReminderTrait;
     use EventReminderTrait;
     use EventTrait;
+    use UserTrait;
     public function __construct()
     {
         $this->middleware('auth');
@@ -319,6 +321,9 @@ class HomeController extends BaseController
                     $user->created_by =Auth::User()->id;
                     // print_r($user);
                     $user->save();
+
+                    // Set user default permissions
+                    $this->saveUserDefaultPermission($user);
 
                     $totalUser[]=$user->id;
 

@@ -67,7 +67,7 @@
                                 @if(count($InvoiceInstallment))
                                 <a href="#payment_plan" class="scrollTo">See Payment Plan</a> 
                                 @else
-                                {{($findInvoice->due_date) ? date('M j, Y',strtotime($findInvoice->due_date)) : NULL}}
+                                {{($findInvoice->due_date) ? $findInvoice->due_date_new : NULL}}
                                 @endif
                             </td>
                         </tr>

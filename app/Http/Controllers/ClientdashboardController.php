@@ -262,16 +262,21 @@ class ClientdashboardController extends BaseController
 
     public function loadCaseData(Request $request)
     {
-        
+        $authUser = auth()->user();
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
-
-        if(Auth::user()->parent_user==0){
+        $Case = $case->where('firm_id', $authUser->firm_name);
+        /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
             $case = $case->whereIn("case_master.created_by",$getChildUsers);
         }else{
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
             $case = $case->whereIn("case_master.id",$childUSersCase);
+        } */
+        if($authUser->hasPermissionTo('access_only_linked_cases')) {
+            $case = $case->whereHas('caseStaffDetails', function($query) {
+                $query->where('user_id', auth()->id());
+            });
         }
 
         if($request->search!=""){

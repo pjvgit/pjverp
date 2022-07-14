@@ -1,5 +1,11 @@
 @extends('layouts.master')
 @section('title', 'Time & Billing Dashboard')
+
+@section('page-css')
+<link rel="stylesheet" href="{{asset('assets/styles/vendor/calendar/fullcalendar.min.css')}}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.css">
+@endsection
+
 @section('main-content')
 <?php
 $timezoneData = unserialize(TIME_ZONE_DATA); 
@@ -390,6 +396,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     }
 
 </style>
+@section('page-js')
+<script src="{{asset('assets/js/vendor/calendar/fullcalendar.min.js')}}"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.js" ></script>
+@endsection
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">

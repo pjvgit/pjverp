@@ -45,7 +45,7 @@ trait UserTrait {
     /**
      * Save parent user default permissions
      */
-    public function saveUserDefaultPermission($user)
+    public function saveUserDefaultPermission($user, $userType = null)
     {
         $permissions = [
             'client_add_edit',
@@ -62,12 +62,12 @@ trait UserTrait {
 
             'access_all_cases',
             'add_firm_user',
-            'edit_firm_user_permission',
+            ($userType == 'firmowner') ? 'edit_firm_user_permission' : '',
             'delete_items',
-            'empty_trash_permission',
+            ($userType == 'firmowner') ? 'empty_trash_permission' : '',
             'edit_import_export_settings',
             'edit_custom_fields_settings',
-            'manage_firm_and_billing_settings',
+            ($userType == 'firmowner') ? 'manage_firm_and_billing_settings' : '',
         ];
         $user->syncPermissions($permissions);
     }

@@ -887,7 +887,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('contacts/companies/casesLoad', 'CompanydashboardController@clientCaseList');
     Route::post('contacts/companies/unlinkFromCase', 'CompanydashboardController@unlinkFromCase');
     Route::post('contacts/companies/addExistingCase', 'CompanydashboardController@addExistingCase');
-    Route::post('contacts/companies/loadCaseData', 'CompanydashboardController@loadCaseData');
+    // Made common code. Not in use
+    // Route::post('contacts/companies/loadCaseData', 'CompanydashboardController@loadCaseData');
     Route::post('contacts/companies/saveLinkCase', 'CompanydashboardController@saveLinkCase');
 
     Route::post('contacts/companies/ClientNotes', 'CompanydashboardController@ClientNotes')->name('contacts/companies/ClientNotes');

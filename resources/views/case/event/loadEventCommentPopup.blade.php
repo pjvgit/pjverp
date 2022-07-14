@@ -229,12 +229,12 @@
                             <div class="mt-3 mb-3"><p id="cannot-post-comment">You cannot post comments on this item.</p></div>
                             @endcan
                             <hr>
-                            @can('commenting_add_edit')
+                            @canany(['commenting_add_edit', 'commenting_view'])
                             <div class="detail-label">History</div>
                             <div class="history-contents container-fluid" id="commentHistory">
 
                             </div>
-                            @endcan
+                            @endcanany
                         </div>
                 </div>
             </div>

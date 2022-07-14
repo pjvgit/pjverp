@@ -184,12 +184,12 @@
                 </td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
-                        <input type="radio" name="billingPermission" value="2"><span class="checkmark" class="billing-permission"></span>
+                        <input type="radio" name="billingPermission" value="2" class="billing-permission"><span class="checkmark"></span>
                     </label>
                 </td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
-                        <input type="radio" name="billingPermission" value="1"><span class="checkmark" class="billing-permission"></span>
+                        <input type="radio" name="billingPermission" value="1" class="billing-permission"><span class="checkmark"></span>
                     </label>
                 </td>
 
@@ -297,38 +297,38 @@
                 }
             }
         });
+    });
 
-        // For billing permission
-        $(document).on("change", '.billing-permission', function() {
-            var billPer = $(this).val();
-            if(billPer == '1') {
-                $("#restrictBilling").prop("checked", false);
-                $("#restrictBilling").prop("disabled", true);
-                $("#financialInsightsPermission").prop("checked", false);
-                $("#financialInsightsPermission").prop("disabled", true);
-            } else if(billPer == '2') {
-                $("#restrictBilling").prop("checked", false);
-                $("#restrictBilling").prop("disabled", true);
-                $("#financialInsightsPermission").prop("disabled", false);
-            } else {
-                $("#restrictBilling").prop("disabled", false);
-                $("#financialInsightsPermission").prop("disabled", false);
-            }
-        });
+    // For billing permission
+    $(document).on("change", '.billing-permission', function() {
+        var billPer = $(this).val();
+        if(billPer == '1') {
+            $("#restrictBilling").prop("checked", false);
+            $("#restrictBilling").prop("disabled", true);
+            $("#financialInsightsPermission").prop("checked", false);
+            $("#financialInsightsPermission").prop("disabled", true);
+        } else if(billPer == '2') {
+            $("#restrictBilling").prop("checked", false);
+            $("#restrictBilling").prop("disabled", true);
+            $("#financialInsightsPermission").prop("disabled", false);
+        } else {
+            $("#restrictBilling").prop("disabled", false);
+            $("#financialInsightsPermission").prop("disabled", false);
+        }
+    });
 
-        // For messages permission
-        $(document).on("change", '.messaging-permission', function() {
-            var billPer = $(this).val();
-            if(billPer == '1') {
-                $("#allMessagesFirmwide").prop("checked", false);
-                $("#allMessagesFirmwide").prop("disabled", true);
-                $("#canDeleteMessages").prop("checked", false);
-                $("#canDeleteMessages").prop("disabled", true);
-            } else {
-                $("#allMessagesFirmwide").prop("disabled", false);
-                $("#canDeleteMessages").prop("disabled", false);
-            }
-        });
+    // For messages permission
+    $(document).on("change", '.messaging-permission', function() {
+        var billPer = $(this).val();
+        if(billPer == '1') {
+            $("#allMessagesFirmwide").prop("checked", false);
+            $("#allMessagesFirmwide").prop("disabled", true);
+            $("#canDeleteMessages").prop("checked", false);
+            $("#canDeleteMessages").prop("disabled", true);
+        } else {
+            $("#allMessagesFirmwide").prop("disabled", false);
+            $("#canDeleteMessages").prop("disabled", false);
+        }
     });
 
     function loadStep4() {

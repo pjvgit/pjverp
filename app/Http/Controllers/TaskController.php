@@ -25,10 +25,11 @@ class TaskController extends BaseController
     }
     public function index()
     {
+        $authUser = auth()->user();
         $CaseMaster = Task::latest()->get();
         $country = Countries::get();
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",$authUser->firm_name)->get();  
       
         $getChildUsers=$this->getParentAndChildUserIds();
         $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
@@ -42,7 +43,7 @@ class TaskController extends BaseController
         $task = Task::join("users","task.created_by","=","users.id")
         ->leftjoin("case_master","task.case_id","=","case_master.id")
         ->select('task.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid")
-        ->where("task.firm_id", Auth::user()->firm_name);
+        ->where("task.firm_id", $authUser->firm_name);
         
         $totalData=$task->count();
         $totalFiltered = $totalData; 
@@ -66,13 +67,34 @@ class TaskController extends BaseController
          //Filter applied on user assign column
          if(isset($_GET['at']) && $_GET['at']!=''){
             if($_GET['at']=="me"){
-                $taskAssigneME=CaseTaskLinkedStaff::select('task_id')->where("user_id",Auth::User()->id)->get()->pluck('task_id');
-                $task = $task->whereIn("task.id",$taskAssigneME);
+                // $taskAssigneME=CaseTaskLinkedStaff::select('task_id')->where("user_id",Auth::User()->id)->get()->pluck('task_id');
+                // $task = $task->whereIn("task.id",$taskAssigneME);
+                $task = $task->whereHas('taskLinkedStaff', function($query) {
+                    $query->where('task_linked_staff.user_id', auth()->id());
+                });
             }elseif($_GET['at']=="everyoneelse"){
-                $taskAssigneOther=CaseTaskLinkedStaff::select('task_id')->where("user_id","!=",Auth::User()->id)->get()->pluck('task_id');
-                $task = $task->whereIn("task.id",$taskAssigneOther);
+                // $taskAssigneOther=CaseTaskLinkedStaff::select('task_id')->where("user_id","!=",Auth::User()->id)->get()->pluck('task_id');
+                // $task = $task->whereIn("task.id",$taskAssigneOther);
+                $task = $task->where(function($q) use($authUser) {
+                    $q->whereDoesntHave('taskLinkedStaff', function($query) {
+                        $query->where('task_linked_staff.user_id', auth()->id());
+                    });
+                    if($authUser->hasPermissionTo('access_only_linked_cases')) {
+                        $userLinkedCaseIds = CaseStaff::where('user_id', auth()->id())->whereNull('deleted_at')->pluck('case_id')->toArray();
+                        $q->whereIn('case_id', $userLinkedCaseIds);
+                    }
+                });
             }elseif($_GET['at']=="allfirmuser"){
-
+                $task = $task->where(function($q) use($authUser) {
+                    if($authUser->hasPermissionTo('access_only_linked_cases')) {
+                        $userLinkedCaseIds = CaseStaff::where('user_id', auth()->id())->whereNull('deleted_at')->pluck('case_id')->toArray();
+                        $q->whereIn('case_id', $userLinkedCaseIds);
+                        $q->orWhereHas('taskLinkedStaff', function($query) {
+                            $query->where('task_linked_staff.user_id', auth()->id());
+                        });
+                    }
+                    
+                });
             }else{
                 $taskAssigneTouser=CaseTaskLinkedStaff::select('task_id')->where("user_id",$_GET['at'])->get()->pluck('task_id');
                 $task = $task->whereIn("task.id",$taskAssigneTouser);

@@ -97,7 +97,7 @@
                 },
                 type: "POST",
                 dataType: 'json',
-                url: baseUrl + "/contacts/companies/loadCaseData", // json datasource
+                url: baseUrl + "/contacts/clients/loadCaseData", // json datasource
                 quietMillis: 50,
 
                 processResults: function (data) {
