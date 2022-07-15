@@ -231,9 +231,9 @@ class BillingController extends Controller
                 $customerId = $this->checkUserExistOnConekta($client);
                 if($customerId == '' || $customerId == 'error code') {
                     $customer = \Conekta\Customer::create([
-                        "name"=> $client->full_name,
+                        "name"=> $request->name_on_card ?? $client->full_name,
                         "email"=> $client->email,
-                        "phone"=> $client->mobile_number ?? $request->phone_number,
+                        "phone"=> $request->phone_number ?? $client->mobile_number,
                     ]);
                     UserOnlinePaymentCustomerDetail::create([
                         'client_id' => $client->id,
@@ -582,9 +582,9 @@ class BillingController extends Controller
                 $customerId = $this->checkUserExistOnConekta($client);
                 if($customerId == '' || $customerId == 'error code') {
                     $customer = \Conekta\Customer::create([
-                        "name"=> $client->full_name,
+                        "name"=> $request->cash_name ?? $client->full_name,
                         "email"=> $client->email,
-                        "phone"=> $request->phone_number ?? $client->mobile_number,
+                        "phone"=> $request->cash_phone_number ?? $client->mobile_number,
                     ]);
                     UserOnlinePaymentCustomerDetail::create([
                         'client_id' => $client->id,
@@ -770,9 +770,9 @@ class BillingController extends Controller
                 $customerId = $this->checkUserExistOnConekta($client);
                 if($customerId == '' || $customerId == 'error code') {
                     $customer = \Conekta\Customer::create([
-                        "name"=> $client->full_name,
+                        "name"=> $request->bt_name ?? $client->full_name,
                         "email"=> $client->email,
-                        "phone"=> $client->mobile_number ?? $request->bt_phone_number,
+                        "phone"=> $request->bt_phone_number ?? $client->mobile_number,
                     ]);
                     UserOnlinePaymentCustomerDetail::create([
                         'client_id' => $client->id,

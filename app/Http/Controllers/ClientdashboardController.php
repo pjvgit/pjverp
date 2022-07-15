@@ -923,6 +923,7 @@ class ClientdashboardController extends BaseController
         }
         $data = $data->orderBy("payment_date", "desc")->orderBy("created_at", "desc")
                 // ->with("invoice", 'fundRequest', 'allocateToCase', 'user', 'leadAdditionalInfo')
+                ->with(['invoice' => fn($q) => $q->withTrashed()])
                 ;
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
@@ -992,7 +993,7 @@ class ClientdashboardController extends BaseController
                 if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'no' && $data->invoice)
                     return '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
                 else if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'yes' && $data->fund_type != "payment deposit")
-                    return '#'.sprintf("%06d", $data->related_to_invoice_id);
+                    return '#'.@$data->invoice->invoice_id;
                 else if($data->related_to_fund_request_id)
                     return $data->fundRequest->padding_id;
                 else
@@ -1111,7 +1112,7 @@ class ClientdashboardController extends BaseController
                         }
                         return $ftype.' '.$isRefund.$noteContent;
                     }else if($data->fund_type=="payment deposit"){
-                        $ftype = "Deposit into Trust (Invoice #".$data->related_to_invoice_id." Cancellation)";
+                        $ftype = "Deposit into Trust (Invoice #".@$data->invoice->invoice_id." Cancellation)";
                         return $ftype . $isInvoiceCancelled;
                     }else if($data->fund_type=="refund payment deposit"){
                         $ftype = "Refund Payment into Trust ".$allocateTxt;
@@ -4051,8 +4052,9 @@ class ClientdashboardController extends BaseController
     public function loadCreditHistory(Request $request)
     {
         $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")
-                ->orderBy("created_at", "desc");
+                ->orderBy("created_at", "desc")
                 // ->with("invoice", "user");
+                ->with(['invoice' => fn($q) => $q->withTrashed()]);
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo){
@@ -4095,11 +4097,16 @@ class ClientdashboardController extends BaseController
                 }
             })
             ->editColumn('related_to_invoice_id', function ($data) {
-                if($data->related_to_invoice_id) {
+                if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'no' && $data->invoice) {
+                    return '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
+                } else if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'yes' && $data->payment_type != "payment deposit") {
+                    return '#'.@$data->invoice->invoice_id;
+
+                /* if($data->related_to_invoice_id) {
                     if($data->invoice)
                         return '<a href="'.route("bills/invoices/view", @$data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
                     else
-                        return '#'.sprintf("%06d", $data->related_to_invoice_id);
+                        return '#'.sprintf("%06d", $data->related_to_invoice_id); */
                 } else if($data->related_to_fund_request_id) {
                     return "#R-".sprintf('%05d', $data->related_to_fund_request_id);
                 } else {

@@ -135,7 +135,7 @@
                                 <td> ${{$aData->due_amount_new}}</td>
                                 <td> 
                                     @if($aData->due_date!=NULL)
-                                        {{date('m/d/Y',strtotime($aData->due_date))}}
+                                        {{ $aData->due_date_new }}
                                     @else
                                         --
                                     @endif

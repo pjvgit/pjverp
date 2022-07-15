@@ -1594,19 +1594,7 @@ class BillingController extends BaseController
     }
 
     public function payInvoicePopup(Request $request)
-    {
-        /* try {
-        $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
-        \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-        // Check conekta account has order or not
-        return $order = \Conekta\Order::find('ord_2rv47aMSBvzTrb33h');
-        if($order) {
-
-        }
-        } catch (Exception $e) {
-            return response()->json(['errors' => $e->getMessage(), 'code' => $e->getCode()]);
-        } */
-        
+    {        
        $validator = \Validator::make($request->all(), [
             'id' => 'required|min:1|max:255',
         ]);
@@ -1621,13 +1609,20 @@ class BillingController extends BaseController
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $caseMaster=CaseMaster::select("case_title")->find($invoiceData['case_id']);
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance", "users.user_level")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
+                // if($invoiceData->case_id > 0) {
                 $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
                 ->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
                 ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance", "users.user_title")
                 ->where("case_client_selection.case_id",$invoiceData['case_id'])
                 ->where("users.firm_name", $firmData->id)
                 ->groupBy("case_client_selection.selected_user")->get(); 
-
+                /* } else {
+                    $trustAccounts = User::join('users_additional_info','users_additional_info.user_id','=','users.id')
+                        ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance", "users.user_title", "users.id")
+                        ->where("users.id", $invoiceData->user_id)
+                        ->where("users.firm_name", $firmData->id)
+                        ->get();
+                } */
                 $invoiceUserNotInCase = ''; 
                 if(!in_array($invoiceData->user_id, $trustAccounts->pluck('uid')->toArray()) && $userData->user_level != 5 && $invoiceData['case_id'] != 0) {
                     $invoiceUserNotInCase = UsersAdditionalInfo::where("user_id", $invoiceData->user_id)->with("user")->first();
@@ -1712,10 +1707,7 @@ class BillingController extends BaseController
                 //Deduct invoice amount when payment done
                 $this->updateInvoiceAmount($request->invoice_id);
 
-                // Deduct amount from trust account after payment.
-                // $trustAccountAmount=($userData['trust_account_balance']-$request->amount);
-                // UsersAdditionalInfo::where('user_id',$request->contact_id)
-                // ->update(['trust_account_balance'=>$trustAccountAmount]);
+                $clientId = '';
                 if(isset($request->trust_account)){
                     UsersAdditionalInfo::where("user_id",$request->contact_id)->decrement('trust_account_balance', $request->amount);
                     // $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
@@ -1735,6 +1727,8 @@ class BillingController extends BaseController
                         $TrustInvoice->allocated_to_case_id = NULL;
                         $TrustInvoice->related_to_invoice_payment_id = $lastInvoicePaymentId;
                         $TrustInvoice->save();
+
+                        $clientId = $request->trust_account;
                     }else{
                         // allocate to case/lead
                         if($InvoiceData->is_lead_invoice == 'yes') {
@@ -1763,6 +1757,8 @@ class BillingController extends BaseController
                         $TrustInvoice->related_to_invoice_payment_id = $lastInvoicePaymentId;
                         $TrustInvoice->allocated_to_lead_case_id = ($InvoiceData->is_lead_invoice == 'yes') ? $request->contact_id : NULL;
                         $TrustInvoice->save();
+
+                        $clientId = $request->contact_id;
                     } 
                 }            
 
@@ -1812,8 +1808,8 @@ class BillingController extends BaseController
                 $this->updateClientPaymentActivity($request, $InvoiceData);
 
                 // Check trust balance is running low or not
-                if($request->trust_account == $InvoiceData['user_id'] && $InvoiceData->is_lead_invoice == "no") {
-                    $lowTrustBalanceClient = User::where('id', $InvoiceData->user_id)
+                if($clientId == $InvoiceData['user_id'] && $InvoiceData->is_lead_invoice == "no") {
+                    $lowTrustBalanceClient = User::where('id', $clientId)
                         ->whereHas("userAdditionalInfo", function($query) {
                             $query->where("minimum_trust_balance", ">", 0);
                         })->orWhereHas("clientCasesSelection", function($query) use($InvoiceData) {
@@ -5217,41 +5213,12 @@ class BillingController extends BaseController
             $invoice_id=$request->invoice_id;
             foreach($request->client as $k=>$v){
                 $findUSer=User::find($v);
-                // $email=$findUSer['email'];
-                // $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
-                        
-                // $c=DB::table('shared_invoice')->where("user_id",$v)->where("invoice_id",$invoice_id)->first();
-             
-                // DB::table('shared_invoice')->where("user_id",$v)->where("invoice_id",$invoice_id)->update([
-                //     'last_reminder_sent_on'=>date('Y-m-d h:i:s'),
-                //     'reminder_sent_counter'=>$c->reminder_sent_counter+1,
-                // ]);
+                
                 $sharedInv = SharedInvoice::where("user_id", $v)->where("invoice_id", $invoice_id)->first();
                 $sharedInv->fill([
                     'last_reminder_sent_on' => date('Y-m-d h:i:s'),
                     'reminder_sent_counter' => $sharedInv->reminder_sent_counter + 1,
                 ])->save();
-
-                // $firmData=Firm::find(Auth::User()->firm_name);
-                /* $getTemplateData = EmailTemplate::find(12);
-                // $token=url('activate_account/bills='.base64_encode($email).'&web_token='.$FindInvoice['invoice_unique_token']);
-                $token=url('bills/invoices/view/'.base64_encode($FindInvoice['id']));
-                $mail_body = $getTemplateData->content;
-                $mail_body = str_replace('{token}', $token,$mail_body);
-                $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
-                $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
-                $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-    
-                $user = [
-                    "from" => FROM_EMAIL,
-                    "from_title" => $firmData->firm_name,
-                    "subject" => "Reminder: Invoice #".$invoice_id." is available to view for ".$firmData->firm_name,
-                    "to" => $email,
-                    "full_name" => $fullName,
-                    "mail_body" => $mail_body
-                ];
-                $sendEmail = $this->sendMail($user); */
 
                 if($request->email_type == "past") {
                     $emailTemplateId = 22;
@@ -5871,7 +5838,7 @@ class BillingController extends BaseController
                 $filterByDate='yes';
             }        
             $case_id=$findInvoice->case_id;
-            
+            $authUser = auth()->user();
             if((isset($request->adjustment_delete) && $request->adjustment_delete!="" && $request->adjustment_delete!="undefined") || isset($request->removeAllCreatedEntry)){
                 $TimeEntry=TaskTimeEntry::where("task_time_entry.case_id",$case_id)
                 ->where("task_time_entry.status","unpaid")
@@ -5925,9 +5892,18 @@ class BillingController extends BaseController
             ->where("user_id",$client_id)
             ->first();
 
-
-            $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users_additional_info.multiple_compnay_id","case_client_selection.is_billing_contact")->where("case_client_selection.case_id",$case_id)->get();
-
+            if($case_id > 0) {
+            $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+                ->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
+                ->where('users.firm_name', $authUser->firm_name)
+                ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users_additional_info.multiple_compnay_id","case_client_selection.is_billing_contact")
+                ->where("case_client_selection.case_id",$case_id)->get();
+            } else {
+                $getAllClientForSharing = User::where('users.id', $client_id)
+                ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+                ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","users.id as user_id","users_additional_info.client_portal_enable","users_additional_info.multiple_compnay_id")
+                ->get();
+            }
             $caseCllientSelection = CaseClientSelection::select("*")->where("case_client_selection.selected_user",$client_id)->get()->pluck("case_id");
 
             //List all case by client 
@@ -6194,7 +6170,7 @@ class BillingController extends BaseController
                     $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
                     $FlatFeeEntryForInvoice->save();
                     DB::table('flat_fee_entry')->where("id",$v)->update([
-                        'status'=>'paid',
+                        // 'status'=>'paid',
                         'token_id' => Null,
                         'invoice_link'=>$InvoiceSave->id
                     ]);
@@ -6280,6 +6256,7 @@ class BillingController extends BaseController
                         $SharedInvoice=new SharedInvoice;
                         $SharedInvoice->invoice_id=$InvoiceSave->id;                    
                         $SharedInvoice->user_id =$v;
+                        $SharedInvoice->is_shared = 'yes';
                         $SharedInvoice->created_by=Auth::User()->id; 
                         $SharedInvoice->created_at=date('Y-m-d h:i:s'); 
                         $SharedInvoice->save();
@@ -6297,6 +6274,8 @@ class BillingController extends BaseController
                         $invoiceHistory['created_by']=Auth::User()->id;
                         $invoiceHistory['created_at']=date('Y-m-d H:i:s');
                         $this->invoiceHistory($invoiceHistory);
+                    } else {
+                        SharedInvoice::where("user_id",$v)->where("invoice_id",$InvoiceSave->id)->update(['is_shared' => 'yes']);
                     }
                     $sharedList[]=$v;
                 }
@@ -8093,7 +8072,11 @@ class BillingController extends BaseController
                         }
                     }
                 }
-               
+                
+                if($finalAmount > $Invoices->due_amount && $discount_type == 'discount') {
+                    $Applied=FALSE;
+                }
+
                 $InvoiceAdjustment->amount =str_replace(",","",$finalAmount);
                 $InvoiceAdjustment->notes =$notes;
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
@@ -8184,7 +8167,7 @@ class BillingController extends BaseController
                         'entry_type'=>"0",
                         'deposit_into'=>"Operating Account",
                         'payment_from_id'=>$userData['user_id'],
-                        'total'=>($currentBalance['total']+$finalAmt),
+                        'total'=>(($currentBalance->total ?? 0) +$finalAmt),
                         'firm_id'=>Auth::User()->firm_name,
                         'created_at'=>date('Y-m-d H:i:s'),
                         'created_by'=>Auth::user()->id 
@@ -11553,7 +11536,7 @@ class BillingController extends BaseController
                     $invoiceHistory=[];
                     $invoiceHistory['invoice_id']=$invoice_id;
                     $invoiceHistory['acrtivity_title']='Payment Received';
-                    $invoiceHistory['pay_method']='Trust';
+                    $invoiceHistory['pay_method']='Credit';
                     $invoiceHistory['amount']=$finalAmt;
                     $invoiceHistory['responsible_user']=Auth::User()->id;
                     $invoiceHistory['deposit_into']='Operating Account';
@@ -11638,16 +11621,20 @@ class BillingController extends BaseController
                 if($customerId == '' || $customerId == 'error code') {
                     if($request->online_payment_method == "credit-card") {
                         $phoneNumber = $request->phone_number;
+                        $userName = $request->name_on_card;
                     } else if($request->online_payment_method == "cash") {
                         $phoneNumber = $request->cash_phone_number;
+                        $userName = $request->cash_name;
                     } else if($request->online_payment_method == "bank-transfer") {
                         $phoneNumber = $request->bt_phone_number;
+                        $userName = $request->bt_name;
                     } else {
                         $phoneNumber = $client->mobile_number;
+                        $userName = $client->full_name;
                     }
                     // $phoneNumber = (isset($request->phone_number)) ? $request->phone_number : ((isset($request->bt_phone_number)) ? $request->bt_phone_number : $client->mobile_number);
                     $customer = \Conekta\Customer::create([
-                                    "name"=> $client->full_name,
+                                    "name"=> $userName,
                                     "email"=> $client->email,
                                     "phone"=> $phoneNumber,
                                 ]);
@@ -12326,16 +12313,20 @@ class BillingController extends BaseController
                     if($customerId == '' || $customerId == 'error code') {
                         if($request->online_payment_method == "credit-card") {
                             $phoneNumber = $request->phone_number;
+                            $userName = $request->name_on_card;
                         } else if($request->online_payment_method == "cash") {
                             $phoneNumber = $request->cash_phone_number;
+                            $userName = $request->cash_name;
                         } else if($request->online_payment_method == "bank-transfer") {
                             $phoneNumber = $request->bt_phone_number;
+                            $userName = $request->bt_name;
                         } else {
                             $phoneNumber = $client->mobile_number;
+                            $userName = $client->full_name;
                         }
                         // $phoneNumber = ($request->phone_number) ? $request->phone_number : (($request->bt_phone_number) ? $request->bt_phone_number : $client->mobile_number);
                         $customer = \Conekta\Customer::create([
-                                        "name"=> $client->full_name,
+                                        "name"=> $userName,
                                         "email"=> $client->email,
                                         "phone"=> $phoneNumber,
                                     ]);
@@ -12346,7 +12337,7 @@ class BillingController extends BaseController
                         ]);
                         $customerId = $customer->id;
                     }
-                    return $customerId;
+                    // return $customerId;
                 /* $client = User::whereId($request->client_id)->first();
                 if($client) {
                     if(empty($client->conekta_customer_id)) {

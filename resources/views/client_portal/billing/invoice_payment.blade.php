@@ -137,13 +137,13 @@
                                                             <div class="form-group row">
                                                                 <label class="col-md-3">Name</label>
                                                                 <div class="col-md-9">
-                                                                    <input type="text" class="form-control" name="name" value="{{ $client->full_name ?? '' }}" placeholder="Nombre" maxlength="50">
+                                                                    <input type="text" class="form-control" name="cash_name" value="{{ $client->full_name ?? '' }}" placeholder="Nombre" maxlength="50">
                                                                 </div>
                                                             </div>
                                                             <div class="form-group row">
                                                                 <label class="col-md-3">Phone number</label>
                                                                 <div class="col-md-9">
-                                                                    <input type="text" class="form-control phone-number" name="phone_number" value="{{ $client->mobile_number ?? '' }}" placeholder="Teléfono" maxlength="13" minlength="10">
+                                                                    <input type="text" class="form-control phone-number" name="cash_phone_number" value="{{ $client->mobile_number ?? '' }}" placeholder="Teléfono" maxlength="13" minlength="10">
                                                                 </div>
                                                             </div>
                                                             <div class="form-group row">

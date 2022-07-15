@@ -183,7 +183,7 @@
                     <div class="form-group row">
                         <label class="col-md-3">Name</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" name="name" id="cash_name" placeholder="Nombre" maxlength="50" value="{{ @$userData->user_name }}">
+                            <input type="text" class="form-control" name="cash_name" id="cash_name" placeholder="Nombre" maxlength="50" value="{{ @$userData->user_name }}">
                         </div>
                     </div>
                     <div class="form-group row">

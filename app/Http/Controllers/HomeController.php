@@ -198,14 +198,9 @@ class HomeController extends BaseController
         $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
         
         $CaseLeadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.id","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))->where("users.firm_name",Auth::user()->firm_name)->groupBy('case_staff.lead_attorney')->get();
-
+        $authUser = auth()->user();
         //Get 15 upcoming events for dashboard
         $upcomingTenEvents = collect([]);
-        /* $upcomingTenEvents=CaseEvent::where('start_date','>=',date('Y-m-d'))
-                ->whereHas('eventLinkedStaff', function($query) {
-                    $query->where('users.id', auth()->id());
-                })
-                ->orderBy("start_date", "ASC")->with("case", "leadUser", 'eventLinkedStaff')->limit(15)->get(); */
         $authUserId = (string) auth()->id();
         $upcomingTenEvents = EventRecurring::whereDate("start_date", ">=", Carbon::now())
                             // ->whereJsonContains('event_linked_staff->user_id', "1")
@@ -221,7 +216,7 @@ class HomeController extends BaseController
                 ->select("case_master.id","case_master.case_title","case_master.case_unique_number","users.first_name","users.middle_name","users.last_name","task.*")
                 ->where("task_due_on","!=","9999-12-30") 
                 ->whereDate("task_due_on", ">=", Carbon::now())
-                ->where('task.firm_id',Auth::User()->firm_name)
+                ->where('task.firm_id', $authUser->firm_name)
                 // ->where('task.task_due_on','>',date('Y-m-d'))
                 ->whereHas('taskLinkedStaff', function($query) {
                     $query->where('users.id', auth()->id());
@@ -234,9 +229,17 @@ class HomeController extends BaseController
         $InvoicesOverdue=$InvoicesOverdue->orderBy('due_date',"ASC")->limit(10)->get();
 
         //For Alter widget (Minimum trust balance)
-        $clientList = User::where('firm_name', auth()->user()->firm_name)->whereIn("user_level",["2","4"])
-                ->whereHas("userAdditionalInfo", function($query) {
-                    $query->where("minimum_trust_balance", ">", 0);
+        $clientList = User::where('firm_name', $authUser->firm_name)->whereIn("user_level",["2","4"])
+                ->where(function($q) {
+                    $q->whereHas("userAdditionalInfo", function($query) {
+                        $query->where("minimum_trust_balance", ">", 0);
+                    })
+                    ->orWhereHas("clientCasesSelection", function($query) {
+                        $query->where("minimum_trust_balance", ">", 0)->whereRaw('allocated_trust_balance < minimum_trust_balance')
+                        ->whereHas("case", function($q1) {
+                            $q1->whereNull("case_close_date");
+                        });
+                    });
                 })
                 ->with(["userAdditionalInfo", "clientCasesSelection" => function($query) {
                     $query->whereRaw('allocated_trust_balance < minimum_trust_balance')

@@ -124,7 +124,7 @@
                         </div>
                     </div>
                     @endif
-                    @if(!empty($invoiceSetting) /* && @$invoiceSetting['trust_credit_activity_on_invoice'] != "dont show" */ && !empty($findInvoice->applyTrustCreditFund))
+                    @if(!empty($invoiceSetting) && $findInvoice->case_id > 0 && !empty($findInvoice->applyTrustCreditFund))
                         <div style="padding: 20px;" id="invoice_account_summary">
                             @include('billing.invoices.partials.load_invoice_account_summary')
                         </div>
@@ -147,7 +147,7 @@
                             </div>
                         </div>
                         @endif                        
-                        @if(!empty($invoiceSetting) /* && @$invoiceSetting['trust_credit_activity_on_invoice'] != "dont show" */ && !empty($findInvoice->applyTrustCreditFund))
+                        @if(!empty($invoiceSetting) && $findInvoice->case_id > 0 && !empty($findInvoice->applyTrustCreditFund))
                         <div style="padding: 20px;" id="invoice_account_summary">
                             @include('billing.invoices.partials.load_invoice_account_summary')
                         </div>
