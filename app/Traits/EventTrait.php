@@ -576,7 +576,9 @@ trait EventTrait {
         $authUserId = auth()->id();
         $newArray = [];
         if($eventRecurring) {
-            // $request->start_date = $eventRecurring->start_date;
+            if(!isset($request->updated_start_date) ) {
+                $request->start_date = $eventRecurring->start_date;
+            }
             $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
             $eventReminders = $this->getEventReminderJson($caseEvent, $request, $decodeReminder);
             if(count($decodeReminder)) {
