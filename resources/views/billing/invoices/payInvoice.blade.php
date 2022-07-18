@@ -6,7 +6,7 @@ $finalAmt=$invoice-$paid;
 ?>
 <div class="blade" bladefile="resources/views/billing/invoices/payInvoice.blade.php"></div>
 <div class="row">
-    <div class="col-md-6 selenium-invoice-number">Invoice Number: #{{sprintf("%05d", $invoiceData['id'])}}</div>
+    <div class="col-md-6 selenium-invoice-number">Invoice Number: #{{ $invoiceData->invoice_id }}</div>
     <div class="col-md-4 text-right">Invoice Amount:</div>
     <div class="col-md-2 text-right selenium-total-amount">${{number_format($invoice,2)}}</div>
 </div>

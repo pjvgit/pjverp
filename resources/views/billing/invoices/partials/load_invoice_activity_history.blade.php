@@ -176,7 +176,7 @@
                         if($value->acrtivity_title=="Payment Received" && $value->status == "5"){
                             $notes = __('billing.invoice_overpaid_note');
                             $notes .= $value->notes;
-                        } else if($value->acrtivity_title=="Payment Received" && $value->is_overpaid == "partial"){
+                        } else if($value->acrtivity_title=="Payment Received" && $value->status == "6"){
                             $notes = __('billing.invoice_partially_overpaid_note');
                             $notes .= $value->notes;
                         } else if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){

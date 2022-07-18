@@ -1225,8 +1225,9 @@ class TaskController extends BaseController
   } 
   public function markasread()
   {
-        Task::where('created_by',Auth::User()->id)
-        ->update(['task_read'=>'yes']);
+        // Task::where('created_by',Auth::User()->id)
+        // ->update(['task_read'=>'yes']);
+        CaseTaskLinkedStaff::where("user_id", auth()->id())->update(['is_read' => 'yes']);
         return redirect('tasks');
 
       exit;    
@@ -1235,7 +1236,8 @@ class TaskController extends BaseController
   {
         $data = json_decode(stripslashes($request->task_id));
         foreach($data as $k=>$v){
-            Task::where('id',$v)->update(['task_read'=>'yes']);
+            // Task::where('id',$v)->update(['task_read'=>'yes']);
+            CaseTaskLinkedStaff::where("user_id", auth()->id())->where("task_id", $v)->update(['is_read' => 'yes']);
         }
         return response()->json(['errors'=>'','msg'=>'Records successfully updated']);
         exit;    
@@ -1411,7 +1413,7 @@ class TaskController extends BaseController
         $data['action'] = 'comment';
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
-
+        
         // For client portal activity
         if($task && $task->taskLinkedContact) {
             foreach($task->taskLinkedContact as $key => $item) {

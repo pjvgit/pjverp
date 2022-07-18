@@ -4225,7 +4225,8 @@ class CaseController extends BaseController
             $event = Event::whereId($request->event_id)->first(); 
             $data=[];
             $data['event_for_case'] = $event->case_id;
-            $data['event_id'] = $eventRecurring->id;
+            $data['event_id'] = $event->id;
+            $data['event_recurring_id'] = $eventRecurring->id;
             $data['event_name'] = $event->event_title;
             $data['user_id'] = $authUser->id;
             $data['activity']='commented on event';
@@ -4893,7 +4894,10 @@ class CaseController extends BaseController
                 $task = $task->orWhere("task_due_on",'9999-12-30');
             }     
         }        
-        $task = $task->where("task.created_by",Auth::user()->id);
+        // $task = $task->where("task.created_by",Auth::user()->id);
+        $task = $task->whereHas('taskLinkedStaff', function($q) {
+            $q->where('users.id', auth()->id());
+        });
         $task = $task->orderBy('task_due_on', 'ASC');
         $task = $task->paginate(10);
         
@@ -5431,7 +5435,7 @@ class CaseController extends BaseController
         
         $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
         ->leftJoin("case_master","case_master.id","=","messages.case_id")
-        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), "messages.updated_at as last_post", DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
+        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), "messages.updated_at as last_post1", DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
         if(isset($requestData['case_id']) && $requestData['case_id']!=''){
             $ContractUser = User::where("id",Auth::user()->id)->first();
             $userPermissions = $ContractUser->getPermissionNames()->toArray();

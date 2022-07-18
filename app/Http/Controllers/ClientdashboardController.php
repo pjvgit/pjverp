@@ -994,6 +994,8 @@ class ClientdashboardController extends BaseController
                     return '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
                 else if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'yes' && $data->fund_type != "payment deposit")
                     return '#'.@$data->invoice->invoice_id;
+                else if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'yes')
+                    return '#'.@$data->invoice->invoice_id;
                 else if($data->related_to_fund_request_id)
                     return $data->fundRequest->padding_id;
                 else
@@ -2610,7 +2612,21 @@ class ClientdashboardController extends BaseController
         if($count == 0){
             abort(404);
         }
-  
+        
+        // read mesages 
+        $authUserId = (string) auth()->id();
+        $linkedContact = encodeDecodeJson($messagesData->users_json);
+        if(count($linkedContact)) {
+            foreach($linkedContact as $key => $item) {
+                if($item->user_id == $authUserId) {
+                    $item->is_read = 'yes';
+                }
+                $updatedLinkedContact[] = $item;
+            }
+            $messagesData->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
+        }
+        $messagesData->save();
+
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
         ->select('reply_messages.*')
         ->where('reply_messages.message_id', $request->id)

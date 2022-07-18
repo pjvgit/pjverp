@@ -311,7 +311,7 @@
             });
         }
     });
-
+    @if(isset($_REQUEST['id']) && $_REQUEST['page'] == 'user_id')
     $('#case_link').on('change',function(){
         if($(this).val() != ''){
             $.ajax({
@@ -350,7 +350,7 @@
             })
         }
     });
-
+    @endif
 
     // $('#sendto').on("select2:select", function (evt) {
     //     var element = evt.params.data.element;
@@ -413,7 +413,7 @@
 
     // });
 
-    function setText(element) {
+    /* function setText(element) {
         var value = $(element).text();
         var userid = $(element).attr("id");
         var type = $(element).attr("type");
@@ -442,7 +442,7 @@
             $("#sent_to").val('');
             $("#searchResult").empty();
         }
-    }
+    } */
 
     $('#sendEmails').submit(function (e) {
         beforeLoader();

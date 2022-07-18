@@ -1187,8 +1187,8 @@ class BillingController extends Controller
 
                 // Update invoice history status
                 DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)
-                    ->update(['acrtivity_title' => 'Payment Received', 'status' => '6', 'online_payment_status' => 'paid', 'amount' => $dueAmt, 
-                            'payable_amount' => $paymentDetail->amount, 'is_overpaid' => 'partial']);
+                    ->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid', 'amount' => $dueAmt, 
+                            'payable_amount' => $paymentDetail->amount, 'is_overpaid' => 'no']);
 
                 // Update invoice status and amount
                 DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
