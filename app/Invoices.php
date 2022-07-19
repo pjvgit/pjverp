@@ -61,8 +61,10 @@ class Invoices extends Model
     }
     public function getCreatedDateNewAttribute(){
         if($this->created_at!=NULL){
-            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
-            return date('M j, Y',strtotime($userTime));
+            // $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
+            // return date('M j, Y',strtotime($userTime));
+            $userTime = convertToUserTimezone($this->created_at, auth()->user()->user_timezone);
+            return $userTime->format('M j, Y');
         }else{
             return '--';
         }

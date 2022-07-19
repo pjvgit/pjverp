@@ -27,11 +27,14 @@ class InvoiceHistory extends Authenticatable
         return date('M j, Y h:i A',strtotime($this->created_at));
     }
     public function getAddedDateAttribute(){
-        if(isset(auth()->user()->user_timezone) && $this->created_at!=null) 
+        $authUserTimezone = auth()->user()->user_timezone;
+        if(isset($authUserTimezone) && $this->created_at!=null) 
         {
-            $pDate = Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at, "UTC");
-            $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
-            return $pDate->format("M d, Y");
+            // $pDate = Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at, "UTC");
+            // $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
+            // return $pDate->format("M d, Y");
+            $userTime = convertToUserTimezone($this->created_at, $authUserTimezone);
+            return $userTime->format('M j, Y');
         }else{
             return null;
         }

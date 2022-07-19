@@ -69,7 +69,8 @@ $(document).on("input", ".allocate-fund", function() {
     var totalAmt = $(this).attr("data-total-amt");
     var amt = $(this).val();
     amt = (!amt.trim()) ? 0 : amt.replace(",", "");
-    console.log(amt);
+    // if(amt > 0) {
+        // $('.ta-amt-error').text('');
     if (parseFloat(amt) > parseFloat(totalAmt)) {
         $(this).val((parseFloat(totalAmt) > 0) ? parseFloat(totalAmt).toFixed(2) : "0.00");
         $(".unallocate-fund").val("0.00");
@@ -78,11 +79,18 @@ $(document).on("input", ".allocate-fund", function() {
         // $(".unallocate-fund").val(parseFloat(unallocateAmt).toFixed(2));
         $(".unallocate-fund").val(unallocateAmt.toLocaleString());
     }
+    /* } else {
+        $(this).val('0');
+        $('.ta-amt-error').text('Should be greater than or equal to 0');
+    } */
 });
 
 $(document).on("click", ".confirm-btn", function() {
     var formData = $(this).parents("form.trust-allocate-form").serialize();
     var page = $("#page").val();
+    var amt = $(".trust-allocate-form .allocate-fund").val();
+    if(parseFloat(amt) >= 0) {
+        $('.ta-amt-error').text('');
     beforeLoader();
     $.ajax({
         url: baseUrl + "/contacts/clients/save/trust/allocation",
@@ -109,8 +117,18 @@ $(document).on("click", ".confirm-btn", function() {
             }
         }
     });
+    } else {
+        $('.ta-amt-error').text('Should be greater than or equal to 0');
+    }
 });
 
 $('#trust_allocation_modal').on('hidden.bs.modal', function() {
     $('body').toggleClass("modal-open");
 });
+
+// Validation to check value should be >= 0
+$.validator.addMethod('minStrictNumber', function(value, el, param) {
+    value = value.replace(/,/g, '');
+    console.log(value);
+    return value >= 0;
+}, 'Should be greater than or equal to 0');

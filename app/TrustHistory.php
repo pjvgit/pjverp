@@ -29,8 +29,9 @@ class TrustHistory extends Authenticatable
     public function getAddedDateAttribute(){
         if(isset(Auth::User()->user_timezone) && $this->payment_date!=null) 
         {
-            $pDate = Carbon::createFromFormat('Y-m-d', $this->payment_date, "UTC");
-            $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
+            // $pDate = Carbon::createFromFormat('Y-m-d', $this->payment_date, "UTC");
+            // $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
+            $pDate = convertUTCToUserDate($this->payment_date, auth()->user()->user_timezone);
             return $pDate->format("M d, Y");
         }else{
             return null;

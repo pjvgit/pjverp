@@ -84,11 +84,15 @@
             <?php 
             if(!$allHistory->isEmpty()){?>
             <tr>
-                <td style="padding:5px;">{{date('m/d/Y',strtotime($allHistory[0]->created_at))}}</td>
+                {{-- <td style="padding:5px;">{{ convertUTCToUserDate(date('Y-m-d',strtotime($allHistory[0]->created_at)), $authUser->user_timezone)->format('m/d/Y') }}</td> --}}
+                <td style="padding:5px;">
+                    {{ ($startDate && \Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : 
+                    convertUTCToUserDate($trustHistoryFirstRow->payment_date, $authUser->user_timezone)->format('m/d/Y') }}
+                </td>
                 <td style="padding:5px;">--</td>
                 <td style="padding:5px;">Initial Balance</td>
                 <td style="padding:5px;text-align: right;">--</td>
-                <td style="padding:5px;text-align: right;">$0.00</td>
+                <td style="padding:5px;text-align: right;">${{ ($initialBalance) ? number_format($initialBalance->total_balance) : "0.00" }}</td>
             </tr>
             <?php } ?>
             <?php 
@@ -160,10 +164,10 @@
                 }
                 ?>
             <tr>
-                <td style="padding:5px;">{{date('m/d/Y',strtotime($v->payment_date))}}</td>
+                <td style="padding:5px;">{{ convertUTCToUserDate($v->payment_date, $authUser->user_timezone)->format('m/d/Y') }}</td>
                 <td style="padding:5px;">
                     @if($v->related_to_invoice_id)
-                    {{ '#'.sprintf("%06d", $v->related_to_invoice_id) }}
+                    {{ '#'.@$v->invoice->invoice_id }}
                     @elseif($v->related_to_fund_request_id)
                     {{ '#'.sprintf("%06d", $v->related_to_fund_request_id) }}
                     @else

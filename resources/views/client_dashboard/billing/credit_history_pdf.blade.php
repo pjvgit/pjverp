@@ -96,7 +96,7 @@
                 {{-- <td style="padding:5px;">{{ (\Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : convertUTCToUserTimeZone('dateOnly') }}</td> --}}
                 <td style="padding:5px;">
                     {{ ($startDate && \Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : 
-                    date('m/d/Y', strtotime(@$firstCreditBalance->payment_date)) }}
+                    convertUTCToUserDate($firstCreditBalance->payment_date, $authUser->user_timezone)->format('m/d/Y') }}
                 </td>
                 <td style="padding:5px;">--</td>
                 <td style="padding:5px;">Initial Balance</td>
@@ -130,10 +130,10 @@
                     }
                 @endphp
                 <tr>
-                    <td style="padding:5px;">{{date('m/d/Y',strtotime($v->payment_date))}}</td>
+                    <td style="padding:5px;">{{ convertUTCToUserDate($v->payment_date, $authUser->user_timezone)->format('m/d/Y') }}</td>
                     <td style="padding:5px;">
                         @if($v->related_to_invoice_id)
-                        {{ '#'.sprintf("%06d", $v->related_to_invoice_id) }}
+                        {{ '#'.@$v->invoice->invoice_id }}
                         @elseif($v->related_to_fund_request_id)
                         {{ '#'.sprintf("%06d", $v->related_to_fund_request_id) }}
                         @else

@@ -8,7 +8,7 @@
                 <select class="form-control invoice select2" id="invoice" name="invoice">
                     <option></option>
                     <?php foreach($Invoices as $k=>$v){?>
-                        <option value="{{$v->id}}">{{sprintf('%06d', $v->id)}}-{{$v->ctitle}} (${{number_format($v->due_amount,2)}})</option>
+                        <option value="{{$v->id}}">{{ $v->invoice_id }}-{{$v->ctitle}} (${{number_format($v->due_amount,2)}})</option>
                     <?php } ?>
                 </select>
             </div>

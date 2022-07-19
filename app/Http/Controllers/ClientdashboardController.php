@@ -1586,23 +1586,6 @@ class ClientdashboardController extends BaseController
             exit;   
         }
     }
-    public function downloadTrustActivityOld(Request $request)
-    {
-        $id=$request->id;
-        $firmData=Firm::find(Auth::User()->firm_name);
-        $userData=User::find($id);
-        $country = Countries::get();
-        $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
-        $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$id)->first();
-
-        $allHistory = TrustHistory::leftJoin('users','trust_history.client_id','=','users.id');
-        $allHistory = $allHistory->select("trust_history.*");        
-        $allHistory = $allHistory->where("trust_history.client_id",$id);   
-        $allHistory = $allHistory->orderBy('trust_history.payment_date','ASC');
-        $allHistory = $allHistory->get();
-        return view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
-    }
-
 
     public function downloadTrustActivity(Request $request)
     {
@@ -1614,9 +1597,9 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-                
+            $authUser = auth()->user();
             $id=$request->user_id;
-            $firmData=Firm::find(Auth::User()->firm_name);
+            $firmData=Firm::find($authUser->firm_name);
             $userData=User::find($id);
             $country = Countries::get();
             $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
@@ -1629,12 +1612,16 @@ class ClientdashboardController extends BaseController
                 $allHistory = $allHistory->whereBetween('trust_history.payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
             }  
             $allHistory = $allHistory->orderBy('trust_history.payment_date','ASC');
-            $allHistory = $allHistory->get();
+            $allHistory = $allHistory->with(['invoice' => fn($q) => $q->withTrashed()])->get();
             // return view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
+            $trustHistoryFirstRow = $allHistory->first();
+            $initialBalance = TrustHistory::where("client_id", $request->user_id)
+                        ->whereDate('payment_date', '<', ($request->from_date) ? date('Y-m-d',strtotime($request->from_date)) : date('Y-m-d', strtotime(@$trustHistoryFirstRow->payment_date)))
+                        ->orderBy('payment_date', 'desc')->orderBy("created_at", "desc")->first();
 
             $filename='trust_export_'.time().'.pdf';
             $startDate = $request->from_date; $endDate = $request->to_date;     
-            $PDFData=view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory', 'startDate', 'endDate'));
+            $PDFData=view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory', 'startDate', 'endDate', 'authUser', 'trustHistoryFirstRow', 'initialBalance'));
             $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
                 $pdf->binary = EXE_PATH;
@@ -4101,6 +4088,7 @@ class ClientdashboardController extends BaseController
                 // return $data->payment_date ?? "--";
                 if($data->payment_date) {
                     $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone);
+                    return $pDate->format("M d, Y");
                     if ($pDate->isToday()) {
                         return "Today";
                     } else if($pDate->isYesterday()) {
@@ -4678,9 +4666,9 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-                
+            $authUser = auth()->user();
             $id=$request->user_id;
-            $firmData=Firm::find(Auth::User()->firm_name);
+            $firmData=Firm::find($authUser->firm_name);
             $userData=User::find($id);
             $country = Countries::get();
             $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
@@ -4690,7 +4678,7 @@ class ClientdashboardController extends BaseController
             if(isset($request->from_date) && isset($request->to_date)){
                 $creditHistory = $creditHistory->whereBetween('payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
             }  
-            $creditHistory = $creditHistory->orderBy('payment_date','asc')->with("invoice")->get();
+            $creditHistory = $creditHistory->orderBy('payment_date','asc')->with(['invoice' => fn($q) => $q->withTrashed()])->get();
             $creditHistoryFirstRow = $creditHistory->first();
             $initialBalance = DepositIntoCreditHistory::where("user_id", $request->user_id)
                         ->whereDate('payment_date', '<', ($request->from_date) ? date('Y-m-d',strtotime($request->from_date)) : date('Y-m-d', strtotime(@$creditHistoryFirstRow->payment_date)))
@@ -4698,7 +4686,7 @@ class ClientdashboardController extends BaseController
 
             $filename='credit_export_'.time().'.pdf';
             $startDate = $request->from_date; $endDate = $request->to_date;
-            $PDFData=view('client_dashboard.billing.credit_history_pdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','creditHistory', 'startDate', 'endDate', 'initialBalance'));
+            $PDFData=view('client_dashboard.billing.credit_history_pdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','creditHistory', 'startDate', 'endDate', 'initialBalance', 'authUser'));
             $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
                 $pdf->binary = EXE_PATH;
