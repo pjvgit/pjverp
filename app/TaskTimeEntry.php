@@ -107,4 +107,16 @@ class TaskTimeEntry extends Authenticatable
     {
         return $this->belongsTo(Invoices::class, 'invoice_link');
     }
+
+    /**
+     * Set entry date attribute
+     */
+    public function setEntryDateAttribute($value)
+    {
+        if($value) {
+            $this->attributes['entry_date'] = convertDateToUTCzone($value, auth()->user()->user_timezone);
+        } else {
+            $this->attributes['entry_date'] = $value;
+        }
+    }
 }

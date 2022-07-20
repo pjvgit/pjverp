@@ -621,7 +621,7 @@ class BillingController extends Controller
                         [
                             'payment_method' => [
                                 'type'       => 'oxxo_cash',
-                                'expires_at' => strtotime(Carbon::now()->addMinutes(30)),
+                                'expires_at' => strtotime(Carbon::now()->addDays(7)),
                             ],
                             'amount' => (int)$amount * 100,
                         ]
@@ -808,7 +808,7 @@ class BillingController extends Controller
                         [
                             'payment_method' => [
                                 'type'       => 'spei',
-                                'expires_at' => strtotime(Carbon::now()->addMinutes(30)),
+                                'expires_at' => strtotime(Carbon::now()->addDays(7)),
                             ],
                             'amount' => (int)$amount * 100,
                         ]
@@ -1178,8 +1178,12 @@ class BillingController extends Controller
                     // Extra amount will move to trust allocated fund
                     $extraAmt = $paymentDetail->amount - $invoice->due_amount;
                     $this->savePaymentToTrustFund($paymentDetail, $invoice, $extraAmt, 'partial');
+                    $invHistoryStatus = '6';
+                    $isOverPaid = 'partial';
                 } else {
                     $dueAmt = $paymentDetail->amount;
+                    $invHistoryStatus = '1';
+                    $isOverPaid = 'no';
                 }
                 
                 // Update invoice payment status
@@ -1187,8 +1191,8 @@ class BillingController extends Controller
 
                 // Update invoice history status
                 DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)
-                    ->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid', 'amount' => $dueAmt, 
-                            'payable_amount' => $paymentDetail->amount, 'is_overpaid' => 'no']);
+                    ->update(['acrtivity_title' => 'Payment Received', 'status' => $invHistoryStatus, 'online_payment_status' => 'paid', 'amount' => $dueAmt, 
+                            'payable_amount' => $paymentDetail->amount, 'is_overpaid' => $isOverPaid]);
 
                 // Update invoice status and amount
                 DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);

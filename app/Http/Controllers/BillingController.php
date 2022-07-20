@@ -3759,7 +3759,7 @@ class BillingController extends BaseController
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->token_id=9999999; 
-        $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
+        // $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
         $ExpenseEntry->created_by=Auth::User()->id; 
         $ExpenseEntry->save();
 
@@ -3917,7 +3917,7 @@ class BillingController extends BaseController
         $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
-        $ExpenseEntry->updated_at=date('Y-m-d h:i:s'); 
+        // $ExpenseEntry->updated_at=date('Y-m-d h:i:s'); 
         $ExpenseEntry->updated_by=Auth::User()->id; 
         $ExpenseEntry->save();
         return response()->json(['errors'=>'','id'=>$ExpenseEntry->id]);
@@ -3970,7 +3970,7 @@ class BillingController extends BaseController
         $InvoiceAdjustment->notes =$request->notes;
         $InvoiceAdjustment->percentages =$request->percentage;
         $InvoiceAdjustment->amount =str_replace(",","",$request->amount);
-        $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
+        // $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
         $InvoiceAdjustment->created_by=Auth::User()->id; 
         $InvoiceAdjustment->save();
         return response()->json(['errors'=>'','id'=>$InvoiceAdjustment->id]);
@@ -4015,7 +4015,7 @@ class BillingController extends BaseController
         $InvoiceAdjustment->notes =$request->notes;
         $InvoiceAdjustment->percentages =$request->percentage;
         $InvoiceAdjustment->amount =str_replace(",","",$request->amount);
-        $InvoiceAdjustment->updated_at=date('Y-m-d h:i:s'); 
+        // $InvoiceAdjustment->updated_at=date('Y-m-d h:i:s'); 
         $InvoiceAdjustment->updated_by=Auth::User()->id; 
         $InvoiceAdjustment->save();
         return response()->json(['errors'=>'','id'=>$InvoiceAdjustment->id]);
@@ -11614,6 +11614,7 @@ class BillingController extends BaseController
     public function payOnlinePayment(Request $request)
     {   
         // return $request->all();
+        $request['amount'] = str_replace(",","",$request->amount);
         DB::beginTransaction();
         try {
             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();

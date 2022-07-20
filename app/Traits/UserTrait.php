@@ -57,7 +57,7 @@ trait UserTrait {
             'text_messaging_add_edit',
             'messaging_add_edit',
             'billing_add_edit',
-            'billing_access_financial_insight',
+            ($userType == 'firmowner') ? 'billing_access_financial_insight' : '',
             'reporting_entire_firm',
 
             'access_all_cases',

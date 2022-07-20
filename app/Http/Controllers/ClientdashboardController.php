@@ -929,6 +929,7 @@ class ClientdashboardController extends BaseController
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo) {
                 $action = '';
+                if(auth()->user()->hasAnyPermission(['billing_add_edit'])) {
                 if($data->is_refunded == "yes") {
                     $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
                     $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
@@ -968,6 +969,7 @@ class ClientdashboardController extends BaseController
                                 $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
                         }
                     }
+                }
                 }
                 return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
             })
@@ -1599,9 +1601,7 @@ class ClientdashboardController extends BaseController
         }else{
             $authUser = auth()->user();
             $id=$request->user_id;
-            $firmData=Firm::find($authUser->firm_name);
             $userData=User::find($id);
-            $country = Countries::get();
             $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
             $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$id)->first();
 
@@ -1611,17 +1611,18 @@ class ClientdashboardController extends BaseController
             if(isset($request->from_date) && isset($request->to_date)){
                 $allHistory = $allHistory->whereBetween('trust_history.payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
             }  
-            $allHistory = $allHistory->orderBy('trust_history.payment_date','ASC');
+            // $allHistory = $allHistory->orderBy('trust_history.payment_date','ASC');
+            $allHistory = $allHistory->orderBy('trust_history.payment_date', 'asc')->orderBy("trust_history.created_at", "asc");
             $allHistory = $allHistory->with(['invoice' => fn($q) => $q->withTrashed()])->get();
-            // return view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
+            
             $trustHistoryFirstRow = $allHistory->first();
             $initialBalance = TrustHistory::where("client_id", $request->user_id)
-                        ->whereDate('payment_date', '<', ($request->from_date) ? date('Y-m-d',strtotime($request->from_date)) : date('Y-m-d', strtotime(@$trustHistoryFirstRow->payment_date)))
+                        ->whereDate('payment_date', '<', date('Y-m-d',strtotime($request->from_date)) ? date('Y-m-d',strtotime($request->from_date)) : date('Y-m-d', strtotime(@$trustHistoryFirstRow->payment_date)))
                         ->orderBy('payment_date', 'desc')->orderBy("created_at", "desc")->first();
 
             $filename='trust_export_'.time().'.pdf';
             $startDate = $request->from_date; $endDate = $request->to_date;     
-            $PDFData=view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory', 'startDate', 'endDate', 'authUser', 'trustHistoryFirstRow', 'initialBalance'));
+            $PDFData=view('client_dashboard.billing.trustHistoryPdf',compact('userData','firmAddress','UsersAdditionalInfo','allHistory', 'startDate', 'endDate', 'authUser', 'trustHistoryFirstRow', 'initialBalance'));
             $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
                 $pdf->binary = EXE_PATH;
@@ -4062,6 +4063,7 @@ class ClientdashboardController extends BaseController
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo){
                 $action = '';
+                if(auth()->user()->hasAnyPermission(['billing_add_edit'])) {
                 if($data->is_refunded == "yes") {
                 } else if($data->is_invoice_cancelled == "yes") {
                 } else if($data->payment_method == "refund") {
@@ -4081,6 +4083,7 @@ class ClientdashboardController extends BaseController
                             $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
                     }
                     }
+                }
                 }
                 return $action;
             })
@@ -4668,17 +4671,15 @@ class ClientdashboardController extends BaseController
         }else{
             $authUser = auth()->user();
             $id=$request->user_id;
-            $firmData=Firm::find($authUser->firm_name);
             $userData=User::find($id);
-            $country = Countries::get();
             $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
-            $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$id)->first();
+            // $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$id)->first();
 
             $creditHistory = DepositIntoCreditHistory::where("user_id", $request->user_id);
             if(isset($request->from_date) && isset($request->to_date)){
                 $creditHistory = $creditHistory->whereBetween('payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
             }  
-            $creditHistory = $creditHistory->orderBy('payment_date','asc')->with(['invoice' => fn($q) => $q->withTrashed()])->get();
+            $creditHistory = $creditHistory->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->with(['invoice' => fn($q) => $q->withTrashed()])->get();
             $creditHistoryFirstRow = $creditHistory->first();
             $initialBalance = DepositIntoCreditHistory::where("user_id", $request->user_id)
                         ->whereDate('payment_date', '<', ($request->from_date) ? date('Y-m-d',strtotime($request->from_date)) : date('Y-m-d', strtotime(@$creditHistoryFirstRow->payment_date)))
@@ -4686,7 +4687,7 @@ class ClientdashboardController extends BaseController
 
             $filename='credit_export_'.time().'.pdf';
             $startDate = $request->from_date; $endDate = $request->to_date;
-            $PDFData=view('client_dashboard.billing.credit_history_pdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','creditHistory', 'startDate', 'endDate', 'initialBalance', 'authUser'));
+            $PDFData=view('client_dashboard.billing.credit_history_pdf',compact('userData','firmAddress'/* ,'UsersAdditionalInfo' */,'creditHistory', 'startDate', 'endDate', 'initialBalance', 'authUser'));
             $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
                 $pdf->binary = EXE_PATH;
