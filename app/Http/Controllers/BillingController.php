@@ -12107,6 +12107,7 @@ class BillingController extends BaseController
                             $phoneNumber = $client->mobile_number;
                             $userName = $client->full_name;
                         }
+                        return $userName;
                         // $phoneNumber = ($request->phone_number) ? $request->phone_number : (($request->bt_phone_number) ? $request->bt_phone_number : $client->mobile_number);
                         $customer = \Conekta\Customer::create([
                                         "name"=> $userName,
@@ -12177,7 +12178,7 @@ class BillingController extends BaseController
         $validOrderWithCharge = [
             'line_items' => [
                 [
-                    'name' => ucfirst($request->type).' number '.($request->applied_to) ? $request->applied_to : $client->id,
+                    'name' => ucfirst($request->type).' number '.(($request->applied_to) ? $request->applied_to : $client->id),
                     'unit_price' => (int)$payableAmount * 100,
                     'quantity' => 1,
                 ]
@@ -12410,7 +12411,7 @@ class BillingController extends BaseController
         $validOrderWithCharge = [
             'line_items' => [
                 [
-                    'name' => ucfirst($request->type).' number '.$request->client_id,
+                    'name' => ucfirst($request->type).' number '.(($request->applied_to) ? $request->applied_to : $client->id),
                     'unit_price' => (int)$amount * 100,
                     'quantity' => 1,
                 ]
@@ -12495,7 +12496,7 @@ class BillingController extends BaseController
         $validOrderWithCharge = [
             'line_items' => [
                 [
-                    'name' => ucfirst($request->type).' number '.$request->client_id,
+                    'name' => ucfirst($request->type).' number '.(($request->applied_to) ? $request->applied_to : $client->id),
                     'unit_price' => (int)$amount * 100,
                     'quantity' => 1,
                 ]
