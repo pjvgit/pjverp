@@ -6258,7 +6258,7 @@ class BillingController extends BaseController
                         $SharedInvoice->user_id =$v;
                         $SharedInvoice->is_shared = 'yes';
                         $SharedInvoice->created_by=Auth::User()->id; 
-                        $SharedInvoice->created_at=date('Y-m-d h:i:s'); 
+                        // $SharedInvoice->created_at=date('Y-m-d h:i:s'); 
                         $SharedInvoice->save();
 
                         dispatch(new ShareInvoiceClientEmailJob($InvoiceSave, $findUSer, $getTemplateData));
@@ -7612,6 +7612,7 @@ class BillingController extends BaseController
 
     public function setBulkSharesActionForm(Request $request)
     {
+        // return $request->all();
         $request->merge([
             'invoice_id' => ($request->invoice_id!="[]") ? $request->invoice_id : NULL
         ]);
@@ -7655,10 +7656,20 @@ class BillingController extends BaseController
                     }
                 }else if($Invoice->case_id == 0){
                     if($request->status == "BC"){  //BC=Billing Contact only
-                        $clientData = User::whereId($v)->with(["userAdditionalInfo" => function($query) {
+                        $clientData = User::whereId($Invoice->user_id)->with(["userAdditionalInfo" => function($query) {
                             $query->select("user_id", "client_portal_enable");
                         }])->first();
                         if(!empty($clientData)){
+
+                            SharedInvoice::updateOrCreate([
+                                'invoice_id' => $Invoice->id,
+                                'user_id' => $Invoice->user_id,
+                            ],[
+                                'is_shared' => 'yes',
+                                'created_by' => auth()->id(),
+                                'updated_by' => auth()->id(),
+                            ]);
+
                             $firmData=Firm::find(Auth::User()->firm_name);
                             $getTemplateData = EmailTemplate::find(12);
                             // $token=url('activate_account/bills=&web_token='.$Invoice['invoice_unique_token']);
@@ -7680,11 +7691,11 @@ class BillingController extends BaseController
                             ];
                             $sendEmail = $this->sendMail($user);
                         }else{
-                            $notSharedlist .='<li>'. sprintf('%06d', @$Invoice['id']).' ('.@$leadData['full_name'].')</li>';
+                            $notSharedlist .='<li>'. @$Invoice->invoice_id.' ('.@$clientData['full_name'].')</li>';
                         }
                     }else{
                         $leadData=User::find($Invoice->user_id);
-                        $notSharedlist .='<li>'. sprintf('%06d', @$Invoice['id']).' ('.@$leadData['full_name'].')</li>';
+                        $notSharedlist .='<li>'. @$Invoice->invoice_id.' ('.@$leadData['full_name'].')</li>';
                     }
                 }else{
                     if($request->status=="BC"){  //BC=Billing Contact only
@@ -7693,6 +7704,7 @@ class BillingController extends BaseController
                         // $CaseClientSelection=CaseClientSelection::select("selected_user")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
                         $CaseClientSelection=CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select("users.id")->where("case_client_selection.case_id",$Invoice['case_id'])->where('users.user_level','2')->get()->pluck("id");
                     }
+                    // return $CaseClientSelection;
                     if(!$CaseClientSelection->isEmpty()){
                         foreach($CaseClientSelection as $k=>$v){
                             $clientData = User::whereId($v)->with(["userAdditionalInfo" => function($query) {
@@ -7700,6 +7712,16 @@ class BillingController extends BaseController
                             }])->first();
                             if(!empty($clientData)){
                                 if($clientData->user_level == 2 && $clientData->userAdditionalInfo->client_portal_enable == 1){
+
+                                    SharedInvoice::updateOrCreate([
+                                        'invoice_id' => $Invoice->id,
+                                        'user_id' => $v,
+                                    ],[
+                                        'is_shared' => 'yes',
+                                        'created_by' => auth()->id(),
+                                        'updated_by' => auth()->id(),
+                                    ]);
+
                                     $firmData=Firm::find(Auth::User()->firm_name);
                                     $getTemplateData = EmailTemplate::find(12);
                                     // $token=url('activate_account/bills=&web_token='.$Invoice['invoice_unique_token']);

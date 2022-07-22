@@ -11,7 +11,12 @@
     $content = str_replace('[PAID_AMOUNT]', number_format($onlinePayment->amount ?? 0, 2), $template->content);
     if($payableType == 'fundrequest') {
         $content = str_replace('[CLIENT_NAME]', @$payableRecord->user->full_name ?? '', $content);
-        $content = str_replace('[CASE_TITLE]', '-', $content);
+        if(!empty($payableRecord->allocateToCase)) {
+            $content = str_replace('[CASE_TITLE]', $payableRecord->allocateToCase->case_title ?? '', $content);
+        } else {
+            $content = str_replace('[CASE_TITLE]', '-', $content);
+        }
+        // $content = str_replace('[CASE_TITLE]', '-', $content);
         $content = str_replace('[PAYABLE_ID]', 'Request #'.$payableRecord->id, $content);
         $content = str_replace('[INVOICE_LINK]', '<a href="'.route('bills/retainer_requests').'" >View</a>', $content);
     } else if($payableType == 'invoice') {
@@ -25,7 +30,12 @@
         $content = str_replace('[INVOICE_LINK]', '<a href="'.route('bills/invoices/view', base64_encode($onlinePayment->invoice_id)).'" >View</a>', $content);
     } else if($payableType == 'fund') {
         $content = str_replace('[CLIENT_NAME]', @$payableRecord->full_name ?? '', $content);
-        $content = str_replace('[CASE_TITLE]', '-', $content);
+        if(!empty($onlinePayment->case)) {
+            $content = str_replace('[CASE_TITLE]', $onlinePayment->case->case_title ?? '', $content);
+        } else {
+            $content = str_replace('[CASE_TITLE]', '-', $content);
+        }
+        // $content = str_replace('[CASE_TITLE]', '-', $content);
         $content = str_replace('[PAYABLE_ID]', 'Client#'.@$payableRecord->id, $content);
         $content = str_replace('[INVOICE_LINK]', '<a href="'.route('contacts/clients/view', @$payableRecord->id).'" >View</a>', $content);
     }

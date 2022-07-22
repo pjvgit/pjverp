@@ -53,4 +53,14 @@ class UserTrustCreditFundOnlinePayment extends Model
     {
         return $this->belongsTo(Firm::class, 'firm_id');
     }
+
+    /**
+     * Get the case that owns the UserTrustCreditFundOnlinePayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function case()
+    {
+        return $this->belongsTo(CaseMaster::class, 'allocated_to_case_id');
+    }
 }

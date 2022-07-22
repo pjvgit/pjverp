@@ -263,7 +263,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                             <h5>Address</h5>
                                             <div id="client-address">
                                                 {{$userProfile->street}}<br>
-                                                {{$UsersAdditionalInfo['address2']}}<br>
+                                                {{$userProfile->apt_unit}}<br>
                                                 {{$userProfile->city}}, {{$userProfile->state}}
                                                 {{$userProfile->state}}<br>
                                                 {{$userProfile->countryname}}<br>
