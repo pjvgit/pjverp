@@ -12129,7 +12129,6 @@ class BillingController extends BaseController
                             $phoneNumber = $client->mobile_number;
                             $userName = $client->full_name;
                         }
-                        return $userName;
                         // $phoneNumber = ($request->phone_number) ? $request->phone_number : (($request->bt_phone_number) ? $request->bt_phone_number : $client->mobile_number);
                         $customer = \Conekta\Customer::create([
                                         "name"=> $userName,
