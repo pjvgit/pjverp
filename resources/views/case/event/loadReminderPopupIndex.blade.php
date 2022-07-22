@@ -34,7 +34,7 @@
                                             <div>
                                                 <div class="">
                                                     {{-- <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false"> --}}
-                                                    <select id="reminder_type_{{ $rval->reminder_id }}" name="reminder[type][]" class="form-control custom-select valid" aria-invalid="false">
+                                                    <select id="reminder_type_{{ $rval->reminder_id }}" name="reminder[type][]" class="form-control custom-select valid reminder_type" aria-invalid="false">
                                                         @foreach(getEventReminderTpe() as $k =>$v)
                                                                 <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
                                                         @endforeach
@@ -86,7 +86,7 @@
                 <div>
                     <div class="">
                         <select id="reminder_user_type" name="reminder[user_type][]"
-                            class="form-control custom-select  ">
+                            class="form-control custom-select  " onchange="changeEventReminderUserType(this)">
                             @forelse (reminderUserType() as $key => $item)
                             <option value="{{ $key }}">{{ $item }}</option>
                             @empty
@@ -191,4 +191,15 @@
       
     });
 
+// CHange reminder type based on reminder user type
+function changeEventReminderUserType(sel) {
+    if (sel.value == 'client-lead') {
+        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type option[value='popup']").hide();
+        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type").val('email');
+        // $("#reminder_type_" + sel.id + " option[value='popup']").hide();
+    } else {
+        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type option[value='popup']").show();
+        // $("#reminder_type_" + sel.id + " option[value='popup']").show();
+    }
+}
 </script>

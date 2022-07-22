@@ -11,18 +11,28 @@
             <div class="event-detail__info">
                 @php
                     $userTimezone = $authUser->user_timezone;
-                    $startDateTime= convertUTCToUserTime($eventRecurring->start_date.' '.$event->start_time, $userTimezone ?? 'UTC');
-                    $endDateTime= convertUTCToUserTime($eventRecurring->end_date.' '.$event->end_time, $userTimezone ?? 'UTC');
-                    $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('F d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "";
+                    if($event->is_full_day == 'no') {
+                        $startDateTime= convertToUserTimezone($eventRecurring->start_date.' '.$event->start_time, $userTimezone ?? 'UTC');
+                        $endDateTime= convertToUserTimezone($eventRecurring->end_date.' '.$event->end_time, $userTimezone ?? 'UTC');
+                    }
+                    $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. convertUTCToUserDate($event->end_on, $userTimezone)->format('F d, Y') : "";
                 @endphp
                 <div class="event-detail__info-row">
                     <i class="fas fa-calendar-day list-row__icon"></i>
-                    <span>{{date('D, M jS Y',strtotime($startDateTime))}} - {{date('D, M jS Y',strtotime($endDateTime))}}</span>
+                    @if($event->is_full_day == 'no')
+                    <span>{{ $startDateTime->format('D, M jS Y') }} — {{ $endDateTime->format('D, M jS Y') }}</span>
+                    @else
+                    <span>{{ convertUTCToUserDate($eventRecurring->start_date, $userTimezone)->format('D, M j Y') }} </span>
+                    @endif
                 </div>
                 <div class="event-detail__info-row">
                     <i class="far fa-clock list-row__icon"></i>
                     <div>
-                        {{date('h:i A',strtotime($event->startDateTime))}} - {{date('h:i A',strtotime($event->endDateTime))}}
+                        @if($event->is_full_day == 'no')
+                        {{ $startDateTime->format('h:i A') }} - {{ $endDateTime->format('h:i A') }}
+                        @else
+                        All day
+                        @endif
                         <br>
                         <div><b>Repeats:</b>
                             @if($event->event_recurring_type=='DAILY')
@@ -64,7 +74,12 @@
                 <div class="event-detail__info-row">
                     <i class="fas fa-map-marker-alt list-row__icon"></i>
                     <div class="u-min-width-0">
-                        <div>{{ ($event->eventLocation) ? @$event->eventLocation->location_name : 'No Location' }}</div>
+                        <div>@if($event->eventLocation)
+                            {{ @$event->eventLocation->full_address }}
+                            @else
+                                No Location
+                            @endif
+                        </div>
                     </div>
                 </div>
                 <div class="event-detail__info-row">
@@ -87,10 +102,10 @@
                     <i class="far fa-clock list-row__icon"></i>
                     <div class="event-reminder">
                         @php
-                            $eventReminders = encodeDecodeJson($eventRecurring->event_reminders);
+                            $eventReminders = encodeDecodeJson($eventRecurring->event_reminders)->where('reminder_user_type', 'client-lead');
                         @endphp
                         @forelse ($eventReminders as $erkey => $eritem)
-                            <div>{{ ucfirst($eritem->reminder_type) }} {{ $eritem->reminder_user_type }} {{ $eritem->reminer_number}} {{ $eritem->reminder_frequncy}} before event</div>
+                            <div>{{ ucfirst($eritem->reminder_type) }} {{-- {{ $eritem->reminder_user_type }} --}} me {{ $eritem->reminer_number}} {{ $eritem->reminder_frequncy}} before event</div>
                         @empty
                         @endforelse
                     </div>

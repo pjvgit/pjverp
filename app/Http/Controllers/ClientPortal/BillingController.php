@@ -1416,15 +1416,15 @@ class BillingController extends Controller
         } else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') { 
             // Send confirmation email to client
             $client = User::whereId($paymentDetail->user_id)->first();
-            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'bank_confirm_client', 'fundrequest'));
+            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail, 'bank_confirm_client', 'fundrequest'));
 
             // Send confirmation email to fundRequest created user
             $user = User::whereId($fundRequest->created_by)->first();
-            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
+            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
 
             // Send confirm email to firm owner/lead attorney
             $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
+            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
             
             Log::info('fundRequest bank payment webhook successfull');
         } else {
@@ -1552,7 +1552,7 @@ class BillingController extends Controller
         } else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') { 
             // Send confirmation email to client
             $client = User::whereId($paymentDetail->user_id)->first();
-            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'bank_confirm_client', 'fund'));
+            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail, 'bank_confirm_client', 'fund'));
 
             // Send confirmation email to fundRequest created user
             $user = User::whereId($paymentDetail->created_by)->first();
