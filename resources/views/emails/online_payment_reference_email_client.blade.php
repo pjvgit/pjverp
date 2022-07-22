@@ -8,6 +8,10 @@
 @endslot
 
 @php
+    $str = date('Y-m-d H:i:s', strtotime($onlinePayment->conekta_reference_expires_at));
+    $expDate = Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
+    $expDate->setTimezone($onlinePayment->client->user_timezone ?? 'UTC');
+
     $content = str_replace('[PAYABLE_AMOUNT]', number_format(@$onlinePayment->amount ?? 0, 2), $template->content);
     $content = str_replace('[REFERENCE_NUMBER]', @$onlinePayment->conekta_payment_reference_id ?? '', $content);
     if($payableType == 'fundrequest') {
@@ -17,8 +21,8 @@
     } else {
         $content = str_replace('[PAYABLE_ID]', 'Client#'.$onlinePayment->user_id, $content);
     }
-    $content = str_replace('[EXPIRES_DATE]', @$onlinePayment->expires_date, $content);
-    $content = str_replace('[EXPIRES_TIME]', @$onlinePayment->expires_time, $content);
+    $content = str_replace('[EXPIRES_DATE]', @$expDate->format('d-m-Y'), $content);
+    $content = str_replace('[EXPIRES_TIME]', @$expDate->format('H:i'), $content);
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
 
     $content = str_replace('[BANK_NAME]', @$onlinePayment->conekta_order_object['charges']['data'][0]['payment_method']['bank'], $content);

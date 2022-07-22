@@ -1556,11 +1556,11 @@ class BillingController extends Controller
 
             // Send confirmation email to fundRequest created user
             $user = User::whereId($paymentDetail->created_by)->first();
-            $this->dispatch(new OnlinePaymentEmailJob($client, $user, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fund'));
+            $this->dispatch(new OnlinePaymentEmailJob($client, $user, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'fund'));
 
             // Send confirm email to firm owner/lead attorney
             $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-            $this->dispatch(new OnlinePaymentEmailJob($client, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fund'));
+            $this->dispatch(new OnlinePaymentEmailJob($client, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'fund'));
             
             Log::info('fund bank payment webhook successfull');
         } else {

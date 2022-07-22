@@ -29,8 +29,10 @@ class EventController extends Controller
                         $query->where('users.id', auth()->id())->select("case_event_linked_contact_lead.is_view");
                     }])->get(); */
         $authUserId = (string) auth()->id();
+        $currentDate = convertUTCToUserDate(Carbon::now()->format('Y-m-d'), auth()->user()->user_timezone)->format('Y-m-d');
         $events = EventRecurring::whereJsonContains('event_linked_contact_lead', ["contact_id" => $authUserId])
-                    ->whereDate('start_date', '>=', Carbon::now())->has('event')
+                    ->whereDate('start_date', '>=', $currentDate)
+                    ->has('event')
                     ->orderBy('start_date', 'asc')->with("event")->get();
         return view("client_portal.events.index", compact('events'));
     }
