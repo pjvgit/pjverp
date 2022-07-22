@@ -39,7 +39,6 @@ class OnlinePaymentMail extends Mailable
         if($this->payableType == 'invoice' && $this->payableRecord == null) {
             $this->payableRecord = Invoices::whereId()->first();
         }
-        \Log::info("unser confirm fundrequest: ". @$this->payableRecord->allocateToCase);
         switch ($this->userType) {
             case 'client':
                 return $this
