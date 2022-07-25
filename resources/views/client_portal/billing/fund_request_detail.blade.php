@@ -14,7 +14,7 @@
                 <div>Funds Request: {{ @$fundRequest->padding_id }}</div>
                 <div class="ml-auto d-flex"></div>
                 <div class="payable-detail__actions">
-					@if(getFirmOnlinePaymentSetting() && getFirmOnlinePaymentSetting()->is_accept_online_payment == 'yes')
+					@if(getFirmOnlinePaymentSetting() && getFirmOnlinePaymentSetting()->is_accept_online_payment == 'yes' && $fundRequest->status != "paid")
 					<a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', ['type'=>'fundrequest', 'id'=>encodeDecodeId($fundRequest->id, 'encode'), 'client_id'=>encodeDecodeId(auth()->id(), 'encode')]) }}">
 						<span class="payable-detail__export-button">Pay Now</span>
 					</a>
