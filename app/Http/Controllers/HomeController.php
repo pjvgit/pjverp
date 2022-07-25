@@ -849,9 +849,9 @@ class HomeController extends BaseController
                 }
             }
         }
-
+        /* New logic set. This code is not required */
         // for showing app notifications
-        $eventCount = $taskCount = 0;
+        /* $eventCount = $taskCount = 0;
         $firmData = [];
         $staffData = [];
         $AllHistoryData = AllHistory::where('is_read', 1)->where('firm_id', auth()->user()->firm_name)->get();
@@ -874,9 +874,9 @@ class HomeController extends BaseController
                 if($v->type == 'event'){
                     $eventCount += 1;
                 }
-                /* if($v->type == 'task'){
+                if($v->type == 'task'){
                     $taskCount += 1;
-                }  */          
+                }           
             }
             $appNotificaionCount = array("eventCount" => $eventCount, "taskCount" => $taskCount);
         }
@@ -885,12 +885,12 @@ class HomeController extends BaseController
                 if($v->type == 'event'){
                     $eventCount += 1;
                 }
-                /* if($v->type == 'task'){
+                if($v->type == 'task'){
                     $taskCount += 1;
-                } */           
+                }           
             }
             $appNotificaionCount = array("eventCount" => $eventCount, "taskCount" => $taskCount);
-        }
+        } */
         // for showing app notifications
         
         $view = '';
@@ -900,7 +900,7 @@ class HomeController extends BaseController
         if(count($events)) {
             $view = view("dashboard.popup_notification", ["result" => $events])->render();
         }
-        return response()->json(["view" => $view, "appNotificaionCount" => $appNotificaionCount]);
+        return response()->json(["view" => $view/* , "appNotificaionCount" => $appNotificaionCount */]);
     }
 
     /**

@@ -11,14 +11,17 @@
             $userTimezone = $authUser->user_timezone ?? 'UTC';
         @endphp
         @forelse ($events as $item)
+            @php
+                $sDate = convertUTCToUserDate($item->start_date, $user_timezone ?? 'UTC')->format('Y-m-d');
+            @endphp
             <tr class="{{ ($item->is_read == 'no') ? 'font-weight-bold' : '' }}">
                 <td>
-                    @if(isset($oDate) && $item->start_date==$oDate)
+                    @if(isset($oDate) && $sDate==$oDate)
                     @else
                         @php
-                            $oDate=$item->start_date;
+                            $oDate = $sDate;
                         @endphp
-                        {{ date('D, M d', strtotime($item->start_date_time)) }}
+                        {{ $item->start_date_time->format('D, M d') }}
                     @endif
                 </td>
                 
@@ -27,7 +30,7 @@
                         @if($item->is_all_day == 'yes')
                             all day >>
                         @else
-                            {{ date('h:i A',strtotime($item->start_date_time)) }} - {{ date('h:i A',strtotime($item->end_date_time)) }}
+                            {{ $item->start_date_time->format('h:i A') }} - {{ $item->end_date_time->format('h:i A') }}
                         @endif
                     </td>
                     <td>
@@ -125,7 +128,8 @@
                         @endif
                     </td>
                     <td class="event-users">
-                        @if($item->is_event_private=='no')
+                        @if($item->is_event_private=='yes' && !$isAuthUserLinked)
+                        @else
                             @if($item->is_read == 'no')
                                 <button type="button" class="mark-as-read-button float-right m-1 btn btn-secondary" onclick="markEventAsRead({{ $item->event_id }});">Mark as Read</button>
                             @else

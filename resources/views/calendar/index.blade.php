@@ -584,8 +584,9 @@ $(document).ready(function () {
                 success: function (doc) {
                     // viewData = doc;
                     $('.agenda-custom-view').html(doc);
-                    $("#preloaderData").hide();
                 },
+            }).done(function(data) {
+                $("#preloaderData").hide();
             });
             // return {html: viewData};
         }
@@ -1585,11 +1586,11 @@ $(document).ready(function () {
         dataString = $("#markEventAsReadForm").serialize();
        
         $.ajax({
-            type: "POST",
-            url: baseUrl + "/tasks/taskAllReadFromCalender", // json datasource
+            type: "GET",
+            url: baseUrl + "/events/mark/read", // json datasource
             data: dataString,
             beforeSend: function (xhr, settings) {
-                settings.data += '&save=yes';
+                settings.data += '&is_all_event=yes';
             },
             success: function (res) {
                 $("#innerLoader").css('display', 'block');
@@ -1607,7 +1608,10 @@ $(document).ready(function () {
                     $('#submit').removeAttr("disabled");
                     return false;
                 } else {
-                    window.location.reload();
+                    // window.location.reload();
+                    $("#markEventAsRead").modal("hide");
+                    $("#preloaderData").hide();
+                    calendar.refetchEvents();
                 }
             }
         });

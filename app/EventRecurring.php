@@ -62,7 +62,7 @@ class EventRecurring extends Model
     public function getIsReadAttribute()
     {
         $authUserId = (string) auth()->id();
-        $decodeJson = encodeDecodeJson($this->event_linked_staff)->where("user_id", $authUserId)->first();
-        return $decodeJson->is_read ?? "no";
+        $decodeJson = encodeDecodeJson($this->event_linked_staff)->where("user_id", auth()->id())->first();
+        return $decodeJson->is_read ?? "yes";
     }
 }

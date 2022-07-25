@@ -186,7 +186,7 @@
                                     <td class="event-text-format" style="width: 300px;">
                                         <div><div class="event-text-format agenda-title">
                                             <span 
-                                            @if($value->task_priority == "1")
+                                            @if($value->task_priority == "3")
                                             style="background-color: rgb(202, 66, 69);" 
                                             @elseif($value->task_priority == "2")
                                             style="background-color: rgb(254, 193, 8);"

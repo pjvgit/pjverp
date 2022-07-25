@@ -13,7 +13,7 @@
                 <div class="col">
                     <div>
                         @forelse($eventReminder as $rkey => $rval)
-                            <div class="row form-group fieldGroup">
+                            <div class="row form-group fieldGroupEventReminderIndex">
                                 <div class="">
                                     <div class="d-flex col-10 pl-0 align-items-center">
                                         <div class="pl-0 col-3">
@@ -21,7 +21,7 @@
                                                 <input type="hidden" name="reminder[id][]" value="{{ $rval->reminder_id }}">
                                                 <div class="">
                                                     {{-- <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  "> --}}
-                                                    <select id="reminder_user_type_{{ $rval->reminder_id }}" name="reminder[user_type][]" class="form-control custom-select  ">
+                                                    <select id="reminder_user_type_{{ $rval->reminder_id }}" name="reminder[user_type][]" class="form-control custom-select reminder_user_type " onchange="changeEventReminderUserTypeIndex(this)">
                                                         @forelse (reminderUserType() as $key => $item)
                                                         <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? "selected" : "" }}>{{ $item }}</option>
                                                         @empty
@@ -63,7 +63,7 @@
                             </div>
                         @empty
                         @endforelse
-                        <div class="fieldGroup">
+                        <div class="fieldGroupEventReminderIndex">
                         </div>
                         <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more-reminder">Add a reminder</button></div>
                     </div>
@@ -79,14 +79,14 @@
 <input type="hidden" id="deleted_reminder_id" name="deleted_reminder_id" >
 </form>
 {{-- Copy reminder fields --}}
-<div class="fieldGroupCopy copy hide" style="display: none;">
+{{-- <div class="fieldGroupCopy copy hide" style="display: none;">
     <div class="">
         <div class="d-flex col-10 pl-0 align-items-center">
             <div class="pl-0 col-3">
                 <div>
                     <div class="">
                         <select id="reminder_user_type" name="reminder[user_type][]"
-                            class="form-control custom-select  " onchange="changeEventReminderUserType(this)">
+                            class="form-control custom-select  " onchange="changeEventReminderUserTypeIndex(this)">
                             @forelse (reminderUserType() as $key => $item)
                             <option value="{{ $key }}">{{ $item }}</option>
                             @empty
@@ -99,7 +99,7 @@
                 <div>
                     <div class="">
                         <select id="reminder_type" name="reminder[type][]"
-                            class="form-control custom-select  ">
+                            class="form-control custom-select reminder_type ">
                             @foreach(getEventReminderTpe() as $k =>$v)
                                 <option value="{{$k}}">{{$v}}</option>
                             @endforeach
@@ -125,14 +125,64 @@
             </button>
         </div>
     </div>
+</div> --}}
+
+<div class="fieldGroupEventReminderIndexCopy copy hide add_more_reminder_div" style="display: none;">
+    <div class="">
+        <div class="d-flex col-10 pl-0 align-items-center">
+            <div class="pl-0 col-3">
+                <div>
+                    <div class="">
+                        <select {{-- id="reminder_user_type" --}} name="reminder_user_type[]"
+                            class="form-control custom-select reminder_user_type" onchange="changeEventReminderUserTypeIndex(this)">
+                            @forelse (reminderUserType() as $key => $item)
+                            <option value="{{ $key }}">{{ $item }}</option>
+                            @empty
+                            @endforelse
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="pl-0 col-3">
+                <div>
+                    <div class="">
+                        <select {{-- id="reminder_type" --}} name="reminder_type[]"
+                            class="form-control custom-select reminder_type">
+                            @foreach(getEventReminderTpe() as $k =>$v)
+                                <option value="{{$k}}">{{$v}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div><input name="reminder_number[]" type="number" min="0" class="form-control col-2 reminder-number" value="1">
+            <div class="col-4">
+                <div>
+                    <div class="">
+                        <select {{-- id="reminder_time_unit" --}} name="reminder_time_unit[]"
+                            class="form-control custom-select reminder_time_unit">
+                            <option value="minute">minutes</option>
+                            <option value="hour">hours</option>
+                            <option value="day">days</option>
+                            <option value="week">weeks</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button class="btn remove" type="button">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
 </div>
+
 <script type="text/javascript">
     $(document).ready(function () {
 
         $("#editReminderIndex .add-more-reminder").click(function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
+            var fieldHTML = '<div class="row form-group fieldGroupEventReminderIndex">' + $(".fieldGroupEventReminderIndexCopy").html() +
                 '</div>';
-            $('body').find('#editReminderIndex .fieldGroup:last').before(fieldHTML);
+            $('body').find('#editReminderIndex .fieldGroupEventReminderIndex:last').before(fieldHTML);
+            $('body').find('#editReminderIndex .fieldGroupEventReminderIndex').find(".reminder_user_type option[value='client-lead']").show();
         });
         $('#editReminderIndex').on('click', '.remove', function () {
             var remindId = $(this).attr("data-remind-id");
@@ -140,7 +190,7 @@
                 $("#deleted_reminder_id").val($('#deleted_reminder_id').val() + ','+remindId);
             else
                 $("#deleted_reminder_id").val($('#deleted_reminder_id').val() + remindId);
-            var $row = $(this).parents('#editReminderIndex .fieldGroup').remove();
+            var $row = $(this).parents('#editReminderIndex .fieldGroupEventReminderIndex').remove();
         });
 
 
@@ -188,17 +238,19 @@
                 }
             });
         });
+
+        
+
       
     });
-
 // CHange reminder type based on reminder user type
-function changeEventReminderUserType(sel) {
+function changeEventReminderUserTypeIndex(sel) {
     if (sel.value == 'client-lead') {
-        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type option[value='popup']").hide();
-        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type").val('email');
+        $(sel).parents('div.fieldGroupEventReminderIndex').find(".reminder_type option[value='popup']").hide();
+        $(sel).parents('div.fieldGroupEventReminderIndex').find(".reminder_type").val('email');
         // $("#reminder_type_" + sel.id + " option[value='popup']").hide();
     } else {
-        $(sel).parents('div.fieldGroupEventReminder').find(".reminder_type option[value='popup']").show();
+        $(sel).parents('div.fieldGroupEventReminderIndex').find(".reminder_type option[value='popup']").show();
         // $("#reminder_type_" + sel.id + " option[value='popup']").show();
     }
 }

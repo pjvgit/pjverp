@@ -35,7 +35,7 @@
                                 <label class="toggle" for="drop-2">
                                     Calender
                                 </label>
-                                <a href="{{route('events/')}}">Calender <span class="badge badge-secondary eventCount" style="margin-bottom: 10px;"></span></a><input type="checkbox" id="drop-2"><input
+                                <a href="{{route('events/')}}">Calender <span class="badge badge-secondary {{-- eventCount --}}" style="margin-bottom: 10px;">{{ getUnreadEventCount() }}</span></a><input type="checkbox" id="drop-2"><input
                                     type="checkbox" id="drop-2">
                                 <ul>
 

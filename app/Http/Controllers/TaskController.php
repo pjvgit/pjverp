@@ -1242,14 +1242,15 @@ class TaskController extends BaseController
         return response()->json(['errors'=>'','msg'=>'Records successfully updated']);
         exit;    
   } 
-  public function taskAllReadFromCalender(Request $request)
+    // Not in use
+  /* public function taskAllReadFromCalender(Request $request)
   {
         CaseEvent::where('created_by',Auth::User()->id)->update(['event_read'=>'yes']);
         session(['popup_success' => 'We\'ve received your request to mark all events as read. It may take a minute to finish processing.']);
 
         return response()->json(['errors'=>'','msg'=>'Records successfully updated']);
         exit;    
-  }   
+  } */   
   public function markAsCompleted(Request $request)
   {
         $data = json_decode(stripslashes($request->task_id));

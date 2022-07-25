@@ -490,7 +490,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      Route::post('tasks/saveTimeEntryPopup', 'TaskController@saveTimeEntryPopup')->name('tasks/saveTimeEntryPopup');
      Route::get('tasks/markasread', 'TaskController@markasread')->name('tasks/markasread');
      Route::post('tasks/bulkMarkAsRead', 'TaskController@bulkMarkAsRead')->name('tasks/bulkMarkAsRead');
-     Route::post('tasks/taskAllReadFromCalender', 'TaskController@taskAllReadFromCalender')->name('tasks/taskAllReadFromCalender');
+    //  Route::post('tasks/taskAllReadFromCalender', 'TaskController@taskAllReadFromCalender')->name('tasks/taskAllReadFromCalender');
      
      Route::post('tasks/markAsCompleted', 'TaskController@markAsCompleted')->name('tasks/markAsCompleted');
      Route::post('tasks/changeDueDate', 'TaskController@changeDueDate')->name('tasks/changeDueDate');

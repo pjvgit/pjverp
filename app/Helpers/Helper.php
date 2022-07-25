@@ -12,6 +12,8 @@ use App\InvoiceSetting;
 use App\LeadAdditionalInfo;
 use App\User;
 use App\CaseStage;
+use App\Event;
+use App\EventRecurring;
 use App\Invoices;
 use App\Task;
 use Carbon\Carbon;
@@ -707,4 +709,17 @@ function convertToUserTimezone($str, $timezone){
     $date = Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
     $date->setTimezone($timezone ?? 'UTC');
     return $date;
+}
+
+/**
+ * Get current logged in user's unread event count
+ */
+function getUnreadEventCount()
+{
+    $authUser = auth()->user();
+    $authUserId = (string) $authUser->id;
+    $eventCount = Event::where("firm_id", $authUser->firm_name)->whereHas("eventRecurring", function($query) use($authUserId) {
+                    $query->whereJsonContains('event_linked_staff', ["user_id" => $authUserId, "is_read" => 'no']);
+                })->count();
+    return $eventCount ?? 0;
 }

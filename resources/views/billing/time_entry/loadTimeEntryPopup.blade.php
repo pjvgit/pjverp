@@ -393,6 +393,7 @@
             allowClear: true,
             dropdownParent: $("#loadTimeEntryPopup"),
         });
+        
         $("#staff_user").select2({
             placeholder: "Select...",
             theme: "classic",
@@ -418,6 +419,12 @@
             'clearBtn': true,
             'todayHighlight': true
         });
+        @if(isset($case_id))
+        getAndCheckDefaultCaseRate(null, "{{ $case_id }}");
+        for(var i = 1; i <= 5; i++) {
+            getAndCheckDefaultCaseRate(i, "{{ $case_id }}");
+        }
+        @endif
         $(".add-one-more").click(function () {
             var hideinputcount2 = $('#hideinputcount2').val();
 

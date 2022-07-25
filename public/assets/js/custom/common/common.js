@@ -19,11 +19,12 @@ function popupNotification() {
                 }
             } else {
                 $("#notification_popup").modal('hide');
-                if(result.appNotificaionCount.eventCount){
+                // New logic set. This code not required
+                /* if(result.appNotificaionCount.eventCount){
                     $(".eventCount").html('').html(result.appNotificaionCount.eventCount);
                 }else{
                     $(".eventCount").html('');
-                }
+                } */
                 // New logic set. This code not required
                 /* if(result.appNotificaionCount.taskCount){
                     $(".taskCount").html('').html(result.appNotificaionCount.taskCount);
