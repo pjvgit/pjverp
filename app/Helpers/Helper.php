@@ -668,7 +668,7 @@ function encodeDecodeJson($array, $type = "decode")
  */
 function getUserDetail($id)
 {
-    return User::select("first_name","last_name","id","user_level","user_type","user_title","email","default_color")->where("id", $id)->first();
+    return User::select("first_name","last_name","id","user_level","user_type","user_title","email","default_color","user_timezone")->where("id", $id)->first();
 }
 
 /**

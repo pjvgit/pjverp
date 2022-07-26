@@ -3829,8 +3829,8 @@ class CaseController extends BaseController
                 }
             }
             $fromPageRoute = $request->from_page_route ?? Null;
-
-            $view = view('case.event.loadEventCommentPopup',compact('event', 'eventRecurring', 'linkedUser', 'fromPageRoute'))->render();
+            $eventReminder = encodeDecodeJson($eventRecurring->event_reminders)->where('created_by', auth()->id());
+            $view = view('case.event.loadEventCommentPopup',compact('event', 'eventRecurring', 'linkedUser', 'fromPageRoute', 'eventReminder'))->render();
             return response()->json(['errors' => "", 'view' => $view]);   
         } else {
             return response()->json(['errors' => "No record found"]);
@@ -4390,6 +4390,7 @@ class CaseController extends BaseController
                         }
                     }
                 }
+                // return $eventReminders;
                 $newArray = [];
                 if(count($decodeReminder)) {
                     $newArray = $decodeReminder->filter(function($item) use($authUserId) {
@@ -5435,7 +5436,7 @@ class CaseController extends BaseController
         
         $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
         ->leftJoin("case_master","case_master.id","=","messages.case_id")
-        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), "messages.updated_at as last_post1", DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
+        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), /* "messages.updated_at as last_post1", */ DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
         if(isset($requestData['case_id']) && $requestData['case_id']!=''){
             $ContractUser = User::where("id",Auth::user()->id)->first();
             $userPermissions = $ContractUser->getPermissionNames()->toArray();

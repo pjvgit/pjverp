@@ -141,7 +141,7 @@
                             <div class="detail-info  col-9">
                                 <div>
                                     <ul id="reminder_list" class="list-unstyled">
-                                       
+                                        @include('case.event.loadReminderHistory', ['eventReminder' => $eventReminder])
                                     </ul>
 
                                     <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"
@@ -407,7 +407,7 @@ body >
     /**
     * Load event reminder list
     */
-    loadReminderHistory({{$event->id}}, {{$eventRecurring->id}});
+    // loadReminderHistory({{$event->id}}, {{$eventRecurring->id}});
     function loadReminderHistory(event_id, event_recurring_id) {
         $.ajax({
             type: "POST",

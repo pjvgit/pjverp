@@ -17,7 +17,7 @@
         $endDateTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
         $endDateTime->setTimezone($user->user_timezone);
     }
-
+    \Log::info("comment email user timezone: ".$user->user_timezone);
     $content = str_replace('[USER_NAME]', $user->first_name, $template->content);
     $content = str_replace('[COMMENT_ADDED_USER]', @$commentAddedUser->full_name, $content);
     $content = str_replace('[EVENT_NAME]', $event->event_title, $content);

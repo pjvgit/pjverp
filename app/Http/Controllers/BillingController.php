@@ -7659,7 +7659,7 @@ class BillingController extends BaseController
                         $clientData = User::whereId($Invoice->user_id)->with(["userAdditionalInfo" => function($query) {
                             $query->select("user_id", "client_portal_enable");
                         }])->first();
-                        if(!empty($clientData)){
+                        if(!empty($clientData) && $clientData->user_level == '2' && $clientData->userAdditionalInfo->client_portal_enable == '1'){
 
                             SharedInvoice::updateOrCreate([
                                 'invoice_id' => $Invoice->id,
@@ -7711,8 +7711,8 @@ class BillingController extends BaseController
                                 $query->select("user_id", "client_portal_enable");
                             }])->first();
                             if(!empty($clientData)){
-                                if($clientData->user_level == 2 && $clientData->userAdditionalInfo->client_portal_enable == 1){
-
+                                if($clientData->user_level == '2' && $clientData->userAdditionalInfo->client_portal_enable == '1'){
+                                    
                                     SharedInvoice::updateOrCreate([
                                         'invoice_id' => $Invoice->id,
                                         'user_id' => $v,

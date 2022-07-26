@@ -2455,6 +2455,7 @@ class ClientdashboardController extends BaseController
                         'is_archive' => 'no',
                     ]; */
                     $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
+                    $Messages->last_post_at = Carbon::now();
                     $Messages->save();
 
                     $ReplyMessages=new ReplyMessages;
@@ -2508,6 +2509,7 @@ class ClientdashboardController extends BaseController
                 }
                 $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
             }
+            $Messages->last_post_at = Carbon::now();
             $Messages->save();
 
             $senderName= $authUser->first_name." ".$authUser->last_name;

@@ -1,3 +1,7 @@
+------------------------------------ 26-JUL-2022 ------------------------------
+ALTER TABLE `messages`
+ADD `last_post_at` timestamp NULL AFTER `users_json`;
+
 ------------------------------------ 11-JUL-2022 ------------------------------
 ALTER TABLE `requested_fund`
 ADD `firm_id` int(11) NULL AFTER `online_payment_status`;

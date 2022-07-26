@@ -13,20 +13,20 @@ class Messages extends Authenticatable
     protected $table = "messages";
     public $primaryKey = 'id';
 
-    protected $fillable = ['status', 'title', 'users_json'];    
+    protected $fillable = ['status', 'title', 'users_json', 'last_post_at'];    
     protected $appends  = ['decode_id','last_post', 'client_last_post', 'is_read_msg', 'is_archive_msg'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     }  
     public function getLastPostAttribute(){
-        if($this->updated_at!=NULL){
-            $userTime = convertUTCToUserTime($this->updated_at, auth()->user()->user_timezone ?? 'UTC');
+        // if($this->last_post_at!=NULL){
+            $userTime = convertUTCToUserTime($this->last_post_at, auth()->user()->user_timezone ?? 'UTC');
             return date('d F h:i A',strtotime($userTime));
-        }
+        // }
     }
     public function getclientLastPostAttribute(){
         if($this->updated_at!=NULL){
-            $userTime = convertUTCToUserTime($this->updated_at, auth()->user()->user_timezone ?? 'UTC');
+            $userTime = convertUTCToUserTime($this->last_post_at, auth()->user()->user_timezone ?? 'UTC');
             return date('M d, Y',strtotime($userTime));
         }
     }

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Messages,App\ReplyMessages,App\Firm,App\EmailTemplate,App\CaseMaster;
+use Carbon\Carbon;
 use DB,Validator,Session,Mail,Storage,Image;
 // use Datatables;
 use Yajra\Datatables\Datatables;
@@ -38,8 +39,9 @@ class ClientdashboardController extends Controller
         }else if($request->folder == 'sent'){
             $messages = $messages->where("messages.is_sent",1);
         }else{
-            $messages = $messages->where("messages.is_archive",0);
+            // $messages = $messages->where("messages.is_archive",0);
             $messages = $messages->where("messages.is_draft",0);
+            $messages = $messages->whereJsonContains('users_json', ['user_id' => (string)auth()->id(), "is_archive" => 'no']);
         }
 
         if(isset($request->case_id) && $request->case_id != ''){
@@ -242,6 +244,7 @@ class ClientdashboardController extends Controller
                 }
                 $Messages->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
             }
+            $Messages->last_post_at = Carbon::now();
             $Messages->save();
             $userList = explode(',', $Messages->user_id);
             foreach($userList as $uitem) {
@@ -306,6 +309,7 @@ class ClientdashboardController extends Controller
             $Messages->is_draft=0;
             $redirect = 'yes';
         }
+        $Messages->last_post_at = Carbon::now();
         $Messages->save();
 
         if($request->action != ''){

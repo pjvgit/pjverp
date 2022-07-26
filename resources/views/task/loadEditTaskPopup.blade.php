@@ -234,7 +234,7 @@
                     </div>
                 </div>
             <?php } ?>
-            <section class="sharing-list" id="loadTaskSection">
+            <section class="sharing-list" id="loadTaskRightSection">
 
             </section>
         </div>
@@ -500,14 +500,14 @@
     //     }
     // }
 
-    function loadRightSection(case_id) {
+    function loadEditTaskRightSection(case_id) {
         console.log("loadRightSection > resources/views/task/loadEditTaskPopup.blade.php > " + case_id);
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadTaskRightSection",
             data: {"case_id": case_id,"task_id":{{$Task->id}}},
             success: function (res) {
-                $("#editTask #loadTaskSection").html(res);
+                $("#loadTaskRightSection").html(res);
                 afterLoader();
             }
         })
@@ -519,7 +519,7 @@
             url: baseUrl + "/tasks/loadAllStaffMember",
             data: {"edit":"edit","task_id":{{$Task->id}}},
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#loadTaskRightSection").html(res);
                 afterLoader();
             }
         })
@@ -539,7 +539,7 @@
                 $("#text_case_id").val(selectdValue);
                 $("#text_lead_id").val('');
                 $("#HideShowNonlink").show();
-                loadRightSection(selectdValue);
+                loadEditTaskRightSection(selectdValue);
             }else{
                 $("#text_lead_id").val(selectdValue);
                 $("#text_case_id").val('');
@@ -564,7 +564,7 @@
                 }, 1000);        
             }
         }else{
-            $("#loadTaskSection").html('');
+            $("#loadTaskRightSection").html('');
             $("#HideShowNonlink").hide();
             loadDefaultContent();
         }
