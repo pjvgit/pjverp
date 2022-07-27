@@ -115,6 +115,9 @@ class Invoices extends Model
 
      public function getInvoiceIdAttribute(){
         // return sprintf("%06d", $this->id);
+        /* if($this->is_lead_invoice == 'yes') {
+            return sprintf("%06d", $this->id);
+        } */
         return sprintf("%06d", $this->unique_invoice_number);
     }
     

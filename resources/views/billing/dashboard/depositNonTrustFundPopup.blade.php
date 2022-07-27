@@ -23,7 +23,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         @include('billing.dashboard.partials.load_fund_online_payment_form')
     </div>
     <div class="tab-pane fade active show" id="credit_offline_payment_div" role="tabpanel" aria-labelledby="credit_offline_payment_tab">
-        <form class="DepositTrustFund" id="DepositTrustFund" name="DepositTrustFund" method="POST">
+        <form class="DepositCreditFund" id="DepositCreditFund" name="DepositCreditFund" method="POST">
             <span id="response"></span>
             @csrf
             <input type="hidden" id="trust_account_id" name="non_trust_account" value="{{$userData['uid']}}">
@@ -51,7 +51,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                             <option value="{{$val}}"> {{$val}}</option>
                             <?php } ?>
                     </select>
-                    <span id="ptype"></span>
+                    <span id="offline_ptype"></span>
                 </div>
                 <div class="col-md-6 form-group">
                     <label for="firstName1">Date</label>
@@ -71,7 +71,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
 
                         <small>&nbsp;</small>
                         <div class="input-group col-sm-9" id="TypeError"></div>
-                        <span id="amt"></span>
+                        <span id="offline_amt"></span>
                     </div>
                 </div>
                 <div class="col-md-6 form-group">
@@ -125,7 +125,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             dropdownParent: $("#depositIntoNonTrustAccount"),
         }); 
         afterLoader();
-        $("#DepositTrustFund").validate({
+        $("#DepositCreditFund").validate({
             rules: {
                 payment_method: {
                     required: true,
@@ -144,9 +144,9 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             },
             errorPlacement: function (error, element) {
                 if (element.is('#payment_method1')) {
-                    error.appendTo('#ptype');
+                    error.appendTo('#offline_ptype');
                 } else if (element.is('#amountFirst')) {
-                    error.appendTo('#amt');
+                    error.appendTo('#offline_amt');
                 }else if (element.is('#applied_to')) {
                     error.appendTo('#papply');
                 } else {
@@ -159,7 +159,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
 
     
     function trustPaymentConfitmation() {
-        if (!$('#DepositTrustFund').valid()) {
+        if (!$('#DepositCreditFund').valid()) {
             afterLoader();
             return false;
         } else {
@@ -168,7 +168,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         }
     }
     function didTrustPayment() {
-        var f = $('#DepositTrustFund #amountFirst').val().replace(/,/g, '');
+        var f = $('#DepositCreditFund #amountFirst').val().replace(/,/g, '');
         // var f = $.number($('#amountFirst').val(), 2);
         var currentAmt = numberWithCommasDecimal(parseFloat(f).toFixed(2));
         swal({
@@ -187,7 +187,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         }).then(function () {
             beforeLoader();
             var dataString = '';
-            dataString = $("#DepositTrustFund").serialize();
+            dataString = $("#DepositCreditFund").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/bills/dashboard/saveDepositIntoNonTrustPopup", // json datasource

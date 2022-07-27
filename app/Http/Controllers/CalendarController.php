@@ -46,7 +46,7 @@ class CalendarController extends BaseController
             AllHistory::where('type','event')->where('created_by', Auth::user()->parent_user)->update(['is_read'=>0]);
         }
         // return view('calendar.indexnew',compact('CaseMasterData','EventType','staffData'));
-        return view('calendar.index',compact('CaseMasterData','EventType','staffData', 'calendarView'));
+        return view('calendar.index',compact('CaseMasterData','EventType','staffData', 'calendarView', 'authUser'));
     }
     public function loadEventCalendar (Request $request)
     {        
@@ -184,8 +184,8 @@ class CalendarController extends BaseController
         $authUser = auth()->user();
         $authUserId = $authUser->id;
         $timezone = $authUser->user_timezone;
-        $startDate = date("Y-m-d", strtotime($request->start));
-        $endDate = date("Y-m-d", strtotime($request->end));
+        $startDate = convertDateToUTCzone(date("Y-m-d", strtotime($request->start)), $timezone);
+        $endDate = convertDateToUTCzone(date("Y-m-d", strtotime($request->end)), $timezone);
         $finalDataList = [];
         if($request->byuser != "[]") {
             $events = EventRecurring::whereBetween('start_date',  [$startDate, $endDate]);
@@ -212,21 +212,25 @@ class CalendarController extends BaseController
             if($request->taskLoad=='unread'){
                 $events = $events->whereJsonContains('event_linked_staff', ['user_id' => (string)auth()->id(), 'is_read' => 'no']);
             }
-            $events = $events->with('event', 'event.case', 'event.leadUser')->get();
+            $events = $events->orderBy("start_date", "ASC")->with('event', 'event.case', 'event.leadUser')->get();
             if(count($events)) {
                 foreach($events as $key => $item) {
                     // $startDateTime= ($item->event->is_full_day == 'no') ? convertUTCToUserTime($item->start_date.' '.$item->event->start_time, $timezone) : $item->user_start_date;
                     // $endDateTime= ($item->event->is_full_day == 'no') ? convertUTCToUserTime($item->end_date.' '.$item->event->end_time, $timezone) : $item->user_end_date;
                     $startDateTime= ($item->event->is_full_day == 'no') ? convertToUserTimezone($item->start_date.' '.$item->event->start_time, $timezone) : $item->user_start_date;
                     $endDateTime= ($item->event->is_full_day == 'no') ? convertToUserTimezone($item->end_date.' '.$item->event->end_time, $timezone) : $item->user_end_date;
+                    if($startDateTime->format('Y-m-d') >= date("Y-m-d", strtotime($request->start))) {
                     $finalDataList[] = (object)[
                         'event_id' => $item->event_id,
                         'event_recurring_id' => $item->id,
                         'event_title' => $item->event->event_title ?? "<No Title>",
+                        "start_date_time" => $startDateTime->format('Y-m-d'),
                         "start_date" => $item->start_date,
-                        "start_date_time" => $startDateTime,
-                        // "start_date_time" => ($item->event->is_full_day == 'no') ? date('Y-m-d H:i:s', strtotime($item->start_date.' '.$item->event->start_time)) : date('Y-m-d', strtotime($item->start_date)),
-                        "end_date_time" => $endDateTime,
+                        "end_date" => $item->end_date,
+                        "user_start_date" => $startDateTime->format('D, M d'),
+                        "user_start_time" => $startDateTime->format('h:i A'),
+                        "user_end_date" => $endDateTime->format('D, M d'),
+                        "user_end_time" => $endDateTime->format('h:i A'),
                         "is_event_private" => $item->event->is_event_private,
                         "parent_event_id" => $item->event->parent_event_id,
                         "is_recurring" => $item->event->is_recurring,
@@ -245,9 +249,14 @@ class CalendarController extends BaseController
                         'created_by' => $item->created_by,
                         'is_read' => $item->is_read,
                         'event_data_type' => 'event',
-                        's_date_time' => ($item->event->is_full_day == 'no') ? date('Y-m-d H:i:s', strtotime($item->start_date.' '.$item->event->start_time)) : date('Y-m-d H:i:s', strtotime($item->start_date.' 00:00:00')),
+                        's_date_time' => ($item->event->is_full_day == 'no') ? $startDateTime->format('Y-m-d H:i:s') : $item->user_start_date->format('Y-m-d').' 00:00:00',
                     ];
+                    }
                 }
+                // return $finalDataList;
+                $finalDataList = collect($finalDataList)->sortBy(function ($product, $key) {
+                    return $product->s_date_time;
+                })->values();
             }
         }
         
@@ -260,14 +269,15 @@ class CalendarController extends BaseController
                 $solEvents = $solEvents->where('case_id',$request->case_id);
             }
             $solEvents = $solEvents->select("case_master.case_unique_number as case_unique_number","case_master.sol_satisfied","case_master.case_title","events.*")
-                ->whereNull('events.deleted_at')->get();
+                ->orderBy("start_date", "ASC")->whereNull('events.deleted_at')->get();
             if(count($solEvents)) {
                 foreach($solEvents as $key => $item) {
                     $finalDataList[] = (object)[
                         'event_id' => $item->id,
                         'event_title' => $item->event_title,
                         "start_date" => $item->start_date,
-                        "start_date_time" => $item->start_date,
+                        "start_date_time" => $item->user_start_date->format('Y-m-d'),
+                        "user_start_date" => $item->user_start_date->format('D, M d'),
                         "is_SOL" => $item->is_SOL,
                         "case_id" => $item->case_id,
                         "case_title" => $item->case_title ?? "",
@@ -276,7 +286,7 @@ class CalendarController extends BaseController
                         'created_by' => $item->created_by,
                         'event_data_type' => 'sol',
                         'is_read' => 'yes',
-                        's_date_time' => date('Y-m-d H:i:s', strtotime($item->start_date.' 00:00:00')),
+                        's_date_time' => $item->user_start_date->format('Y-m-d').' 00:00:00',
                     ];
                 }
             }
@@ -291,14 +301,16 @@ class CalendarController extends BaseController
             if($request->case_id != "") {
                 $tasks = $tasks->where('case_id',$request->case_id);
             }
-            $tasks = $tasks->whereNull('deleted_at')->with('case')->get();
+            $tasks = $tasks->whereNull('deleted_at')->orderBy("task_due_on", "ASC")->with('case')->get();
             if(count($tasks)) {
                 foreach($tasks as $key => $item) {
+                    $taskDueOn = convertUTCToUserDate($item->task_due_on, $timezone);
                     $finalDataList[] = (object)[
                         'task_id' => $item->id,
                         'task_title' => $item->task_title,
                         "start_date" => $item->task_due_on,
-                        "start_date_time" => $item->task_due_on,
+                        "start_date_time" => $taskDueOn->format('Y-m-d'),
+                        "user_start_date" => $taskDueOn->format('D, M d'),
                         "task_priority" => $item->task_priority,
                         "case_id" => $item->case_id,
                         "case_title" => $item->case->case_title ?? "",
@@ -307,7 +319,7 @@ class CalendarController extends BaseController
                         'created_by' => $item->created_by,
                         'event_data_type' => 'task',
                         'is_read' => 'yes',
-                        's_date_time' => date('Y-m-d H:i:s', strtotime($item->start_date.' 00:00:00')),
+                        's_date_time' => $taskDueOn->format('Y-m-d').' 00:00:00',
                     ];
                 }
             }
@@ -319,13 +331,13 @@ class CalendarController extends BaseController
         exit;    
     }
 
-    public function loadAgendaView1 (Request $request)
+    public function loadAgendaViewNew (Request $request)
     {        
         $authUser = auth()->user();
         $authUserId = $authUser->id;
         $timezone = $authUser->user_timezone;
-        $startDate = date("Y-m-d", strtotime($request->start));
-        $endDate = date("Y-m-d", strtotime($request->end));
+        $startDate = convertDateToUTCzone(date("Y-m-d", strtotime($request->start)), $timezone);
+        $endDate = convertDateToUTCzone(date("Y-m-d", strtotime($request->end)), $timezone);
         $finalDataList = [];
         if($request->byuser != "[]") {
             $events = EventRecurring::whereBetween('start_date',  [$startDate, $endDate]);
@@ -334,13 +346,13 @@ class CalendarController extends BaseController
                 $events = $events->when($byuser , function($query) use ($byuser) {
                     $query->where(function ($query) use ($byuser) {
                         foreach($byuser as $user) {
-                            $query->orWhereJsonContains('event_linked_staff', ['user_id' => $user]);
+                            $query->orWhereJsonContains('event_linked_staff', ['user_id' => (string)$user]);
                         }
                     });
                 });
             }
             $events = $events->whereHas("event", function($query) use($request, $authUser) {
-                $query->where("is_SOL", "no")->where('firm_id', $authUser->firm_name);
+                $query/* ->where("is_SOL", "no") */->where('firm_id', $authUser->firm_name);
                 if($request->event_type != "[]"){
                     $event_type = json_decode($request->event_type, TRUE);
                     $query->whereIn('event_type_id', $event_type);
@@ -352,45 +364,12 @@ class CalendarController extends BaseController
             if($request->taskLoad=='unread'){
                 $events = $events->whereJsonContains('event_linked_staff', ['user_id' => (string)auth()->id(), 'is_read' => 'no']);
             }
-            $events = $events->with('event', 'event.case', 'event.leadUser')->get();
-            if(count($events)) {
-                foreach($events as $key => $item) {
-                    $startDateTime= ($item->event->is_full_day == 'no') ? convertUTCToUserTime($item->start_date.' '.$item->event->start_time, $timezone) : $item->user_start_date;
-                    $endDateTime= ($item->event->is_full_day == 'no') ? convertUTCToUserTime($item->end_date.' '.$item->event->end_time, $timezone) : $item->user_end_date;
-                    $finalDataList[] = (object)[
-                        'event_id' => $item->event_id,
-                        'event_recurring_id' => $item->id,
-                        'event_title' => $item->event->event_title ?? "<No Title>",
-                        "start_date" => $item->user_start_date,
-                        "start_date_time" => $startDateTime,
-                        "end_date_time" => $endDateTime,
-                        "is_event_private" => $item->event->is_event_private,
-                        "parent_event_id" => $item->event->parent_event_id,
-                        "is_recurring" => $item->event->is_recurring,
-                        "is_all_day" => $item->event->is_full_day,
-                        "edit_recurring_pattern" => $item->event->edit_recurring_pattern,
-                        "event_linked_staff" => encodeDecodeJson($item->event_linked_staff),
-                        "event_linked_contact_lead" => encodeDecodeJson($item->event_linked_contact_lead),
-                        "event_comments" => $item->event_comments,
-                        "is_SOL" => "no",
-                        "sol_satisfied" => "no",
-                        "case_id" => $item->event->case_id,
-                        "case_title" => ($item->event->case_id) ? $item->event->case->case_title : "",
-                        "case_unique_number" => ($item->event->case_id) ? $item->event->case->case_unique_number : "",
-                        'lead_id' => $item->event->lead_id,
-                        "lead_user_name" => ($item->event->lead_id) ? $item->event->leadUser->full_name : "",
-                        'created_by' => $item->created_by,
-                        'is_read' => $item->is_read,
-                        'event_data_type' => 'event',
-                        's_date_time' => ($item->event->is_full_day == 'no') ? $item->start_date.' '.$item->event->start_time : $item->start_date.' 00:00:00',
-                    ];
-                }
-            }
+            $events = $events->orderBy("start_date", "ASC")->with('event', 'event.case', 'event.leadUser')->get();
+            $events = $events->sortBy(function ($product, $key) {
+                return $product['start_date'].$product['event']['start_time'];
+            })->values();
         }
-        return $finalData = collect($finalDataList)->sortBy(function($col) {
-            return $col->s_date_time;
-        })->values()->all();
-        return view('calendar.partials.load_agenda_view', ["events" => $finalData])->render();          
+        return view('calendar.partials.load_agenda_view', ["allEvents" => $events, "authUser" => $authUser])->render();          
         exit;    
     }
 

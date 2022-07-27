@@ -64,8 +64,7 @@ class HomeController extends Controller
         if(isset($request->case_id) && $request->case_id != ''){
             $totalMessages = $totalMessages->where("messages.case_id",$request->case_id);
         }
-        $totalMessages = $totalMessages->whereJsonContains("users_json", ['user_id' => (string)auth()->id()])
-                ->whereJsonContains("users_json", ['is_read' => 'no']);
+        $totalMessages = $totalMessages->whereJsonContains("users_json", ['user_id' => (string)auth()->id(), 'is_read' => 'no']);
         $totalMessages = $totalMessages->where("messages.firm_id",Auth::User()->firm_name)->count();
 
         $caseList = User::where('id', Auth::User()->id)->select('id')->with('clientCases')->first();

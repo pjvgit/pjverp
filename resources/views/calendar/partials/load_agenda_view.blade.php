@@ -12,7 +12,7 @@
         @endphp
         @forelse ($events as $item)
             @php
-                $sDate = convertUTCToUserDate($item->start_date, $user_timezone ?? 'UTC')->format('Y-m-d');
+                $sDate = $item->start_date_time;
             @endphp
             <tr class="{{ ($item->is_read == 'no') ? 'font-weight-bold' : '' }}">
                 <td>
@@ -21,7 +21,7 @@
                         @php
                             $oDate = $sDate;
                         @endphp
-                        {{ $item->start_date_time->format('D, M d') }}
+                        {{ $item->user_start_date }}
                     @endif
                 </td>
                 
@@ -30,7 +30,7 @@
                         @if($item->is_all_day == 'yes')
                             all day >>
                         @else
-                            {{ $item->start_date_time->format('h:i A') }} - {{ $item->end_date_time->format('h:i A') }}
+                            {{ $item->user_start_time }} - {{ (strtotime($item->start_date) != strtotime($item->end_date)) ? $item->user_end_date.", " : "" }}{{ $item->user_end_time }}
                         @endif
                     </td>
                     <td>

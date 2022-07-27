@@ -2,7 +2,7 @@
 @section('title', 'Invoice')
 @section('main-content')
 @include('billing.submenu')
-<?php $s = sprintf('%06d', $findInvoice->unique_invoice_number);?>
+{{-- <?php $s = sprintf('%06d', $findInvoice->unique_invoice_number);?> --}}
 
 <div class="separator-breadcrumb border-top"></div>
 <div class="row">
@@ -354,7 +354,7 @@
                 <div class="mb-2 col-4 col-md-4">
                     <div class="d-flex justify-content-between mb-2">
                         <strong>Invoice Number</strong>
-                        <span class="test-invoice-number">{{$s}}</span>
+                        <span class="test-invoice-number">{{ $findInvoice->invoice_id }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <strong>Date</strong>

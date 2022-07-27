@@ -13,10 +13,11 @@
                     $enabledClientPortalUser = $caseCllientSelection->whereIn('id', $caseLinkeSavedInviteContact)->where('client_portal_enable', '1')->pluck('id')->toArray();
                     $enabledClientPortalUserAttending = $caseCllientSelection->whereIn('id', $caseLinkeSavedAttendingContact)->where('client_portal_enable', '1')->pluck('id')->toArray();
                     $linkedUserPortalDisabled = $caseCllientSelection->whereIn('id', $caseLinkeSavedInviteContact)->where('client_portal_enable', '0')->pluck('id')->toArray();
+                    $caseClient = $caseCllientSelection->where('user_level', '2');
                 @endphp
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" class="load-default-reminder-all SelectAllLeadShare" <?php if(count($caseCllientSelection) > 0 && count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
-                <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" class="SelectAllLeadAttend" <?php if(count($caseCllientSelection) > 0 && count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>></td>
+                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" class="load-default-reminder-all SelectAllLeadShare" <?php if(count($caseClient) > 0 && count($caseClient)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
+                <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" class="SelectAllLeadAttend" <?php if(count($caseClient) > 0 && count($caseClient)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>></td>
             </tr>
             <?php 
             foreach($caseCllientSelection as $key=>$val){?>

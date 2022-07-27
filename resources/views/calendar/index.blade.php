@@ -39,6 +39,11 @@
         <div class="loader-bubble loader-bubble-primary d-block"></div>
     </div>
 </div>
+<div class="loadscreen" id="preloaderAgendaView" style="display: none;">
+    <div class="loader"><img class="logo mb-3" src="{{asset('public/images/logo.png')}}" style="display: none" alt="">
+        <div class="loader-bubble loader-bubble-primary d-block"></div>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-2">
@@ -103,7 +108,7 @@
                                     }
                                 </style>
                                 <?php
-                                if($v1->id==Auth::User()->id){?>
+                                if($v1->id==$authUser->id){?>
                                        
                                        <label class="checkbox checkbox-outline-staff-{{$k1}}">
                                         <input type="checkbox" checked="checked" class="byuser" name="byuser[]"
@@ -546,8 +551,8 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 var calendar;
 // document.addEventListener('DOMContentLoaded', function() {
 $(document).ready(function () {
+    var viewName = '';
     const { sliceEvents, createPlugin, Calendar } = FullCalendar
-
     const CustomViewConfig = {
         classNames: [ 'agenda-custom-view' ],
         duration: { days: 31 },
@@ -559,7 +564,8 @@ $(document).ready(function () {
         },
         content: function(props) {
             // var viewData = '';
-            $("#preloaderData").show();
+            viewName = 'Agenda';
+            $("#preloaderAgendaView").show();
             var eventTypes = [];
             $.each($("input[name='event_type[]']:checked"), function(){
                 eventTypes.push($(this).val());
@@ -585,14 +591,14 @@ $(document).ready(function () {
                     // viewData = doc;
                     $('.agenda-custom-view').html(doc);
                 },
-            }).done(function(data) {
-                $("#preloaderData").hide();
+                complete:function(data){
+                    $("#preloaderAgendaView").hide();
+                }
             });
             // return {html: viewData};
         }
 
     }
-
     const CustomViewPlugin = createPlugin({
         views: {
             agendaview: CustomViewConfig
@@ -607,10 +613,11 @@ $(document).ready(function () {
     var calendarEl = document.getElementById('calendarq');
     calendar = new FullCalendar.Calendar(calendarEl, {
         // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-        // timeZone: "{{ auth()->user()->user_timezone ?? 'local' }}",
+        // timeZone: "{{ $authUser->user_timezone ?? 'local' }}",
         // timeZone: 'America/New_York',
         plugins: [ CustomViewPlugin, ],
         initialView: "{{ $defaultView }}",
+        initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
         themeSystem: "bootstrap4",
         height: 700,
         hiddenDays: hd,
@@ -624,12 +631,13 @@ $(document).ready(function () {
             month:    'Month',
             week:     'Week',
             day:      'Day',
-            today : 'Today'
+            today : 'Today',
         },
         customButtons: {
             agendaview: {
                 text: 'Agenda',
                 click: function () {
+                    viewName = 'Agenda';
                     calendar.changeView('agendaview');
                 }
             },
@@ -650,9 +658,9 @@ $(document).ready(function () {
             },                
         },
         views: {
-            agendaview: {
+            /* agendaview: {
                 type: 'agendaview',
-            },
+            }, */
             staffView: {
                 type: 'resourceTimeGridDay',
             },    
@@ -675,6 +683,8 @@ $(document).ready(function () {
             });
         },
         events: function (info, callback, failureCallback) {
+            // alert(viewName);
+            // if(viewName != 'Agenda') {
             var startDate = info.start;
             var endDate = info.end;
             var eventTypes = [];
@@ -793,6 +803,7 @@ $(document).ready(function () {
                     $("#preloaderData").hide();
                 },
             });
+            // }
         },
         eventDidMount: function(info) {
             info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.event.title;
@@ -802,6 +813,7 @@ $(document).ready(function () {
         },
         viewDidMount: function(arg){
             var view = arg.view;
+            viewName = view.title;
             if (view.type == 'dayGridMonth' || view.type == 'timeGridWeek' || view.type == 'timeGridDay') {
             }else{
                 var currentdate = view.activeStart;
@@ -811,7 +823,7 @@ $(document).ready(function () {
                 date = moment(currentdate).format('YYYY-MM-DD');
             }
             
-            $("#preloaderData").hide();
+            // $("#preloaderData").hide();
             if(localStorage.getItem('weekends')=='hide'){
                 var chk="";
             }else{
@@ -834,7 +846,7 @@ $(document).ready(function () {
             $('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>').insertAfter(".fc-agendaview-button"); 
         
             $("#shuesuid").trigger('click');
-            $("#preloaderData").hide();
+            // $("#preloaderData").hide();
             $('[data-toggle="tooltip"]').tooltip();
         },
         eventClick: function(info) {
@@ -856,6 +868,17 @@ $(document).ready(function () {
         }
     });
     calendar.render();
+
+    $('body').on('click', '.fc-prev-button, .fc-next-button, .fc-today-button', function() {
+        var view = calendar.view;
+        if (view.type == 'dayGridMonth') {
+        }else{
+            var currentdate = view.activeStart;
+            var endDate = view.activeEnd;
+            $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
+            var dateText= $("#datepicker").val();
+        }
+    });
 
         $("#datepicker").datepicker({
             'format': 'm/d/yyyy',
