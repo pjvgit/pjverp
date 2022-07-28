@@ -139,7 +139,7 @@ class EventController extends Controller
                 }
             }
             Log::info("client comment email job dispatched");
-            // dispatch(new EventCommentEmailJob($request->event_id, $authUser->firm_name, $eventComment, $authUser->id, $request->event_recurring_id));
+            dispatch(new EventCommentEmailJob($request->event_id, $authUser->firm_name, $eventComment, $authUser->id, $request->event_recurring_id));
         }
         return response()->json(['success'=> true, 'message' => "Comment added"]);
 

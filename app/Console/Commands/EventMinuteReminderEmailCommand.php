@@ -91,9 +91,9 @@ class EventMinuteReminderEmailCommand extends Command
                 if($decodeReminders) {
                     foreach($decodeReminders as $ritem) {
                         if($ritem->reminder_type == 'email' && $ritem->remind_at == date('Y-m-d') && $ritem->reminder_frequncy == 'minute') {
-                        } else {
-                            $newArray[] = $ritem;
+                            $ritem->dispatched_at = Carbon::now();
                         }
+                        $newArray[] = $ritem;
                     }
                 }
                 EventRecurring::whereId($item->id)->update(["event_reminders" => encodeDecodeJson($newArray, 'encode')]);
