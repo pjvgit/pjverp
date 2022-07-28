@@ -82,8 +82,8 @@ class EventHourReminderEmailCommand extends Command
                         Log::info("EventHourReminderEmailCommand : hour time true");
                         dispatch(new EventReminderEmailJob($item, $users, $attendEvent, 'hour'))->delay($dispatchDate);
                     }
-                    $ritem->dispatched_at = Carbon::now();
-                    $newArray[] = $ritem;
+                    // $ritem->dispatched_at = Carbon::now();
+                    // $newArray[] = $ritem;
                 }
                 $decodeReminders = encodeDecodeJson($item->event_reminders);
                 if($decodeReminders) {
