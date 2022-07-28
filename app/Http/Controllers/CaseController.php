@@ -5433,7 +5433,7 @@ class CaseController extends BaseController
     public function loadMessagesEntry(Request $request){
         $columns = array('id', 'sender_name', 'subject', 'updated_at');
         $requestData= $_REQUEST;
-        
+        $authUser = auth()->user();
         $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
         ->leftJoin("case_master","case_master.id","=","messages.case_id")
         ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), /* "messages.updated_at as last_post1", */ DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
@@ -5448,18 +5448,26 @@ class CaseController extends BaseController
                     $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
                 });
             }else{
-                $messages = $messages->where(function($messages){
+                /* $messages = $messages->where(function($messages){
                     $messages = $messages->orWhere("messages.user_id",'like', '%'.Auth::user()->id.'%');
                     $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
-                });                
+                }); */                
+                $messages = $messages->where(function($query) use($authUser) {
+                    $query->whereRaw('FIND_IN_SET(?, messages.user_id)', [$authUser->id])
+                        ->orWhere("messages.created_by", $authUser->id);
+                });
             }
             $messages = $messages->where("messages.case_id",$requestData['case_id']);
         }
         if(isset($requestData['user_id']) && $requestData['user_id']!=''){
             // $messages = $messages->where("messages.user_id",'like', '%'.$requestData['user_id'].'%');
-            $messages = $messages->where(function($messages) use ($requestData){
+            /* $messages = $messages->where(function($messages) use ($requestData){
                 $messages = $messages->orWhere("messages.user_id",'like', '%'.$requestData['user_id'].'%');
                 $messages = $messages->orWhere("messages.created_by",$requestData['user_id']);
+            }); */
+            $messages = $messages->where(function($query) use($requestData) {
+                $query->whereRaw('FIND_IN_SET(?, messages.user_id)', [$requestData['user_id']])
+                        ->orWhere("messages.created_by", $requestData['user_id']);
             });
         }else{
             $messages = $messages->where("messages.is_draft",0);

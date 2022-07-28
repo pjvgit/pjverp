@@ -82,38 +82,5 @@ class EventCommentEmailJob implements ShouldQueue
                 }
             }
         }
-        /* $eventData=CaseEvent::find($this->event_id);
-        $firmData=Firm::find($this->firm); 
-        $caseEventComment = CaseEventComment::whereId($this->CaseEventComment)->with("createdByUser")->first();
-        $caseEvent = CaseEvent::whereId($this->event_id)->with(["eventLinkedStaff" => function($query) use($caseEventComment) {
-                        $query->wherePivot("user_id", "!=", $caseEventComment->created_by);
-                    }, "eventLinkedContact" => function($query) use($caseEventComment) {
-                        $query->wherePivot("contact_id", "!=", $caseEventComment->created_by)->orWherePivot("lead_id", "!=", $caseEventComment->created_by);
-                    }, "eventLinkedLead"])->first();
-        if($caseEvent) {
-            if($caseEvent->eventLinkedStaff) {
-                Log::info("event linked staff");
-                $getTemplateData = EmailTemplate::find(26);
-                foreach($caseEvent->eventLinkedStaff as $key => $item) {
-                    Log::info("event linked staff > email > " . $item->email);
-                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'staff')));        
-                }
-            }
-            $getTemplateData = EmailTemplate::find(25);
-            if($caseEvent->eventLinkedContact) {
-                Log::info("event contact staff");
-                foreach($caseEvent->eventLinkedContact as $key => $item) {
-                    Log::info("event contact staff > email > " . $item->email);
-                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'client')));        
-                }
-            }
-            if($caseEvent->eventLinkedLead) {
-                Log::info("event linked lead");
-                foreach($caseEvent->eventLinkedLead as $key => $item) {
-                    Log::info("event linked lead > email > " . $item->email);
-                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'client')));        
-                }
-            }
-        } */
     }
 }

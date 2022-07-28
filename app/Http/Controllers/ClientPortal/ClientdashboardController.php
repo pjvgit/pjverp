@@ -19,6 +19,7 @@ use Yajra\Datatables\Datatables;
 class ClientdashboardController extends Controller 
 {
     public function messages(Request $request){
+        $authUser = auth()->user();
         Messages::where('created_by',Auth::user()->id)->whereNull('subject')->whereNull('user_id')->whereNull('message')->forceDelete();
 
         $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
@@ -27,13 +28,17 @@ class ClientdashboardController extends Controller
         // $messages = $messages->where("messages.user_id",'like', '%'.Auth::User()->id.'%');
         $messages = $messages->where("messages.firm_id",Auth::User()->firm_name);
         $messages = $messages->whereNull("case_master.deleted_at");
-        $messages = $messages->where(function($messages){
+        /* $messages = $messages->where(function($messages){
             $messages = $messages->orWhere("messages.user_id",'like', '%'.Auth::User()->id.'%');
             $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
+        }); */
+        $messages = $messages->where(function($query) use($authUser) {
+            $query->whereRaw('FIND_IN_SET(?, messages.user_id)', [$authUser->id])
+                ->orWhere("messages.created_by", $authUser->id);
         });
         if($request->folder == 'archived'){
             // $messages = $messages->where("messages.is_archive",1);
-            $messages = $messages->whereJsonContains('users_json', ['user_id' => (string)auth()->id(), "is_archive" => 'yes']);
+            $messages = $messages->whereJsonContains('users_json', ['user_id' => (string)$authUser->id, "is_archive" => 'yes']);
         }else if($request->folder == 'draft'){
             $messages = $messages->where("messages.is_draft",1);
         }else if($request->folder == 'sent'){
@@ -41,7 +46,7 @@ class ClientdashboardController extends Controller
         }else{
             // $messages = $messages->where("messages.is_archive",0);
             $messages = $messages->where("messages.is_draft",0);
-            $messages = $messages->whereJsonContains('users_json', ['user_id' => (string)auth()->id(), "is_archive" => 'no']);
+            $messages = $messages->whereJsonContains('users_json', ['user_id' => (string)$authUser->id, "is_archive" => 'no']);
         }
 
         if(isset($request->case_id) && $request->case_id != ''){
@@ -291,7 +296,10 @@ class ClientdashboardController extends Controller
     }
 
     public function sendOrDraftMessage(Request $request){
-        $sendTo = $request->send_to;
+        $sendTo = [];
+        if(isset($request->send_to)) {
+            $sendTo = $request->send_to;
+        }
         array_push($sendTo, auth()->id()); 
         $redirect = 'no';
         $Messages= Messages::find($request->message_id);
