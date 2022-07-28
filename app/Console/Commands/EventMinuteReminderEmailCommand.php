@@ -60,7 +60,7 @@ class EventMinuteReminderEmailCommand extends Command
             foreach($result as $key => $item) {
                 Log::info("Event recurring id :". $item->id);
                 $attendEvent = []; $newArray = [];
-                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email')->where('remind_at', date('Y-m-d'))->where('reminder_frequncy', "minute")->whereNull('dispatched_at')->whereNull('reminded_at');
+                $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type' , 'email')->where('remind_at', date('Y-m-d'))->where('reminder_frequncy', "minute")->whereNull('dispatched_at')/* ->whereNull('reminded_at') */;
                 foreach($decodeReminders as $rkey => $ritem) {
                     $users = [];
                     $response = $this->getEventLinkedUser($ritem, "email", $item->event, $item);

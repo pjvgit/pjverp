@@ -1633,7 +1633,8 @@ $(document).ready(function () {
                 } else {
                     // window.location.reload();
                     $("#markEventAsRead").modal("hide");
-                    $("#preloaderData").hide();
+                    $("#innerLoader").css('display', 'none');
+                    $('#submit').removeAttr("disabled");
                     calendar.refetchEvents();
                 }
             }
