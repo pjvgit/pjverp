@@ -92,8 +92,8 @@ class CalendarController extends BaseController
                 // $endDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->end_date.' '.$event->end_time, $timezone) : convertToUserTimezone($v->end_date.' 11:59:00', $timezone);
                 // $eventData["st"] = $startDateTime->format('Y-m-d H:i:s');
                 // $eventData["et"] = $endDateTime->format('Y-m-d H:i:s');
-                $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date;
-                $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : $v->user_end_date;
+                $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d H:i:s');
+                $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : $v->user_end_date->format('Y-m-d H:i:s');
                 $eventData["start_date_time"] = $startDateTime;
                 $eventData["end_date_time"] = $endDateTime;
                 /* if(($event->is_full_day == 'no')) {

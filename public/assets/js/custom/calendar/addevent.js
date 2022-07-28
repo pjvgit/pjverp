@@ -216,6 +216,7 @@ function loadEventComment(event_id, event_recurring_id, fromPageRoute = null) {
                 } else {
                     $("#eventCommentPopup").html('Loading...');
                     $("#eventCommentPopup").html(res.view);
+                    $(".eventCount").html(res.unreadEventCount);
                     $("#preloader").hide();
                 }
             }

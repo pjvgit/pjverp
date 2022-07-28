@@ -3830,8 +3830,9 @@ class CaseController extends BaseController
             }
             $fromPageRoute = $request->from_page_route ?? Null;
             $eventReminder = encodeDecodeJson($eventRecurring->event_reminders)->where('created_by', auth()->id());
+            $unreadEventCount = getUnreadEventCount();
             $view = view('case.event.loadEventCommentPopup',compact('event', 'eventRecurring', 'linkedUser', 'fromPageRoute', 'eventReminder'))->render();
-            return response()->json(['errors' => "", 'view' => $view]);   
+            return response()->json(['errors' => "", 'view' => $view, 'unreadEventCount' => $unreadEventCount]);   
         } else {
             return response()->json(['errors' => "No record found"]);
         }  
