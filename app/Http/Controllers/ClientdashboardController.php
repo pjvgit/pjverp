@@ -1273,7 +1273,7 @@ class ClientdashboardController extends BaseController
                 }
             }], */
             'transaction_id' => [function ($attribute, $value, $fail) use($GetAmount) {
-                if (empty($GetAmount) || $GetAmount->is_refunded == 'yes') {
+                if (empty($GetAmount) || $GetAmount->is_refunded == 'yes' && !empty($GetAmount->refund_ref_id)) {
                     $fail('This transaction cannot be refunded');
                 }
             }]
@@ -1463,11 +1463,11 @@ class ClientdashboardController extends BaseController
 
                 dbCommit();
                 session(['popup_success' => 'Refund successful']);
-                return response()->json(['errors'=>'']);
+                return response()->json(['errors'=>'', 'online_errors'=>'']);
                 exit;   
             } catch (Exception $e) {
                 dbEnd();
-                return response()->json(['errors'=> $e->getMessage()]);
+                return response()->json(['errors'=> $e->getMessage(), 'online_errors'=>'']);
             }
         }
     }
@@ -1692,11 +1692,13 @@ class ClientdashboardController extends BaseController
         // $allLeads = $allLeads->orderBy('requested_fund.created_at','DESC');
         $allLeads = $allLeads->withCount('trustFundPaymentHistory', 'creditFundPaymentHistory');
         $allLeads = $allLeads->with('user', 'allocateToCase')->get();
+        $authUserPermissions = auth()->user()->getPermissionNames();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
             "recordsFiltered" => intval( $totalFiltered ), 
-            "data"            => $allLeads 
+            "data"            => $allLeads ,
+            "authUserPermissions" => $authUserPermissions,
         );
         echo json_encode($json_data);  
     }
@@ -3905,6 +3907,7 @@ class ClientdashboardController extends BaseController
                         $User->created_by=Auth::User()->id;
                         $User->created_at=date('Y-m-d H:i:s');
                         $User->bulk_id=$ClientCompanyImport->id;
+                        $User->status = '1';
                         $User->save();
                         
                         $UsersAdditionalInfo= new UsersAdditionalInfo;

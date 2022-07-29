@@ -3830,7 +3830,7 @@ class CaseController extends BaseController
             }
             $fromPageRoute = $request->from_page_route ?? Null;
             $eventReminder = encodeDecodeJson($eventRecurring->event_reminders)->where('created_by', auth()->id());
-            $unreadEventCount = getUnreadEventCount();
+            $unreadEventCount = (getUnreadEventCount() > 0) ? getUnreadEventCount() : '';
             $view = view('case.event.loadEventCommentPopup',compact('event', 'eventRecurring', 'linkedUser', 'fromPageRoute', 'eventReminder'))->render();
             return response()->json(['errors' => "", 'view' => $view, 'unreadEventCount' => $unreadEventCount]);   
         } else {

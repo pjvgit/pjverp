@@ -399,7 +399,8 @@ class CalendarController extends BaseController
             }
         }
         }
-        return response()->json(['errors'=>'','msg'=>'Records successfully updated']);
+        $unreadEventCount = (getUnreadEventCount() > 0) ? getUnreadEventCount() : '';
+        return response()->json(['errors'=>'','msg'=>'Records successfully updated', 'unreadEventCount' => $unreadEventCount]);
     }
 
     // Made common code, check CaseController

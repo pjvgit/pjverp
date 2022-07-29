@@ -1635,6 +1635,7 @@ $(document).ready(function () {
                     $("#markEventAsRead").modal("hide");
                     $("#innerLoader").css('display', 'none');
                     $('#submit').removeAttr("disabled");
+                    $(".eventCount").html(res.unreadEventCount);
                     calendar.refetchEvents();
                 }
             }

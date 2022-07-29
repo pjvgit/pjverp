@@ -6921,10 +6921,10 @@ class BillingController extends BaseController
             'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
         ]);
         if ($validator->fails()) {
-            return response()->json(['errors'=>$validator->errors()->all()]);
+            return response()->json(['errors'=>$validator->errors()->all(), 'online_errors'=>'']);
         } else {
             
-            // try {
+            try {
                 dbStart();
                 $authUser = auth()->user();
                 $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$invoiceHistory['deposit_into_id'])->first();
@@ -7326,10 +7326,10 @@ class BillingController extends BaseController
                 dbCommit();
                 session(['popup_success' => 'Refund successful']);
                 return response()->json(['errors'=>'', 'online_errors'=>'']);
-            /* } catch(Exception $e) {
+            } catch(Exception $e) {
                 dbEnd();
-                return response()->json(['errors'=> $e->getMessage()]);
-            } */
+                return response()->json(['errors'=> $e->getMessage(), 'online_errors'=>'']);
+            }
             exit;   
         }
     }
