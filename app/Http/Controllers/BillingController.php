@@ -7168,10 +7168,10 @@ class BillingController extends BaseController
                                 ],
                             ]);
                         $res = json_decode($response->getBody());
-                        if($res->available[0]->amount <= 0) {
+                        /* if($res->available[0]->amount <= 0) {
                             dbEnd();
                             return response()->json(['errors' => '', 'online_errors'=> 'No cuenta con saldo suficiente para hacer el reembolso. Favor de abonar a su saldo, vea el proceso haciendo <a href="https://help.conekta.com/hc/es-419/articles/360058988233--C%C3%B3mo-abonar-y-retener-mi-saldo-" target="_blank">click aquí</a>.']);
-                        }
+                        } */
                         $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id", $onlinePaymentDetail->user_id)->first();
                         $order->refund([
                             'reason' => 'requested_by_client',
