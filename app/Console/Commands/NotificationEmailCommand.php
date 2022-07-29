@@ -64,8 +64,8 @@ class NotificationEmailCommand extends Command
                     "case_master.case_unique_number", "case_events.event_title as eventTitle", 
                     "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",
                     'task.task_title as taskTitle', "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact")
-            // ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
-            ->whereDate("all_history.created_at", date('Y-m-23'))
+            ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
+            // ->whereDate("all_history.created_at", date('Y-m-d'))
             ->where('all_history.is_for_client','no')
             ->with('caseFirm')
             ->get()->groupBy('firm_id');
