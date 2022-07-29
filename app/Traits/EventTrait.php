@@ -337,6 +337,9 @@ trait EventTrait {
      */
     public function saveBusinessDayRecurringEvent($caseEvent, $start_date, $request, $recurringEndDate)
     {
+        $authUser = auth()->user();
+        $start_date = convertUTCToUserDate($start_date, $authUser->timezone)->format('Y-m-d');
+        $recurringEndDate = convertUTCToUserDate($recurringEndDate, $authUser->timezone)->format('Y-m-d');
         $eventLinkStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
         $eventLinkClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
         $eventHistory = $this->getAddEventHistoryJson($caseEvent->id);
@@ -344,11 +347,12 @@ trait EventTrait {
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {          
             if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
-                $request->start_date = $date->format('Y-m-d');
+                $utcDate = convertDateToUTCzone($date->format('Y-m-d'), $authUser->timezone);
+                $request->start_date = $utcDate;
                 $eventRecurring = EventRecurring::insert([
                     "event_id" => $caseEvent->id,
-                    "start_date" => $date,
-                    "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
+                    "start_date" => $utcDate,
+                    "end_date" => ($days > 0) ? Carbon::parse($utcDate)->addDays($days)->format('Y-m-d') : $utcDate,
                     "event_reminders" => $this->getUpdateEventReminderJson($caseEvent, $request),
                     "event_linked_staff" => $eventLinkStaff,
                     "event_linked_contact_lead" => $eventLinkClient,

@@ -4313,7 +4313,7 @@ class ClientdashboardController extends BaseController
         ]);
         if ($validator->fails())
         {
-            return response()->json(['errors'=>$validator->errors()->all()]);
+            return response()->json(['errors'=>$validator->errors()->all(), 'online_errors'=> '']);
         }else{
             try {
                 dbStart();
@@ -4472,11 +4472,11 @@ class ClientdashboardController extends BaseController
                 $this->updateNextPreviousCreditBalance($request->client_id);
                 dbCommit();
                 session(['popup_success' => 'Refund successful']);
-                return response()->json(['errors'=>'']);
+                return response()->json(['errors'=>'', 'online_errors'=> '']);
                 exit;   
             } catch(Exception $e) {
                 dbEnd();
-                return response()->json(['errors' => $e->getMessage()]);
+                return response()->json(['errors' => $e->getMessage(), 'online_errors'=> '']);
             }
         }
     }
