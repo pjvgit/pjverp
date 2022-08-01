@@ -14,13 +14,14 @@
                 $startDateTime= convertToUserTimezone($eventRecurring->start_date.' '.$event->start_time, $userTimezone);
                 $endDateTime= convertToUserTimezone($eventRecurring->end_date.' '.$event->end_time, $userTimezone);
             }
+            $startDate = ($event->is_full_day == 'no') ? convertToUserTimezone($eventRecurring->start_date.' '.$event->start_time, $userTimezone) : $eventRecurring->user_start_date;
             $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('F d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "";
         @endphp
         @if($event->is_full_day == 'no')
         <h6 class="modal-subtitle mt-2 mb-0">{{ $startDateTime->format('D, M jS Y, h:ia') }} —
             {{ $endDateTime->format('D, M jS Y, h:ia') }}</h6>
         @else
-        <h6 class="modal-subtitle mt-2 mb-0">{{ date('D, M j Y',strtotime($eventRecurring->start_date)) }}, All day </h6>
+        <h6 class="modal-subtitle mt-2 mb-0">{{ $startDate->format('D, M j Y') }}, All day </h6>
         @endif
     </div>
     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
@@ -64,18 +65,18 @@
                             </div>
                             <?php }else if($event->event_recurring_type=='WEEKLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">
-                                Weekly {{ $endOnDate }} on {{ date('l', strtotime($eventRecurring->start_date))."s" }}
+                                Weekly {{ $endOnDate }} on {{ $startDate->format('l')."s" }}
                             </div>
                             <?php }else if($event->event_recurring_type=='MONTHLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">
                                 {{ ($event->event_interval_month > 1) ? "Every ".$event->event_interval_month." months " : "Monthly" }} {{ $endOnDate }}
                                 @if($event->monthly_frequency == "MONTHLY_ON_DAY")
-                                    {{ "on the ".date("jS", strtotime($eventRecurring->user_start_date))." day of the month" }}
+                                    {{ "on the ".$startDate->format('jS')." day of the month" }}
                                 @elseif($event->monthly_frequency == "MONTHLY_ON_THE")
                                     @php
-                                        $day = ceil(date('j', strtotime($eventRecurring->start_date)) / 7);
+                                        $day = ceil($startDate->format('j') / 7);
                                     @endphp
-                                    {{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".date('l', strtotime($eventRecurring->start_date)) }}
+                                    {{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".$startDate->format('l') }}
                                 @else
                                 @endif
                             </div>
@@ -86,7 +87,7 @@
                                     {{ "in ".date("F", strtotime($eventRecurring->user_start_date))." on the ".date("jS", strtotime($eventRecurring->user_start_date))." day of the month" }}
                                 @elseif($event->yearly_frequency == "YEARLY_ON_THE")
                                     @php
-                                        $day = ceil(date('j', strtotime($eventRecurring->start_date)) / 7);
+                                        $day = ceil($startDate->format('j') / 7);
                                     @endphp
                                     {{ "on the ".$day.date("S", mktime(0, 0, 0, 0, $day, 0))." ".date('l', strtotime($event->start_date))." in ".date("F", strtotime($eventRecurring->user_start_date)) }}
                                 @else

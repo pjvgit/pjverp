@@ -605,11 +605,11 @@ $(document).ready(function () {
         }
     });
     
-    if(localStorage.getItem('weekends')=='hide'){
+    /* if(localStorage.getItem('weekends')=='hide'){
         var hd=[0, 6];
     }else{
         var hd=[];
-    }
+    } */
     var calendarEl = document.getElementById('calendarq');
     calendar = new FullCalendar.Calendar(calendarEl, {
         // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
@@ -620,7 +620,7 @@ $(document).ready(function () {
         initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
         themeSystem: "bootstrap4",
         height: 700,
-        hiddenDays: hd,
+        // hiddenDays: hd,
         dayMaxEvents: true, // allow "more" link when too many events
         headerToolbar: {
             left: 'prev,next today',
@@ -869,15 +869,19 @@ $(document).ready(function () {
     });
     calendar.render();
 
-    $('body').on('click', '.fc-prev-button, .fc-next-button, .fc-today-button', function() {
+    $('body').on('click', '.fc-prev-button, .fc-next-button', function() {
         var view = calendar.view;
         if (view.type == 'dayGridMonth') {
+            var date = calendar.getDate();
+            $('#datepicker').datepicker().datepicker('setDate', new Date(date));
         }else{
             var currentdate = view.activeStart;
-            var endDate = view.activeEnd;
             $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
-            var dateText= $("#datepicker").val();
         }
+    });
+
+    $(".fc-today-button").click(function() {
+        $('#datepicker').datepicker().datepicker('setDate', new Date());
     });
 
         $("#datepicker").datepicker({
@@ -1574,26 +1578,21 @@ $(document).ready(function () {
             localStorage.setItem('weekends', 'show');
             // var newhiddendays = [];         // show Mon-Fr (hide Sat/Sun)
             // $('#calendarq').fullCalendar('option', 'hiddenDays', newhiddendays);
+            calendar.setOption('hiddenDays', []);
         }else{
             localStorage.setItem('weekends', 'hide');
             // var newhiddendays = [0, 6];         // show Mon-Fr (hide Sat/Sun)
             // $('#calendarq').fullCalendar('option', 'hiddenDays', newhiddendays);
+            calendar.setOption('hiddenDays', [0, 6]);
         }
-        console.log(localStorage.getItem('weekends'));
-        window.location.reload();
+        // window.location.reload();
+        calendar.setOption('weekends', localStorage.getItem('weekends'));
+        calendar.refetchEvents();
     }
     function markAsRead() {
         $("#preloaderData").show();
         $("#markEventAsRead").modal("show");
         $("#preloaderData").hide();
-        // $.ajax({
-        //     type: "POST",
-        //     url: baseUrl + "/tasks/taskAllReadFromCalender", // json datasource
-        //     data: {"task_id": ''},
-        //     success: function (res) {
-        //         window.location.reload();
-        //     }
-        // })
     }
     $('#markEventAsReadForm').submit(function (e) {
         $("#submit").attr("disabled", true);

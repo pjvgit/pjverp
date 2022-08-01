@@ -2168,14 +2168,10 @@ class CaseController extends BaseController
         }
 
         // Start-End time for all events convert into UTC
-        // $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
-        // $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
         $start_time = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'time');
         $end_time = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'time');
 
         if(!isset($request->recuring_event)) {
-            // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
             if(isset($request->all_day)) {
                 $start_date = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'onlyDate');
                 $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
@@ -2216,9 +2212,7 @@ class CaseController extends BaseController
                 $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent, 'add');
             }
         } else {  
-            // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
-            if(isset($request->all_day)) {
+            /* if(isset($request->all_day)) {
                 $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
                 $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'onlyDate');
                 $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
@@ -2226,7 +2220,10 @@ class CaseController extends BaseController
                 $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
                 $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'dateFromTime');
                 $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
-            }
+            } */
+            $start_date = date("Y-m-d", $startDate);
+            $end_date = date("Y-m-d", $endDate);
+            $recurring_end_date = date("Y-m-d", $recurringEndDate);
             $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $recurring_end_date, $locationID);
         }
         session(['popup_success' => 'Event was added.']);
@@ -2276,15 +2273,10 @@ class CaseController extends BaseController
             }
         }
         // Start-End time for all events convert into UTC
-        // $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
-        // $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
         $start_time = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'time');
         $end_time = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'time');
         
         if($request->delete_event_type=='SINGLE_EVENT') {
-            
-            /* $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone); */
             if(isset($request->all_day)) {
                 $start_date = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'onlyDate');
                 $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'onlyDate');
@@ -2479,15 +2471,15 @@ class CaseController extends BaseController
 
                 EventRecurring::where("event_id", $caseEvent->id)->forceDelete();
                 if($request->event_frequency=='DAILY') {
-                    $recurringEvent = $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurring_end_date);
+                    $recurringEvent = $this->saveDailyRecurringEvent($caseEvent, date('Y-m-d', $startDate), $request, date("Y-m-d", $recurringEndDate));
                 } else if($request->event_frequency == "EVERY_BUSINESS_DAY") {
-                    $recurringEvent = $this->saveBusinessDayRecurringEvent($caseEvent, $start_date, $request, $recurring_end_date);
+                    $recurringEvent = $this->saveBusinessDayRecurringEvent($caseEvent, date('Y-m-d', $startDate), $request, date("Y-m-d", $recurringEndDate));
                 } else if($request->event_frequency == "WEEKLY") {
-                    $recurringEvent = $this->saveWeeklyRecurringEvent($caseEvent, $start_date, $request, $recurring_end_date);
+                    $recurringEvent = $this->saveWeeklyRecurringEvent($caseEvent, date('Y-m-d', $startDate), $request, date("Y-m-d", $recurringEndDate));
                 } else if($request->event_frequency == "CUSTOM") {
-                    $recurringEvent = $this->saveCustomRecurringEvent($caseEvent, $start_date, $request, $recurring_end_date);
+                    $recurringEvent = $this->saveCustomRecurringEvent($caseEvent, date('Y-m-d', $startDate), $request, date("Y-m-d", $recurringEndDate));
                 } else if($request->event_frequency == "MONTHLY") {
-                    $recurringEvent = $this->saveMonthlyRecurringEvent($caseEvent, $start_date, $request, $recurring_end_date);
+                    $recurringEvent = $this->saveMonthlyRecurringEvent($caseEvent, date('Y-m-d', $startDate), $request, date("Y-m-d", $recurringEndDate));
                 }
                 // Commented. As per client's requirement
                 /* else if($request->event_frequency == "YEARLY") {
@@ -2499,18 +2491,11 @@ class CaseController extends BaseController
                 }
             }
         } elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS') {
-            // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
-            if(isset($request->all_day)) {
-                $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
-                $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'onlyDate');
-                $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
-            } else {
-                $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
-                $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'dateFromTime');
-                $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
-            }
-
+            $isAllDay = (isset($request->all_day)) ? "yes" : "no";
+            $days = $this->getDatesDiffDays($request);
+            $user_start_date = date("Y-m-d", $startDate);
+            $user_end_date = date("Y-m-d", $endDate);
+            $user_recurring_end_date = date("Y-m-d", $recurringEndDate);
             $caseEvent = Event::find($request->event_id);
             if($caseEvent->event_recurring_type != $request->event_frequency) {
                 $allEventIds = Event::where("parent_event_id", $request->event_id)->orWhere("id", $request->event_id)->pluck("id")->toArray();
@@ -2530,6 +2515,17 @@ class CaseController extends BaseController
                 // Create new events for new frequency
                 $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $recurring_end_date, $locationID);
             } else {
+                if(isset($request->all_day)) {
+                    $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                    $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'onlyDate');
+                    $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                } else {
+                    $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                    $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'dateFromTime');
+                    $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                }
+                $isNoEndDate = (isset($request->no_end_date_checkbox)) ? "yes" : "no";
+
                 if($request->event_frequency == 'DAILY') { 
                     $oldEvent = Event::find($request->event_id);
                     $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->first();
@@ -2537,8 +2533,8 @@ class CaseController extends BaseController
                         if($oldEvent) {
                             $oldEvent->fill([
                                 'is_no_end_date' => 'no',
-                                'end_on' => Carbon::parse($start_date)->subDays(1)->format('Y-m-d'),
-                                'event_recurring_end_date' => Carbon::parse($start_date)->subDays(1)->format('Y-m-d')
+                                'end_on' => Carbon::parse($user_start_date)->subDays(1)->format('Y-m-d'),
+                                'event_recurring_end_date' => Carbon::parse($user_start_date)->subDays(1)->format('Y-m-d')
                             ])->save();
                         }
                         $caseEvent = Event::create([
@@ -2566,14 +2562,13 @@ class CaseController extends BaseController
                             "created_by" => $authUser->id,
                         ]);
 
-                        $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
-                        $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
+                        // $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
+                        // $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
                         if($oldEvent->event_interval_day != $request->event_interval_day) {
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
-                            $eventRecurring = $this->saveDailyRecurringEvent($caseEvent, $start_date, $request, $recurring_end_date);
+                            $eventRecurring = $this->saveDailyRecurringEvent($caseEvent, $user_start_date, $request, $user_recurring_end_date);
                         } else {
-                            $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', $recurring_end_date);
-                            $days = $this->getDatesDiffDays($request);
+                            /* $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', $recurring_end_date);
                             foreach($period as $date) {
                                 $eventRecurring = EventRecurring::where("event_id", $oldEvent->id)->whereDate("start_date", $date)->first();
                                 if($eventRecurring) {
@@ -2588,12 +2583,38 @@ class CaseController extends BaseController
                                         'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
                                     ])->save();
                                 }
-                            }
+                            } */
+                            $this->updateFollowingRecurringEvent($request, 'daily', $user_start_date, $user_recurring_end_date, $oldEvent, $caseEvent, $days);
                         }  
                         if(!isset($request->no_case_link) && $request->text_lead_id!='') {
                             $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
                         }                  
                     } else {
+                        if($oldEvent->event_interval_day != $request->event_interval_day) {
+                            EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
+                            $eventRecurring = $this->saveDailyRecurringEvent($oldEvent, $start_date, $request, $recurring_end_date);
+                        } else {
+                            /* $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
+                            $eventLinkedClient = $this->getEventLinkedContactLeadJson($oldEvent, $request);
+                            $period = \Carbon\CarbonPeriod::create($start_date, $recurring_end_date);
+                            foreach($period as $date) {
+                                $eventRecurring = EventRecurring::where("event_id", $oldEvent->id)->whereDate("start_date", $date)->first();
+                                if($eventRecurring) {
+                                    $request->start_date = $date->format('Y-m-d');
+                                    $eventRecurring->fill([
+                                        "event_id" => $oldEvent->id,
+                                        "start_date" => $date,
+                                        "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
+                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                                        "event_linked_staff" => $eventLinkedStaff,
+                                        "event_linked_contact_lead" => $eventLinkedClient,
+                                        'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
+                                    ])->save();
+                                }
+                            } */
+                            $this->updateFollowingRecurringEvent($request, 'daily', $user_start_date, $user_recurring_end_date, $oldEvent, $caseEvent, $days);
+                        } 
+                        
                         $oldEvent->fill([
                             "event_title" => $request->event_name,
                             "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
@@ -2618,31 +2639,7 @@ class CaseController extends BaseController
                             "firm_id" => $authUser->firm_name,
                             "updated_by" => $authUser->id,
                         ])->save();
-                        
-                        if($oldEvent->event_interval_day != $request->event_interval_day) {
-                            EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
-                            $eventRecurring = $this->saveDailyRecurringEvent($oldEvent, $start_date, $request, $recurring_end_date);
-                        } else {
-                            $eventLinkedStaff = $this->getEventLinkedStaffJson($oldEvent, $request);
-                            $eventLinkedClient = $this->getEventLinkedContactLeadJson($oldEvent, $request);
-                            $period = \Carbon\CarbonPeriod::create($start_date, $recurring_end_date);
-                            $days = $this->getDatesDiffDays($request);
-                            foreach($period as $date) {
-                                $eventRecurring = EventRecurring::where("event_id", $oldEvent->id)->whereDate("start_date", $date)->first();
-                                if($eventRecurring) {
-                                    $request->start_date = $date->format('Y-m-d');
-                                    $eventRecurring->fill([
-                                        "event_id" => $oldEvent->id,
-                                        "start_date" => $date,
-                                        "end_date" => ($days > 0) ? Carbon::parse($date)->addDays($days)->format('Y-m-d') : $date,
-                                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
-                                        "event_linked_staff" => $eventLinkedStaff,
-                                        "event_linked_contact_lead" => $eventLinkedClient,
-                                        'event_comments' => $this->getEditEventHistoryJson($oldEvent->id, $eventRecurring),
-                                    ])->save();
-                                }
-                            }
-                        } 
+
                         if(!isset($request->no_case_link) && $request->text_lead_id!='') {
                             $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $oldEvent);
                         }  
@@ -3315,37 +3312,41 @@ class CaseController extends BaseController
                 } */
             }
         } elseif($request->delete_event_type=='ALL_EVENTS') {
-            // $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
-            // $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
-            if(isset($request->all_day)) {
-                $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
-                $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'onlyDate');
-                $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
-            } else {
-                $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
-                $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'dateFromTime');
-                $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
-            }
-
+            $isAllDay = (isset($request->all_day)) ? "yes" : "no";
+            $days = $this->getDatesDiffDays($request);
+            $user_start_date = date("Y-m-d", $startDate);
+            $user_end_date = date("Y-m-d", $endDate);
+            $user_recurring_end_date = date("Y-m-d", $recurringEndDate);
             $caseEvent = Event::find($request->event_id);
             if($caseEvent->event_recurring_type != $request->event_frequency) {
+                $sdate = (isset($request->updated_start_date)) ? $user_start_date : $caseEvent->user_start_date_time->format('Y-m-d');
+                $edate = (isset($request->updated_end_date)) ? $user_end_date : $caseEvent->user_end_date_time->format('Y-m-d');
                 $oldEventIds = Event::where("parent_event_id", $caseEvent->id)->orWhere("id", $caseEvent->id)->pluck('id')->toArray();
                 EventRecurring::whereIn("event_id", $oldEventIds)->forceDelete();
                 Event::whereIn("id", $oldEventIds)->forceDelete();
 
                 // Create new events for new frequency
-                $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $recurring_end_date, $locationID);
+                $this->saveRecurringEvent($request, $sdate, $edate, $start_time, $end_time, $user_recurring_end_date, $locationID);
             } else {
+                if(isset($request->all_day)) {
+                    $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                    $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'onlyDate');
+                    $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                } else {
+                    $start_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $startDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                    $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'dateFromTime');
+                    $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                }
                 $isNoEndDate = (isset($request->no_end_date_checkbox)) ? "yes" : "no";
                 if($request->event_frequency=='DAILY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
                         if($eitem->event_interval_day != $request->event_interval_day || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on)) {
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
-                            $sdate = (isset($request->updated_start_date)) ? $start_date : $eitem->start_date;
-                            $eventRecurring = $this->saveDailyRecurringEvent($eitem, $sdate, $request, $recurring_end_date);
+                            $sdate = (isset($request->updated_start_date)) ? $user_start_date : $eitem->user_start_date_time->format('Y-m-d');
+                            $eventRecurring = $this->saveDailyRecurringEvent($eitem, $sdate, $request, $user_recurring_end_date);
                         } else {
-                            $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
+                            /* $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                             $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
                             $days = $this->getDatesDiffDays($request);
@@ -3358,7 +3359,8 @@ class CaseController extends BaseController
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
                                 $eventRecurring = $ritem;
-                            }
+                            } */
+                            $eventRecurring = $this->updateRecurringEvent($eitem, $request);
                         }
 
                         $eitem->fill([
@@ -3392,15 +3394,14 @@ class CaseController extends BaseController
                 } else if($request->event_frequency == 'EVERY_BUSINESS_DAY') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        if($eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on) || isset($request->updated_start_time)) {
+                        if($eitem->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on) /* || isset($request->updated_start_time) */) {
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
-                            $sdate = (isset($request->updated_start_date)) ? $start_date : $eitem->start_date;
-                            $eventRecurring = $this->saveBusinessDayRecurringEvent($eitem, $sdate, $request, $recurring_end_date);
+                            $sdate = (isset($request->updated_start_date)) ? $user_start_date : $eitem->user_start_date_time->format('Y-m-d');
+                            $eventRecurring = $this->saveBusinessDayRecurringEvent($eitem, $sdate, $request, $user_recurring_end_date);
                         } else {
-                            $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
+                            /* $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
                             $eventLinkStaff = $this->geteventLinkedStaffJson($eitem, $request);
                             $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
-                            $days = $this->getDatesDiffDays($request);
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
@@ -3410,7 +3411,8 @@ class CaseController extends BaseController
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
                                 $eventRecurring = $ritem;
-                            }
+                            } */
+                            $eventRecurring = $this->updateRecurringEvent($eitem, $request);
                         }
 
                         $eitem->fill([
@@ -3443,23 +3445,25 @@ class CaseController extends BaseController
                 } else if($request->event_frequency == 'CUSTOM') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        if(array_diff( $request->custom, $eitem->custom_event_weekdays )  || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_end_on)) {
+                        if(array_diff( $request->custom, $eitem->custom_event_weekdays ) || isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_end_on)) {
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
-                            $sdate = (isset($request->updated_start_date)) ? $start_date : $eitem->start_date;
-                            $eventRecurring = $this->saveCustomRecurringEvent($eitem, $sdate, $request, $recurring_end_date);
+                            $sdate = (isset($request->updated_start_date)) ? $user_start_date : $eitem->user_start_date_time->format('Y-m-d');
+                            $eventRecurring = $this->saveCustomRecurringEvent($eitem, $sdate, $request, $user_recurring_end_date);
                         } else {
-                            $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
+                            /* $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                             $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
+                                    "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
                                     "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($eitem, $request, $ritem) : $ritem->event_reminders,
                                     "event_linked_staff" => $eventLinkStaff,
                                     "event_linked_contact_lead" => $eventLinkClient,
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
                                 $eventRecurring = $ritem;
-                            }
+                            } */
+                            $eventRecurring = $this->updateRecurringEvent($eitem, $request);
                         }
                         $eitem->fill([
                             "event_title" => $request->event_name,
@@ -3495,13 +3499,12 @@ class CaseController extends BaseController
                     foreach($oldEvents as $ekey => $eitem) {
                         if(isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_end_on)) {
                             EventRecurring::where("event_id", $eitem->id)->forcedelete();
-                            $sdate = (isset($request->updated_start_date)) ? $start_date : $eitem->start_date;
-                            $eventRecurring = $this->saveWeeklyRecurringEvent($eitem, $sdate, $request, $recurring_end_date);
+                            $sdate = (isset($request->updated_start_date)) ? $user_start_date : $eitem->user_start_date_time->format('Y-m-d');
+                            $eventRecurring = $this->saveWeeklyRecurringEvent($eitem, $sdate, $request, $user_recurring_end_date);
                         } else {
-                            $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
+                            /* $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
                             $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
-                            $days = $this->getDatesDiffDays($request);
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
@@ -3511,7 +3514,8 @@ class CaseController extends BaseController
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
                                 $eventRecurring = $ritem;
-                            }
+                            } */
+                            $eventRecurring = $this->updateRecurringEvent($eitem, $request);
                         }
                         $eitem->fill([
                             "event_title" => $request->event_name,
@@ -3541,17 +3545,19 @@ class CaseController extends BaseController
                         $this->sendLeadUserInviteEmail($request->text_lead_id, $eventRecurring, $caseEvent);
                     }
                 } else if($request->event_frequency == 'MONTHLY') {
+                    // return $request->all();
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
-                        $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
-                        if($request->monthly_frequency != $eitem->monthly_frequency || $request->event_interval_month != $eitem->event_interval_month || isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_end_on)) {
+                        if($request->monthly_frequency != $eitem->monthly_frequency || $request->event_interval_month != $eitem->event_interval_month || isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_end_on) || $isAllDay != $eitem->is_full_day) {
+                            // return 'if true';
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
-                            $sdate = (isset($request->updated_start_date)) ? $start_date : $eitem->start_date;
-                            $eventRecurring = $this->saveMonthlyRecurringEvent($eitem, $sdate, $request, $recurring_end_date);
+                            $sdate = (isset($request->updated_start_date)) ? $user_start_date : $eitem->user_start_date_time->format('Y-m-d');
+                            $eventRecurring = $this->saveMonthlyRecurringEvent($eitem, $sdate, $request, $user_recurring_end_date);
                         } else {
+                            // return 'else true';
+                            /* $eventLinkStaff = $this->getEventLinkedStaffJson($eitem, $request);
+                            $eventLinkClient = $this->getEventLinkedContactLeadJson($eitem, $request);
                             $recurringEvents = EventRecurring::where("event_id", $eitem->id)->get();
-                            $days = $this->getDatesDiffDays($request);
                             foreach($recurringEvents as $rkey => $ritem) {
                                 $ritem->fill([
                                     "end_date" => ($days > 0) ? Carbon::parse($ritem->start_date)->addDays($days)->format('Y-m-d') : $ritem->end_date,
@@ -3561,7 +3567,8 @@ class CaseController extends BaseController
                                     'event_comments' => $this->getEditEventHistoryJson($eitem->id, $ritem),
                                 ])->save();
                                 $eventRecurring = $ritem;
-                            }
+                            } */
+                            $eventRecurring = $this->updateRecurringEvent($eitem, $request);
                         }
 
                         $eitem->fill([

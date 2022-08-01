@@ -752,7 +752,7 @@ class HomeController extends BaseController
                 $users = $this->getTaskLinkedUser($item, "popup");
                 if(count($users)) {
                     $addTask = false;
-                    Log::info("Case Sol current time: ".Carbon::now());
+                    // Log::info("Case Sol current time: ".Carbon::now());
                     if($item->staff_remind_detail != null){
                         $staffReminders = encodeDecodeJson($item->staff_remind_detail)->where('user_id',auth()->id())->toArray();
                         if($staffReminders){
@@ -807,7 +807,7 @@ class HomeController extends BaseController
                 })->whereId(auth()->id())->get();
                 if(count($users)) {
                     $addTask = false;                    
-                    Log::info("Case Sol current time: ".Carbon::now());
+                    // Log::info("Case Sol current time: ".Carbon::now());
                     if($item->staff_remind_detail != null){
                         $staffReminders = encodeDecodeJson($item->staff_remind_detail)->where('user_id',auth()->id())->toArray();
                         if($staffReminders){

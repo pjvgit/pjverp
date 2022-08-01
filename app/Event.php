@@ -15,7 +15,7 @@ class Event extends Model
         'custom_event_weekdays', 'is_no_end_date', 'end_on', 'is_event_read', 'recurring_event_end_date', 'firm_id', 'created_by', 'updated_by', 
         'edit_recurring_pattern', 'event_interval_month', 'event_interval_year', 'monthly_frequency', 'yearly_frequency', 'event_interval_week'
     ];    
-    protected $appends  = ['decode_id','user_start_time','user_end_time',/* 'start_date_time','end_date_time', */ 'user_start_date', 'user_end_date'];
+    protected $appends  = ['decode_id','user_start_time','user_end_time','user_start_date_time','user_end_date_time', 'user_start_date', 'user_end_date'];
     protected $casts = ["custom_event_weekdays" => 'array'];
     public function getDecodeIdAttribute(){
          
@@ -42,19 +42,6 @@ class Event extends Model
             return "";
         }
     }
-
-    /* public function getStartDateTimeAttribute(){
-        if($this->start_time!=''){
-            $tm=$this->start_date.' '.$this->start_time;
-            return $currentConvertedDate= convertUTCToUserTime($tm, auth()->user()->user_timezone ?? 'UTC');
-        }
-    }
-    public function getEndDateTimeAttribute(){
-        if($this->end_time!=''){
-            $tm=$this->end_date.' '.$this->end_time;
-            return $currentConvertedDate= convertUTCToUserTime($tm,auth()->user()->user_timezone ?? 'UTC');
-        }
-    } */
  
     /**
      * Get the eventType associated with the CaseEvent
@@ -188,5 +175,27 @@ class Event extends Model
     public function eventRecurring()
     {
         return $this->hasMany(EventRecurring::class, 'event_id');
+    }
+
+    /**
+     * Get start date and time in user timezone
+     */
+    public function getUserStartDateTimeAttribute(){
+        if($this->start_time!='' && $this->is_full_day == 'no'){
+            return convertToUserTimezone($this->start_date.' '.$this->start_time, auth()->user()->user_timezone);
+        } else {
+            return convertUTCToUserDate($this->start_date, auth()->user()->user_timezone);
+        }
+    }
+
+    /**
+     * Get start date and time in user timezone
+     */
+    public function getUserEndDateTimeAttribute(){
+        if($this->end_time!='' && $this->is_full_day == 'no'){
+            return convertToUserTimezone($this->end_date.' '.$this->end_time, auth()->user()->user_timezone);
+        } else {
+            return convertUTCToUserDate($this->end_date, auth()->user()->user_timezone);
+        }
     }
 }

@@ -198,7 +198,7 @@
                                     <option <?php if($evetData->event_recurring_type=='DAILY'){?> selected=selected <?php } ?>  value="DAILY">Daily</option>
                                     <option <?php if($evetData->event_recurring_type=='EVERY_BUSINESS_DAY'){?> selected=selected <?php } ?>   value="EVERY_BUSINESS_DAY">Every Business Day</option>
                                     <option <?php if($evetData->event_recurring_type=='CUSTOM'){?> selected=selected <?php } ?>   value="CUSTOM">Weekly</option>
-                                    <option <?php if($evetData->event_recurring_type=='WEEKLY'){?> selected=selected <?php } ?>   value="WEEKLY">Weekly on {{date('l',strtotime($eventRecurring->user_start_date))}}</option>
+                                    <option <?php if($evetData->event_recurring_type=='WEEKLY'){?> selected=selected <?php } ?>   value="WEEKLY">Weekly on {{ date('l', strtotime($startDate)) }}</option>
                                     <option <?php if($evetData->event_recurring_type=='MONTHLY'){?> selected=selected <?php } ?>   value="MONTHLY">Monthly</option>
                                     {{-- Commented. As per client's requirement --}}
                                     {{-- <option <?php if($evetData->event_recurring_type=='YEARLY'){?> selected=selected <?php } ?>   value="YEARLY">Yearly</option> --}}
@@ -207,16 +207,16 @@
                             {{-- Commented. As per client's requirement --}}
                             {{-- <div class="col-md-5 form-group mb-3 repeat_yearly ">
                                 <select id="yearly-frequency" name="yearly_frequency" class="form-control custom-select  ">
-                                    <option <?php if($evetData->yearly_frequency=='YEARLY_ON_DAY'){?> selected=selected <?php } ?>  value="YEARLY_ON_DAY">On day {{date('d',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
-                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE">On the {{ getWeekNthDay(ceil(date('j', strtotime($eventRecurring->user_start_date)) / 7)) }} {{date('l',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
-                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE_LAST'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE_LAST">On the last {{date('l',strtotime($eventRecurring->user_start_date))}} of {{date('F')}}</option>
+                                    <option <?php if($evetData->yearly_frequency=='YEARLY_ON_DAY'){?> selected=selected <?php } ?>  value="YEARLY_ON_DAY">On day {{ date('d', strtotime($startDate)) }} of {{date('F')}}</option>
+                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE">On the {{ getWeekNthDay(ceil(date('j', strtotime($startDate)) / 7)) }} {{ date('l', strtotime($startDate)) }} of {{date('F')}}</option>
+                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE_LAST'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE_LAST">On the last {{ date('l', strtotime($startDate)) }} of {{date('F')}}</option>
                                 </select>
                             </div> --}}
                             <div class="col-md-5 form-group mb-3 repeat_monthly">
                                 <select id="monthly-frequency" name="monthly_frequency" class="form-control custom-select  ">
-                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_DAY'){?> selected=selected <?php } ?> value="MONTHLY_ON_DAY">On day {{date('d',strtotime($eventRecurring->user_start_date))}}</option>
-                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_THE'){?> selected=selected <?php } ?> value="MONTHLY_ON_THE">On the {{ getWeekNthDay(ceil(date('j', strtotime($eventRecurring->user_start_date)) / 7)) }} {{date("l",strtotime($eventRecurring->user_start_date))}}</option>
-                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_THE_LAST'){?> selected=selected <?php } ?> value="MONTHLY_ON_THE_LAST">On the last {{date("l",strtotime($eventRecurring->user_start_date))}}</option>
+                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_DAY'){?> selected=selected <?php } ?> value="MONTHLY_ON_DAY">On day {{ date('d', strtotime($startDate)) }}</option>
+                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_THE'){?> selected=selected <?php } ?> value="MONTHLY_ON_THE">On the {{ getWeekNthDay(ceil(date('j', strtotime($startDate)) / 7)) }} {{ date('l', strtotime($startDate)) }}</option>
+                                    <option <?php if($evetData->monthly_frequency=='MONTHLY_ON_THE_LAST'){?> selected=selected <?php } ?> value="MONTHLY_ON_THE_LAST">On the last {{ date('l', strtotime($startDate)) }}</option>
                                 </select>
                             </div>
                         </div>
