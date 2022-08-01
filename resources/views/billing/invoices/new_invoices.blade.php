@@ -1103,7 +1103,7 @@ $nonBillableAmount = 0;
                                                 ?>
                         </td>
                         <td style="position: relative"> 
-                            <a data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry" onclick="removeAdjustmentEntry({{$v->id}},{{$v->amount}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a>
+                            {{-- <a data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry" onclick="removeAdjustmentEntry({{$v->id}},{{$v->amount}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a> --}}
                         </td>
                         </tr>
                         <?php } }?>
@@ -2955,7 +2955,8 @@ $nonBillableAmount = 0;
             if(firstInstallment != '' && firstInstallment > 0) {
                 totalInstalment += 1;
             }
-            $("#number_installment_field").val(Math.floor(totalInstalment));
+            // $("#number_installment_field").val(Math.floor(totalInstalment));
+            $("#number_installment_field").val(Math.ceil(totalInstalment));
 
         }); 
         $("#number_installment_field").blur(function(){

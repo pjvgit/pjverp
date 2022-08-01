@@ -1,3 +1,7 @@
+------------------------------------ 01-AUG-2022 ------------------------------
+ALTER TABLE `users`
+CHANGE `popup_after_first_case` `popup_after_first_case` enum('yes','no','showed') COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT 'yes' AFTER `bulk_id`;
+
 ------------------------------------ 26-JUL-2022 ------------------------------
 ALTER TABLE `messages`
 ADD `last_post_at` timestamp NULL AFTER `users_json`;

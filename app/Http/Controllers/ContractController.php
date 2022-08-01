@@ -122,6 +122,7 @@ class ContractController extends BaseController
             $user->add_event_guide2 = '0';
             $user->add_event_guide = '0';
             $user->add_task_guide = '0';            
+            $user->popup_after_first_case = 'no';            
             // $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
             $user->user_status  = "1";  // Default status is active once verified account it will activated.
             $user->created_by =Auth::User()->id;
@@ -1302,13 +1303,15 @@ class ContractController extends BaseController
     public function deleteClientGroup(Request $request)
     {
         $group_id=$request->group_id;
-        ClientGroup::where("id", $group_id)->delete();
-        //When delete the client group assinged to default group to each client which hase assigned this group.
-        $ClientGroup = ClientGroup::where('is_default', "1")->first();
-        UsersAdditionalInfo::where('contact_group_id',$group_id)->update(['contact_group_id'=>($ClientGroup->id ?? '1')]);
-        session(['popup_success' => 'Contact group was deleted']);
-
-        return response()->json(['errors'=>'','group_id'=>$group_id]);
+        $clientGroup = ClientGroup::where("id", $group_id)->first();
+        if($clientGroup) {
+            //When delete the client group assinged to default group to each client which hase assigned this group.
+            $unassignGrp = ClientGroup::where("firm_id", $clientGroup->firm_id)->where('is_default', "1")->where("group_name", "Unassigned")->first();
+            UsersAdditionalInfo::where('contact_group_id',$group_id)->update(['contact_group_id'=>($unassignGrp->id ?? Null)]);
+            $clientGroup->delete();
+            session(['popup_success' => 'Contact group was deleted']);
+            return response()->json(['errors'=>'','group_id'=>$group_id]);
+        }
         exit;
     }
     public function loadEditClientGroup(Request $request)

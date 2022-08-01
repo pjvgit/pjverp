@@ -784,8 +784,6 @@ class CaseController extends BaseController
             //     return response()->json(['errors'=>'','reload'=>'true']);
             //     exit;
             // }
-          
-
 
             DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
             session(['popup_success' => 'Case has been created.']);
@@ -1197,7 +1195,14 @@ class CaseController extends BaseController
             }
             //Get total number of case avaulable in system 
             $caseCount = CaseMaster::where("created_by",Auth::User()->id)->where('is_entry_done',"1")->count();
-            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'flatFeeEntryData','timeEntryData','expenseEntryData','caseClients','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany','CompanyList'));
+            $userFirstCase = CaseMaster::where("created_by",Auth::User()->id)->where('is_entry_done',"1")->first();
+            $authUser = User::whereId(auth()->id())->first();
+            if($caseCount == 1 && $authUser->popup_after_first_case == 'no' && $userFirstCase->id == $case_id) {
+                $authUser->popup_after_first_case = 'yes';
+                $authUser->save();
+            }
+            $authUser->refresh();
+            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'flatFeeEntryData','timeEntryData','expenseEntryData','caseClients','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany','CompanyList','authUser'));
         } else {
             abort(404);
         }
@@ -4782,7 +4787,7 @@ class CaseController extends BaseController
             $case=$case->count();
             if($case<=0){
                 $userMaster = User::find(Auth::User()->id);
-                $userMaster->popup_after_first_case="yes";
+                $userMaster->popup_after_first_case="no";
                 $userMaster->save();       
             }
             //if current zero case available then popup field enabled :: End
@@ -5115,7 +5120,7 @@ class CaseController extends BaseController
    public function dismissCaseModal(Request $request)
    {
        $userMaster = User::find(Auth::User()->id);
-       $userMaster->popup_after_first_case="no";
+       $userMaster->popup_after_first_case="showed";
        $userMaster->save();        
    } 
 

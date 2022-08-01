@@ -339,7 +339,7 @@ trait EventTrait {
             } else {
                 $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
             }
-            $request->start_date = $utc_start_date;
+            $request->start_date = $date->format('Y-m-d');
             $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => $utc_start_date,
@@ -425,7 +425,7 @@ trait EventTrait {
                 } else {
                     $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
                 }
-                $request->start_date = $utc_start_date;   
+                $request->start_date = $date->format('Y-m-d');   
                 $eventRecurring = EventRecurring::create([
                     "event_id" => $caseEvent->id,
                     "start_date" => $utc_start_date,
@@ -774,6 +774,7 @@ trait EventTrait {
         if($recurringType == "daily") {
             $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
             $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
+            
             $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', $recurring_end_date);
             foreach($period as $date) {
                 if(isset($request->all_day)) {

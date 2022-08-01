@@ -1166,10 +1166,10 @@
     });
 
     $("#staff_user").on("select2:select", function(e) {
-        if($(this).select2().find(":selected").data("flatfees") > 0) {
+        // if($(this).select2().find(":selected").data("flatfees") > 0) {
             $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
             // $("#rate_type_field_id").val('hr');
-        }
+        // }
         
         $("#staff_user").select2({
             placeholder: "Select...",

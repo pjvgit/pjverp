@@ -1499,7 +1499,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         dismissCaseModal();
     });
     //Load modal for first time onlh
-    <?php if(Auth::User()->popup_after_first_case=="yes"){?>
+    <?php if($authUser->popup_after_first_case=="yes"){?>
     $("#firstCaseModal").modal("show")
     <?php } ?>
     

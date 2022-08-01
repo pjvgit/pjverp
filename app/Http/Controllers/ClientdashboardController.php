@@ -3907,7 +3907,7 @@ class ClientdashboardController extends BaseController
                         $User->created_by=Auth::User()->id;
                         $User->created_at=date('Y-m-d H:i:s');
                         $User->bulk_id=$ClientCompanyImport->id;
-                        $User->status = '1';
+                        $User->user_status = '1';
                         $User->save();
                         
                         $UsersAdditionalInfo= new UsersAdditionalInfo;

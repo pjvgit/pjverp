@@ -382,7 +382,8 @@ class ReportsController extends BaseController
             $InvoiceAdjustment=InvoiceAdjustment::leftJoin("invoices","invoices.id","=","invoice_adjustment.invoice_id")
             ->select('invoice_adjustment.*')
             ->where("invoice_adjustment.case_id",$case->id)->whereNull("invoices.deleted_at");
-            $InvoiceAdjustment = $InvoiceAdjustment->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt]);
+            // $InvoiceAdjustment = $InvoiceAdjustment->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt]);
+            $InvoiceAdjustment = $InvoiceAdjustment->whereDate("invoice_adjustment.created_at", '>=', $startDt)->whereDate("invoice_adjustment.created_at", '<=', $endDt);
             $InvoiceAdjustment = $InvoiceAdjustment->get();
             $caseInterestAdjustment = $caseTaxAdjustment = $caseAdditionsAdjustment = $caseDiscountsAdjustment = 0;
             foreach($InvoiceAdjustment as $k => $v){
