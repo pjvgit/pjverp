@@ -361,7 +361,7 @@ class CaseController extends BaseController
                     $data['client_id']=$key;
                     $data['case_id']=$CaseMaster->id;
                     $data['activity']='linked attorney';
-                    $data['type']='contact';
+                    $data['type']='staff';
                     $data['action']='link';
                     $CommonController= new CommonController();
                     $CommonController->addMultipleHistory($data);    
@@ -716,7 +716,7 @@ class CaseController extends BaseController
                 $data['client_id']=$key;
                 $data['case_id']=$request->case_id;
                 $data['activity']='linked attorney';
-                $data['type']='contact';
+                $data['type']='staff';
                 $data['action']='link';
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
@@ -1776,7 +1776,8 @@ class CaseController extends BaseController
             $data1['staff_id']=$request->user_type;
             $this->caseActivity($data1);
 
-            $data2=[];
+            // COmmented coz function is for client not for staff 
+            /* $data2=[];
             $data2['user_id']=$request->user_type;
             $data2['client_id']=$request->user_type;
             $data2['case_id']=$request->case_id;
@@ -1784,7 +1785,7 @@ class CaseController extends BaseController
             $data2['type']='contact';
             $data2['action']='link';
             $CommonController= new CommonController();
-            $CommonController->addMultipleHistory($data2);
+            $CommonController->addMultipleHistory($data2); */
 
             if(!empty($request->client_links)){
                 foreach($request->client_links as $k=>$v ){

@@ -1217,7 +1217,7 @@ class LeadController extends BaseController
                 $data['client_id']=$key;
                 $data['case_id']=$request->case_id;
                 $data['activity']='linked attorney';
-                $data['type']='contact';
+                $data['type']='staff';
                 $data['action']='link';
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);

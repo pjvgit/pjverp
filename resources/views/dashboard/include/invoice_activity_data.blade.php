@@ -17,7 +17,11 @@
                     ?>
                     @if(in_array($v->action,["add","update","delete","pay","refund","pay_delete"]))
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
+                        @if($v->user_level == '2') 
+                        <a class="name" href="{{ route('contacts/clients/view', $v->created_by) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                        @else
+                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
+                        @endif
                         @if($v->action == "pay") for invoice  @endif
                         @if ($v->deleteInvoice == NULL)
                             @if($v->type == 'lead_invoice')
@@ -39,7 +43,7 @@
                         <?php } ?>
                     @elseif(in_array($v->action,["share","unshare","email"]))
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                         {{$v->activity}} 
                         
                         @if ($v->deleteInvoice == NULL)
@@ -74,7 +78,7 @@
                         <?php }  ?>
                     @else
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                         {{$v->activity}} for {{$v->title}} 
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                         <?php  if($v->case_unique_number!=NULL && $v->deleteCase == NULL){  ?>

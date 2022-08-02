@@ -16,7 +16,7 @@
             $image=$ImageArray[$v->action];
             ?>
             <img src="{{ asset('images/'.$image) }}" width="27" height="21">
-                <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
+                <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">
                 {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
                 </a> {{$v->activity}} 
                 

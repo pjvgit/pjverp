@@ -12,9 +12,13 @@
             $image=$ImageArray[$v->action];
             ?>
             <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
+            @if($v->user_level == '2') 
+                <a class="name" href="{{ route('contacts/clients/view', $v->created_by) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+            @else
+            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}}
                 {{$v->last_name}} ({{$v->user_title}})
             </a> 
+            @endif
                 {{$v->activity}} 
             @if($v->deposit_id)
                 #R-{{sprintf('%05d', $v->deposit_id)}}

@@ -1734,7 +1734,7 @@ class ContractController extends BaseController
                     $data['client_id']=$user_id;
                     $data['case_id']=$v;
                     $data['activity']='linked attorney';
-                    $data['type']='contact';
+                    $data['type']='staff';
                     $data['action']='link';
                     $CommonController= new CommonController();
                     $CommonController->addMultipleHistory($data);

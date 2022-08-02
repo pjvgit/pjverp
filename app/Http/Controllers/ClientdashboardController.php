@@ -5106,7 +5106,7 @@ class ClientdashboardController extends BaseController
                                     $data['client_id']=Auth::user()->id;
                                     $data['case_id']=$CaseMaster->id;
                                     $data['activity']='linked attorney';
-                                    $data['type']='contact';
+                                    $data['type']='staff';
                                     $data['action']='link';
                                     $CommonController= new CommonController();
                                     $CommonController->addMultipleHistory($data);
@@ -5128,7 +5128,7 @@ class ClientdashboardController extends BaseController
                                     $data['client_id']=Auth::user()->id;
                                     $data['case_id']=$CaseMaster->id;
                                     $data['activity']='linked attorney';
-                                    $data['type']='contact';
+                                    $data['type']='staff';
                                     $data['action']='link';
                                     $CommonController= new CommonController();
                                     $CommonController->addMultipleHistory($data);
@@ -5154,7 +5154,7 @@ class ClientdashboardController extends BaseController
                                 $data['client_id']=Auth::user()->id;
                                 $data['case_id']=$CaseMaster->id;
                                 $data['activity']='linked attorney';
-                                $data['type']='contact';
+                                $data['type']='staff';
                                 $data['action']='link';
                                 $CommonController= new CommonController();
                                 $CommonController->addMultipleHistory($data);

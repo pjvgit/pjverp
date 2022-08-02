@@ -774,7 +774,7 @@ trait EventTrait {
         if($recurringType == "daily") {
             $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
             $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
-            
+            Log::info("old event start time: ". $oldEvent->start_time);
             $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', $recurring_end_date);
             foreach($period as $date) {
                 if(isset($request->all_day)) {
