@@ -384,7 +384,12 @@
 
                                 <td style="font-size:12px">
                                 @if(in_array($v->action,["add","update","delete","pay","refund","pay_delete"]))
-                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
+                                    @if($v->user_level == '2') 
+                                    <a class="name" href="{{ route('contacts/clients/view', $v->created_by) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                    @else
+                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a>
+                                    @endif
+                                    {{$v->activity}} 
                                     @if($v->action == "pay") for invoice  @endif
                                     @if ($v->deleteInvoice == NULL)
                                         @if($v->type == 'lead_invoice')
@@ -393,10 +398,10 @@
                                         <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', @$v->invoice->unique_invoice_number ?? 0)}} </a> 
                                         @endif
                                     @else
-                                        #{{sprintf('%06d', $v->activity_for)}}
+                                        #{{sprintf('%06d', @$v->unique_invoice_number)}}
                                     @endif 
                                 @elseif(in_array($v->action,["share","unshare","email"]))
-                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                                     {{$v->activity}} 
                                     
                                     @if ($v->deleteInvoice == NULL)
@@ -406,14 +411,14 @@
                                         <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', @$v->invoice->unique_invoice_number ?? 0)}} </a> 
                                         @endif
                                     @else
-                                        #{{sprintf('%06d', $v->activity_for)}}
+                                        #{{sprintf('%06d', @$v->unique_invoice_number)}}
                                     @endif 
                                     {{ ($v->action == "unshare") ? "from the portal with" : (($v->action == "share") ? "in the portal with" : "") }}
                                     @if($v->action == "email") to @endif
                                     <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{ $v->fullname }} ({{$v->user_title}})</a>
                                 @else
                                     <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                                     {{$v->activity}} for {{$v->title}} 
                                 @endif
                                 </td>
@@ -960,29 +965,34 @@
 
                                     <td style="font-size:12px">
                                     @if(in_array($v->action,["add","update","delete","pay","refund","pay_delete"]))
-                                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
+                                        @if($v->user_level == '2') 
+                                        <a class="name" href="{{ route('contacts/clients/view', $v->created_by) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                        @else
+                                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a>
+                                        @endif
+                                        {{$v->activity}} 
                                         @if($v->action == "pay") for invoice  @endif
                                         @if ($v->deleteInvoice == NULL)
                                             @if($v->type == 'lead_invoice')
-                                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                                             @else
-                                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                                             @endif
                                         @else
-                                            #{{sprintf('%06d', $v->activity_for)}}
+                                            #{{sprintf('%06d', $v->unique_invoice_number)}}
                                         @endif 
                                     @elseif(in_array($v->action,["share","unshare","email"]))
-                                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->created_by)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                                         {{$v->activity}} 
                                         
                                         @if ($v->deleteInvoice == NULL)
                                             @if($v->type == 'lead_invoice')
-                                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                                             @else
-                                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->unique_invoice_number)}} </a> 
                                             @endif
                                         @else
-                                            #{{sprintf('%06d', $v->activity_for)}}
+                                            #{{sprintf('%06d', $v->unique_invoice_number)}}
                                         @endif 
                                         {{ ($v->action == "unshare") ? "from the portal with" : (($v->action == "share") ? "in the portal with" : "") }}
                                         @if($v->action == "email") to @endif

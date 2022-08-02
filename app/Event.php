@@ -26,8 +26,9 @@ class Event extends Model
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
-            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
-            return date('h:ia',strtotime($currentConvertedDate));
+            $currentConvertedDate= convertToUserTimezone($tm,$timezone);
+            // return date('h:ia',strtotime($currentConvertedDate));
+            return $currentConvertedDate->format("h:ia");
         }else{
             return "";
         }
@@ -36,8 +37,9 @@ class Event extends Model
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->end_time!=''){
             $tm=$this->end_date . $this->end_time;
-            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
-            return date('h:ia',strtotime($currentConvertedDate));
+            $currentConvertedDate= convertToUserTimezone($tm,$timezone);
+            // return date('h:ia',strtotime($currentConvertedDate));
+            return $currentConvertedDate->format("h:ia");
         }else{
             return "";
         }

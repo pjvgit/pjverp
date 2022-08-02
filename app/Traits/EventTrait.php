@@ -771,37 +771,193 @@ trait EventTrait {
     public function updateFollowingRecurringEvent($request, $recurringType, $start_date, $recurring_end_date, $oldEvent, $caseEvent, $days)
     {
         $authUser = auth()->user();
+        $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent ?? $oldEvent, $request);
+        $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent ?? $oldEvent, $request);
+
         if($recurringType == "daily") {
-            $eventLinkedStaff = $this->getEventLinkedStaffJson($caseEvent, $request);
-            $eventLinkedClient = $this->getEventLinkedContactLeadJson($caseEvent, $request);
-            Log::info("old event start time: ". $oldEvent->start_time);
             $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', $recurring_end_date);
             foreach($period as $date) {
-                if(isset($request->all_day)) {
-                    $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
-                    $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'onlyDate');
-                } else {
-                    $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
-                    $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'dateFromTime');
-                }
                 if($oldEvent->is_full_day == 'no') {
-                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $oldEvent->start_time, $authUser->user_timezone, 'dateFromTime');
+                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $oldEvent->user_start_time, $authUser->user_timezone, 'dateFromTime');
                 } else {
-                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->user_start_time, $authUser->user_timezone, 'onlyDate');
                 }
                 $eventRecurring = EventRecurring::where("event_id", $oldEvent->id)->whereDate("start_date", $oldStartDate)->first();
                 if($eventRecurring) {
+                    if(isset($request->all_day)) {
+                        $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                        $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'onlyDate');
+                    } else {
+                        $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                        $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'dateFromTime');
+                    }
                     $request->start_date = $date->format('Y-m-d');
                     $eventRecurring->fill([
-                        "event_id" => $caseEvent->id,
+                        "event_id" => $caseEvent->id ?? $oldEvent->id,
                         "start_date" => $utc_start_date,
                         "end_date" => ($days > 0) ? Carbon::parse($utc_start_date)->addDays($days)->format('Y-m-d') : $utc_end_date,
-                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent ?? $oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
                         "event_linked_staff" => $eventLinkedStaff,
                         "event_linked_contact_lead" => $eventLinkedClient,
-                        'event_comments' => $this->getEditEventHistoryJson($caseEvent->id, $eventRecurring),
+                        'event_comments' => $this->getEditEventHistoryJson($caseEvent->id ?? $oldEvent->id, $eventRecurring),
                     ])->save();
                 }
+            }
+        } else if($recurringType == "business_day") {
+            $period = \Carbon\CarbonPeriod::create($start_date, $recurring_end_date);
+            $days = $this->getDatesDiffDays($request);
+            foreach($period as $date) {  
+                if($oldEvent->is_full_day == 'no') {
+                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $oldEvent->user_start_time, $authUser->user_timezone, 'dateFromTime');
+                } else {
+                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->user_start_time, $authUser->user_timezone, 'onlyDate');
+                } 
+                if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
+                    $eventRecurring = EventRecurring::where("event_id", $oldEvent->id)->whereDate("start_date", $oldStartDate)->first();
+                    if($eventRecurring) {    
+                        if(isset($request->all_day)) {
+                            $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                            $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'onlyDate');
+                        } else {
+                            $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                            $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'dateFromTime');
+                        }
+                        $request->start_date = $date->format('Y-m-d');
+                        $eventRecurring->fill([
+                            "event_id" => $caseEvent->id ?? $oldEvent->id,
+                            "start_date" => $utc_start_date,
+                            "end_date" => ($days > 0) ? Carbon::parse($utc_start_date)->addDays($days)->format('Y-m-d') : $utc_end_date,
+                            "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent ?? $oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                            "event_linked_staff" => $eventLinkedStaff,
+                            "event_linked_contact_lead" => $eventLinkedClient,
+                            'event_comments' => $this->getEditEventHistoryJson($caseEvent->id ?? $oldEvent->id, $eventRecurring),
+                        ])->save();
+                    }
+                }
+            }
+        } else if($recurringType == "custom") {
+            $start = new DateTime($start_date);
+            $startClone = new DateTime($start_date);
+            if(isset($request->end_on)) {
+                $recurringEndDate=new DateTime($request->end_on);
+            }else{
+                $recurringEndDate=$startClone->add(new DateInterval('P365D'));
+            }
+            $interval = new DateInterval('P1D');
+            $period = new DatePeriod($start, $interval, $recurringEndDate);
+            $weekInterval = $request->daily_weekname;
+            $fakeWeek = 0;
+            $currentWeek = $start->format('W');
+            
+            foreach ($period as $date) {
+                if ($date->format('W') !== $currentWeek) {
+                    $currentWeek = $date->format('W');
+                    $fakeWeek++;
+                }
+                if ($fakeWeek % $weekInterval !== 0) {
+                    continue;
+                }
+                if($oldEvent->is_full_day == 'no') {
+                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $oldEvent->user_start_time, $authUser->user_timezone, 'dateFromTime');
+                } else {
+                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->user_start_time, $authUser->user_timezone, 'onlyDate');
+                } 
+                $dayOfWeek = $date->format('l');
+                if(in_array($dayOfWeek, $request->custom)) {   
+                    $eventRecurring = EventRecurring::where("event_id", $oldEvent->id)->whereDate("start_date", $oldStartDate)->first();
+                    if($eventRecurring) {
+                        if(isset($request->all_day)) {
+                            $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                            $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'onlyDate');
+                        } else {
+                            $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                            $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'dateFromTime');
+                        }
+                        $request->start_date = $date->format('Y-m-d');
+                        $eventRecurring->fill([
+                            "event_id" => $caseEvent->id ?? $oldEvent->id,
+                            "start_date" => $utc_start_date,
+                            "end_date" => ($days > 0) ? Carbon::parse($utc_start_date)->addDays($days)->format('Y-m-d') : $utc_end_date,
+                            "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent ?? $oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                            "event_linked_staff" => $eventLinkedStaff,
+                            "event_linked_contact_lead" => $eventLinkedClient,
+                            'event_comments' => $this->getEditEventHistoryJson($caseEvent->id ?? $oldEvent->id, $eventRecurring),
+                        ])->save();
+                    }
+                }
+            }
+        } else if($recurringType == "weekly") {
+            $period = \Carbon\CarbonPeriod::create($start_date, '7 days', $recurring_end_date);
+            foreach($period as $date) {   
+                if($oldEvent->is_full_day == 'no') {
+                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $oldEvent->user_start_time, $authUser->user_timezone, 'dateFromTime');
+                } else {
+                    $oldStartDate = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->user_start_time, $authUser->user_timezone, 'onlyDate');
+                }
+                $eventRecurring = EventRecurring::where("event_id", $oldEvent->id)->whereDate("start_date", $oldStartDate)->first();
+                if($eventRecurring) {
+                    if(isset($request->all_day)) {
+                        $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                        $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'onlyDate');
+                    } else {
+                        $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                        $utc_end_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'dateFromTime');
+                    }
+                    $request->start_date = $date->format('Y-m-d');
+                    $eventRecurring->fill([
+                        "event_id" => $caseEvent->id ?? $oldEvent->id,
+                        "start_date" => $utc_start_date,
+                        "end_date" => ($days > 0) ? Carbon::parse($utc_start_date)->addDays($days)->format('Y-m-d') : $utc_end_date,
+                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent ?? $oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                        "event_linked_staff" => $eventLinkedStaff,
+                        "event_linked_contact_lead" => $eventLinkedClient,
+                        'event_comments' => $this->getEditEventHistoryJson($caseEvent->id ?? $oldEvent->id, $eventRecurring),
+                    ])->save();
+                }
+            }
+        } else if($recurringType == 'monthly') {
+            $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', $recurring_end_date);
+            foreach($period as $date) {       
+                $currentWeekDay = strtolower(date('l', strtotime($request->start_date))); 
+                if($request->monthly_frequency == 'MONTHLY_ON_DAY'){
+                    $date1 = strtotime($date);
+                } else if($request->monthly_frequency == 'MONTHLY_ON_THE') {
+                    $nthDay = ceil(date('j', strtotime($request->start_date)) / 7);
+                    $nthText = getWeekNthDay($nthDay);
+                    $date1 = strtotime($nthText." ". $currentWeekDay ." of this month", strtotime($date));
+                }else if($request->monthly_frequency=='MONTHLY_ON_THE_LAST'){
+                    $date1 = strtotime("last ". $currentWeekDay ." of this month", strtotime($date));
+                } else { 
+                    $date1 = strtotime($date);
+                }
+                if($oldEvent->is_full_day == 'no') {
+                    $oldStartDate = $this->eventConvertTimestampToUtc(date('Y-m-d', $date1), $oldEvent->user_start_time, $authUser->user_timezone, 'dateFromTime');
+                } else {
+                    $oldStartDate = $this->eventConvertTimestampToUtc(date('Y-m-d', $date1), $request->user_start_time, $authUser->user_timezone, 'onlyDate');
+                }
+                $eventRecurring = EventRecurring::where("event_id", $oldEvent->id)->whereDate("start_date", $oldStartDate)->first();
+                if($eventRecurring) {
+                    if(isset($request->all_day)) {
+                        $utc_start_date = $this->eventConvertTimestampToUtc(date('Y-m-d', $date1), $request->start_time, $authUser->user_timezone, 'onlyDate');
+                        $utc_end_date = $this->eventConvertTimestampToUtc(date('Y-m-d', $date1), $request->end_time, $authUser->user_timezone, 'onlyDate');
+                    } else {
+                        $utc_start_date = $this->eventConvertTimestampToUtc(date('Y-m-d', $date1), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                        $utc_end_date = $this->eventConvertTimestampToUtc(date('Y-m-d', $date1), $request->end_time, $authUser->user_timezone, 'dateFromTime');
+                    }
+                    $request->start_date = date('Y-m-d', $date1);
+                    $eventRecurring->fill([
+                        "event_id" => $caseEvent->id ?? $oldEvent->id,
+                        "start_date" => $utc_start_date,
+                        "end_date" => ($days > 0) ? Carbon::parse($utc_start_date)->addDays($days)->format('Y-m-d') : $utc_end_date,
+                        "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($caseEvent ?? $oldEvent, $request, $eventRecurring) : $eventRecurring->event_reminders,
+                        "event_linked_staff" => $eventLinkedStaff,
+                        "event_linked_contact_lead" => $eventLinkedClient,
+                        'event_comments' => $this->getEditEventHistoryJson($caseEvent->id ?? $oldEvent->id, $eventRecurring),
+                    ])->save();
+                }
+            }
+            if(!isset($request->no_case_link) && $request->text_lead_id!='') {
+                $this->sendLeadUserInviteEmail($request->text_lead_id, @$eventRecurring, $caseEvent);
             }
         }
     }

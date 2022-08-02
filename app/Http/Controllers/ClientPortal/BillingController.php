@@ -621,7 +621,7 @@ class BillingController extends Controller
                         [
                             'payment_method' => [
                                 'type'       => 'oxxo_cash',
-                                'expires_at' => strtotime(Carbon::now()->addDays(7)),
+                                'expires_at' => strtotime(Carbon::now()->addHours(1)),
                             ],
                             'amount' => (int)$amount * 100,
                         ]
@@ -808,7 +808,7 @@ class BillingController extends Controller
                         [
                             'payment_method' => [
                                 'type'       => 'spei',
-                                'expires_at' => strtotime(Carbon::now()->addDays(7)),
+                                'expires_at' => strtotime(Carbon::now()->addHours(1)),
                             ],
                             'amount' => (int)$amount * 100,
                         ]

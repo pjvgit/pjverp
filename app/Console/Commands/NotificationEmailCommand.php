@@ -55,6 +55,7 @@ class NotificationEmailCommand extends Command
             ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
             ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
             ->leftJoin('task','task.id','=','all_history.task_id')
+            ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
             ->select("all_history.id as historyID","all_history.case_id as caseId","all_history.created_by as createdBy",
                     "task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", 
                     "users.*","all_history.*","u1.user_level as ulevel","u1.user_title as utitle",
@@ -63,7 +64,8 @@ class NotificationEmailCommand extends Command
                     "all_history.created_at as all_history_created_at",
                     "case_master.case_unique_number", "case_events.event_title as eventTitle", 
                     "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",
-                    'task.task_title as taskTitle', "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact")
+                    'task.task_title as taskTitle', "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact",
+                    "invoices.deleted_at as deleteInvoice","invoices.unique_invoice_number")
             ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
             // ->whereDate("all_history.created_at", date('Y-m-d'))
             ->where('all_history.is_for_client','no')
