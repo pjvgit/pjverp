@@ -1289,6 +1289,7 @@ $nonBillableAmount = 0;
                                 id="addition_total_text">
                                 <input type="hidden" value="" name="final_total_text" id="final_total_text">
                                 <input type="hidden" value="{{$adjustment_token}}" name="adjustment_token" id="adjustment_token">
+                                <input type="hidden" value="{{$unique_token}}" name="unique_token" id="unique_token">
                                 <input type="hidden" value="{{ $totalFwdAmt ?? 0}}" name="forwarded_total_text" id="forwarded_total_text">
                             </tbody>
                         </table>
@@ -3735,7 +3736,7 @@ $nonBillableAmount = 0;
         var bill_from_date=$("#bill_from_date").val();
         var bill_to_date=$("#bill_to_date").val();
         var adjustment_delete=$('#adjustment_delete').val();
-        var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}';
+        var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}&utoken={{$unique_token}}';
         if(bill_from_date != '' && bill_to_date != ''){
             URLS+='&bill_from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
         }
@@ -4156,7 +4157,8 @@ $nonBillableAmount = 0;
             url: baseUrl + "/bills/invoices/addAdjustmentEntry",
             data: {
                 "id": "{{ (isset($caseMaster)) ? base64_encode($caseMaster['id']) : 0}}",
-                "adjustment_token":"{{$adjustment_token}}",
+                // "adjustment_token":"{{$adjustment_token}}",
+                "adjustment_token":"{{$unique_token}}",
                 "invoice_id":"{{$findInvoice->id}}"
 
             },
@@ -4723,7 +4725,7 @@ $("input:checkbox#range_check_box").click(function () {
         $('#bill_from_date').val('');
         $('#bill_to_date').val('');
         if($('#bill_from_date').val('') != ''){
-            var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}&removeAllCreatedEntry=1';
+            var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}&removeAllCreatedEntry=1&utoken={{$unique_token}}';
             window.location.href=URLS;
         }
     }

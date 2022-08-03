@@ -706,7 +706,15 @@ class ContractController extends BaseController
                 $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$request->user_id)->get();
                 if(count($CaseTaskLinkedStaffData) > 0){
                     foreach($CaseTaskLinkedStaffData as $k =>$v){
-                        CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->user_id], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        // CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->user_id], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $request->user_id)->update(['is_deactivate_reassign' => 'yes']);
+                        CaseTaskLinkedStaff::updateOrCreate(
+                            ['task_id' => $v->task_id,
+                            'user_id' => $request->assign_to, ],
+                            ['task_id' => $v->task_id,
+                            'user_id' => $request->assign_to,
+                            'created_by' => auth()->id()]
+                        );
                     }
                 }
                 // Assign events to new user
@@ -762,6 +770,7 @@ class ContractController extends BaseController
     } 
 
     public function saveAssignTaskForm(Request $request){
+        // return $request->all();
         $validator = \Validator::make($request->all(), [
             'assign_to' => 'required'
         ]);
@@ -785,7 +794,14 @@ class ContractController extends BaseController
                 
                 if(count($CaseTaskLinkedStaffData) > 0){
                     foreach($CaseTaskLinkedStaffData as $k =>$v){
-                        CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $user_id], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $user_id)->update(['is_deactivate_reassign' => 'yes']);
+                        CaseTaskLinkedStaff::updateOrCreate(
+                            ['task_id' => $v->task_id,
+                            'user_id' => $request->assign_to, ],
+                            ['task_id' => $v->task_id,
+                            'user_id' => $request->assign_to,
+                            'created_by' => auth()->id()]
+                        );
                     }
                 }
 

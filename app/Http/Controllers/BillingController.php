@@ -5822,6 +5822,7 @@ class BillingController extends BaseController
     //Edit invoice
     public function editInvoice(Request $request)
     {
+        $unique_token = $request->utoken;
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
         // if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
@@ -5865,10 +5866,10 @@ class BillingController extends BaseController
                 }
                 
                 $InvoiceAdjustment=InvoiceAdjustment::where("invoice_adjustment.case_id",$case_id)
-                ->where("invoice_adjustment.token",$request->token)->delete();
+                ->where("invoice_adjustment.token",$unique_token)->delete();
 
                 if(isset($request->removeAllCreatedEntry)){
-                    return redirect('bills/invoices/'.base64_encode($findInvoice->id).'/edit?token='.base64_encode($findInvoice->id));
+                    return redirect('bills/invoices/'.base64_encode($findInvoice->id).'/edit?token='.base64_encode($findInvoice->id).'&utoken='.$unique_token);
                 }
             }
             //Get all client related to firm
@@ -5943,16 +5944,17 @@ class BillingController extends BaseController
             $ExpenseEntry=$ExpenseEntry->get();
             
             //Get the Adjustment list
-            $Adjustment_token = InvoiceAdjustment::where("invoice_adjustment.token",$request->token)->get();
+            /* $Adjustment_token = InvoiceAdjustment::where("invoice_adjustment.token",$request->utoken)->get();
             if($Adjustment_token->count() > 0 ){
                 $InvoiceAdjustment=InvoiceAdjustment::select("*")
-                ->where("invoice_adjustment.token",$request->token)
+                ->where("invoice_adjustment.token",$request->utoken)
                 ->where("invoice_adjustment.case_id",$case_id)->get();
-            }else{
+            }else{ */
                 $InvoiceAdjustment=InvoiceAdjustment::select("*")
                 ->where("invoice_adjustment.invoice_id",$invoiceID)
+                ->orWhere('token', $unique_token)
                 ->where("invoice_adjustment.amount",">",0)->get();
-            }
+            // }
             $InvoiceInstallment=InvoiceInstallment::select("*")
             ->where("invoice_installment.invoice_id",$invoiceID)
             ->get();
@@ -5995,7 +5997,7 @@ class BillingController extends BaseController
             $invoiceSetting = $findInvoice->invoice_setting;
             $invoiceDefaultSetting = getInvoiceSetting();
             $invoiceTempInfo = InvoiceTempInfo::where('invoice_unique_id', $request->token)->where('case_id', $case_id)->get();
-            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting', 'invoiceDefaultSetting','bill_from_date','bill_to_date','filterByDate', 'invoiceTempInfo'));
+            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting', 'invoiceDefaultSetting','bill_from_date','bill_to_date','filterByDate', 'invoiceTempInfo', 'unique_token'));
         }
     }
 
@@ -6157,7 +6159,7 @@ class BillingController extends BaseController
             $invoiceHistory['created_at']=date('Y-m-d H:i:s');
             $this->invoiceHistory($invoiceHistory);
 
-            InvoiceAdjustment::where('token',$request->adjustment_token)->update(['invoice_id'=>$InvoiceSave->id]);
+            InvoiceAdjustment::where('token',$request->unique_token)->update(['invoice_id'=>$InvoiceSave->id]);
 
             //Flat fees referance
             if(!empty($request->flatFeeEntrySelectedArray)){

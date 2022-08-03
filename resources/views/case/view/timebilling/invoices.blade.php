@@ -70,7 +70,7 @@
             "order": [[0, "desc"]],
             "ajax":{
                 url :baseUrl +"/bills/invoices/loadInvoices",
-                type: "post",  
+                type: "get",  
                 data :{ 'load' : 'true','global_search':"{{base64_encode($CaseMaster['case_id'])}}-{{base64_encode('case')}}"},
                 error: function(){  
                     $("#invoiceGrid_processing").css("display","none");

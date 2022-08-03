@@ -1,4 +1,4 @@
-=@extends('layouts.master')
+@extends('layouts.master')
 @section('title','Case Revenue - Report')
 @section('main-content')
 

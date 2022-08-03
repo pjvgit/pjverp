@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\InvoiceOnlinePayment;
 use App\Jobs\InvoicePaymentEmailJob;
+use App\Jobs\OnlinePaymentEmailJob;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -67,7 +68,7 @@ class InvoiceOnlinePaymentReminderCommand extends Command
                     $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $item->client->user_timezone ?? 'UTC');
                     $dispatchDate->setTimezone('UTC');
                     Log::info("client time to utc time: ". $dispatchDate);
-                    dispatch(new InvoicePaymentEmailJob(null, $item->client, $emailTemplateId, $item->id, $userType))->delay($dispatchDate);
+                    dispatch(new OnlinePaymentEmailJob(null, $item->client, $emailTemplateId, $item, $userType, 'invoice'))->delay($dispatchDate);
                 } else {
                     Log::info("no online payment client:". $item->id);
                 }

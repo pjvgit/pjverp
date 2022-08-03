@@ -902,7 +902,7 @@ td,th{
             "order": [[3, "desc"]],
             "ajax":{
                 url :baseUrl +"/bills/invoices/loadInvoices",
-                type: "post",  
+                type: "get",  
                 data :{ 'load' : 'true', 'type':"{{$_GET['type']}}","global_search":"{{$_GET['global_search']}}" },
                 error: function(){  
                     $("#invoiceGrid_processing").css("display","none");

@@ -1,3 +1,10 @@
+------------------------------------ 03-AUG-2022 ------------------------------
+ALTER TABLE `task_linked_staff`
+ADD `is_deactivate_reassign` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `is_read`;
+
+ALTER TABLE `case_master`
+CHANGE `conflict_check_at` `conflict_check_at` timestamp NULL AFTER `conflict_check`;
+
 ------------------------------------ 01-AUG-2022 ------------------------------
 ALTER TABLE `users`
 CHANGE `popup_after_first_case` `popup_after_first_case` enum('yes','no','showed') COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT 'yes' AFTER `bulk_id`;

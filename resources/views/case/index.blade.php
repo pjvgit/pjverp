@@ -866,7 +866,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             "order": [[0, "desc"]],
             "ajax":{
                 url :"loadCase", // json datasource
-                type: "post",  // method  , by default get
+                type: "get",  // method  , by default get
                 data :{ 'pa' : "{{$pa}}",'la' : "{{$la}}" , 'cs' : "{{$cs}}", 'mc' : "{{$mc}}", 'i' : "{{$i}}" },
                 error: function(){  // error handling
                     $(".employee-grid-error").html("");

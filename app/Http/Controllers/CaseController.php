@@ -225,7 +225,7 @@ class CaseController extends BaseController
             }
             if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1"; 
-                $CaseMaster->conflict_check_at=date('Y-m-d h:i:s');                
+                $CaseMaster->conflict_check_at= Carbon::now();                
             }
             if(isset($request->conflict_check_description)) { 
                 $CaseMaster->conflict_check_description=$request->conflict_check_description; 
@@ -542,7 +542,7 @@ class CaseController extends BaseController
             }
              if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1";                
-                $CaseMaster->conflict_check_at=date('Y-m-d h:i:s');                 
+                $CaseMaster->conflict_check_at= Carbon::now();                 
             }
             if(isset($request->conflict_check_description)) { 
                 $CaseMaster->conflict_check_description=$request->conflict_check_description; 
@@ -907,10 +907,10 @@ class CaseController extends BaseController
                 // remove events also from
                 Event::where('case_id',$CaseMaster->id)->where('is_SOL', 'yes')->delete();
             }
-            if(isset($request->conflict_check)) { 
+            if(isset($request->conflict_check) && $CaseMaster->conflict_check != '1') { 
                 $CaseMaster->conflict_check="1"; 
-                
-            }else {
+                $CaseMaster->conflict_check_at= Carbon::now(); 
+            }else if(!isset($request->conflict_check)){
                 $CaseMaster->conflict_check = '0';
             }
             if(isset($request->conflict_check_description)) { 

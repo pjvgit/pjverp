@@ -132,22 +132,28 @@ trait UserCaseSharingTrait {
     {
         $eventRecurrings = EventRecurring::whereJsonContains('event_linked_staff', ["user_id" => (string)$oldUserId])->has('event')->get();
         if($eventRecurrings) {
-            Log::info("event recurrings found");
             foreach($eventRecurrings as $ekey => $item) {
                 $decodeStaff = encodeDecodeJson($item->event_linked_staff);
-                // $checkUserExist = $decodeStaff->where("user_id", $oldUserId)->first();
-                // if($checkUserExist) {
-                    Log::info("user found in linked list");
                     $newArray = [];
                     foreach($decodeStaff as $skey => $sitem) {
                         if($sitem->user_id == $oldUserId) {
-                            $sitem->user_id = $newUserId;
-                            $sitem->is_read = 'no';
+                            $sitem->is_deactivate_reassign = 'yes';
+                            $checkExist = $decodeStaff->where('user_id', $newUserId)->first();
+                            if(empty($checkExist)) {
+                                $newArray[] = [
+                                    'event_id' => $sitem->event_id,
+                                    'user_id' => $newUserId,
+                                    'is_linked' => 'yes',
+                                    'attending' => $sitem->attending,
+                                    'comment_read_at' => $sitem->comment_read_at,
+                                    'created_by' => auth()->id(),
+                                    'is_read' => 'no',
+                                ];
+                            }
                         }
                         $newArray[] = $sitem;
                     }
                     $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
-                // }
             }
         }
     }

@@ -34,7 +34,7 @@
                         @if($findInvoice->status != "Forwarded")
                         <div class="pl-1">
                             {{-- <a class="btn btn-outline-secondary  m-1" href="{{BASE_URL}}bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}">Edit</a> --}}
-                            <a class="btn btn-outline-secondary  m-1" href="{{ route('bills/invoices/edit', base64_encode($findInvoice->id)) }}?token={{base64_encode($findInvoice->id)}}">Edit</a>
+                            <a class="btn btn-outline-secondary  m-1" href="{{ route('bills/invoices/edit', base64_encode($findInvoice->id)) }}?token={{base64_encode($findInvoice->id)}}&utoken={{\Str::random(8)}}">Edit</a>
                         </div>
                         @endif
                         <div id="send-pay-link" class="pl-1">

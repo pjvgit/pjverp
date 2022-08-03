@@ -399,7 +399,7 @@ trait EventTrait {
         $start = new DateTime($start_date);
         $startClone = new DateTime($start_date);
         if(isset($request->end_on)) {
-            $recurringEndDate=new DateTime($request->end_on);
+            $recurringEndDate=new DateTime($recurringEndDate);
         }else{
             $recurringEndDate=$startClone->add(new DateInterval('P365D'));
         }

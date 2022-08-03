@@ -5010,6 +5010,7 @@ class ClientdashboardController extends BaseController
                             }
                             if($finalOperationVal['conflict_check'] == 'true' || $finalOperationVal['conflict_check'] == 'TRUE'){
                                 $CaseMaster->conflict_check='1';
+                                $CaseMaster->conflict_check_at=Carbon::now();
                             } else {
                                 $CaseMaster->conflict_check='0';
                             }

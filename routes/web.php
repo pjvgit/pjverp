@@ -269,7 +269,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
 
     //Case 
     Route::get('court_cases','CaseController@index')->name('court_cases');
-    Route::post('loadCase','CaseController@loadCase')->name('loadCase');
+    Route::get('loadCase','CaseController@loadCase')->name('loadCase');
     Route::post('case/loadAllStep', 'CaseController@loadAllStep')->name('case/loadAllStep');
     Route::post('case/saveAllStep', 'CaseController@saveAllStep')->name('case/saveAllStep');
     Route::post('case/loadBillingContact', 'CaseController@loadBillingContact')->name('case/loadBillingContact');
@@ -988,7 +988,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('bills/activities/deleteActivity', 'BillingController@deleteActivity')->name('bills/activities/deleteActivity');
     
 
-    Route::post('bills/invoices/loadInvoices', 'BillingController@loadInvoices')->name('bills/invoices/loadInvoices');
+    Route::get('bills/invoices/loadInvoices', 'BillingController@loadInvoices')->name('bills/invoices/loadInvoices');
     Route::post('bills/invoices/loadBatchInvoices', 'BillingController@loadBatchInvoices')->name('bills/invoices/loadBatchInvoices');
 
     Route::post('bills/invoices/sendInvoiceReminder', 'BillingController@sendInvoiceReminder')->name('bills/invoices/sendInvoiceReminder');
