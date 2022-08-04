@@ -428,7 +428,7 @@
         $(".add-one-more").click(function () {
             var hideinputcount2 = $('#hideinputcount2').val();
 
-
+            
             var $template = $('#optionTemplate2'),
                 $clone = $template
                 .clone()
@@ -534,6 +534,7 @@
             });
             // $(".bulk_billable_field").prop('checked',true);
             $("#savebulkTimeEntry").validate();
+            getAndCheckDefaultCaseRate((parseInt(hideinputcount2) + parseInt(1)), "{{ @$case_id }}");
         });
 
         $('#savebulkTimeEntry').on('click', '.remove', function () {
@@ -716,6 +717,7 @@
                     });
                 // $(".bulk_billable_field").prop('checked',true);
                 $("#savebulkTimeEntry").validate();
+                getAndCheckDefaultCaseRate((parseInt(hideinputcount2) + parseInt(1)), "{{ @$case_id }}");
             }
 
         });
@@ -945,7 +947,7 @@
             },
             success: function (res) {
                 $("#preloader").hide();
-                console.log(f);
+                // console.log(f);
                 $("#hideoptioninput2defaultrate"+f).val("");
                 // $(".staff_user").val(res.staff_id).trigger('change');
                 $("#rate-field-id").val(res.data);   
@@ -956,7 +958,7 @@
                     $("#hideoptioninput2defaultrate"+f).val(0);
                     $("#replaceAmt" + f).html("Billable - Billing rate is not specified, the system will use rate: 0");
                 }                    
-                console.log("#replaceAmt" + f);
+                // console.log("#replaceAmt" + f);
             }
         });
     }

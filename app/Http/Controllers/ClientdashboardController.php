@@ -1338,7 +1338,13 @@ class ClientdashboardController extends BaseController
                     if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
                         $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
                         \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-                        $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                        // Check conekta account has order or not
+                        try {
+                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                        } catch (Exception $e) {
+                            dbEnd();
+                            return response()->json(['errors' => '', 'online_errors' => 'No es posible hacer un reembolso en línea debido a que ha cambiado su API del proveedor de pagos Conekta.']);
+                        }
                         // Check conekta account has enough balance
                         $credentials = base64_encode($firmOnlinePaymentSetting->private_key);
                         $client = new \GuzzleHttp\Client();
@@ -1384,7 +1390,13 @@ class ClientdashboardController extends BaseController
                         if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
                             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
                             \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                            // Check conekta account has order or not
+                            try {
+                                $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                            } catch (Exception $e) {
+                                dbEnd();
+                                return response()->json(['errors' => '', 'online_errors' => 'No es posible hacer un reembolso en línea debido a que ha cambiado su API del proveedor de pagos Conekta.']);
+                            }
                             // Check conekta account has enough balance
                             $credentials = base64_encode($firmOnlinePaymentSetting->private_key);
                             $client = new \GuzzleHttp\Client();
@@ -4357,7 +4369,13 @@ class ClientdashboardController extends BaseController
                     if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
                         $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
                         \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-                        $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                        // Check conekta account has order or not
+                        try {
+                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                        } catch (Exception $e) {
+                            dbEnd();
+                            return response()->json(['errors' => '', 'online_errors' => 'No es posible hacer un reembolso en línea debido a que ha cambiado su API del proveedor de pagos Conekta.']);
+                        }
                         // Check conekta account has enough balance
                         $credentials = base64_encode($firmOnlinePaymentSetting->private_key);
                         $client = new \GuzzleHttp\Client();
@@ -4403,7 +4421,13 @@ class ClientdashboardController extends BaseController
                         if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
                             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
                             \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
-                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                            // Check conekta account has order or not
+                            try {
+                                $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                            } catch (Exception $e) {
+                                dbEnd();
+                                return response()->json(['errors' => '', 'online_errors' => 'No es posible hacer un reembolso en línea debido a que ha cambiado su API del proveedor de pagos Conekta.']);
+                            }
                             // Check conekta account has enough balance
                             $credentials = base64_encode($firmOnlinePaymentSetting->private_key);
                             $client = new \GuzzleHttp\Client();

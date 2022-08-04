@@ -184,7 +184,8 @@
                         }else if($value->acrtivity_title=="Payment Received" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes==NULL){
-                            $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Refund Notes</a>';
+                            $noteText = "Refund of Cash on ".date('m/d/Y', strtotime($value->added_date))." (original amount: $".(number_format($value->amount,2)).")";
+                            $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="'.$noteText.'" data-original-title="Dismissible popover">View Refund Notes</a>';
                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="balance forwarded" && $value->notes!=NULL){

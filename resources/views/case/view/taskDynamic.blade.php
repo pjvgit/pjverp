@@ -139,11 +139,11 @@ foreach ($task as $element) {
             </td>
             <td class="task-priority-cell align-middle text-nowrap">
                 <?php if($subrow->task_priority == "1"){?>
-                <i class="fas fa-circle fa-sm  mr-1 text-black-50"></i>Low
+                <i class="fas fa-circle fa-sm  mr-1 task-due-green"></i>Low
                 <?php }else if($subrow->task_priority == "2"){?>
-                <i class="fas fa-circle fa-sm mr-1 text-secondary-task"></i>Medium
+                <i class="fas fa-circle fa-sm mr-1 task-due-yellow"></i>Medium
                 <?php }else if($subrow->task_priority == "3") {?>
-                <i class="fas fa-circle fa-sm mr-1 text-warning"></i>High
+                <i class="fas fa-circle fa-sm mr-1 task-due-red"></i>High
                 <?php }else{ ?>
                 <div>No Priority</div>
                 <?php } ?>

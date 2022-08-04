@@ -176,11 +176,15 @@ function convertTimeToUTCzone($str,$timezone){
 }
 
 //TO USER
-function convertUTCToUserTime($str, $timezone){
+function convertUTCToUserTime($str, $timezone, $isTFormat = null){
     $str = date('Y-m-d H:i:s', strtotime($str));
     $date = Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
     $date->setTimezone($timezone ?? 'UTC');
-    return $date->format("Y-m-d H:i:s");
+    if($isTFormat == 'yes') {
+        return $date->format("Y-m-d").'T'.$date->format("H:i:s");
+    } else {
+        return $date->format("Y-m-d H:i:s");
+    }
 }
 
 function convertUTCToUserTimeZone($type){

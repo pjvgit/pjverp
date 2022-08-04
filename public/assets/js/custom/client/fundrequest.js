@@ -105,7 +105,7 @@ $(document).ready(function() {
             { data: 'id', 'orderable': false}
         ],
         "fnCreatedRow": function (nRow, aData, iDataIndex) {
-            
+
             $('td:eq(0)', nRow).html('<div class="text-left">#R-00'+aData.id+'</div>');
             var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.client_name+' (Client)</a>';
             $('td:eq(1)', nRow).html('<div class="text-left">'+clientLink+'</div>');
@@ -149,7 +149,7 @@ $(document).ready(function() {
                 
             $('td:eq(10)', nRow).html('<div class="text-left">'+curSetatus+'</div>');
             var action = '';
-            if(jQuery.inArray("billing_add_edit", aData.authUserPermissions) !== -1) {
+            // if($.inArray('billing_add_edit', aData.authUserPermissions) != -1) {
             var action = '<div class="text-center">\
                 <a data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('+aData.id+');">\
                     <i class="fas fa-pen align-middle pr-3"></i>\
@@ -163,7 +163,7 @@ $(document).ready(function() {
                     <i class="fas fa-trash align-middle "></i>\
                 </a>\
             </div>';
-            }
+            // }
             $('td:eq(11)', nRow).html(action);
 
         },

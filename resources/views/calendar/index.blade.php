@@ -539,10 +539,15 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 .fc-event { overflow: hidden; }
 </style>
 @section('page-js')
-{{-- <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script> --}}
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.js"></script>
-{{-- <script src="{{ asset('assets\plugins\fullcalendar-5.10.2\lib\main.js') }}"></script> --}}
+<script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js'></script>
+{{-- <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment@5.5.0/main.global.min.js'></script> --}}
+{{-- <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment-with-locales.min.js'></script> --}}
+<script src='https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.6/moment-timezone-with-data.js'></script>
+
+{{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.js"></script> --}}
+
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\calendar\viewevent.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
@@ -613,8 +618,9 @@ $(document).ready(function () {
     var calendarEl = document.getElementById('calendarq');
     calendar = new FullCalendar.Calendar(calendarEl, {
         // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-        // timeZone: "{{ $authUser->user_timezone ?? 'local' }}",
-        // timeZone: 'America/New_York',
+        timeZone: "{{ $authUser->user_timezone ?? 'local' }}",
+        // timeZone: 'America/Mexico_City',
+        // timeZone: 'UTC',
         plugins: [ CustomViewPlugin, ],
         initialView: "{{ $defaultView }}",
         initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
@@ -738,6 +744,7 @@ $(document).ready(function () {
                                 id: r.event_recurring_id,
                                 event_id: r.event_id,
                                 title: t,
+                                // title: r.event_title,
                                 tTitle: r.event_title,
                                 start: r.start_date_time,
                                 end: r.end_date_time,
