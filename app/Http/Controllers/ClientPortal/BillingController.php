@@ -1030,7 +1030,7 @@ class BillingController extends Controller
     public function conektaReferenceExpired($data)
     {
         Log::info("reference expired function enter");
-        try {
+        // try {
             dbStart();
             Log::info("conekta order id: ". $data->data->object->id);
             $response = $data->data;
@@ -1096,10 +1096,10 @@ class BillingController extends Controller
             }
             dbCommit();
             Log::info('reference expired webhook end');
-        } catch (Exception $e) {
+        /* } catch (Exception $e) {
             dbEnd();
             Log::info('Reference expired webhook failed: '. $e->getMessage());
-        }
+        } */
     }
 
     /**

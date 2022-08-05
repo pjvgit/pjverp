@@ -22,7 +22,8 @@ Route::get('mail', function () {
     return $markdown->render('emails.event_reminder_email');
     return view('emails.invitation-email');
 });
-
+Route::get("newevents", "CalendarController@newindex")->name('newevents');
+Route::get("newloadevents", "CalendarController@newloadEventCalendar")->name('newloadevents');
 /* Route::get("events", function() {
     return view("errors.maintenance");
 })->name('events/');
