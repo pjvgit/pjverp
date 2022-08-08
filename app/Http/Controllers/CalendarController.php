@@ -61,8 +61,8 @@ class CalendarController extends BaseController
             }
             $CaseEvent = $CaseEvent/* ->whereNull('events.deleted_at') */->with('event', 'event.eventType')->get();
         }
-        $newarray = array();
-        $timezone = $authUser->user_timezone ?? 'UTC';
+        $newArray = array();
+        $timezone = ($request->timezone == 'local') ? 'UTC' : $authUser->user_timezone ?? 'UTC';
         if(!empty($CaseEvent)) {
             foreach($CaseEvent as $k => $v) {
                 $event = $v->event;
@@ -71,17 +71,18 @@ class CalendarController extends BaseController
                 if($linkedStaff) {
                     $resource_id = $linkedStaff->pluck('user_id')->toArray();
                 }
-                // $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
-                $startDate = ($event->is_full_day == 'no') ? $v->start_date.' '.$event->start_time : $v->start_date;
+                if($request->timezone == 'local') {
+                    $startDate = ($event->is_full_day == 'no') ? $v->start_date.' '.$event->start_time : $v->start_date;
+                } else {
+                    $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
+                }
                 $newArray[] = [
                     'id' => $v->id,
                     'event_id' => $event->id,
                     'event_recurring_id' => $v->id,
                     'title' => $event->event_title ?? "<No Title>",
                     'tTitle' => $event->event_title ?? "<No Title>",
-                    // 'start' => ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d'),
-                    // 'start' => Carbon::parse("$startDate $timezone")->format('Y-m-d\TH:i:sP'),
-                    'start' => Carbon::parse("$startDate UTC")->format('Y-m-d\TH:i:sP'),
+                    'start' => ($event->is_full_day == 'no') ? Carbon::parse("$startDate $timezone")->format('Y-m-d\TH:i:sP') : $startDate,
                     'allDay' => ($event->is_full_day == 'yes') ? true : false,
                     'color' => ($event->is_full_day == 'yes') ? (($v->event && $event->eventType) ? $event->eventType->color_code : "#d5e9ce") : '#d5e9ce',
                     'resourceIds' => $resource_id,
@@ -109,15 +110,14 @@ class CalendarController extends BaseController
                         $t = '<span class="calendar-badge d-inline-block undefined badge badge-danger" style="width: 30px;">SOL</span>'.' '. $v->event_title;
                     }
                     $tplain = 'SOL'.' -'. $v->event_title;
-                    // $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
-                    $startDate = $v->start_date;
+                    $startDate = ($request->timezone == 'local') ? $v->start_date : $v->user_start_date->format('Y-m-d');
                     $newArray[] = [
                         'mysol' => 'yes',
                         'case_id' => $v->case_unique_number,
                         'id' => $v->id,
                         'title' => $t,
                         'tTitle' => $tplain,
-                        'start' => $startDate,
+                        'start' => Carbon::parse("$startDate $timezone")->format('Y-m-d'),
                         'textColor' > '#000000',
                         'backgroundColor' => 'rgb(236, 238, 239)',
                         'resourceId' => $v->created_by,
@@ -150,9 +150,7 @@ class CalendarController extends BaseController
                     }else{
                         $cds="background-color: rgb(40, 167, 68); width: 30px;";
                     }
-                    // $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
-                    $startDate = $v->task_due_on;
-                        
+                    $startDate = ($request->timezone == 'local') ? $v->task_due_on : convertUTCToUserDate($v->task_due_on, $authUser->user_timezone);   
                     $t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'.$cds.'">DUE</span>'.' ' . $v->task_title;
                     $tplain = 'DUE'.' -' . $v->task_title;
                     $newArray[] = [
@@ -160,7 +158,7 @@ class CalendarController extends BaseController
                         'id' => $v->id,
                         'title' => $t,
                         'tTitle' => $tplain,
-                        'start' => $startDate,
+                        'start' => Carbon::parse("$startDate $timezone")->format('Y-m-d'),
                         'textColor' => '#000000',
                         'backgroundColor' => 'rgb(236, 238, 239)',
                         'resourceId' => $v->created_by,

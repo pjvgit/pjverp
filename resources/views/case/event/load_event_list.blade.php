@@ -1,4 +1,7 @@
-@forelse ($allEvents as $key => $item)
+@forelse ($allEvents as $key => $item1)
+    @php
+        $item = $item1->item;
+    @endphp
     @if(isset($oDate) && date('Y', strtotime($oDate)) != $item->user_start_date->format('Y'))
     <tr>
         <th colspan="6">
@@ -18,11 +21,15 @@
         $eventLinkedStaff = encodeDecodeJson($item->event_linked_staff);
         $isAuthUserLinked = $eventLinkedStaff->where('user_id', $authUser->id)->first();
         if($item->event->start_time && $item->event->is_full_day == 'no' && $item->event->is_SOL == 'no') {
+            // $startDateTime= convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone);
+            // $endDateTime= convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone);
             $startDateTime= convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone);
             $endDateTime= convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone);
         } else {
-            $startDateTime= convertUTCToUserDate($item->start_date, $authUser->user_timezone);
-            $endDateTime= convertUTCToUserDate($item->end_date, $authUser->user_timezone);
+            // $startDateTime= convertUTCToUserDate($item->start_date, $authUser->user_timezone);
+            // $endDateTime= convertUTCToUserDate($item->end_date, $authUser->user_timezone);
+            $startDateTime= $item->user_start_date;
+            $endDateTime= $item->user_end_date;
         }
         $sDate = $startDateTime->format('Y-m-d');
         // dd($startDateTime->format('d'));

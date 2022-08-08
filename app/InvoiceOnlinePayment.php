@@ -24,7 +24,7 @@ class InvoiceOnlinePayment extends Model
     public function getExpiresDateAttribute()
     {
         // return Carbon::parse($this->conekta_reference_expires_at)->format('d-m-Y');
-        $userTime = convertToUserTimezone($this->conekta_reference_expires_at, auth()->user()->user_timezone);
+        $userTime = convertToUserTimezone($this->conekta_reference_expires_at, auth()->user()->user_timezone ?? 'UTC');
         return $userTime->format('d-m-Y');
     }
 
@@ -34,7 +34,7 @@ class InvoiceOnlinePayment extends Model
     public function getExpiresTimeAttribute()
     {
         // return Carbon::parse($this->conekta_reference_expires_at)->format('H:i');
-        $userTime = convertToUserTimezone($this->conekta_reference_expires_at, auth()->user()->user_timezone);
+        $userTime = convertToUserTimezone($this->conekta_reference_expires_at, auth()->user()->user_timezone ?? 'UTC');
         return $userTime->format('H:i');
     }
 

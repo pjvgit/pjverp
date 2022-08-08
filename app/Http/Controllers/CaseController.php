@@ -1083,11 +1083,25 @@ class CaseController extends BaseController
                 if(!isset($request->upcoming_events) || $request->upcoming_events == 'on') {
                     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now($authUser->user_timezone ?? 'UTC')->format('Y-m-d'));
                 }
-                $allEvents = $allEvents->orderBy("start_date", "ASC")->with("event", "event.eventType")->get();
+                $allEvent = $allEvents->orderBy("start_date", "ASC")->with("event", "event.eventType")->get();
 
-                $allEvents = $allEvents->sortBy(function ($product, $key) {
+                /* $allEvents = $allEvents->sortBy(function ($product, $key) {
                     return $product['start_date'].$product['event']['start_time'];
-                })->values();
+                })->values(); */
+                if(count($allEvent)) {
+                    foreach($allEvent as $key => $item) {
+                        $startDateTime= ($item->event->is_full_day == 'no') ? convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone) : $item->user_start_date;
+                        $endDateTime= ($item->event->is_full_day == 'no') ? convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone) : $item->user_end_date;
+                        $finalDataList[] = (object)[
+                            'item' => $item,
+                            's_date_time' => ($item->event->is_full_day == 'no') ? $startDateTime->format('Y-m-d H:i:s') : $item->user_start_date->format('Y-m-d').' 00:00:00',
+                        ];
+                    }
+                    // return $finalDataList;
+                    $allEvents = collect($finalDataList)->sortBy(function ($product, $key) {
+                        return $product->s_date_time;
+                    })->values();
+                }
             }
 
             if(\Route::current()->getName()=="recent_activity"){
