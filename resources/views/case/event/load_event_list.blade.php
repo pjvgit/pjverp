@@ -1,8 +1,8 @@
 @forelse ($allEvents as $key => $item)
-    @if(isset($oDate) && date('Y', strtotime($oDate)) != date('Y', strtotime($item->start_date)))
+    @if(isset($oDate) && date('Y', strtotime($oDate)) != $item->user_start_date->format('Y'))
     <tr>
         <th colspan="6">
-            <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y',strtotime($item->start_date)) }}</h2>
+            <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ $item->user_start_date->format('Y') }}</h2>
         </th>
     </tr>
     <tr>
@@ -60,7 +60,7 @@
             }else{                        
                 echo $item->event->user_start_time;
                 echo " - ";
-                echo (strtotime($item->start_date) != strtotime($item->end_date)) ? $item->user_end_date->format("M d").", " : "";
+                echo (strtotime($startDateTime->format('Y-m-d')) != strtotime($endDateTime->format('Y-m-d'))) ? $item->user_end_date->format("M d").", " : "";
                 echo $item->event->user_end_time;
             }
             @endphp

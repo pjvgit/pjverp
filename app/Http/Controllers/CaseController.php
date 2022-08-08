@@ -2242,6 +2242,7 @@ class CaseController extends BaseController
     public function saveEditEventPage(Request $request)
     {
         // return $request->all();
+        // return $days = $this->getDatesDiffDays($request);
         if(!isset($request->no_case_link)){
             $validator = \Validator::make($request->all(), [
                 // 'linked_staff_checked_share' => 'required_if:share_checkbox_nonlinked,=,null'
@@ -2292,7 +2293,7 @@ class CaseController extends BaseController
                 $end_date = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'dateFromTime');
                 $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
             }
-            $request->start_date = $start_date; // This is for event reminders
+            // $request->start_date = $start_date; // This is for event reminders
 
             if($caseEvent && $caseEvent->is_recurring == 'no' && !isset($request->recuring_event)) {
                 $caseEvent->fill([

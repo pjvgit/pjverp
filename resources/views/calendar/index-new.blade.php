@@ -46,8 +46,9 @@ max-height: 500px !important;
 var calendarEl = document.getElementById('calendarq');
     calendar = new FullCalendar.Calendar(calendarEl, {
         // timeZone: "{{ $authUser->user_timezone ?? 'local' }}",
-        timeZone: 'America/Mexico_City',
-        // timeZone: 'UTC',
+        // timeZone: 'America/Mexico_City',
+        // timeZone: 'Asia/Kolkata',
+        timeZone: 'local',
         plugins: [ ],
         initialView: "dayGridMonth",
         initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",

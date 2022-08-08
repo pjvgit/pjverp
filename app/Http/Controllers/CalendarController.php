@@ -34,11 +34,33 @@ class CalendarController extends BaseController
         $offset = Carbon::now('America/Mexico_City')->offsetHours;
         $authUser = auth()->user();
         $CaseEvent = '';
+        $byuser=json_decode($request->byuser, TRUE);
+        if(count($byuser)) {
             $CaseEvent = EventRecurring::whereBetween('start_date',  [$request->start, $request->end])->has('event');
             $CaseEvent = $CaseEvent->whereHas("event", function($query) use($request, $authUser) {
                 $query->where('firm_id', $authUser->firm_name);
+                if($request->event_type!="[]"){
+                    $event_type=json_decode($request->event_type, TRUE);
+                    $query->whereIn('event_type_id', $event_type);
+                }
+                if($request->case_id != "") {
+                    $query->where('case_id',$request->case_id);
+                }
             });
+
+            $CaseEvent = $CaseEvent->when($byuser , function($query) use ($byuser) {
+                $query->where(function ($query) use ($byuser) {
+                    foreach($byuser as $user) {
+                        $query->orWhereJsonContains('event_linked_staff', ['user_id' => (string)$user]);
+                    }
+                });
+            });
+
+            if($request->taskLoad=='unread'){
+                $CaseEvent = $CaseEvent->whereJsonContains('event_linked_staff', ['user_id' => (string)auth()->id(), 'is_read' => 'no']);
+            }
             $CaseEvent = $CaseEvent/* ->whereNull('events.deleted_at') */->with('event', 'event.eventType')->get();
+        }
         $newarray = array();
         $timezone = $authUser->user_timezone ?? 'UTC';
         if(!empty($CaseEvent)) {
@@ -49,59 +71,23 @@ class CalendarController extends BaseController
                 if($linkedStaff) {
                     $resource_id = $linkedStaff->pluck('user_id')->toArray();
                 }
-                $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
-                // $startDate = ($event->is_full_day == 'no') ? $v->start_date.' '.$event->start_time : $v->start_date;
+                // $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
+                $startDate = ($event->is_full_day == 'no') ? $v->start_date.' '.$event->start_time : $v->start_date;
                 $newArray[] = [
+                    'id' => $v->id,
                     'event_id' => $event->id,
                     'event_recurring_id' => $v->id,
                     'title' => $event->event_title ?? "<No Title>",
+                    'tTitle' => $event->event_title ?? "<No Title>",
                     // 'start' => ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d'),
-                    'start' => Carbon::parse("$startDate $timezone")->format('Y-m-d\TH:i:sP'),
+                    // 'start' => Carbon::parse("$startDate $timezone")->format('Y-m-d\TH:i:sP'),
+                    'start' => Carbon::parse("$startDate UTC")->format('Y-m-d\TH:i:sP'),
                     'allDay' => ($event->is_full_day == 'yes') ? true : false,
                     'color' => ($event->is_full_day == 'yes') ? (($v->event && $event->eventType) ? $event->eventType->color_code : "#d5e9ce") : '#d5e9ce',
                     'resourceIds' => $resource_id,
                 ];
             }
-            return response()->json($newArray);
-
-            foreach($CaseEvent as $k=>$v){
-                $event = $v->event;
-                $eventData = [];
-                $eventData["event_id"] = $event->id ?? Null;
-                $eventData["event_recurring_id"] = $v->id;
-                $eventData["event_title"] = $event->event_title ?? "<No Title>";
-                // $startDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->start_date.' '.$event->start_time, $timezone) : convertToUserTimezone($v->start_date.' 00:01:00', $timezone);
-                // $endDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->end_date.' '.$event->end_time, $timezone) : convertToUserTimezone($v->end_date.' 11:59:00', $timezone);
-                // $eventData["st"] = $startDateTime->format('Y-m-d H:i:s');
-                // $eventData["et"] = $endDateTime->format('Y-m-d H:i:s');
-                $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
-                $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : $v->user_end_date->format('Y-m-d');
-                $eventData["start_date_time"] = $startDateTime;
-                $eventData["end_date_time"] = $endDateTime;
-                /* if(($event->is_full_day == 'no')) {
-                    $eventData["start_date_time"] = $v->start_date.'T'.$event->start_time.'-05:00';
-                    $eventData["end_date_time"] = $v->end_date.'T'.$event->end_time.'-05:00';
-                    // $eventData["start_date_time"] = Carbon::parse($v->start_date.' '.$event->start_time)->toISOString();
-                    // $eventData["end_date_time"] = Carbon::parse($v->end_date.' '.$event->end_time)->toISOString();
-                } else {
-                    $eventData["start_date_time"] = $v->start_date.'T'.'-05:00';
-                    $eventData["end_date_time"] = $v->end_date.'T'.'-05:00';
-                    // $eventData["start_date_time"] = Carbon::parse($v->start_date)->toISOString();
-                    // $eventData["end_date_time"] = Carbon::parse($v->end_date)->toISOString();
-                } */
-                $eventData["etext"] = ($v->event && $event->eventType) ? $event->eventType->color_code : "";
-                // $eventData["start_time_user"] = $startDateTime->format('h:ia');
-                // $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));
-                $eventData["start_time_user"] = $event->start_time;
-                $eventData["event_linked_staff"] = encodeDecodeJson($v->event_linked_staff);
-                $eventData["is_all_day"] = $event->is_full_day;
-                $eventData["is_read"] = $v->is_read;
-
-                $newarray[] = $eventData;
-            }
-            $newarray = collect($newarray)->sortBy(function($col) {
-                return $col['start_date_time'];
-            })->values()->all();
+            // return response()->json($newArray);
         }
 
         // Get SOL reminders
@@ -115,6 +101,29 @@ class CalendarController extends BaseController
                 $CaseEventSOL=$CaseEventSOL->where('case_id',$request->case_id);
             }
             $CaseEventSOL=$CaseEventSOL->whereNull('events.deleted_at')->get();
+            if(!empty($CaseEventSOL)) {
+                foreach($CaseEventSOL as $k => $v) {
+                    if($v->sol_satisfied == 'yes') {
+                        $t = '<span class="calendar-badge d-inline-block undefined badge badge-success" style="width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'.' '. $v->event_title;
+                    } else {
+                        $t = '<span class="calendar-badge d-inline-block undefined badge badge-danger" style="width: 30px;">SOL</span>'.' '. $v->event_title;
+                    }
+                    $tplain = 'SOL'.' -'. $v->event_title;
+                    // $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
+                    $startDate = $v->start_date;
+                    $newArray[] = [
+                        'mysol' => 'yes',
+                        'case_id' => $v->case_unique_number,
+                        'id' => $v->id,
+                        'title' => $t,
+                        'tTitle' => $tplain,
+                        'start' => $startDate,
+                        'textColor' > '#000000',
+                        'backgroundColor' => 'rgb(236, 238, 239)',
+                        'resourceId' => $v->created_by,
+                    ];
+                }
+            }
         }else{
             $CaseEventSOL='';
         }
@@ -132,10 +141,37 @@ class CalendarController extends BaseController
                 $Task = $Task->where('case_id',$request->case_id);
             }
             $Task=$Task->whereNull('task.deleted_at')->get();
+            if(!empty($Task)) {
+                foreach($Task as $k => $v) {
+                    if($v->task_priority==3){
+                        $cds="background-color: rgb(202, 66, 69); width: 30px;";
+                    }else if($v->task_priority==2){
+                        $cds="background-color: rgb(254, 193, 8); width: 30px;";
+                    }else{
+                        $cds="background-color: rgb(40, 167, 68); width: 30px;";
+                    }
+                    // $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
+                    $startDate = $v->task_due_on;
+                        
+                    $t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'.$cds.'">DUE</span>'.' ' . $v->task_title;
+                    $tplain = 'DUE'.' -' . $v->task_title;
+                    $newArray[] = [
+                        'mytask' => 'yes',
+                        'id' => $v->id,
+                        'title' => $t,
+                        'tTitle' => $tplain,
+                        'start' => $startDate,
+                        'textColor' => '#000000',
+                        'backgroundColor' => 'rgb(236, 238, 239)',
+                        'resourceId' => $v->created_by,
+                    ];
+                }
+            }
         }else{
             $Task='';
         }
-        return response()->json(['errors'=>'','result'=>$newarray,'sol_result'=>$CaseEventSOL,'mytask'=>$Task]);
+        return response()->json($newArray);
+        // return response()->json(['errors'=>'','result'=>$newarray,'sol_result'=>$CaseEventSOL,'mytask'=>$Task]);
         exit;    
     }
     public function index($calendarView = null)
@@ -163,7 +199,6 @@ class CalendarController extends BaseController
     }
     public function loadEventCalendar (Request $request)
     {        
-        $offset = Carbon::now('America/Mexico_City')->offsetHours;
         $authUser = auth()->user();
         $CaseEvent = '';
         $byuser=json_decode($request->byuser, TRUE);
@@ -204,27 +239,14 @@ class CalendarController extends BaseController
                 $eventData["event_title"] = $event->event_title ?? "<No Title>";
                 // $startDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->start_date.' '.$event->start_time, $timezone) : convertToUserTimezone($v->start_date.' 00:01:00', $timezone);
                 // $endDateTime= ($event->is_full_day == 'no') ? convertToUserTimezone($v->end_date.' '.$event->end_time, $timezone) : convertToUserTimezone($v->end_date.' 11:59:00', $timezone);
-                // $eventData["st"] = $startDateTime->format('Y-m-d H:i:s');
-                // $eventData["et"] = $endDateTime->format('Y-m-d H:i:s');
                 $startDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
                 $endDateTime= ($event->is_full_day == 'no') ? convertUTCToUserTime($v->end_date.' '.$event->end_time, $timezone) : $v->user_end_date->format('Y-m-d');
                 $eventData["start_date_time"] = $startDateTime;
                 $eventData["end_date_time"] = $endDateTime;
-                /* if(($event->is_full_day == 'no')) {
-                    $eventData["start_date_time"] = $v->start_date.'T'.$event->start_time.'-05:00';
-                    $eventData["end_date_time"] = $v->end_date.'T'.$event->end_time.'-05:00';
-                    // $eventData["start_date_time"] = Carbon::parse($v->start_date.' '.$event->start_time)->toISOString();
-                    // $eventData["end_date_time"] = Carbon::parse($v->end_date.' '.$event->end_time)->toISOString();
-                } else {
-                    $eventData["start_date_time"] = $v->start_date.'T'.'-05:00';
-                    $eventData["end_date_time"] = $v->end_date.'T'.'-05:00';
-                    // $eventData["start_date_time"] = Carbon::parse($v->start_date)->toISOString();
-                    // $eventData["end_date_time"] = Carbon::parse($v->end_date)->toISOString();
-                } */
                 $eventData["etext"] = ($v->event && $event->eventType) ? $event->eventType->color_code : "";
                 // $eventData["start_time_user"] = $startDateTime->format('h:ia');
-                // $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));
-                $eventData["start_time_user"] = $event->start_time;
+                $eventData["start_time_user"] = date('h:ia', strtotime($startDateTime));
+                // $eventData["start_time_user"] = $event->start_time;
                 $eventData["event_linked_staff"] = encodeDecodeJson($v->event_linked_staff);
                 $eventData["is_all_day"] = $event->is_full_day;
                 $eventData["is_read"] = $v->is_read;

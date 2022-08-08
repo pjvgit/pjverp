@@ -534,7 +534,7 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 /* .fc-time{display: none;} */
 .agenda-custom-view { overflow: auto;}
 .agenda-custom-view table { width: 100%; }
-.fc-daygrid-event-dot { display: none; }
+/* .fc-daygrid-event-dot { display: none; } */
 .fc-event-title { font-weight: 500 !important; }
 .fc-event { overflow: hidden; }
 </style>
@@ -545,8 +545,8 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 {{-- <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment-with-locales.min.js'></script> --}}
 <script src='https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.6/moment-timezone-with-data.js'></script>
 
-{{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.js"></script> --}}
+{{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js"></script> --}}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.js"></script>
 
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\calendar\viewevent.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
@@ -602,7 +602,6 @@ $(document).ready(function () {
             });
             // return {html: viewData};
         }
-
     }
     const CustomViewPlugin = createPlugin({
         views: {
@@ -620,7 +619,7 @@ $(document).ready(function () {
         // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
         timeZone: "{{ $authUser->user_timezone ?? 'local' }}",
         // timeZone: 'America/Mexico_City',
-        // timeZone: 'UTC',
+        // timeZone: 'local',
         plugins: [ CustomViewPlugin, ],
         initialView: "{{ $defaultView }}",
         initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
@@ -671,7 +670,7 @@ $(document).ready(function () {
                 type: 'resourceTimeGridDay',
             },    
         },
-        displayEventTime: false,
+        // displayEventTime: false,
         eventTimeFormat: { // like '14:30:00'
             hour: '2-digit',
             minute: '2-digit',
@@ -688,7 +687,38 @@ $(document).ready(function () {
                 }
             });
         },
-        events: function (info, callback, failureCallback) {
+        events: function(info, successCallback, failureCallback) {
+            var startDate = info.start;
+            var endDate = info.end;
+            var eventTypes = [];
+            $.each($("input[name='event_type[]']:checked"), function(){
+                eventTypes.push($(this).val());
+            });
+            var byuser = getByUser();
+            var bysol=getSOL();
+            var mytask=getMytask();
+            $.ajax({
+                url: "{{ route('newloadevents') }}",
+                data: {
+                    // our hypothetical feed requires UNIX timestamps
+                    // start: info.start.valueOf(),
+                    // end: info.end.valueOf(),
+                    start: moment(startDate).format('YYYY-MM-DD'),
+                    end: moment(endDate).format('YYYY-MM-DD'),
+                    event_type: JSON.stringify(eventTypes),
+                    byuser: JSON.stringify(byuser),
+                    case_id: $(".case_or_lead option:selected").val(),
+                    searchbysol:bysol,
+                    searchbymytask:mytask,
+                    dateFilter:getDate(),
+                    taskLoad:$("#loadType").val()
+                },
+                success: function(data) {
+                    successCallback(data);
+                }
+            });
+        },
+        /* events: function (info, callback, failureCallback) {
             // alert(viewName);
             // if(viewName != 'Agenda') {
             var startDate = info.start;
@@ -811,7 +841,7 @@ $(document).ready(function () {
                 },
             });
             // }
-        },
+        }, */
         eventDidMount: function(info) {
             info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.event.title;
             $(info.el).tooltip({
@@ -900,7 +930,11 @@ $(document).ready(function () {
         }).on('changeDate', function(ev) {
             var date = new Date(ev.date);
             calendar.gotoDate( date );
-
+            /* calendar.setOption('visibleRange', {
+                start: date.clone(),
+                end: date.clone().add(31, 'days')
+            });
+            calendar.refetchEvents(); */
         });
         /* function initEvent() {
             $('#external-events .fc-event').each(function () {

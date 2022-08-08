@@ -305,18 +305,24 @@ trait EventTrait {
      */
     public function getDatesDiffDays($request)
     {
-        /* $authUser = auth()->user();
+        $authUser = auth()->user();
         if(isset($request->all_day)) {
             $utc_start_date = $this->eventConvertTimestampToUtc(date('Y-m-d', strtotime($request->start_date)), $authUser->user_timezone, 'onlyDate');
             $utc_end_date = $this->eventConvertTimestampToUtc(date('Y-m-d', strtotime($request->end_date)), $authUser->user_timezone, 'onlyDate');
         } else {
             $utc_start_date = $this->eventConvertTimestampToUtc(date('Y-m-d', strtotime($request->start_date)), $request->start_time, $authUser->user_timezone, 'dateFromTime');
             $utc_end_date = $this->eventConvertTimestampToUtc(date('Y-m-d', strtotime($request->end_date)), $request->end_time, $authUser->user_timezone, 'dateFromTime');
-        } */
+        }
+        // return strtotime($utc_end_date);
         $days = 0;
-        if((strtotime($request->start_date) != strtotime($request->end_date))) {
+        /* if((strtotime($request->start_date) != strtotime($request->end_date))) {
             $start = Carbon::parse($request->start_date);
             $end = Carbon::parse($request->end_date);
+            $days = $end->diffInDays($start);
+        } */
+        if((strtotime($utc_start_date) != strtotime($utc_end_date))) {
+            $start = Carbon::parse($utc_start_date);
+            $end = Carbon::parse($utc_end_date);
             $days = $end->diffInDays($start);
         }
         return $days;
@@ -340,6 +346,7 @@ trait EventTrait {
                 $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
             }
             $request->start_date = $date->format('Y-m-d');
+            Log::info("daily day diff: ". $days);
             $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => $utc_start_date,
@@ -590,6 +597,7 @@ trait EventTrait {
      */
     public function getRemindAtAttribute($request, $reminder_frequncy, $reminder_number, $responseType = 'date')
     {
+        $timezone = auth()->user()->user_timezone;
         $eventStartTime = Carbon::parse($request->start_date.' '.$request->start_time);
         if($reminder_frequncy == "week" || $reminder_frequncy == "day") {
             if($reminder_frequncy == "week") {
@@ -609,7 +617,7 @@ trait EventTrait {
             $remindDate = Carbon::now()->format('Y-m-d');
             $remindTime = Carbon::now()->format('Y-m-d H:i:s');
         }
-        return ($responseType == 'time') ? convertTimeToUTCzone($remindTime, auth()->user()->user_timezone) : $remindDate;
+        return ($responseType == 'time') ? convertTimeToUTCzone($remindTime, $timezone) : convertDateToUTCzone($remindDate,$timezone);
     }
 
     /**
@@ -621,7 +629,7 @@ trait EventTrait {
         $newArray = [];
         if($eventRecurring) {
             if(!isset($request->updated_start_date) ) {
-                $request->start_date = $eventRecurring->start_date;
+                $request->start_date = $eventRecurring->user_start_date->format('Y-m-d');
             }
             $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
             $eventReminders = $this->getEventReminderJson($caseEvent, $request, $decodeReminder);
