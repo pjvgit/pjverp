@@ -1035,7 +1035,9 @@ class BillingController extends Controller
             Log::info("conekta order id: ". $data->data->object->id);
             $response = $data->data;
             $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+            Log::info("Expiry invoice online payment detail: ". @$paymentDetail);
             if($paymentDetail) {
+                Log::info("expiry if true");
                 DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)
                         ->update(['conekta_payment_status' => 'expired'/* , 'conekta_order_object' => json_encode($data) */]);
 
@@ -1067,6 +1069,7 @@ class BillingController extends Controller
                     }
                 }
             } else {
+                Log::info("expiry else true");
                 $paymentDetail = RequestedFundOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
                 Log::info("Fundrequest online payment detail: ". @$paymentDetail);
                 if($paymentDetail) {
