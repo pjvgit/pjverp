@@ -54,7 +54,7 @@ if(isset($_GET['upcoming_events'])){
                     @else
                         <tr>
                             <th colspan="6">
-                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y', strtotime(@$allEvents->first()->user_start_date)) }}</h2>
+                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ @$allEvents->first()->item->user_start_date->format('Y') }}</h2>
                             </th>
                         </tr>
                         <tr>

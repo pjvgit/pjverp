@@ -371,13 +371,21 @@ trait EventTrait {
         $eventHistory = $this->getAddEventHistoryJson($caseEvent->id);
         $period = \Carbon\CarbonPeriod::create($start_date, '1 days', $recurringEndDate);
         $days = $this->getDatesDiffDays($request);
-        foreach($period as $date) {          
+        foreach($period as $date) {    
+            Log::info("business date and day: ". $date->format('Y-m-d').' '. $date->format('l'));
             if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
+                Log::info("if true: ". $date->format('Y-m-d').' '. $date->format('l').' '.$request->start_time);
                 if(isset($request->all_day)) {
                     $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
                 } else {
-                    $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                    // $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
+                    $timestamp = date('Y-m-d H:i:s',strtotime($date->format('Y-m-d').' '.$request->start_time));
+                    Log::info("business timestamp: ". $timestamp);
+                    $utcdate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUser->user_timezone);
+                    $utcdate->setTimezone('UTC');
+                    $utc_start_date = $utcdate->format('Y-m-d');
                 }
+                Log::info("utc start date: ". $utc_start_date);
                 $request->start_date = $date->format('Y-m-d');
                 $eventRecurring = EventRecurring::create([
                     "event_id" => $caseEvent->id,

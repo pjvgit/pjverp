@@ -200,7 +200,7 @@ function loadEventComment(event_id, event_recurring_id, fromPageRoute = null) {
     $("#loadCommentPopup").modal('show');
     $("#eventCommentPopup").html('Loading...');
     $("#preloader").show();
-    markEventAsRead(event_id);
+    // markEventAsRead(event_id);
     $(function () {
         $.ajax({
             type: "POST",
