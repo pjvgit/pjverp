@@ -8,7 +8,7 @@
     if ((count(array_flip($showTrustHistory)) === 1 && end($showTrustHistory) === 'dont show') && (count(array_flip($showCreditHistory)) === 1 && end($showCreditHistory) === 'dont show')) {
         $lableShow = 0;
     }
-    $caseClientWithTrashed = $Invoice->case->caseAllClientWithTrashed;
+    $caseClientWithTrashed = (!empty($Invoice->case)) ? $Invoice->case->caseAllClientWithTrashed : '';
 @endphp
 <div class="ledger-histories">
     @if(isset($Invoice->case) && !empty($caseClientWithTrashed))
