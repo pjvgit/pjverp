@@ -84,8 +84,8 @@ class CalendarController extends BaseController
                     'tTitle' => $event->event_title ?? "<No Title>",
                     'start' => ($event->is_full_day == 'no') ? Carbon::parse("$startDate $timezone")->format('Y-m-d\TH:i:sP') : $startDate,
                     'allDay' => ($event->is_full_day == 'yes') ? true : false,
-                    'color' => ($event->is_full_day == 'yes') ? (($v->event && $event->eventType) ? $event->eventType->color_code : "#d5e9ce") : '#d5e9ce',
-                    'eventColor' => ($event->is_full_day == 'yes') ? (($v->event && $event->eventType) ? $event->eventType->color_code : "#d5e9ce") : '#d5e9ce',
+                    'color' => ($v->event && $event->eventType) ? $event->eventType->color_code : "#159dff",
+                    'textColor' => '#000000',
                     'resourceIds' => $resource_id,
                 ];
             }

@@ -372,20 +372,16 @@ trait EventTrait {
         $period = \Carbon\CarbonPeriod::create($start_date, '1 days', $recurringEndDate);
         $days = $this->getDatesDiffDays($request);
         foreach($period as $date) {    
-            Log::info("business date and day: ". $date->format('Y-m-d').' '. $date->format('l'));
+            // Log::info("business date and day: ". $date->format('Y-m-d').' '. $date->format('l'));
             if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
-                Log::info("if true: ". $date->format('Y-m-d').' '. $date->format('l').' '.$request->start_time);
+                // Log::info("if true: ". $date->format('Y-m-d').' '. $date->format('l').' '.$request->start_time);
                 if(isset($request->all_day)) {
                     $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
                 } else {
-                    // $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
-                    $timestamp = date('Y-m-d H:i:s',strtotime($date->format('Y-m-d').' '.$request->start_time));
-                    Log::info("business timestamp: ". $timestamp);
-                    $utcdate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUser->user_timezone);
-                    $utcdate->setTimezone('UTC');
-                    $utc_start_date = $utcdate->format('Y-m-d');
+                    $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
                 }
-                Log::info("utc start date: ". $utc_start_date);
+                // $utc_start_date = Carbon::parse($date->format('Y-m-d').' '. $request->start_time)->subHours('6');
+                // Log::info("utc start date: ". $utc_start_date);
                 $request->start_date = $date->format('Y-m-d');
                 $eventRecurring = EventRecurring::create([
                     "event_id" => $caseEvent->id,
@@ -692,9 +688,14 @@ trait EventTrait {
     {
         if($responseType == 'time' || $responseType == 'dateFromTime') {
             $timestamp = date('Y-m-d H:i:s',strtotime($date.' '.$time));
-            $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);
-            $date->setTimezone('UTC');
-            return ($responseType == 'dateFromTime') ? $date->format("Y-m-d") : $date->format("H:i:s");
+            if($responseType == 'dateFromTime') {
+                $date = Carbon::parse($timestamp)->subHours('6');
+                return $date->format("Y-m-d");
+            } else {
+                $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);
+                $date->setTimezone('UTC');
+                return $date->format("H:i:s");
+            }
         } elseif($responseType == 'onlyDate') {
             $date = Carbon::createFromFormat('Y-m-d', date('Y-m-d',strtotime($date)), $authUserTimezone);
             $date->setTimezone('UTC');

@@ -1076,14 +1076,15 @@ class CaseController extends BaseController
             } */
             
             if(\Route::current()->getName()=="calendars"){
+                
                 $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
-                $allEvents = EventRecurring::whereHas('event', function($query) use($case_id) {
+                $allEvent = EventRecurring::whereHas('event', function($query) use($case_id) {
                                 $query->where('case_id', $case_id);
                             });
                 if(!isset($request->upcoming_events) || $request->upcoming_events == 'on') {
-                    $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now($authUser->user_timezone ?? 'UTC')->format('Y-m-d'));
+                    $allEvent = $allEvent->whereDate("start_date", ">=", Carbon::now($authUser->user_timezone ?? 'UTC')->format('Y-m-d'));
                 }
-                $allEvent = $allEvents->orderBy("start_date", "ASC")->with("event", "event.eventType")->get();
+                $allEvent = $allEvent->orderBy("start_date", "ASC")->with("event", "event.eventType")->get();
 
                 /* $allEvents = $allEvents->sortBy(function ($product, $key) {
                     return $product['start_date'].$product['event']['start_time'];
@@ -1097,11 +1098,13 @@ class CaseController extends BaseController
                             's_date_time' => ($item->event->is_full_day == 'no') ? $startDateTime->format('Y-m-d H:i:s') : $item->user_start_date->format('Y-m-d').' 00:00:00',
                         ];
                     }
-                    // return $finalDataList;
-                    $allEvents = collect($finalDataList)->sortBy(function ($product, $key) {
-                        return $product->s_date_time;
-                    })->values();
+                    if(count($finalDataList)) {
+                        $allEvents = collect($finalDataList)->sortBy(function ($product, $key) {
+                            return $product->s_date_time;
+                        })->values();
+                    }
                 }
+                // return $allEvents;
             }
 
             if(\Route::current()->getName()=="recent_activity"){

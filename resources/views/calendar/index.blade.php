@@ -2,6 +2,7 @@
 @section('title', 'Legalcase - Simplify Your Law Practice | Cloud Based Practice Management')
 
 @section('page-css')
+{{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css"> --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.css">
 <style>
@@ -540,7 +541,7 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 </style>
 @section('page-js')
 <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script>
-{{-- <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js'></script> --}}
+{{-- <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js'></script> --}}
 {{-- <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment@5.5.0/main.global.min.js'></script> --}}
 {{-- <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment-with-locales.min.js'></script> --}}
 {{-- <script src='https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.6/moment-timezone-with-data.js'></script> --}}
@@ -913,6 +914,7 @@ $(document).ready(function () {
 
     $(".fc-today-button").click(function() {
         $('#datepicker').datepicker().datepicker('setDate', new Date());
+        $('#datepicker').val(new Date());
     });
 
         $("#datepicker").datepicker({
@@ -1333,7 +1335,6 @@ $(document).ready(function () {
                 var byuser = getByUser();
                 var bysol=getSOL();
                 var mytask=getMytask();
-                console.log(props.dateProfile.currentRange);
                 $.ajax({
                     url: 'loadEventCalendar/loadAgendaView',
                     type: 'POST',
@@ -1371,6 +1372,7 @@ $(document).ready(function () {
             timeZone: userTimezone,
             plugins: [ CustomViewPlugin, ],
             initialView: "{{ $defaultView }}",
+            initialDate: new Date,
             themeSystem: "bootstrap4",
             height: 700,
             dayMaxEvents: true, // allow "more" link when too many events
@@ -1477,11 +1479,13 @@ $(document).ready(function () {
                 var view = arg.view;
                 if (view.type == 'dayGridMonth' || view.type == 'timeGridWeek' || view.type == 'timeGridDay') {
                 }else{
+                    console.log(view.activeStart);
                     var currentdate = view.activeStart;
                     var endDate = view.activeEnd;
-                    $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
+                    // $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
                     var dateText= $("#datepicker").val();
                     date = moment(currentdate).format('YYYY-MM-DD');
+                    console.log(date);
                 }
                 
                 // $("#preloaderData").hide();
