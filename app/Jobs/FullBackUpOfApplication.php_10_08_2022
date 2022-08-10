@@ -14,7 +14,6 @@ use App\CaseMaster,App\User,App\CasePracticeArea,App\CaseClientSelection,App\Cas
 use App\Task,App\CaseTaskLinkedStaff,App\CaseEventLocation;
 use ZipArchive,File,DB,Validator,Session,Storage,Image;
 use Illuminate\Support\Facades\Input;
-use App\DeactivatedUser,App\Invoices;
 
 class FullBackUpOfApplication implements ShouldQueue
 {
@@ -126,7 +125,7 @@ class FullBackUpOfApplication implements ShouldQueue
 
     public function generateBackupCasesCSV($request, $folderPath, $authUser){  
         $casesCsvData = $caseNotesCsvData = $casesExpensesCsvData = $casesTimeEntriesCsvData=[];
-        $casesHeader="Case/Matter Name|Number|Open Date|Practice Area|Case Description|Case Closed|Closed Date|Lead Attorney|Originating Attorney|SOL Date|Outstanding Balance|LegalCase ID|Contacts|Billing Type|Billing Contact|Flat fee|Case Stage|Case Balance|Conflict Check?|Conflict Check Notes|Archived";
+        $casesHeader="Case/Matter Name|Number|Open Date|Practice Area|Case Description|Case Closed|Closed Date|Lead Attorney|Originating Attorney|SOL Date|Outstanding Balance|LegalCase ID|Contacts|Billing Type|Billing Contact|Flat fee|Case Stage|Case Balance|Conflict Check?|Conflict Check Notes";
         $casesCsvData[]=$casesHeader;
 
         $caseNotesHeader="Case Name|Created By|Date|Created at|Updated at|Subject|Note";
@@ -155,11 +154,11 @@ class FullBackUpOfApplication implements ShouldQueue
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',$authUser->id)->get()->pluck('case_id');
             $case = $case->whereIn("case_master.id",$childUSersCase);
         } */
-        // $case = $case->where("case_master.case_close_date", NULL);
-        if(isset($request['include_archived'])){
+        $case = $case->where("case_master.case_close_date", NULL);
+        if(isset($request['include_archived'])){   
             $case = $case->withTrashed();
         }
-        $case = $case->get();
+        $case = $case->get();  
         
         if(count($case) > 0) {
             foreach($case as $k=>$v){
@@ -192,7 +191,7 @@ class FullBackUpOfApplication implements ShouldQueue
                         }else{
                             $contactList .= $val->first_name.' '.$val->last_name.'(Client)'.PHP_EOL;
                         }
-                    }
+                    }                
                 }
                 
                 $caseStage = 'Not Specified';
@@ -202,7 +201,7 @@ class FullBackUpOfApplication implements ShouldQueue
                 }
 
                 $flatFee = 0;
-                if($v->billing_method =='flat' || $v->billing_method =='mixed'){
+                if($v->billing_method =='flat' || $v->billing_method =='mixed'){ 
                     $flatFee = $v->billing_amount;
                 }
 
@@ -212,19 +211,16 @@ class FullBackUpOfApplication implements ShouldQueue
                 $timezone = $authUser->user_timezone ?? 'UTC';
                 $caseOpenDate = ($v->case_open_date) ? convertUTCToUserDate($v->case_open_date, $timezone)->format('m/d/Y') : '';
                 $caseCloseDate = ($v->case_close_date) ? convertUTCToUserDate($v->case_close_date, $timezone)->format('m/d/Y') : '';
-                $case_arc=($v->deleted_at==null)?"FALSE":"TRUE";
                 $solDate = ($v->case_statute_date) ? convertUTCToUserDate($v->case_statute_date, $timezone)->format('m/d/Y') : '';
-                $caseBalance = Invoices::where('case_id', $v->id)->sum('due_amount');
-                $casesCsvData[]=$v->case_title."|".$v->case_number."|".$caseOpenDate."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".$caseCloseDate."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."|".$solDate."|".number_format($v->total_allocated_trust_balance ?? 0, 2)."|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|".$caseBalance."|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description)."|".$case_arc;
+                $casesCsvData[]=$v->case_title."|".$v->case_number."|".$caseOpenDate."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".$caseCloseDate."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."|".$solDate."|".number_format($v->total_allocated_trust_balance ?? 0, 2)."|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
                 
                 // Notes Entry
                 $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
                 if(count($ClientNotesData) > 0){
-                    foreach($ClientNotesData as $key=>$notes){
-                        $createdAtDate = date('m/d/Y',strtotime(convertUTCToUserTime($notes->created_at, $authUser->user_timezone ?? 'UTC')));
-                        $updatedAtDate = date('m/d/Y',strtotime(convertUTCToUserTime($notes->updated_at, $authUser->user_timezone ?? 'UTC')));
-                        $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".$caseOpenDate."|".$createdAtDate."|".$updatedAtDate."|".$notes->note_subject."|". strip_tags($notes->notes);
-                    }                    
+                    foreach($ClientNotesData as $key=>$notes)
+                    $createdAtDate = date('m/d/Y',strtotime(convertUTCToUserTime($notes->created_at, $authUser->user_timezone ?? 'UTC')));
+                    $updatedAtDate = date('m/d/Y',strtotime(convertUTCToUserTime($notes->updated_at, $authUser->user_timezone ?? 'UTC')));
+                    $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".$caseOpenDate."|".$createdAtDate."|".$updatedAtDate."|".$notes->note_subject."|". strip_tags($notes->notes);
                 }
                 
                 // Expenses Entry
@@ -339,15 +335,13 @@ class FullBackUpOfApplication implements ShouldQueue
         $companyHeader="LegalCase ID|Company|Business Street|Business Street 2|Business City|Business State|Business Postal Code|Business Country/Region|Business Fax|Company Main Phone|E-mail Address|Web Page|Outstanding Trust Balance|Archived|Private Notes|Non-Trust Credit Balance|Contacts|Cases|Case Link IDs|:Notes|Created Date";
         $companyCsvData[]=$companyHeader;
 
-        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
-            ->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')
-            ->select('users.*','users_additional_info.*','client_group.group_name',"users.id as id");
+        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*','users_additional_info.*','client_group.group_name',"users.id as id");
         $user = $user->whereIn("user_level",["2","4"]);//4=Company
         if($request['export_cases'] == 1 && $authUser->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');
             $getChildUsers[]=$authUser->id;
             $user = $user->whereIn("parent_user",$getChildUsers);
-        }else{            
+        }else{
             $user = $user->where("users.created_by",$authUser->id); //Logged in user not visible in grid
         }
         if(isset($request['include_archived'])){  
@@ -359,13 +353,11 @@ class FullBackUpOfApplication implements ShouldQueue
         $user = $user->orderBy("users.id",'asc');
         $user = $user->with("clientCases");
         $userData = $user->get();
-        
+
         if(count($userData) > 0){
             foreach ($userData as $k=>$v){
-                /*$countries = Countries::select('id','name')->get();    
-                $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';*/
-                $countryName=Countries::where("id","=",$v->country)->first();
-                $countryName=($countryName!="")?$countryName->name:"";
+                $countries = Countries::select('id','name')->get();            
+                $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';
 
                 $contacts = $company = $cases = $casesID = [];            
                 if(!empty($v->clientCases)){
@@ -379,14 +371,9 @@ class FullBackUpOfApplication implements ShouldQueue
                 foreach($companyList as $kk=>$vv){
                     $company[] = $vv->first_name;
                 }
+
                 if($v->user_level == '2'){
-                    $is_archived="FALSE";
-                    if(isset($request['include_archived'])){
-                        if(($v->deleted_at!="") || ($v->user_status!="1" && $v->user_status!="2")){
-                            $is_archived="TRUE";
-                        }
-                    }
-                    $casesCsvData[]=$v->id."|".$v->first_name."|".$v->middle_name."|".$v->last_name."|".implode(",", $company)."|".$v->job_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->work_phone."|".$v->home_phone."|".$v->mobile_number."|".$v->group_name."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->last_login != NULL) ? 'true' : 'false')."|".$is_archived."|".date("m/d/Y", strtotime($v->dob))."|".$v->notes."|".$v->driver_license."|".$v->license_state."||".$v->trust_account_balance."||".implode(",", $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
+                    $casesCsvData[]=$v->id."|".$v->first_name."|".$v->middle_name."|".$v->last_name."|".implode(PHP_EOL, $company)."|".$v->job_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->work_phone."|".$v->home_phone."|".$v->mobile_number."|".$v->group_name."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->last_login != NULL) ? 'true' : 'false')."|".(($v->user_status == 4) ? 'true' : 'false')."|".date("m/d/Y", strtotime($v->dob))."|".$v->notes."|".$v->driver_license."|".$v->license_state."||".$v->trust_account_balance."||".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
                 }
                 if($v->user_level == '4'){
                     $companyID = $v['id'];
@@ -394,10 +381,12 @@ class FullBackUpOfApplication implements ShouldQueue
                         ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
                         ->whereRaw("find_in_set($companyID,users_additional_info.multiple_compnay_id)")
                         ->get();
+
                     foreach ($contactlist as $kk => $vv){
                         $contacts[] = $vv->fullname;
                     }
-                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4 || $v->user_status==3) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(",", $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
+
+                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
                 }
             }
 
@@ -566,14 +555,7 @@ class FullBackUpOfApplication implements ShouldQueue
             foreach ($InvoiceAdjustment as $k=>$v){
                 $appliedTo =  ($v->applied_to != '') ? $AppliedTo[$v->applied_to] : "";
                 $appliedType = ($v->ad_type != '') ? $adType[$v->ad_type] : "";
-                $invoice_no="";
-                if($v->invoice_id!=""){
-                    $invoice_no=Invoices::where("id",$v->invoice_id)->first();
-                    if($invoice_no!=""){
-                        $invoice_no=$invoice_no->unique_invoice_number; 
-                    }
-                }
-                $casesCsvData[]= ucwords($v->item)."|".$appliedTo."|".$appliedType."|".$v->notes."|".$v->basis."|".$v->percentages."|".(($v->item == 'discount') ? '-':'').$v->amount."|".$v->case_title."|".$invoice_no."|".$v->id;
+                $casesCsvData[]= ucwords($v->item)."|".$appliedTo."|".$appliedType."|".$v->notes."|".$v->basis."|".$v->percentages."|".(($v->item == 'discount') ? '-':'').$v->amount."|".$v->case_title."|".$v->invoice_id."|".$v->id;
             }
 
             $file_path =  $folderPath.'/invoice_discounts.csv';  
@@ -605,20 +587,16 @@ class FullBackUpOfApplication implements ShouldQueue
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->select('users.*','users_additional_info.*',"users.id as id");
         $user = $user->where("users.firm_name",$authUser->firm_name); //Logged in user not visible in grid
         $user = $user->whereIn("users.user_level",['1','3']); //Show firm staff only
-        if(!isset($request['include_archived'])){
-            $user = $user->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
-        }
-        
+        $user = $user->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
         $user = $user->get();
 
         if(count($user) > 0){
             $casesCsvData[]="First name|Middle Name|Last name|Email|User Type|Street|Street 2|City|State|Postal Code|Country/Region|Home phone|Cell phone|Work phone|Fax phone|LegalCase ID|Archived|Default rate|Cases";
             
             foreach ($user as $k => $v){
-                // $countries = Countries::select('id','name')->get();            
-                // $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';
-                $countryName=Countries::where("id","=",$v->country)->first();
-                $countryName=($countryName!="")?$countryName->name:"";
+                $countries = Countries::select('id','name')->get();            
+                $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';
+
                 $cases = $casesID = [];            
                 
                 $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")
@@ -626,25 +604,19 @@ class FullBackUpOfApplication implements ShouldQueue
                 $case = $case->where("case_staff.user_id",$v->id);
                 $case = $case->where("case_master.is_entry_done","1");
                 $case = $case->get();
-                
+
                 foreach($case as $kk=>$vv){
                     $cases[] = $vv->case_title;
                 }
-                $is_archived="FALSE";
-                if(isset($request['include_archived'])){
-                    $check_deactive = DeactivatedUser::where("user_id",$v->id)->whereNull("deleted_at")->first(); // Check user is deactivated or not
-                    if($check_deactive!="" && $v->user_status!="1"){
-                        $is_archived="TRUE";
-                    }                    
-                }
-                $casesCsvData[]=$v->first_name."|".$v->middle_name."|".$v->last_name."|".$v->email."|".$v->user_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->home_phone."|".$v->mobile_number."|".$v->work_phone."|".$v->fax_number."|".$v->id."|".$is_archived."|".$v->default_rate."|".implode(PHP_EOL, $cases);
+
+                $casesCsvData[]=$v->first_name."|".$v->middle_name."|".$v->last_name."|".$v->email."|".$v->user_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->home_phone."|".$v->mobile_number."|".$v->work_phone."|".$v->fax_number."|".$v->id."|".(($v->user_status == '4') ? 'true' : 'false')."|".$v->default_rate."|".implode(PHP_EOL, $cases);
             }
 
-            $file_path =  $folderPath.'/lawyers.csv';
+            $file_path =  $folderPath.'/lawyers.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
-            }
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
+            }   
             fclose($file); 
         }
         return true; 
@@ -704,7 +676,7 @@ class FullBackUpOfApplication implements ShouldQueue
 
         $task = Task::join("users","task.created_by","=","users.id")
         ->leftjoin("case_master","task.case_id","=","case_master.id")
-        ->select('task.*','case_master.case_title as case_title',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+        ->select('task.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
         
         //If Parent user logged in then show all child case to parent
         if($request['export_cases'] == 1 && $authUser->parent_user=="0"){
@@ -715,32 +687,28 @@ class FullBackUpOfApplication implements ShouldQueue
             $task = $task->where("task.created_by",$authUser->id);
         }
         $task = $task->orderBy('task_due_on', 'desc');       
-        if(isset($request['include_archived'])){
+        if(isset($request['include_archived'])){  
             $task = $task->withTrashed();
         }
         $task = $task->get();
 
         if(count($task) > 0){
-            $casesCsvData[]="Name|Notes|Due date|Complete|Priority|Case Name|Assigned By|Completed By|Completed at|Archived|LegalCase ID|Assigned To";            
-            foreach ($task as $k => $v) {
+            $casesCsvData[]="Name|Notes|Due date|Complete|Priority|Case Name|Assigned By|Completed By|Completed at|Archived|LegalCase ID|Assigned To";
+            
+            foreach ($task as $k => $v) {                
                 $tasklinkedstaff =  CaseTaskLinkedStaff::join('users','users.id','=','task_linked_staff.user_id')
                     ->select(DB::raw('group_concat(CONCAT_WS(" ",users.first_name,users.last_name)) as assigned_to_name'))
-                    ->where('task_id',$v->id)
+                    ->where('task_id',$v->id)  
                     ->get();
-                $assigned_by = User::where("id","=",$v->created_by)->first();
-                $completed_by="";
-                if($v->task_completed_by!=null){
-                    $completed_by_usr=User::where("id","=",$v->task_completed_by)->first();
-                    $completed_by=$completed_by_usr->first_name." ".$completed_by_usr->last_name;
-                }
-                $casesCsvData[]=$v->task_title."|".$v->description."|".date("m/d/Y",strtotime($v->task_due_on))."|".(($v->status == '0') ? 'false' : 'true')."|".$v->task_priority."|".$v->case_title."|".$assigned_by->first_name." ".$assigned_by->last_name."|".$completed_by."|".(($v->task_completed_date == NULL) ? '' : date("m/d/Y",strtotime($v->task_completed_date)))."|".(($v->deleted_at != NULL) ? 'true' : 'false')."|".$v->id."|".($tasklinkedstaff[0]['assigned_to_name'] ?? '');
+
+                $casesCsvData[]=$v->task_title."|".$v->description."|".date("m/d/Y",strtotime($v->task_due_on))."|".(($v->status == '0') ? 'false' : 'true')."|".$v->task_priority."|".$v->case_title."|LegalCase System|".$v->task_completed_by."|".(($v->task_completed_date == NULL) ? '' : date("m/d/Y",strtotime($v->task_completed_date)))."|".(($v->deleted_at != NULL) ? 'false' : 'true')."|".$v->id."|".($tasklinkedstaff[0]['assigned_to_name'] ?? '');
             }
-            $file_path =  $folderPath.'/tasks.csv';
+            $file_path =  $folderPath.'/tasks.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
-            }
-            fclose($file);
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
+            }   
+            fclose($file); 
         }
         return true; 
     }
