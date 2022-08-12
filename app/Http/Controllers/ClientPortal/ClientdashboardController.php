@@ -266,8 +266,8 @@ class ClientdashboardController extends Controller
     public function addMessagePopup(){
         $firmCases = $firmOwner = [];
         
-        $Messages = Messages::where('user_id',Auth::user()->id)->whereNull('subject')->first();
-        if(empty($Messages)){
+        // $Messages = Messages::where('user_id',Auth::user()->id)->whereNull('subject')->first();
+        // if(empty($Messages)){
             $Messages=new Messages;
             $Messages->user_id = Null;
             $Messages->case_id=NUll;
@@ -277,7 +277,7 @@ class ClientdashboardController extends Controller
             $Messages->firm_id = Auth::User()->firm_name;
             $Messages->created_by = Auth::User()->id;
             $Messages->save();
-        }      
+        // }      
         
         // show list of user cases staff 
         $firmOwner = $userCaseStaffList = [];
@@ -292,6 +292,7 @@ class ClientdashboardController extends Controller
         }elseif($caseListCount <= 0){
             $firmOwner = User::find(Auth::User()->parent_user);
         }
+        // return $Messages;
         return view("client_portal.messages.addMessage",compact('Messages','firmOwner', 'caseList', 'caseListCount', 'userCaseStaffList'));                
     }
 

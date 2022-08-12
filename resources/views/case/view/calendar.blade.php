@@ -38,10 +38,11 @@ if(isset($_GET['upcoming_events'])){
                 
                 @php
                     $authUser = auth()->user();
+                    $firstEvent = (!empty($allEvents)) ? $allEvents->first() : '';
                 @endphp
                 <table class="mt-3 border-light event-list-view table table-sm table-hover" id="event_list_table">
                     <tbody>
-                    @if(count($allEvents) == 0)
+                    @if(empty($allEvents))
                         <tr>
                             <th colspan="6">
                                 <div class="mt-3 empty-events alert alert-info fade show" role="alert">
@@ -54,7 +55,7 @@ if(isset($_GET['upcoming_events'])){
                     @else
                         <tr>
                             <th colspan="6">
-                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y', strtotime(@$allEvents->first()->user_start_date)) }}</h2>
+                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ (!empty($firstEvent)) ? $firstEvent->item->user_start_date->format('Y') : date('Y') }}</h2>
                             </th>
                         </tr>
                         <tr>

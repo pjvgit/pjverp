@@ -134,11 +134,11 @@
                         <div class=" p-1 col-6 col-md-4 col-lg-4">
                             <div class="p-2 border-3 card"><strong>Priority</strong>
                                 <?php if($TaskData->task_priority == "1"){?>
-                                <div class="h4 font-weight-bold mb-1 text-black-50">Low</div>
+                                <div class="h4 font-weight-bold mb-1 task-due-green">Low</div>
                                 <?php }else if($TaskData->task_priority == "2"){?>
-                                <div class="h4 font-weight-bold mb-1 text-secondary-task"">Medium</div>
+                                <div class="h4 font-weight-bold mb-1 task-due-yellow">Medium</div>
                                     <?php }else if($TaskData->task_priority == "3") {?>
-                                        <div class=" h4 font-weight-bold mb-1 text-warning">High</div>
+                                        <div class=" h4 font-weight-bold mb-1 task-due-red">High</div>
                                 <?php }else{ ?>
                                 <div class="h4 font-weight-bold mb-1 ">None</div>
                                 <?php } ?>

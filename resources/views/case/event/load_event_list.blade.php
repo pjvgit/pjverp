@@ -1,8 +1,11 @@
-@forelse ($allEvents as $key => $item)
-    @if(isset($oDate) && date('Y', strtotime($oDate)) != date('Y', strtotime($item->start_date)))
+@forelse ($allEvents as $key => $item1)
+    @php
+        $item = $item1->item;
+    @endphp
+    @if(isset($oDate) && date('Y', strtotime($oDate)) != $item->user_start_date->format('Y'))
     <tr>
         <th colspan="6">
-            <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y',strtotime($item->start_date)) }}</h2>
+            <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ $item->user_start_date->format('Y') }}</h2>
         </th>
     </tr>
     <tr>
@@ -18,11 +21,15 @@
         $eventLinkedStaff = encodeDecodeJson($item->event_linked_staff);
         $isAuthUserLinked = $eventLinkedStaff->where('user_id', $authUser->id)->first();
         if($item->event->start_time && $item->event->is_full_day == 'no' && $item->event->is_SOL == 'no') {
+            // $startDateTime= convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone);
+            // $endDateTime= convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone);
             $startDateTime= convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone);
             $endDateTime= convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone);
         } else {
-            $startDateTime= convertUTCToUserDate($item->start_date, $authUser->user_timezone);
-            $endDateTime= convertUTCToUserDate($item->end_date, $authUser->user_timezone);
+            // $startDateTime= convertUTCToUserDate($item->start_date, $authUser->user_timezone);
+            // $endDateTime= convertUTCToUserDate($item->end_date, $authUser->user_timezone);
+            $startDateTime= $item->user_start_date;
+            $endDateTime= $item->user_end_date;
         }
         $sDate = $startDateTime->format('Y-m-d');
         // dd($startDateTime->format('d'));
@@ -60,7 +67,7 @@
             }else{                        
                 echo $item->event->user_start_time;
                 echo " - ";
-                echo (strtotime($item->start_date) != strtotime($item->end_date)) ? $item->user_end_date->format("M d").", " : "";
+                echo (strtotime($startDateTime->format('Y-m-d')) != strtotime($endDateTime->format('Y-m-d'))) ? $item->user_end_date->format("M d").", " : "";
                 echo $item->event->user_end_time;
             }
             @endphp

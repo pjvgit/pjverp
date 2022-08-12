@@ -24,8 +24,8 @@ class RequestedFundOnlinePayment extends Model
     public function getExpiresDateAttribute()
     {
         // return Carbon::parse($this->conekta_reference_expires_at)->format('d-m-Y');
-        $userTime = convertToUserTimezone($this->conekta_reference_expires_at, auth()->user()->user_timezone);
-        return $userTime->format('d-m-Y');
+        // $userTime = convertToUserTimezone($this->conekta_reference_expires_at, auth()->user()->user_timezone);
+        // return $userTime->format('d-m-Y');
     }
 
     /**
@@ -34,8 +34,8 @@ class RequestedFundOnlinePayment extends Model
     public function getExpiresTimeAttribute()
     {
         // return Carbon::parse($this->conekta_reference_expires_at)->format('H:i');
-        $userTime = convertToUserTimezone($this->conekta_reference_expires_at, auth()->user()->user_timezone);
-        return $userTime->format('H:i');
+        // $userTime = convertToUserTimezone($this->conekta_reference_expires_at, auth()->user()->user_timezone);
+        // return $userTime->format('H:i');
     }
 
     /**
