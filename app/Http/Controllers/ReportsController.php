@@ -312,10 +312,10 @@ class ReportsController extends BaseController
             ->leftJoin("case_master","case_master.id","=","expense_entry.case_id")
             ->leftJoin("invoices","invoices.id","=","expense_entry.invoice_link")
             ->select('expense_entry.*')
-            ->where("case_master.id",$case->id)->where("expense_entry.status",'paid')->whereNull("invoices.deleted_at");
+            ->where("case_master.id",$case->id)->where("expense_entry.status",'paid')
+            ->whereNull("invoices.deleted_at");
             $ExpenseEntry = $ExpenseEntry->whereBetween("expense_entry.entry_date",[$startDt,$endDt]);
             $ExpenseEntry = $ExpenseEntry->get();
-            
             $caseExpenseEntry = 0;
             foreach($ExpenseEntry as $k => $v){
                 if($v->time_entry_billable == "yes"){
@@ -367,7 +367,17 @@ class ReportsController extends BaseController
                 $caseInvoicePaidAmount += str_replace(",","",$v->paid_amount);
                 if(str_replace(",","",$v->paid_amount) > 0){
                     if($v->case_id == $case->id){
-                        $invoicePayment = InvoicePayment::where('invoice_id', $v->id)->whereBetween("payment_date",[$startDt,$endDt])->sum('amount_paid');
+                        $invoicePayData = InvoiceHistory::where('invoice_id', $v->id)->whereBetween("created_at",[$startDt,$endDt])->whereIn('status',['1','2','3','4'])->select('amount','status')->get();
+                        $invoicePayment = 0;
+                        foreach($invoicePayData as $payment){
+                            if ($payment->amount && $payment->amount > 0) {
+                                if ($payment->status != 4) {
+                                    $invoicePayment += $payment->amount;
+                                } else {
+                                    $invoicePayment -= $payment->amount;
+                                }
+                            }
+                        }
                         $invPaidRecors[$case->id][$v->id]['paidAmount'][] = str_replace(",","",$invoicePayment);
                         $invPaidRecors[$case->id][$v->id]['totalAmount'][] = str_replace(",","",$v->total_amount);
                     }
@@ -381,7 +391,8 @@ class ReportsController extends BaseController
             
             $InvoiceAdjustment=InvoiceAdjustment::leftJoin("invoices","invoices.id","=","invoice_adjustment.invoice_id")
             ->select('invoice_adjustment.*')
-            ->where("invoice_adjustment.case_id",$case->id)->whereNull("invoices.deleted_at");
+            ->where("invoice_adjustment.case_id",$case->id)->whereNull("invoices.deleted_at")
+            ->whereNotNull("invoice_adjustment.invoice_id");
             // $InvoiceAdjustment = $InvoiceAdjustment->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt]);
             $InvoiceAdjustment = $InvoiceAdjustment->whereDate("invoice_adjustment.created_at", '>=', $startDt)->whereDate("invoice_adjustment.created_at", '<=', $endDt);
             $InvoiceAdjustment = $InvoiceAdjustment->get();
