@@ -757,35 +757,6 @@ class FullBackUpOfApplication implements ShouldQueue
     }
     
     public function generateTrustActivitiesCSV($request, $folderPath, $authUser){
-        $casesCsvData=[];
-      /*
-        $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")
-        ->leftJoin("users as invoiceUser","invoiceUser.id","=","account_activity.user_id")
-        ->leftJoin("case_master","case_master.id","=","account_activity.case_id");    
-        $FetchQuery = $FetchQuery->select('account_activity.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),DB::raw('CONCAT_WS(" ",invoiceUser.first_name,invoiceUser.last_name) as contact_by'),'case_master.case_title', "users.id as uid");
-        $FetchQuery = $FetchQuery->where("account_activity.firm_id",$authUser->firm_name);
-        $FetchQuery = $FetchQuery->where("pay_type","trust");            
-        if(isset($request['include_archived'])){  
-            $FetchQuery = $FetchQuery->withTrashed();
-        }
-        $FetchQuery = $FetchQuery->get();
-
-        if(count($FetchQuery) > 0){
-            $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
-            
-            foreach ($FetchQuery as $k => $v){
-                $casesCsvData[] = date('m/d/Y', strtotime($v->entry_date))."|".$v->related_to."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|false|false|false|false|false|".(($v->debit_amount > 0) ? "-".$v->debit_amount : $v->credit_amount)."|".(($v->pay_type == 'trust') ? 'true' : 'false')."|false|false|false|".$v->total_amount."|".$v->id;
-            }
-
-            $file_path =  $folderPath.'/trust_activities.csv';  
-            $file = fopen($file_path,"w+");
-            foreach ($casesCsvData as $exp_data){
-            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
-            }   
-            fclose($file); 
-        }
-        return true; */
-
         $casesCsvData=[];        
         $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")        
         ->leftJoin("case_master","case_master.id","=","account_activity.case_id")
@@ -828,7 +799,6 @@ class FullBackUpOfApplication implements ShouldQueue
             }
             fclose($file); 
         }
-        
         return true; 
     }
 }
