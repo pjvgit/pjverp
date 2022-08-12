@@ -36,7 +36,9 @@ class CalendarController extends BaseController
         $CaseEvent = '';
         $byuser=json_decode($request->byuser, TRUE);
         if(count($byuser)) {
-            $CaseEvent = EventRecurring::whereBetween('start_date',  [$request->start, $request->end])->has('event');
+            $CaseEvent = EventRecurring::has('event')
+                // ->whereBetween('start_date',  [$request->start, $request->end])
+                ->whereDate('start_date', '>=', $request->start)->whereDate('end_date', '<=', $request->end);
             $CaseEvent = $CaseEvent->whereHas("event", function($query) use($request, $authUser) {
                 $query->where('firm_id', $authUser->firm_name);
                 if($request->event_type!="[]"){
@@ -76,6 +78,8 @@ class CalendarController extends BaseController
                 } else {
                     $startDate = ($event->is_full_day == 'no') ? convertUTCToUserTime($v->start_date.' '.$event->start_time, $timezone) : $v->user_start_date->format('Y-m-d');
                 }
+                // $startDate = Carbon::parse($v->start_date.' '.$event->start_time)->subHours('6');
+                // return $startDate->format('Y-m-d H:i:s');
                 $newArray[] = [
                     'id' => $v->id,
                     'event_id' => $event->id,
@@ -175,6 +179,7 @@ class CalendarController extends BaseController
     }
     public function index($calendarView = null)
     {
+        return Carbon::parse('2022-10-28 18:00:00 America/Mexico_City')->format('P');
         $authUser = auth()->user();
         $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1");
         if($authUser->hasPermissionTo('access_only_linked_cases')) {
