@@ -180,6 +180,7 @@ function convertUTCToUserTime($str, $timezone, $isTFormat = null){
     $str = date('Y-m-d H:i:s', strtotime($str));
     $date = Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
     $date->setTimezone($timezone ?? 'UTC');
+    // return $date;
     if($isTFormat == 'yes') {
         return $date->format("Y-m-d").'T'.$date->format("H:i:s");
     } else {

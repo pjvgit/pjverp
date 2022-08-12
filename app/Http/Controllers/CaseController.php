@@ -2189,7 +2189,7 @@ class CaseController extends BaseController
                 $recurringEndDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
             }
         }
-
+        // return date("Y-m-d", strtotime($request->start_date));
         // Start-End time for all events convert into UTC
         $start_time = $this->eventConvertTimestampToUtc($request->start_date, $request->start_time, $authUser->user_timezone, 'time');
         $end_time = $this->eventConvertTimestampToUtc($request->end_date, $request->end_time, $authUser->user_timezone, 'time');
@@ -2244,6 +2244,7 @@ class CaseController extends BaseController
                 $end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $endDate), $request->end_time, $authUser->user_timezone, 'dateFromTime');
                 $recurring_end_date = $this->eventConvertTimestampToUtc(date("Y-m-d", $recurringEndDate), $request->start_time, $authUser->user_timezone, 'dateFromTime');
             } */
+            // return $start_date;
             $start_date = date("Y-m-d", $startDate);
             $end_date = date("Y-m-d", $endDate);
             $recurring_end_date = date("Y-m-d", $recurringEndDate);

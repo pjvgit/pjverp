@@ -1368,7 +1368,8 @@ $(document).ready(function () {
             timeZone: userTimezone,
             plugins: [ CustomViewPlugin, ],
             initialView: "{{ $defaultView }}",
-            initialDate: new Date,
+            // initialDate: new Date,
+            initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
             themeSystem: "bootstrap4",
             height: 700,
             dayMaxEvents: true, // allow "more" link when too many events
