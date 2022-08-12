@@ -31,8 +31,8 @@ class CalendarController extends BaseController
     }
     public function newloadEventCalendar (Request $request)
     {        
-        $offset = Carbon::now('America/Mexico_City')->offsetHours;
         $authUser = auth()->user();
+        $offset = Carbon::now($authUser->user_timezone)->format("P");
         $CaseEvent = '';
         $byuser=json_decode($request->byuser, TRUE);
         if(count($byuser)) {
@@ -179,8 +179,10 @@ class CalendarController extends BaseController
     }
     public function index($calendarView = null)
     {
-        return Carbon::parse('2022-10-28 18:00:00 America/Mexico_City')->format('P');
+        // return Carbon::parse('2022-10-28 18:00:00 America/Mexico_City')->format('P');
+        // $offset = Carbon::now('America/Mexico_City')->offsetHours;
         $authUser = auth()->user();
+        $userOffset = Carbon::now($authUser->user_timezone)->format("P");
         $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1");
         if($authUser->hasPermissionTo('access_only_linked_cases')) {
             $CaseMasterData = $CaseMasterData->whereHas('caseStaffAll', function($query) {
@@ -199,7 +201,7 @@ class CalendarController extends BaseController
             AllHistory::where('type','event')->where('created_by', Auth::user()->parent_user)->update(['is_read'=>0]);
         }
         // return view('calendar.indexnew',compact('CaseMasterData','EventType','staffData'));
-        return view('calendar.index',compact('CaseMasterData','EventType','staffData', 'calendarView', 'authUser'));
+        return view('calendar.index',compact('CaseMasterData','EventType','staffData', 'calendarView', 'authUser', 'userOffset'));
     }
     public function loadEventCalendar (Request $request)
     {        

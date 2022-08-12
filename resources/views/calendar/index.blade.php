@@ -555,10 +555,10 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 
 <script type="text/javascript">
 var calendar; var userTimezone = 'local';
-var authUserTimezone = "{{ $authUser->user_timezone }}";
-// userTimezone = moment.tz.guess();
+// var authUserTimezone = "{{ $authUser->user_timezone }}";
+var authUserTimezone = "{{ $userOffset }}";
 $(document).ready(function () {
-    getUserTimezone();
+    // getUserTimezone();
     /* const { sliceEvents, createPlugin, Calendar } = FullCalendar
     const CustomViewConfig = {
         classNames: [ 'agenda-custom-view' ],
@@ -1291,7 +1291,7 @@ $(document).ready(function () {
     resetButton();
 
     // For get user timezone
-    function getUserTimezone() {
+    /* function getUserTimezone() {
         var timezone_offset_minutes = new Date().getTimezoneOffset();
         timezone_offset_minutes = timezone_offset_minutes == 0 ? 0 : -timezone_offset_minutes;
         $.ajax({
@@ -1308,9 +1308,20 @@ $(document).ready(function () {
                 renderCalendar()
             }
         });
+    } */
+    var localTimezone = getTimeZone();
+    if(localTimezone == authUserTimezone) {
+        calendarTimezone = 'local';
+    } else {
+        calendarTimezone = "{{ $authUser->user_timezone }}";
     }
-
-    function renderCalendar() {
+    
+    function getTimeZone() {
+        var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
+        return (offset < 0 ? "+" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2);
+    }
+    
+    
         const { sliceEvents, createPlugin, Calendar } = FullCalendar
         const CustomViewConfig = {
             classNames: [ 'agenda-custom-view' ],
@@ -1365,7 +1376,7 @@ $(document).ready(function () {
         var calendarEl = document.getElementById('calendarq');
         calendar = new FullCalendar.Calendar(calendarEl, {
             // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-            timeZone: userTimezone,
+            timeZone: calendarTimezone,
             plugins: [ CustomViewPlugin, ],
             initialView: "{{ $defaultView }}",
             // initialDate: new Date,
@@ -1458,7 +1469,8 @@ $(document).ready(function () {
                         searchbymytask:mytask,
                         dateFilter:getDate(),
                         taskLoad:$("#loadType").val(),
-                        timezone: userTimezone,
+                        // timezone: userTimezone,
+                        timezoneOffset: calendarTimezone
                     },
                     success: function(data) {
                         successCallback(data);
@@ -1529,7 +1541,6 @@ $(document).ready(function () {
         calendarEl.querySelector('.fc-today-button').addEventListener('click', function() {
             $('#datepicker').datepicker('setDate', new Date());
         });
-    }    
 </script>
 @stop
 @endsection
