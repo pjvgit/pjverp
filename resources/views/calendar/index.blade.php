@@ -912,10 +912,7 @@ $(document).ready(function () {
         }
     });
 
-    $(".fc-today-button").click(function() {
-        $('#datepicker').datepicker().datepicker('setDate', new Date());
-        $('#datepicker').val(new Date());
-    });
+    
 
         $("#datepicker").datepicker({
             'format': 'm/d/yyyy',
@@ -926,7 +923,6 @@ $(document).ready(function () {
         }).on('changeDate', function(ev) {
             var date = new Date(ev.date);
             calendar.gotoDate( date );
-            console.log(date);
             /* calendar.setOption('visibleRange', {
                 start: moment(ev.date),
                 end: moment(ev.date, "DD-MM-YYYY").add(31, 'days'),
@@ -1479,16 +1475,12 @@ $(document).ready(function () {
                 var view = arg.view;
                 if (view.type == 'dayGridMonth' || view.type == 'timeGridWeek' || view.type == 'timeGridDay') {
                 }else{
-                    console.log(view.activeStart);
                     var currentdate = view.activeStart;
                     var endDate = view.activeEnd;
                     // $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
-                    var dateText= $("#datepicker").val();
-                    date = moment(currentdate).format('YYYY-MM-DD');
-                    console.log(date);
+                    // date = moment(currentdate).format('YYYY-MM-DD');
                 }
                 
-                // $("#preloaderData").hide();
                 if(localStorage.getItem('weekends')=='hide'){
                     var chk="";
                 }else{
@@ -1511,7 +1503,6 @@ $(document).ready(function () {
                 $('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>').insertAfter(".fc-agendaview-button"); 
             
                 $("#shuesuid").trigger('click');
-                // $("#preloaderData").hide();
                 $('[data-toggle="tooltip"]').tooltip();
             },
             eventClick: function(info) {
@@ -1533,7 +1524,11 @@ $(document).ready(function () {
             }
         });
         calendar.render();
-    }
+
+        calendarEl.querySelector('.fc-today-button').addEventListener('click', function() {
+            $('#datepicker').datepicker('setDate', new Date());
+        });
+    }    
 </script>
 @stop
 @endsection
