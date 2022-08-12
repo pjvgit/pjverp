@@ -294,37 +294,48 @@ class FullBackUpOfApplication implements ShouldQueue
     
     
     public function generateAccountActivitiesCSV($request, $folderPath, $authUser){
-        $casesCsvData=[];
-
-        $FetchQuery = InvoicePayment::leftJoin("users","invoice_payment.created_by","=","users.id")
-        ->leftJoin("invoices","invoices.id","=","invoice_payment.invoice_id")
-        ->leftJoin("users as invoiceUser","invoiceUser.id","=","invoices.user_id")
-        ->leftJoin("case_master","case_master.id","=","invoices.case_id");    
-        $FetchQuery = $FetchQuery->select('invoice_payment.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),DB::raw('CONCAT_WS(" ",invoiceUser.first_name,invoiceUser.last_name) as contact_by'),'case_master.case_title');
+        $casesCsvData=[];        
+        $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")        
+        ->leftJoin("case_master","case_master.id","=","account_activity.case_id")
+        ->leftJoin("invoices","invoices.case_id","=","case_master.id")
+        ->leftJoin("users as invoiceUser","invoiceUser.id","=","account_activity.user_id");
+        $FetchQuery = $FetchQuery->select('account_activity.*','users.id as uid',
+            DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),
+            DB::raw('CONCAT_WS(" ",invoiceUser.first_name,invoiceUser.last_name) as contact_by_name'),
+            'case_master.case_title','invoices.unique_invoice_number');
         if($request['export_cases'] == 1){
-            $FetchQuery = $FetchQuery->where("invoice_payment.firm_id",$authUser->firm_name);
+            $FetchQuery = $FetchQuery->where("account_activity.firm_id",$authUser->firm_name);
         }else{
-            $FetchQuery = $FetchQuery->where("invoice_payment.created_by",$authUser->id);
-        }        
-        $FetchQuery = $FetchQuery->where("entry_type","1");
-        $FetchQuery = $FetchQuery->with('invoice')->orderBy("id", 'desc');        
-        if(isset($request['include_archived'])){  
+            $FetchQuery = $FetchQuery->where("account_activity.created_by",$authUser->id);
+        }
+        // $FetchQuery = $FetchQuery->where("entry_type","1");
+        $FetchQuery = $FetchQuery->where("pay_type","client");
+        $FetchQuery = $FetchQuery->groupBy("id")
+            // ->with('invoice')
+            ->orderBy("id", 'desc');
+        if(isset($request['include_archived'])){
             $FetchQuery = $FetchQuery->withTrashed();
         }
-        $FetchQuery = $FetchQuery->get();
+        $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
 
         if(count($FetchQuery) > 0){
             $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
             foreach($FetchQuery as $k=>$v){
-                $entryDate = convertUTCToUserDate($v->payment_date, $authUser->user_timezone ?? 'UTC')->format('m/d/Y');
-                $casesCsvData[] = $entryDate."|".@$v->invoice->unique_invoice_number."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->amount_refund > 0) ? "-".$v->amount_refund : $v->amount_paid)."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->total."|".$v->id;
+                // $entryDate = convertUTCToUserDate("$added_date", $authUser->user_timezone ?? 'UTC')->format('m/d/Y');
+                $amount=0.00;
+                if($v->d_amt=="0.00" && $v->c_amt > 0){
+                    $amount=$v->c_amt;
+                } else if($v->c_amt=="0.00" && $v->d_amt > 0) {
+                    $amount="-".$v->d_amt;
+                }
+                $casesCsvData[] = date('m/d/Y',strtotime($v->added_date))."|".$v->related."|".$v->contact_by_name."|".$v->case_title."|".$v->entered_by."|".$v->payment_note."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".$amount."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;    
             }
 
-            $file_path =  $folderPath.'/account_activities.csv';  
+            $file_path =  $folderPath.'/account_activities.csv';
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
-            }   
+                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
+            }
             fclose($file); 
         }
         return true; 
@@ -747,8 +758,7 @@ class FullBackUpOfApplication implements ShouldQueue
     
     public function generateTrustActivitiesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        Log::info("generateTrustActivitiesCSV :". $authUser);
-
+      /*
         $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")
         ->leftJoin("users as invoiceUser","invoiceUser.id","=","account_activity.user_id")
         ->leftJoin("case_master","case_master.id","=","account_activity.case_id");    
@@ -774,6 +784,51 @@ class FullBackUpOfApplication implements ShouldQueue
             }   
             fclose($file); 
         }
+        return true; */
+
+        $casesCsvData=[];        
+        $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")        
+        ->leftJoin("case_master","case_master.id","=","account_activity.case_id")
+        ->leftJoin("invoices","invoices.case_id","=","case_master.id")
+        ->leftJoin("users as invoiceUser","invoiceUser.id","=","account_activity.user_id");
+        $FetchQuery = $FetchQuery->select('account_activity.*','users.id as uid',
+            DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),
+            DB::raw('CONCAT_WS(" ",invoiceUser.first_name,invoiceUser.last_name) as contact_by_name'),
+            'case_master.case_title');
+        if($request['export_cases'] == 1){
+            $FetchQuery = $FetchQuery->where("account_activity.firm_id",$authUser->firm_name);
+        }else{
+            $FetchQuery = $FetchQuery->where("account_activity.created_by",$authUser->id);
+        }
+        $FetchQuery = $FetchQuery->where("pay_type","trust");
+        $FetchQuery = $FetchQuery->groupBy("id")
+            // ->with('invoice')
+            ->orderBy("id", 'desc');
+        if(isset($request['include_archived'])){
+            $FetchQuery = $FetchQuery->withTrashed();
+        }
+        $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
+
+        if(count($FetchQuery) > 0){
+            $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
+            foreach($FetchQuery as $k=>$v){
+                // $entryDate = convertUTCToUserDate("$added_date", $authUser->user_timezone ?? 'UTC')->format('m/d/Y');
+                $amount=0.00;
+                if($v->d_amt=="0.00" && $v->c_amt > 0){
+                    $amount=$v->c_amt;
+                } else if($v->c_amt=="0.00" && $v->d_amt > 0) {
+                    $amount="-".$v->d_amt;
+                }
+                $casesCsvData[] = date('m/d/Y',strtotime($v->added_date))."|".$v->related."|".$v->contact_by_name."|".$v->case_title."|".$v->entered_by."|".$v->payment_note."|false|false|false|false|false|".$amount."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|false|false|false|".$v->t_amt."|".$v->id;    
+            }
+            $file_path =  $folderPath.'/trust_activities.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
+            }
+            fclose($file); 
+        }
+        
         return true; 
     }
 }
