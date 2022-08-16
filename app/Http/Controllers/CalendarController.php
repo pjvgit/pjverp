@@ -139,9 +139,7 @@ class CalendarController extends BaseController
                     ->whereHas('taskLinkedStaff', function($query) use($authUser) {
                         $query->where('users.id', $authUser->id);
                     });
-                    // ->leftJoin('task_linked_staff','task.id','=','task_linked_staff.task_id');
-            $Task=$Task->where('task_due_on',"!=",'9999-12-30');
-            $Task = $Task->where("status", "0")->whereNotNull("task_due_on")/* ->select('task.*', 'task_linked_staff.is_read') */;
+            $Task=$Task->whereNotNull("task_due_on")->where('task_due_on',"!=",'9999-12-30')->where("status", "0");
             if($request->case_id != "") {
                 $Task = $Task->where('case_id',$request->case_id);
             }
@@ -155,7 +153,7 @@ class CalendarController extends BaseController
                     }else{
                         $cds="background-color: rgb(40, 167, 68); width: 30px;";
                     }
-                    $startDate = ($request->timezone == 'local') ? $v->task_due_on : convertUTCToUserDate($v->task_due_on, $authUser->user_timezone);   
+                    $startDate = ($request->timezone == 'local') ? convertDateToUTCzone($v->task_due_on, $authUser->user_timezone) : $v->task_due_on;   
                     $t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'.$cds.'">DUE</span>'.' ' . $v->task_title;
                     $tplain = 'DUE'.' -' . $v->task_title;
                     $newArray[] = [
@@ -331,8 +329,8 @@ class CalendarController extends BaseController
         $authUser = auth()->user();
         $authUserId = $authUser->id;
         $timezone = $authUser->user_timezone;
-        $startDate = convertDateToUTCzone(date("Y-m-d", strtotime($request->start)), $timezone);
-        $endDate = convertDateToUTCzone(date("Y-m-d", strtotime($request->end)), $timezone);
+        $startDate = date("Y-m-d", strtotime($request->start));
+        $endDate = date("Y-m-d", strtotime($request->end));
         $finalDataList = [];
         if($request->byuser != "[]") {
             $events = EventRecurring::whereBetween('start_date',  [$startDate, $endDate]);
@@ -443,15 +441,15 @@ class CalendarController extends BaseController
             $tasks = Task::whereBetween('task_due_on', [$startDate, $endDate])->where('firm_id', $authUser->firm_name)
                     ->whereHas('taskLinkedStaff', function($query) use($authUserId) {
                         $query->where('users.id', $authUserId);
-                    })->where('task_due_on',"!=",'9999-12-30')
-                    ->where("status", "0")->whereNotNull("task_due_on");
+                    })->whereNotNull("task_due_on")->where('task_due_on',"!=",'9999-12-30')
+                    ->where("status", "0");
             if($request->case_id != "") {
                 $tasks = $tasks->where('case_id',$request->case_id);
             }
             $tasks = $tasks->whereNull('deleted_at')->orderBy("task_due_on", "ASC")->with('case')->get();
             if(count($tasks)) {
                 foreach($tasks as $key => $item) {
-                    $taskDueOn = convertUTCToUserDate($item->task_due_on, $timezone);
+                    $taskDueOn = Carbon::parse($item->task_due_on);
                     $finalDataList[] = (object)[
                         'task_id' => $item->id,
                         'task_title' => $item->task_title,

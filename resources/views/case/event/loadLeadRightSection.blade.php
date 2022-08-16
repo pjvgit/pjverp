@@ -119,7 +119,7 @@
                         <?php } else {  ?>
                         <input name="linked_staff_checked_attend[]" value="{{$val->id}}"   <?php if($val->id==Auth::User()->id){ ?>
                             checked="checked" <?php } ?>   class="client_attend_all_users"
-                            id="linked_staff_checked_attend_{{$val->id}}" type="checkbox">
+                            id="linked_staff_checked_attend_{{$val->id}}" type="checkbox" {{ ($val->id != auth()->id()) ? 'disabled' : '' }}>
                         <?php } ?>
 
                     </label>
@@ -179,14 +179,21 @@
             }
         });
         $("#client_share_all").click(function () {
-
+            if($(this).is(":checked")) {
+                if($("#client_attend_all").is(':checked')) {
+                    $(".client_attend_all_users").prop('checked', $(this).prop('checked'))
+                }
+            } else {
+                $(".client_attend_all_users").prop('checked', false);
+                $("#client_attend_all").prop('checked', false);
+            }
             $(".client_share_all_users").prop('checked', $(this).prop('checked'));
             $(".client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
-
+            
         });
         $("#client_attend_all").click(function () {
             if ($("#client_share_all").prop('checked')) {
@@ -207,6 +214,20 @@
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
+            var modalId = $(this).parents('div.modal').attr("id");
+            if ($("#"+modalId+" .client_share_all_users:checked").length == $("#"+modalId+" .client_share_all_users").length) {
+                $("#"+modalId+" #client_share_all").prop('checked', "checked")
+            } else {
+                $("#"+modalId+" #client_share_all").prop('checked', false)
+            }
+        });
+        $(".client_attend_all_users ").click(function () {
+            var modalId = $(this).parents('div.modal').attr("id");
+            if ($("#"+modalId+" .client_attend_all_users:checked").length == $("#"+modalId+" .client_attend_all_users").length) {
+                $("#"+modalId+" #client_attend_all").prop('checked', "checked")
+            } else {
+                $("#"+modalId+" #client_attend_all").prop('checked', false)
+            }
         });
         $("#HideShowNonlink").on('click', function () {
             $(".staff-table-nonlinked").toggle();
@@ -223,7 +244,11 @@
                 $("#SelectAllLeadAttend").prop('checked', $(this).prop('checked'));
                 $(".not-enable-portal").prop('checked', false);
                 $(".not-enable-portal").prop('disabled', true);
-            }  
+            } else {
+                if($("#SelectAllLeadAttend").is(":checked")) {
+                    $(".lead_client_attend_all_users").prop("checked", $(this).prop('checked'));
+                }
+            }
         });
         $(".lead_client_share_all_users ").click(function () {
             var userId = $(this).val();

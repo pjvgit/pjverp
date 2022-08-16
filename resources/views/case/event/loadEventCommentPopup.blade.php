@@ -15,7 +15,7 @@
                 $endDateTime= convertToUserTimezone($eventRecurring->end_date.' '.$event->end_time, $userTimezone);
             }
             $startDate = ($event->is_full_day == 'no') ? convertToUserTimezone($eventRecurring->start_date.' '.$event->start_time, $userTimezone) : $eventRecurring->user_start_date;
-            $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. date('F d, Y', strtotime(convertUTCToUserDate($event->end_on, $userTimezone))) : "";
+            $endOnDate = ($event->end_on && $event->is_no_end_date == 'no') ? 'until '. convertUTCToUserDate($event->end_on, $userTimezone)->format('F d, Y') : "";
         @endphp
         @if($event->is_full_day == 'no')
         <h6 class="modal-subtitle mt-2 mb-0">{{ $startDateTime->format('D, M jS Y, h:ia') }} —

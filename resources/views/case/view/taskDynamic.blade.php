@@ -1,7 +1,8 @@
 <?php
 $CommonController= new App\Http\Controllers\CommonController();
 $result = array();
-$yestedayDate=date('Y-m-d', strtotime('-1 day'));
+// $yestedayDate=date('Y-m-d', strtotime('-1 day'));
+$yestedayDate = date('Y-m-d', strtotime(convertUTCToUserTimeZone('dateOnly')));
 foreach ($task as $element) {
     if($element->task_due_on <= $yestedayDate){
         if($element->task_due_on == $yestedayDate){
@@ -149,7 +150,7 @@ foreach ($task as $element) {
                 <?php } ?>
             </td>
             <td class="task-due-cell align-middle">
-                <?php if($subrow->task_due_on > date('Y-m-d')){
+                <?php if($subrow->task_due_on > date('Y-m-d', strtotime(convertUTCToUserTimeZone('dateOnly')))){
                                                         if($subrow->task_due_on!='9999-12-30'){?>
                 <span class="font-weight-bold">{{date('M j, Y',strtotime($subrow->task_due_on))}}</span>
                 <?php } ?>

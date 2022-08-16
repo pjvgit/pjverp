@@ -251,6 +251,9 @@
                 $("#"+modalId+" .client_attend_all_users").prop("disabled", true)
             } else {
                 $("#"+modalId+" .client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+                if($("#"+modalId+" .client_attend_all").is(':checked')) {
+                    $("#"+modalId+" .client_attend_all_users").prop('checked', $(this).prop('checked'))
+                }
             }
             /* if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
@@ -357,7 +360,11 @@
                 $("#"+modalId+" .SelectAllLeadAttend").prop('checked', $(this).prop('checked'));
                 $("#"+modalId+" .not-enable-portal").prop('checked', false);
                 $("#"+modalId+" .not-enable-portal").prop('disabled', true);
-            }            
+            } else {
+                if($("#"+modalId+" .SelectAllLeadAttend").is(':checked')) {
+                    $("#"+modalId+" .lead_client_attend_all_users").prop('checked', $(this).prop('checked'))
+                }
+            }
         });
         $(".lead_client_share_all_users ").click(function () {
             var modalId = $(this).parents('div.modal').attr("id");
