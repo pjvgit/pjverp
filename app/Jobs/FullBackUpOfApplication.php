@@ -340,7 +340,7 @@ class FullBackUpOfApplication implements ShouldQueue
         }
         return true; 
     }
-    
+
     public function generateClientsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="LegalCase ID|First Name|Middle Name|Last Name|Company|Job Title|Home Street|Home Street 2|Home City|Home State|Home Postal Code|Home Country/Region|Home Fax|Work Phone|Home Phone|Mobile Phone|Contact Group|E-mail Address|Web Page|Outstanding Trust Balance|Login Enabled|Archived|Birthday|Private Notes|License Number|License State|Welcome Message|Non-Trust Credit Balance|:Notes|Cases|Case Link IDs|Created Date";
@@ -361,7 +361,7 @@ class FullBackUpOfApplication implements ShouldQueue
         }else{            
             $user = $user->where("users.created_by",$authUser->id); //Logged in user not visible in grid
         }
-        if(isset($request['include_archived'])){  
+        if(isset($request['include_archived'])){
             $user = $user->whereIn("users.user_status",[1,2,4]);
             $user = $user->withTrashed();
         }else{
@@ -373,7 +373,7 @@ class FullBackUpOfApplication implements ShouldQueue
         
         if(count($userData) > 0){
             foreach ($userData as $k=>$v){
-                /*$countries = Countries::select('id','name')->get();    
+                /*$countries = Countries::select('id','name')->get();
                 $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';*/
                 $countryName=Countries::where("id","=",$v->country)->first();
                 $countryName=($countryName!="")?$countryName->name:"";
@@ -397,7 +397,7 @@ class FullBackUpOfApplication implements ShouldQueue
                             $is_archived="TRUE";
                         }
                     }
-                    $casesCsvData[]=$v->id."|".$v->first_name."|".$v->middle_name."|".$v->last_name."|".implode(",", $company)."|".$v->job_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->work_phone."|".$v->home_phone."|".$v->mobile_number."|".$v->group_name."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->last_login != NULL) ? 'true' : 'false')."|".$is_archived."|".date("m/d/Y", strtotime($v->dob))."|".$v->notes."|".$v->driver_license."|".$v->license_state."||".$v->trust_account_balance."||".implode(",", $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
+                    $casesCsvData[]=$v->id."|".$v->first_name."|".$v->middle_name."|".$v->last_name."|".implode(PHP_EOL, $company)."|".$v->job_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->work_phone."|".$v->home_phone."|".$v->mobile_number."|".$v->group_name."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->last_login != NULL) ? 'true' : 'false')."|".$is_archived."|".(($v->dob==null || $v->dob=="" || $v->dob=="1970-01-01")?"":date("m/d/Y", strtotime($v->dob)))."|".$v->notes."|".$v->driver_license."|".$v->license_state."||".$v->credit_account_balance."||".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
                 }
                 if($v->user_level == '4'){
                     $companyID = $v['id'];
@@ -408,7 +408,7 @@ class FullBackUpOfApplication implements ShouldQueue
                     foreach ($contactlist as $kk => $vv){
                         $contacts[] = $vv->fullname;
                     }
-                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4 || $v->user_status==3) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(",", $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
+                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4 || $v->user_status==3) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
                 }
             }
 
@@ -732,7 +732,7 @@ class FullBackUpOfApplication implements ShouldQueue
         $task = $task->get();
 
         if(count($task) > 0){
-            $casesCsvData[]="Name|Notes|Due date|Complete|Priority|Case Name|Assigned By|Completed By|Completed at|Archived|LegalCase ID|Assigned To";            
+            $casesCsvData[]="Name|Notes|Due date|Complete|Priority|Case Name|Assigned By|Completed By|Completed at|Archived|LegalCase ID|Assigned To";
             foreach ($task as $k => $v) {
                 $tasklinkedstaff =  CaseTaskLinkedStaff::join('users','users.id','=','task_linked_staff.user_id')
                     ->select(DB::raw('group_concat(CONCAT_WS(" ",users.first_name,users.last_name)) as assigned_to_name'))
@@ -744,7 +744,7 @@ class FullBackUpOfApplication implements ShouldQueue
                     $completed_by_usr=User::where("id","=",$v->task_completed_by)->first();
                     $completed_by=$completed_by_usr->first_name." ".$completed_by_usr->last_name;
                 }
-                $casesCsvData[]=$v->task_title."|".$v->description."|".date("m/d/Y",strtotime($v->task_due_on))."|".(($v->status == '0') ? 'false' : 'true')."|".$v->task_priority."|".$v->case_title."|".$assigned_by->first_name." ".$assigned_by->last_name."|".$completed_by."|".(($v->task_completed_date == NULL) ? '' : date("m/d/Y",strtotime($v->task_completed_date)))."|".(($v->deleted_at != NULL) ? 'true' : 'false')."|".$v->id."|".($tasklinkedstaff[0]['assigned_to_name'] ?? '');
+                $casesCsvData[]=$v->task_title."|".$v->description."|".(($v->task_due_on=="9999-12-30" || $v->task_due_on=="" || $v->task_due_on=="1970-01-01")?"":date("m/d/Y",strtotime($v->task_due_on)))."|".(($v->status == '0') ? 'false' : 'true')."|".$v->getPriorityTextAttribute()."|".$v->case_title."|".$assigned_by->first_name." ".$assigned_by->last_name."|".$completed_by."|".(($v->task_completed_date == NULL) ? '' : date("m/d/Y",strtotime($v->task_completed_date)))."|".(($v->deleted_at != NULL) ? 'true' : 'false')."|".$v->id."|".($tasklinkedstaff[0]['assigned_to_name'] ?? '');
             }
             $file_path =  $folderPath.'/tasks.csv';
             $file = fopen($file_path,"w+");
@@ -753,7 +753,7 @@ class FullBackUpOfApplication implements ShouldQueue
             }
             fclose($file);
         }
-        return true; 
+        return true;
     }
     
     public function generateTrustActivitiesCSV($request, $folderPath, $authUser){
@@ -790,7 +790,7 @@ class FullBackUpOfApplication implements ShouldQueue
                 } else if($v->c_amt=="0.00" && $v->d_amt > 0) {
                     $amount="-".$v->d_amt;
                 }
-                $casesCsvData[] = date('m/d/Y',strtotime($v->added_date))."|".$v->related."|".$v->contact_by_name."|".$v->case_title."|".$v->entered_by."|".$v->payment_note."|false|false|false|false|false|".$amount."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|false|false|false|".$v->t_amt."|".$v->id;    
+                $casesCsvData[] = date('m/d/Y',strtotime($v->added_date))."|".$v->related."|".$v->contact_by_name."|".$v->case_title."|".$v->entered_by."|".$v->payment_note."|".$v->payment_method."|".(($v->is_refunded=="yes")?"TRUE":"FALSE")."|".(($v->is_refunded=="yes")?"TRUE":"FALSE")."|false|false|".$amount."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|false|false|false|".$v->t_amt."|".$v->id;    
             }
             $file_path =  $folderPath.'/trust_activities.csv';  
             $file = fopen($file_path,"w+");
