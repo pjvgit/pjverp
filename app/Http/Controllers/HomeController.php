@@ -633,7 +633,7 @@ class HomeController extends BaseController
         $authUser = auth()->user();
         $todayDate = date('Y-m-d', strtotime(convertUTCToUserTimeZone('dateOnly')));
         $result = EventRecurring::whereJsonContains('event_reminders', ['reminder_type' => 'popup'])
-                    ->where('event_id', 811)
+                    // ->where('event_id', 811)
                     ->where(function($query) {
                         $query->whereJsonContains('event_reminders', ['remind_at' => date("Y-m-d")])
                         ->orWhereJsonContains('event_reminders', ["snooze_remind_at" => date("Y-m-d")]);
