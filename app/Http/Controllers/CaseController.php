@@ -2829,7 +2829,7 @@ class CaseController extends BaseController
                             "created_by" => $authUser->id,
                         ]);
 
-                        if(array_diff( $request->custom, $oldEvent->custom_event_weekdays ) || $oldEvent->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on)) {
+                        if(array_diff( $request->custom, $oldEvent->custom_event_weekdays ) || $request->daily_weekname != $oldEvent->event_interval_week || $oldEvent->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on)) {
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($caseEvent, $user_start_date, $request, $user_recurring_end_date);
                         } else {
@@ -2881,7 +2881,7 @@ class CaseController extends BaseController
                             }
                         }  
                     } else {
-                        if(array_diff( $request->custom, $oldEvent->custom_event_weekdays ) || $oldEvent->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on)) {
+                        if(array_diff( $request->custom, $oldEvent->custom_event_weekdays ) || $request->daily_weekname != $oldEvent->event_interval_week || $oldEvent->is_no_end_date != $isNoEndDate || isset($request->updated_start_date) || isset($request->updated_end_on)) {
                             EventRecurring::where("event_id", $oldEvent->id)->where("id", ">=", $request->event_recurring_id)->forceDelete();
                             $eventRecurring = $this->saveCustomRecurringEvent($oldEvent, $user_start_date, $request, $user_recurring_end_date);
                         } else {
@@ -3485,7 +3485,7 @@ class CaseController extends BaseController
                 } else if($request->event_frequency == 'CUSTOM') {
                     $oldEvents = Event::whereId($request->event_id)->orWhere("parent_event_id", $request->event_id)->where("edit_recurring_pattern", "!=", "single event")->get();
                     foreach($oldEvents as $ekey => $eitem) {
-                        if(array_diff( $request->custom, $eitem->custom_event_weekdays ) || isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_end_on)) {
+                        if(array_diff( $request->custom, $eitem->custom_event_weekdays ) || $request->daily_weekname != $eitem->event_interval_week || isset($request->updated_start_date) || $eitem->is_no_end_date != $isNoEndDate || isset($request->updated_end_on)) {
                             EventRecurring::where("event_id", $eitem->id)->forceDelete();
                             $sdate = (isset($request->updated_start_date)) ? $user_start_date : $eitem->user_start_date_time->format('Y-m-d');
                             $eventRecurring = $this->saveCustomRecurringEvent($eitem, $sdate, $request, $user_recurring_end_date);

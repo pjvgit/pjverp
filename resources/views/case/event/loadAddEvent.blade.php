@@ -183,9 +183,6 @@
                                 value="1"><span class="ml-1">week(s)</span></div>
                         <div>
                             <div class="filter-options d-flex">
-                                <div class="mr-3"><label class="d-inline-flex align-items-center">
-                                    <input id="Sun-option" name="custom[]" value="Sunday" type="checkbox"><span class="ml-2 ">Sun</span></label>
-                                </div>
                                 <div class="mr-3">
                                     <label class="d-inline-flex align-items-center">
                                         <input id="Mon-option" name="custom[]" value="Monday" type="checkbox"><span class="ml-2 ">Mon</span></label>
@@ -208,6 +205,9 @@
                                 </div>
                                 <div class="mr-3"><label class="d-inline-flex align-items-center">
                                     <input id="Sat-option"  name="custom[]" value="Saturday" type="checkbox"><span class="ml-2 ">Sat</span></label>
+                                </div>
+                                <div class="mr-3"><label class="d-inline-flex align-items-center">
+                                    <input id="Sun-option" name="custom[]" value="Sunday" type="checkbox"><span class="ml-2 ">Sun</span></label>
                                 </div>
                             </div>
                             <span class="error custom-error"></span>

@@ -208,13 +208,13 @@
                                 <td> ${{$aData->due_amount_new}}</td>
                                 <td> 
                                     @if($aData->due_date!=NULL)
-                                        {{date('m/d/Y',strtotime($aData->due_date))}}
+                                        {{ $aData->due_date_new }}
                                     @else
                                         --
                                     @endif
                                 </td>
                                 <td> {{$aData->status}} </td>
-                                <td> {{$aData->days_aging}} </td>
+                                <td> {{ daysReturns($aData->due_date_new, 'onlyDays') }} </td>
                         </tr>
                         @endforeach
                         <tr class="header total_row">
@@ -308,7 +308,7 @@
                                 @endif
                             </td>
                             <td> {{$aData->status}} </td>
-                            <td> {{$aData->days_aging}} </td>
+                            <td> {{ daysReturns($aData->due_date_new, 'onlyDays') }} </td>
                     </tr>
                     @endforeach
                     <tr class="header total_row">

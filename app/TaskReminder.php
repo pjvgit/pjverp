@@ -40,7 +40,8 @@ class TaskReminder extends Authenticatable
      */
     public function setRemindAtAttribute($value)
     {
-        $taskDueDate = Carbon::parse($this->task->task_due_on);
+        $taskDueDate = Carbon::parse(convertDateToUTCzone($this->task->task_due_on, auth()->user()->user_timezone));
+
         if($this->reminder_frequncy == "week") {
             $remindTime = $taskDueDate->subWeeks($this->reminer_number)->format('Y-m-d');
         } else if($this->reminder_frequncy == "day") {
