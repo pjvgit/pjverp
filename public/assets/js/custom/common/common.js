@@ -1,4 +1,4 @@
-let totalSeconds = 0;window.addEventListener('focus',(e)=>{totalSeconds=localStorage.getItem("last_seconds");console.log('Done');});
+let totalSeconds = 0;document.addEventListener('visibilitychange',function(e){if(document.hidden===false){totalSeconds=localStorage.getItem("last_seconds");console.log('Done');}});
 let hour = 0;
 let minute = 0;
 let seconds = 0;
