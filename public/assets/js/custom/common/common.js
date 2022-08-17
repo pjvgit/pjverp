@@ -414,7 +414,7 @@ var interval = setInterval(function () {
     if(localStorage.getItem("pauseCounterClicked") === 'yes') {
         console.log('storage > Pause Timer');
         localStorage.setItem("last_seconds", localStorage.getItem("last_paused_seconds"))
-        $(".timerCounter").hide();
+        // $(".timerCounter").hide();
         $(".logoutTimerAlert").hide();
         if (intervalId) {
             clearInterval(intervalId);
@@ -437,7 +437,7 @@ var interval = setInterval(function () {
     }
     if(localStorage.getItem("resumeCounterClicked") === 'yes') {
         console.log('storage > Resume Timer');
-        $(".timerCounter").hide();
+        // $(".timerCounter").hide();
         $(".logoutTimerAlert").show();
         if (!intervalId) {
             localStorage.setItem("pauseCounter", 'yes');
