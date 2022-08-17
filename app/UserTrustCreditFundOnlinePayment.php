@@ -16,24 +16,6 @@ class UserTrustCreditFundOnlinePayment extends Model
 
     protected $casts = ['conekta_order_object' => 'array'];
 
-    protected $append = ['expires_date', 'expires_time'];
-
-    /**
-     * Get conekta reference expires date
-     */
-    public function getExpiresDateAttribute()
-    {
-        return Carbon::parse($this->conekta_reference_expires_at)->format('d-m-Y');
-    }
-
-    /**
-     * Get conekta reference expires time
-     */
-    public function getExpiresTimeAttribute()
-    {
-        return Carbon::parse($this->conekta_reference_expires_at)->format('H:i');
-    }
-
     /**
      * Get the client that owns the InvoiceOnlinePayment
      *

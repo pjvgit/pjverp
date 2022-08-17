@@ -108,7 +108,8 @@ class ReportsController extends BaseController
                     $clientArray[$v->practice_area_title][] = $v;       
                 }
                 if($export_csv == 1){
-                    $casesCsvData[]=$v->invoice_id."|".$v->contact_name."|".$v->ctitle."|".$v->total_amount_new."|".$v->paid_amount_new."|".$v->due_amount_new."|".(($v->due_date!=NULL)? $v->due_date_new : '--')."|".$v->status."|".$v->days_aging;
+                    $daysAging = daysReturns($v->due_date_new, 'onlyDays');
+                    $casesCsvData[]=$v->invoice_id."|".$v->contact_name."|".$v->ctitle."|".$v->total_amount_new."|".$v->paid_amount_new."|".$v->due_amount_new."|".(($v->due_date!=NULL)? $v->due_date_new : '--')."|".$v->status."|".$daysAging;
                 }
             }
 

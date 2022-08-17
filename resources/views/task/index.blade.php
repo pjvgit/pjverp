@@ -468,7 +468,8 @@ if(isset($_GET['task_read'])){
 
                 }else{
                             $result = array();
-                            $yestedayDate=date('Y-m-d', strtotime('-1 day'));
+                            // $yestedayDate=date('Y-m-d', strtotime('-1 day'));
+                            $yestedayDate = date('Y-m-d', strtotime(convertUTCToUserTimeZone('dateOnly')));
                             foreach ($task as $element) {
                                 if($element->task_due_on <= $yestedayDate){
                                     if($element->task_due_on == $yestedayDate){
@@ -605,11 +606,8 @@ if(isset($_GET['task_read'])){
                         <tr class="row-group-header table-secondary-task" role="button">
                             <td class="text-center"></td>
                             <td colspan="7">
-                                <?php
-                                $controllerLoad= new App\Http\Controllers\CommonController();
-                    ?>
                                 <div><strong>Due {{date('M j, Y',strtotime($key))}}
-                                    </strong>&nbsp;<small class="text-muted">- in {{$controllerLoad->daysReturns($key)}} </small>
+                                    </strong>&nbsp;<small class="text-muted">- in {{ daysReturns($key) }} </small>
                                 </div>
                             </td>
                             <td class="text-right">

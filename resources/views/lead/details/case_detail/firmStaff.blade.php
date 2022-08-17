@@ -52,12 +52,12 @@
                             <?php 
                             if(isset($from) && $from=="edit"){?>
                             <input name="linked_staff_checked_attend[]" <?php if(in_array($val->id,$isAttending)){ ?> checked="checked"
-                                <?php } ?> value="{{$val->id}}" class="staff_attend_all_users"
+                                <?php } ?> value="{{$val->id}}" class="staff_attend_all_users" {{ (!in_array($val->id,$alreadySelected)) ? "disabled" : "" }}
                                 id="linked_staff_checked_attend_{{$val->id}}" type="checkbox">
                 
                             <?php } else {  ?>
                             <input name="linked_staff_checked_attend[]" value="{{$val->id}}" class="staff_attend_all_users"
-                                id="linked_staff_checked_attend_{{$val->id}}" type="checkbox">
+                                id="linked_staff_checked_attend_{{$val->id}}" type="checkbox" {{ ($val->id == auth()->id()) ? "" : "disabled" }}>
                             <?php } ?>
                 
                         </label>

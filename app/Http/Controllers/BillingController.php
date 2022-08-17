@@ -11904,7 +11904,7 @@ class BillingController extends BaseController
                 [
                     'payment_method' => [
                         'type'       => 'oxxo_cash',
-                        'expires_at' => strtotime(Carbon::now()->addHours(1)),
+                        'expires_at' => strtotime(Carbon::now()->addMinutes(5)),
                     ],
                     'amount' => (int)$amount * 100,
                 ]

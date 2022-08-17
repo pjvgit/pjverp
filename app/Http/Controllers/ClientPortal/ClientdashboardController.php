@@ -266,8 +266,8 @@ class ClientdashboardController extends Controller
     public function addMessagePopup(){
         $firmCases = $firmOwner = [];
         
-        $Messages = Messages::where('user_id',Auth::user()->id)->whereNull('subject')->first();
-        if(empty($Messages)){
+        // $Messages = Messages::where('user_id',Auth::user()->id)->whereNull('subject')->first();
+        // if(empty($Messages)){
             $Messages=new Messages;
             $Messages->user_id = Null;
             $Messages->case_id=NUll;
@@ -277,7 +277,7 @@ class ClientdashboardController extends Controller
             $Messages->firm_id = Auth::User()->firm_name;
             $Messages->created_by = Auth::User()->id;
             $Messages->save();
-        }      
+        // }      
         
         // show list of user cases staff 
         $firmOwner = $userCaseStaffList = [];
@@ -292,6 +292,7 @@ class ClientdashboardController extends Controller
         }elseif($caseListCount <= 0){
             $firmOwner = User::find(Auth::User()->parent_user);
         }
+        // return $Messages;
         return view("client_portal.messages.addMessage",compact('Messages','firmOwner', 'caseList', 'caseListCount', 'userCaseStaffList'));                
     }
 
@@ -300,7 +301,17 @@ class ClientdashboardController extends Controller
         if(isset($request->send_to)) {
             $sendTo = $request->send_to;
         }
-        array_push($sendTo, auth()->id()); 
+        array_push($sendTo, auth()->id());
+
+        foreach($sendTo as $uid) {
+            $jsonData[] = [
+                'user_id' => (string) $uid,
+                'is_read' => (auth()->id() == $uid) ? 'yes' : 'no',
+                'is_archive' => 'no',
+            ];
+        } 
+
+        // echo "<pre>"; print_r(encodeDecodeJson($jsonData, 'encode')); exit();
         $redirect = 'no';
         $Messages= Messages::find($request->message_id);
         $Messages->case_id=$request->case_id ?? NUll;
@@ -317,6 +328,7 @@ class ClientdashboardController extends Controller
             $Messages->is_draft=0;
             $redirect = 'yes';
         }
+        $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
         $Messages->last_post_at = Carbon::now();
         $Messages->save();
 

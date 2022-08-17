@@ -1,3 +1,8 @@
+let totalSeconds = 0;document.addEventListener('visibilitychange',function(e){if(document.hidden===false){totalSeconds=localStorage.getItem("last_seconds");console.log('Done');}});
+let hour = 0;
+let minute = 0;
+let seconds = 0;
+
 popupNotification();
 
 // Schedule the next request when the current one's complete
@@ -260,12 +265,6 @@ function numberWithCommasDecimal(x) {
 // localStorage.setItem("counter", "0");
 // removeLocalStorage();
 
-
-let hour = 0;
-let minute = 0;
-let seconds = 0;
-let totalSeconds = 0;
-
 let intervalId = null;
 $(".logoutTimerAlert").hide();
 
@@ -282,60 +281,68 @@ console.log("localStorage > smart_timer_id : " + localStorage.getItem("smart_tim
 // console.log("localStorage > smart_timer_created_by : " + smart_timer_created_by);
 console.log("localStorage > smart_timer_running : " + localStorage.getItem("smart_timer_running"));
 $(".timer-actions-button").hide();
-$.ajax({
-    url: baseUrl + "/checkTimerExits",
-    type: 'GET',
-    data: {},
-    success: function(data) {
-        if (data.status == "success" && data.smartTimer.id > 0) {
-            localStorage.setItem("smart_timer_created_by", data.smartTimer.user_id);
-            localStorage.setItem("smart_timer_id", data.smartTimer.id);
-            totalSeconds = data.runningSeconds;                
-            hour = Math.floor(totalSeconds / 3600);
-            minute = Math.floor((totalSeconds - hour * 3600) / 60);
-            seconds = totalSeconds - (hour * 3600 + minute * 60);
-            $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
-            $("#smart_timer_id").val(data.smartTimer.id);
-            $("#timer_case_id").val(data.smartTimer.case_id);
-            $("#timer_text_field").val(data.smartTimer.comments);
-            if (data.smartTimer.stopped_at != null) {
-                if (data.smartTimer.is_pause == 0) {
-                    $(".logoutTimerAlert").show();
-                    $(".js-timer-root .text-nowrap").html('');
-                    localStorage.setItem("pauseCounter", 'yes');
-                    localStorage.setItem("smart_timer_running", 'yes');
-                    localStorage.setItem("resumeCounterClicked", 'yes');
-                    intervalId = setInterval(timerstart, 1000);
-                    $(".timer-actions-button").hide();
+
+$(document).ready(function(){
+    $.ajax({
+        url: baseUrl + "/checkTimerExits",
+        type: 'GET',
+        data: {},
+        success: function(data) {
+            if (data.status == "success" && data.smartTimer.id > 0) {
+                localStorage.setItem("smart_timer_created_by", data.smartTimer.user_id);
+                localStorage.setItem("smart_timer_id", data.smartTimer.id);
+                if (localStorage.getItem("last_seconds") > 0) {
+                    totalSeconds = localStorage.getItem("last_seconds")
                 } else {
-                    $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
-                    $(".timerAction").removeClass("fa-pause").addClass("fa-play");
-                    $(".timerAction").attr('id', 'startCounter');
-                    localStorage.setItem("pauseCounter", 'no');
-                    localStorage.setItem("smart_timer_running", 'no');
-                    $(".timer-actions-button").show();
+                    totalSeconds = data.runningSeconds;
+                    localStorage.setItem("last_seconds", totalSeconds);
+                }
+                hour = Math.floor(totalSeconds / 3600);
+                minute = Math.floor((totalSeconds - hour * 3600) / 60);
+                seconds = totalSeconds - (hour * 3600 + minute * 60);
+                $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
+                $("#smart_timer_id").val(data.smartTimer.id);
+                $("#timer_case_id").val(data.smartTimer.case_id);
+                $("#timer_text_field").val(data.smartTimer.comments);
+                if (data.smartTimer.stopped_at != null) {
+                    if (data.smartTimer.is_pause == 0) {
+                        $(".logoutTimerAlert").show();
+                        $(".js-timer-root .text-nowrap").html('');
+                        localStorage.setItem("pauseCounter", 'yes');
+                        localStorage.setItem("smart_timer_running", 'yes');
+                        localStorage.setItem("resumeCounterClicked", 'yes');
+                        intervalId = setInterval(timerstart, 1000);
+                        $(".timer-actions-button").hide();
+                    } else {
+                        $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+                        $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                        $(".timerAction").attr('id', 'startCounter');
+                        localStorage.setItem("pauseCounter", 'no');
+                        localStorage.setItem("smart_timer_running", 'no');
+                        $(".timer-actions-button").show();
+                    }
+                } else {
+                    if (data.smartTimer.is_pause == 0) {
+                        $(".logoutTimerAlert").show();
+                        $(".js-timer-root .text-nowrap").html('');
+                        localStorage.setItem("pauseCounter", 'yes');
+                        localStorage.setItem("smart_timer_running", 'yes');
+                        intervalId = setInterval(timerstart, 1000);
+                        $(".timer-actions-button").hide();
+                    } else {
+                        $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+                        $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                        $(".timerAction").attr('id', 'startCounter');
+                        localStorage.setItem("pauseCounter", 'no');
+                        localStorage.setItem("smart_timer_running", 'no');
+                        $(".timer-actions-button").show();
+                    }
                 }
             } else {
-                if (data.smartTimer.is_pause == 0) {
-                    $(".logoutTimerAlert").show();
-                    $(".js-timer-root .text-nowrap").html('');
-                    localStorage.setItem("pauseCounter", 'yes');
-                    localStorage.setItem("smart_timer_running", 'yes');
-                    intervalId = setInterval(timerstart, 1000);
-                    $(".timer-actions-button").hide();
-                } else {
-                    $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
-                    $(".timerAction").removeClass("fa-pause").addClass("fa-play");
-                    $(".timerAction").attr('id', 'startCounter');
-                    localStorage.setItem("pauseCounter", 'no');
-                    localStorage.setItem("smart_timer_running", 'no');
-                    $(".timer-actions-button").show();
-                }
+                removeLocalStorage();
             }
-        } else {
-            removeLocalStorage();
         }
-    }
+    });
 });
 
 $(window).on('storage', function (e) {
@@ -406,7 +413,8 @@ $(window).on('storage', function (e) {
 var interval = setInterval(function () {
     if(localStorage.getItem("pauseCounterClicked") === 'yes') {
         console.log('storage > Pause Timer');
-        $(".timerCounter").hide();
+        localStorage.setItem("last_seconds", localStorage.getItem("last_paused_seconds"))
+        // $(".timerCounter").hide();
         $(".logoutTimerAlert").hide();
         if (intervalId) {
             clearInterval(intervalId);
@@ -417,13 +425,19 @@ var interval = setInterval(function () {
         $(".timerAction").attr('id', 'startCounter');
         $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
         $(".timer-actions-button").show();
+        totalSeconds = localStorage.getItem("last_seconds");
+        // console.log('When pause counter clicked ', totalSeconds);
+        hour = Math.floor(totalSeconds / 3600);
+        minute = Math.floor((totalSeconds - hour * 3600) / 60);
+        seconds = totalSeconds - (hour * 3600 + minute * 60);
+        $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
         setTimeout(function () {
             localStorage.setItem("pauseCounterClicked", 'no');
         }, 1000);
     }
     if(localStorage.getItem("resumeCounterClicked") === 'yes') {
         console.log('storage > Resume Timer');
-        $(".timerCounter").hide();
+        // $(".timerCounter").hide();
         $(".logoutTimerAlert").show();
         if (!intervalId) {
             localStorage.setItem("pauseCounter", 'yes');
@@ -459,7 +473,7 @@ $(".startTimer").on('click', function() {
                     localStorage.setItem("smart_timer_created_by", data.smart_timer_created_by);
                     $("#smart_timer_id").val(data.smart_timer_id);
                     intervalId = setInterval(timerstart, 1000);
-                    console.log("localStorage > smart_timer_created_by : " + localStorage.getItem("smart_timer_created_by"));
+                    // console.log("localStorage > smart_timer_created_by : " + localStorage.getItem("smart_timer_created_by"));
                 }
             }
         });
@@ -475,12 +489,12 @@ $(document).on("change", "#timer_case_id", function() {
 
 
 $(document).on("click", "#startCounter", function() {
-    $(".timer-actions-button").hide();
+    // $(".timer-actions-button").hide();
     resumeTimer();
     $(".logoutTimerAlert").show();
     if (!intervalId) {
         localStorage.setItem("smart_timer_running", 'yes');
-        localStorage.setItem("pauseCounter", 'yes');
+        localStorage.setItem("pauseCounter", 'no');
         localStorage.setItem("resumeCounterClicked", 'yes');
         intervalId = setInterval(timerstart, 1000);
     }
@@ -489,16 +503,18 @@ $(document).on("click", "#startCounter", function() {
 });
 
 $(document).on("click", "#pauseCounter", function() {
-    $(".timer-actions-button").show();
+    // $(".timer-actions-button").show();
     pauseTimer();
     $(".logoutTimerAlert").hide();
     if (intervalId) {
         clearInterval(intervalId);
         localStorage.setItem("smart_timer_running", 'no');
-        localStorage.setItem("pauseCounter", 'no');
+        localStorage.setItem("pauseCounter", 'yes');
         localStorage.setItem("pauseCounterClicked", 'yes');
         intervalId = null;
     }
+    // console.log('While clicked pause button :- ', totalSeconds);
+    localStorage.setItem("last_paused_seconds", totalSeconds);
     $(".timerAction").removeClass("fa-pause").addClass("fa-play");
     $(".timerAction").attr('id', 'startCounter');
     $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
@@ -514,7 +530,7 @@ function timerstart() {
         $(".js-timer-root .text-nowrap .time-status").html("");
         $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: green !important;'></i>&nbsp;");
 
-        ++totalSeconds;
+        ++totalSeconds;localStorage.setItem("last_seconds", totalSeconds);
         hour = Math.floor(totalSeconds / 3600);
         minute = Math.floor((totalSeconds - hour * 3600) / 60);
         seconds = totalSeconds - (hour * 3600 + minute * 60);
@@ -665,6 +681,7 @@ function removeLocalStorage() {
     localStorage.setItem("smart_timer_id", '');
     localStorage.setItem("pauseCounter", 'no');
     localStorage.setItem("timer_case_id", '');
+    localStorage.setItem("last_seconds", 0);
     totalSeconds = 0;
     $(".logoutTimerAlert").hide();
 }
@@ -678,6 +695,7 @@ window.addEventListener("beforeunload", function(e) {
 
     // added the delay otherwise database operation will not work
     for (var i = 0; i < 500000000; i++) {}
+    removeLocalStorage();
     return undefined;
 });
 // End

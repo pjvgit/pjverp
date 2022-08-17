@@ -21,12 +21,13 @@ class Invoices extends Model
         'invoice_setting' => 'array',
     ];
     
-    protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status",/*"check_portal_access",*/"invoice_id", "days_aging"];
+    protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status",/*"check_portal_access",*/"invoice_id"];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     } 
 
-    public function getDaysAgingAttribute(){
+    // Not required. Created a Helper function to get days
+    /* public function getDaysAgingAttribute(){
         if($this->due_date != null){
             $date = \Carbon\Carbon::parse($this->due_date_new);
             $now = \Carbon\Carbon::now();
@@ -34,7 +35,7 @@ class Invoices extends Model
         }else{
             return '--';
         }
-    }
+    } */
 
     public function getTotalAmountNewAttribute(){
         return number_format($this->total_amount,2);
@@ -54,7 +55,7 @@ class Invoices extends Model
     public function getDueDateNewAttribute(){
         if($this->due_date!=NULL){
             // return date('M j, Y',strtotime($this->due_date));
-            return convertUTCToUserDate($this->due_date, auth()->user()->user_timezone)->format('M j, Y');
+            return convertUTCToUserDate($this->due_date, @auth()->user()->user_timezone ?? 'UTC')->format('M j, Y');
         }else{
             return '--';
         }
@@ -63,7 +64,7 @@ class Invoices extends Model
         if($this->created_at!=NULL){
             // $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
             // return date('M j, Y',strtotime($userTime));
-            $userTime = convertToUserTimezone($this->created_at, auth()->user()->user_timezone);
+            $userTime = convertToUserTimezone($this->created_at, @auth()->user()->user_timezone ?? 'UTC');
             return $userTime->format('M j, Y');
         }else{
             return '--';
@@ -72,7 +73,7 @@ class Invoices extends Model
 
     public function getInvoiceDateAttribute()
     {
-        $userTime = convertUTCToUserDate($this->attributes['invoice_date'], auth()->user()->user_timezone  ?? 'UTC');            
+        $userTime = convertUTCToUserDate($this->attributes['invoice_date'], @auth()->user()->user_timezone  ?? 'UTC');            
         return date('Y-m-d', strtotime($userTime));            
     } 
     
@@ -382,7 +383,7 @@ class Invoices extends Model
     public function setDueDateAttribute($value)
     {
         if($value) {
-            $this->attributes['due_date'] = convertDateToUTCzone($value, auth()->user()->user_timezone);
+            $this->attributes['due_date'] = convertDateToUTCzone($value, @auth()->user()->user_timezone);
         } else {
             $this->attributes['due_date'] = $value;
         }

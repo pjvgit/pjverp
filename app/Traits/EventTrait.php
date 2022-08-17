@@ -252,8 +252,6 @@ trait EventTrait {
             "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
             "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
             "event_type_id" => $request->event_type ?? NULL,
-            /* "start_date" => $start_date,
-            "end_date" => $end_date, */
             "start_date" => $utc_start_date,
             "end_date" => $utc_end_date,
             "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
@@ -305,18 +303,24 @@ trait EventTrait {
      */
     public function getDatesDiffDays($request)
     {
-        /* $authUser = auth()->user();
+        $authUser = auth()->user();
         if(isset($request->all_day)) {
             $utc_start_date = $this->eventConvertTimestampToUtc(date('Y-m-d', strtotime($request->start_date)), $authUser->user_timezone, 'onlyDate');
             $utc_end_date = $this->eventConvertTimestampToUtc(date('Y-m-d', strtotime($request->end_date)), $authUser->user_timezone, 'onlyDate');
         } else {
             $utc_start_date = $this->eventConvertTimestampToUtc(date('Y-m-d', strtotime($request->start_date)), $request->start_time, $authUser->user_timezone, 'dateFromTime');
             $utc_end_date = $this->eventConvertTimestampToUtc(date('Y-m-d', strtotime($request->end_date)), $request->end_time, $authUser->user_timezone, 'dateFromTime');
-        } */
+        }
+        // return strtotime($utc_end_date);
         $days = 0;
-        if((strtotime($request->start_date) != strtotime($request->end_date))) {
+        /* if((strtotime($request->start_date) != strtotime($request->end_date))) {
             $start = Carbon::parse($request->start_date);
             $end = Carbon::parse($request->end_date);
+            $days = $end->diffInDays($start);
+        } */
+        if((strtotime($utc_start_date) != strtotime($utc_end_date))) {
+            $start = Carbon::parse($utc_start_date);
+            $end = Carbon::parse($utc_end_date);
             $days = $end->diffInDays($start);
         }
         return $days;
@@ -364,13 +368,21 @@ trait EventTrait {
         $eventHistory = $this->getAddEventHistoryJson($caseEvent->id);
         $period = \Carbon\CarbonPeriod::create($start_date, '1 days', $recurringEndDate);
         $days = $this->getDatesDiffDays($request);
-        foreach($period as $date) {          
+        foreach($period as $date) {    
             if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
                 if(isset($request->all_day)) {
                     $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
                 } else {
                     $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
                 }
+                // $timestamp = date('Y-m-d H:i:s',strtotime($date->format('Y-m-d').' '.$request->start_time));
+                // $date = Carbon::parse($timestamp)->subHours('6');
+                /* $date1 = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUser->user_timezone);
+                $date1->setTimezone('UTC');
+                $utcDateOffset = Carbon::parse($date1->format('Y-m-d H:i:s').' America/Mexico_City')->format('P');
+                $first_character = substr($str, 0, 1); */
+                
+                // $utc_start_date = Carbon::parse($date->format('Y-m-d').' '. $request->start_time)->subHours($offset)->format('Y-m-d');
                 $request->start_date = $date->format('Y-m-d');
                 $eventRecurring = EventRecurring::create([
                     "event_id" => $caseEvent->id,
@@ -403,7 +415,7 @@ trait EventTrait {
         }else{
             $recurringEndDate=$startClone->add(new DateInterval('P365D'));
         }
-
+        $recurringEndDate = $recurringEndDate->modify( '+1 day' );
         $interval = new DateInterval('P1D');
         $period = new DatePeriod($start, $interval, $recurringEndDate);
         $weekInterval = $request->daily_weekname;
@@ -590,6 +602,7 @@ trait EventTrait {
      */
     public function getRemindAtAttribute($request, $reminder_frequncy, $reminder_number, $responseType = 'date')
     {
+        $timezone = auth()->user()->user_timezone;
         $eventStartTime = Carbon::parse($request->start_date.' '.$request->start_time);
         if($reminder_frequncy == "week" || $reminder_frequncy == "day") {
             if($reminder_frequncy == "week") {
@@ -609,7 +622,7 @@ trait EventTrait {
             $remindDate = Carbon::now()->format('Y-m-d');
             $remindTime = Carbon::now()->format('Y-m-d H:i:s');
         }
-        return ($responseType == 'time') ? convertTimeToUTCzone($remindTime, auth()->user()->user_timezone) : $remindDate;
+        return ($responseType == 'time') ? convertTimeToUTCzone($remindTime, $timezone) : convertDateToUTCzone($remindDate,$timezone);
     }
 
     /**
@@ -621,7 +634,7 @@ trait EventTrait {
         $newArray = [];
         if($eventRecurring) {
             if(!isset($request->updated_start_date) ) {
-                $request->start_date = $eventRecurring->start_date;
+                $request->start_date = $eventRecurring->user_start_date->format('Y-m-d');
             }
             $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders);
             $eventReminders = $this->getEventReminderJson($caseEvent, $request, $decodeReminder);
@@ -675,56 +688,27 @@ trait EventTrait {
     public function eventConvertTimestampToUtc($date, $time, $authUserTimezone, $responseType = null)
     {
         if($responseType == 'time' || $responseType == 'dateFromTime') {
+            $offset = Carbon::now($authUserTimezone)->offsetHours;
             $timestamp = date('Y-m-d H:i:s',strtotime($date.' '.$time));
-            $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);
-            $date->setTimezone('UTC');
-            return ($responseType == 'dateFromTime') ? $date->format("Y-m-d") : $date->format("H:i:s");
+            if($responseType == 'dateFromTime') {
+                // $date = Carbon::parse($timestamp)->subHours('6');
+                // $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);
+                // $date->setTimezone('UTC');
+                $first_character = substr($offset, 0, 1);
+                $hour = substr($offset, 1);
+                $date = ($first_character == '-') ? Carbon::parse($date.' '.$time)->addHours($hour)->format('Y-m-d') : Carbon::parse($date.' '.$time)->subHours($hour)->format('Y-m-d');
+                return $date;
+            } else {
+                $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);
+                $date->setTimezone('UTC');
+                return $date->format("H:i:s");
+            }
         } elseif($responseType == 'onlyDate') {
             $date = Carbon::createFromFormat('Y-m-d', date('Y-m-d',strtotime($date)), $authUserTimezone);
             $date->setTimezone('UTC');
             return $date->format("Y-m-d");
         }
         return $date;
-    }
-
-    /**
-     * Update custom(week days) recurring events
-     */
-    public function updateCustomRecurringEvent($event, $request)
-    {
-        $authUser = auth()->user();
-        $days = $this->getDatesDiffDays($request);
-        Log::info("custom week days diff: ". $days);
-        $eventLinkStaff = $this->getEventLinkedStaffJson($event, $request);
-        $eventLinkClient = $this->getEventLinkedContactLeadJson($event, $request);
-        $recurringEvents = EventRecurring::where("event_id", $event->id)->get();
-        foreach($recurringEvents as $rkey => $ritem) {
-            $userStartDate = $ritem->user_start_date;
-            $userEndDate = $ritem->user_end_date;
-            if($event->is_full_day == 'no') {
-                $userStartDate = convertToUserTimezone($ritem->start_date.' '.$event->start_time, $authUser->user_timezone);
-                $userEndDate = convertToUserTimezone($ritem->end_date.' '.$event->end_time, $authUser->user_timezone);
-            }
-            if(isset($request->all_day)) {
-                $utc_start_date = $this->eventConvertTimestampToUtc($userStartDate->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'onlyDate');
-                $utc_end_date = $this->eventConvertTimestampToUtc($userEndDate->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'onlyDate');
-                $utcEndDate = $this->eventConvertTimestampToUtc(date('Y-m-d', $request->end_date), $request->end_time, $authUser->user_timezone, 'onlyDate');
-            } else {
-                $utc_start_date = $this->eventConvertTimestampToUtc($userStartDate->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
-                $utc_end_date = $this->eventConvertTimestampToUtc($userEndDate->format('Y-m-d'), $request->end_time, $authUser->user_timezone, 'dateFromTime');
-                $utcEndDate = $this->eventConvertTimestampToUtc(date('Y-m-d', $request->end_date), $request->end_time, $authUser->user_timezone, 'onlyDate');
-            }      
-            $ritem->fill([
-                "start_date" => $utc_start_date,
-                "end_date" => ($days > 0) ? Carbon::parse($utc_start_date)->addDays($days)->format('Y-m-d') : $utc_end_date,
-                "event_reminders" => ($request->is_reminder_updated == 'yes') ? $this->getUpdateEventReminderJson($event, $request, $ritem) : $ritem->event_reminders,
-                "event_linked_staff" => $eventLinkStaff,
-                "event_linked_contact_lead" => $eventLinkClient,
-                'event_comments' => $this->getEditEventHistoryJson($event->id, $ritem),
-            ])->save();
-            $eventRecurring = $ritem;
-        }
-        return $eventRecurring ?? Null;
     }
 
     /**
@@ -843,6 +827,7 @@ trait EventTrait {
             }else{
                 $recurringEndDate=$startClone->add(new DateInterval('P365D'));
             }
+            $recurringEndDate = $recurringEndDate->modify( '+1 day' );
             $interval = new DateInterval('P1D');
             $period = new DatePeriod($start, $interval, $recurringEndDate);
             $weekInterval = $request->daily_weekname;

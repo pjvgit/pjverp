@@ -1258,11 +1258,11 @@ class ClientdashboardController extends BaseController
         $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->client_id)->first();
         $lessAmount = $UsersAdditionalInfo->unallocate_trust_balance;
         if($GetAmount->allocated_to_lead_case_id) {
-            $lessAmount = $UsersAdditionalInfo->trust_account_balance;
+            $lessAmount = $UsersAdditionalInfo->trust_account_balance ?? 0;
         }
         if($GetAmount->allocated_to_case_id) {
             $allocateAmount = CaseClientSelection::where("case_id", $GetAmount->allocated_to_case_id)->where("selected_user", $request->client_id)->select("allocated_trust_balance")->first();
-            $lessAmount = $allocateAmount->allocated_trust_balance;
+            $lessAmount = $allocateAmount->allocated_trust_balance ?? 0;
         }
         // return $lessAmount;
         $validator = \Validator::make($request->all(), [
@@ -4707,6 +4707,7 @@ class ClientdashboardController extends BaseController
             }
             $messagesData->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
         }
+        $messagesData->timestamps = false;
         $messagesData->save();
 
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")

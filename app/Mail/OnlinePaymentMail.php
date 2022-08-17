@@ -36,9 +36,6 @@ class OnlinePaymentMail extends Mailable
      */
     public function build()
     {
-        if($this->payableType == 'invoice' && $this->payableRecord == null) {
-            $this->payableRecord = Invoices::whereId()->first();
-        }
         switch ($this->userType) {
             case 'client':
                 return $this

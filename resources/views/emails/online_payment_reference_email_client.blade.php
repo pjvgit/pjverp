@@ -9,8 +9,8 @@
 
 @php
     $str = date('Y-m-d H:i:s', strtotime($onlinePayment->conekta_reference_expires_at));
-    $expDate = Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
-    $expDate->setTimezone($onlinePayment->client->user_timezone ?? 'UTC');
+    $expDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $str, "UTC");
+    $expDate->setTimezone(@$onlinePayment->client->user_timezone ?? 'UTC');
 
     $content = str_replace('[PAYABLE_AMOUNT]', number_format(@$onlinePayment->amount ?? 0, 2), $template->content);
     $content = str_replace('[REFERENCE_NUMBER]', @$onlinePayment->conekta_payment_reference_id ?? '', $content);

@@ -58,7 +58,7 @@
             </div>
             <div class="form-group row"><label class="col-12 col-form-label saved"></label></div>
             <div class="form-group row">
-                <button disabled="disabled" type="submit" class="btn btn-primary ml-3">Send</button>
+                <button type="submit" id="sendMessageButton" class="btn btn-primary ml-3">Send</button>
                 <button class="btn btn-info ml-3" type="button" onclick="discardDraft({{ $Messages->id }});" >Discard Draft</button>
                 <input type="hidden" name="action" id="action" value=""/>
             </div>

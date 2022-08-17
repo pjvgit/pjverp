@@ -667,7 +667,7 @@ class ContractController extends BaseController
         $allUser = User::select('*');
         $allUser = $allUser->where("firm_name",Auth::user()->firm_name); //Logged in user not visible in grid
         $allUser = $allUser->whereIn("user_level",['1','3']); //Show firm staff only
-        $allUser = $allUser->where("user_status",1); // Check user is deactivated or not
+        $allUser = $allUser->whereIn("user_status", ['1','2']); // Check user is deactivated or not
         $allUser = $allUser->where("users.id","!=",$user->id);
         $allUser = $allUser->get();
         return view('contract.loadDeactivateUser',compact('user','allUser'));

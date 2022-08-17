@@ -2,6 +2,7 @@
 @section('title', 'Legalcase - Simplify Your Law Practice | Cloud Based Practice Management')
 
 @section('page-css')
+{{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css"> --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.css">
 <style>
@@ -534,29 +535,37 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 /* .fc-time{display: none;} */
 .agenda-custom-view { overflow: auto;}
 .agenda-custom-view table { width: 100%; }
-.fc-daygrid-event-dot { display: none; }
+/* .fc-daygrid-event-dot { display: none; } */
 .fc-event-title { font-weight: 500 !important; }
 .fc-event { overflow: hidden; }
 </style>
 @section('page-js')
 <script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.31/builds/moment-timezone-with-data.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js'></script>
+{{-- <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js'></script> --}}
 {{-- <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment@5.5.0/main.global.min.js'></script> --}}
 {{-- <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment-with-locales.min.js'></script> --}}
-<script src='https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.6/moment-timezone-with-data.js'></script>
+{{-- <script src='https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.6/moment-timezone-with-data.js'></script> --}}
 
-{{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.js"></script> --}}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.js"></script>
 
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\calendar\viewevent.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 
 <script type="text/javascript">
-var calendar;
-// document.addEventListener('DOMContentLoaded', function() {
+var calendar; var userTimezone = 'local';
+// var authUserTimezone = "{{ $authUser->user_timezone }}";
+var authUserTimezone = "{{ $userOffset }}";
 $(document).ready(function () {
-    var viewName = '';
+    
+    var localTimezone = getTimeZone();
+    if(localTimezone == authUserTimezone) {
+        calendarTimezone = 'local';
+    } else {
+        calendarTimezone = "{{ $authUser->user_timezone }}";
+    }
+
     const { sliceEvents, createPlugin, Calendar } = FullCalendar
     const CustomViewConfig = {
         classNames: [ 'agenda-custom-view' ],
@@ -569,7 +578,6 @@ $(document).ready(function () {
         },
         content: function(props) {
             // var viewData = '';
-            viewName = 'Agenda';
             $("#preloaderAgendaView").show();
             var eventTypes = [];
             $.each($("input[name='event_type[]']:checked"), function(){
@@ -602,31 +610,23 @@ $(document).ready(function () {
             });
             // return {html: viewData};
         }
-
     }
     const CustomViewPlugin = createPlugin({
         views: {
             agendaview: CustomViewConfig
         }
     });
-    
-    /* if(localStorage.getItem('weekends')=='hide'){
-        var hd=[0, 6];
-    }else{
-        var hd=[];
-    } */
+
     var calendarEl = document.getElementById('calendarq');
     calendar = new FullCalendar.Calendar(calendarEl, {
         // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-        timeZone: "{{ $authUser->user_timezone ?? 'local' }}",
-        // timeZone: 'America/Mexico_City',
-        // timeZone: 'UTC',
+        timeZone: calendarTimezone,
         plugins: [ CustomViewPlugin, ],
         initialView: "{{ $defaultView }}",
+        // initialDate: new Date,
         initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
         themeSystem: "bootstrap4",
         height: 700,
-        // hiddenDays: hd,
         dayMaxEvents: true, // allow "more" link when too many events
         headerToolbar: {
             left: 'prev,next today',
@@ -643,7 +643,6 @@ $(document).ready(function () {
             agendaview: {
                 text: 'Agenda',
                 click: function () {
-                    viewName = 'Agenda';
                     calendar.changeView('agendaview');
                 }
             },
@@ -671,7 +670,7 @@ $(document).ready(function () {
                 type: 'resourceTimeGridDay',
             },    
         },
-        displayEventTime: false,
+        // displayEventTime: false,
         eventTimeFormat: { // like '14:30:00'
             hour: '2-digit',
             minute: '2-digit',
@@ -688,9 +687,8 @@ $(document).ready(function () {
                 }
             });
         },
-        events: function (info, callback, failureCallback) {
-            // alert(viewName);
-            // if(viewName != 'Agenda') {
+        events: function(info, successCallback, failureCallback) {
+            $("#preloaderData").show();
             var startDate = info.start;
             var endDate = info.end;
             var eventTypes = [];
@@ -700,13 +698,12 @@ $(document).ready(function () {
             var byuser = getByUser();
             var bysol=getSOL();
             var mytask=getMytask();
-            
-            $("#preloaderData").show();
             $.ajax({
-                url: 'loadEventCalendar/load',
-                type: 'POST',
-                dataType: 'json',
+                url: "{{ route('newloadevents') }}",
                 data: {
+                    // our hypothetical feed requires UNIX timestamps
+                    // start: info.start.valueOf(),
+                    // end: info.end.valueOf(),
                     start: moment(startDate).format('YYYY-MM-DD'),
                     end: moment(endDate).format('YYYY-MM-DD'),
                     event_type: JSON.stringify(eventTypes),
@@ -715,102 +712,15 @@ $(document).ready(function () {
                     searchbysol:bysol,
                     searchbymytask:mytask,
                     dateFilter:getDate(),
-                    taskLoad:$("#loadType").val()
+                    taskLoad:$("#loadType").val(),
+                    // timezone: userTimezone,
+                    timezoneOffset: calendarTimezone
                 },
-                success: function (doc) {
-                    var events = [];
-                    if (!!doc.result) {
-                        $.map(doc.result, function (r) {
-                            var color="#00cfd2";
-                            if(r.etext != '') {
-                                color = r.etext;
-                            }
-                            var sTime = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +' -';
-                            var eTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.event_title +'</span>' : r.event_title;
-                            // var className = (r.is_read == 'no') ? 'font-weight-bold' : '';
-                            // var eTitle = r.event_title;
-                            if (r.is_all_day == 'yes') {
-                                var t = eTitle;
-                            } else {
-                                var t = sTime + eTitle;
-                            }
-                            var resource_id = [];
-                            if(r.event_linked_staff) {
-                                $.each(r.event_linked_staff, function(ind, item) {
-                                    resource_id.push(item.user_id);
-                                });
-                            }
-                            events.push({
-                                id: r.event_recurring_id,
-                                event_id: r.event_id,
-                                title: t,
-                                // title: r.event_title,
-                                tTitle: r.event_title,
-                                start: r.start_date_time,
-                                end: r.end_date_time,
-                                // classNames: [className],
-                                allDay: (r.is_all_day == 'yes') ? true : false, 
-                                color: (r.is_all_day == 'yes') ? color : '#d5e9ce',
-                                backgroundColor: (r.is_all_day == 'yes') ? color : '#d5e9ce',
-                                textColor:'#000000',
-                                resourceIds: resource_id,
-                            });
-                        });
-                    }
-                    if (!!doc.sol_result) {
-                        $.map(doc.sol_result, function (r) {
-                            if(r.sol_satisfied == 'yes') {
-                                var t = '<span class="calendar-badge d-inline-block undefined badge badge-success" style="width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
-                            } else {
-                                var t = '<span class="calendar-badge d-inline-block undefined badge badge-danger" style="width: 30px;">SOL</span>'+' ' + r.event_title;
-                            }
-                            var tplain = 'SOL'+' -' + r.event_title
-                            events.push({
-                                mysol:'yes',
-                                case_id:r.case_unique_number,
-                                id: r.id,
-                                title: t,
-                                tTitle: tplain,
-                                start: r.start_date,
-                                end: r.end_date,
-                                textColor:'#000000',
-                                backgroundColor: 'rgb(236, 238, 239)',
-                                resourceId: r.created_by,
-                            });
-                        });
-                    }
-                    if (!!doc.mytask) {
-                        $.map(doc.mytask, function (r) {
-                            if(r.task_priority==3){
-                                var cds="background-color: rgb(202, 66, 69); width: 30px;";
-                            }else if(r.task_priority==2){
-                                var cds="background-color: rgb(254, 193, 8); width: 30px;";
-                            // }else if(r.task_priority==3){
-                            //     var cds="background-color: rgb(40, 167, 68); width: 30px;";
-                            }else{
-                                var cds="background-color: rgb(40, 167, 68); width: 30px;";
-                            }    
-                            // var tTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.task_title +'</span>' : r.task_title;
-                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'+cds+'">DUE</span>'+' ' + r.task_title
-                            var tplain = 'DUE'+' -' + r.task_title
-                            events.push({
-                                mytask:'yes',
-                                id: r.id,
-                                title: t,
-                                tTitle: tplain,
-                                start: r.task_due_on,
-                                end: r.task_due_on,
-                                textColor:'#000000',
-                                backgroundColor: 'rgb(236, 238, 239)',
-                                resourceId: r.created_by,
-                            });
-                        });
-                    }
-                    callback(events);
+                success: function(data) {
+                    successCallback(data);
                     $("#preloaderData").hide();
-                },
+                }
             });
-            // }
         },
         eventDidMount: function(info) {
             info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.event.title;
@@ -820,17 +730,14 @@ $(document).ready(function () {
         },
         viewDidMount: function(arg){
             var view = arg.view;
-            viewName = view.title;
             if (view.type == 'dayGridMonth' || view.type == 'timeGridWeek' || view.type == 'timeGridDay') {
             }else{
                 var currentdate = view.activeStart;
                 var endDate = view.activeEnd;
-                $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
-                var dateText= $("#datepicker").val();
-                date = moment(currentdate).format('YYYY-MM-DD');
+                // $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
+                // date = moment(currentdate).format('YYYY-MM-DD');
             }
             
-            // $("#preloaderData").hide();
             if(localStorage.getItem('weekends')=='hide'){
                 var chk="";
             }else{
@@ -853,7 +760,6 @@ $(document).ready(function () {
             $('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>').insertAfter(".fc-agendaview-button"); 
         
             $("#shuesuid").trigger('click');
-            // $("#preloaderData").hide();
             $('[data-toggle="tooltip"]').tooltip();
         },
         eventClick: function(info) {
@@ -876,7 +782,12 @@ $(document).ready(function () {
     });
     calendar.render();
 
+    calendarEl.querySelector('.fc-today-button').addEventListener('click', function() {
+        $('#datepicker').datepicker('setDate', new Date());
+    });
+
     $('body').on('click', '.fc-prev-button, .fc-next-button', function() {
+    // calendarEl.querySelector('.fc-prev-button, .fc-next-button').addEventListener('click', function() {
         var view = calendar.view;
         if (view.type == 'dayGridMonth') {
             var date = calendar.getDate();
@@ -885,10 +796,6 @@ $(document).ready(function () {
             var currentdate = view.activeStart;
             $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
         }
-    });
-
-    $(".fc-today-button").click(function() {
-        $('#datepicker').datepicker().datepicker('setDate', new Date());
     });
 
         $("#datepicker").datepicker({
@@ -900,411 +807,7 @@ $(document).ready(function () {
         }).on('changeDate', function(ev) {
             var date = new Date(ev.date);
             calendar.gotoDate( date );
-
         });
-        /* function initEvent() {
-            $('#external-events .fc-event').each(function () {
-
-                // store data so the calendar knows to render an event upon drop
-                $(this).data('event', {
-                    title: $.trim($(this)
-                        .text()), // use the element's text as the event title
-                    color: $(this).css('background-color'),
-                    stick: true // maintain when user navigates (see docs on the renderEvent method)
-                });
-
-                // make the event draggable using jQuery UI
-                $(this).draggable({
-                    zIndex: 999,
-                    revert: true, // will cause the event to go back to its
-                    revertDuration: 0 // original position after the drag
-                });
-
-            });
-        }
-        initEvent(); */
-
-            /* initialize the calendar
-            -----------------------------------------------------------------*/
-            var newDate = new Date,
-                date = newDate.getDate(),
-                month = newDate.getMonth(),
-                year = newDate.getFullYear();
-                
-                var today = moment().day();
-            /* $('#calendarq').fullCalendar({
-                // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-                lazyFetching:false,
-                firstDay: 0,
-                timezone: 'Pacific/Midway',
-                // timezone: "@if(auth()->user()->user_timezone) {{auth()->user()->user_timezone}} @else 'UTC' @endif",
-                // defaultDate: moment('2020-09-01'),
-                displayEventTime: false,
-                // timeFormat: 'h:mma',
-                defaultView: 'month',
-                themeSystem: "bootstrap4",
-                droppable: false,
-                height: 700,
-                title: true,  
-                hiddenDays: hd,
-                disableDragging : false,
-                eventLimit: true, // allow "more" link when too many events
-                drop: function () {
-                    // is the "remove after drop" checkbox checked?
-                    if ($('#drop-remove').is(':checked')) {
-                        // if so, remove the element from the "Draggable Events" list
-                        $(this).remove();
-                    }
-                },
-                loading: function (bool) {
-                    $("#preloaderData").show();
-                },
-                buttonText:{
-                    month:    'Month',
-                    week:     'Week',
-                    day:      'Day',
-                    today : 'Today'
-                },
-                customButtons: {
-                    staffView: {
-                        text: 'Day',
-                        click: function () {
-                            $('#calendarq').fullCalendar('changeView', 'StaffView');
-                            $('#calendarq').fullCalendar('rerenderResources');
-                            $('#calendarq').fullCalendar( 'refetchEvents');
-                            $(document).find(".fc-right .btn").removeClass('active');
-                            $(document).find(".fc-staffView-button").addClass('active');
-                            return true; 
-                        }
-                    },
-                    agendaView: {
-                        text: 'Agenda',
-                        click: function () {
-                            $('#calendarq').fullCalendar('changeView', 'AgendaView');
-                        }
-                    },
-                    agendaDay: {
-                        text: 'Staff',
-                        click: function () {
-                            $('#calendarq').fullCalendar('changeView', 'agendaDay');
-                        }
-                    },                    
-                },
-                header: {
-                    left: 'prev next today', //myCustomButton
-                    center: 'title',
-                    right: 'agendaDay,staffView,agendaWeek,month,agendaView'
-                },
-                views: {
-                    AgendaView: {
-                        type: 'custom',
-                        buttonText: 'Agenda',
-                        duration: { days: 31 },
-                        visibleRange: function(currentDate) {
-                            console.log(currentDate);
-                            return {
-                            // start: currentDate.clone().subtract(1, 'days'),
-                            start: currentDate.clone(),
-                            end: currentDate.clone().add(31, 'days') // exclusive end, so 3
-                            };
-                        },
-                    },
-                    StaffView: {
-                        type: 'agenda',
-                        buttonText: 'Day',
-                    },
-                },
-                resources: function(callback, start, end, timezone) {
-                    var byuser = getByUser();
-                    var view = $('#calendarq').fullCalendar('getView');
-                        $.ajax({
-                            url: 'loadEventCalendar/loadStaffView',
-                            type: 'POST',
-                            data: {resType: "resources", byuser: byuser, view_name: view.name},
-                            success: function (doc) {
-                                callback(doc);
-                            }
-                        });
-                },
-                events: function (start, end, timezone, callback) {
-                    var view = $('#calendarq').fullCalendar('getView');
-                    var eventTypes = [];
-                    $.each($("input[name='event_type[]']:checked"), function(){
-                        eventTypes.push($(this).val());
-                    });
-                    var byuser = getByUser();
-                    var bysol=getSOL();
-                    var mytask=getMytask();
-                    if(view.name == 'AgendaView') {
-                        $("#preloaderData").show();
-                        $.ajax({
-                            url: 'loadEventCalendar/loadAgendaView',
-                            type: 'POST',
-                            data: {
-                                start: start.format(),
-                                end: end.format(),
-                                event_type: JSON.stringify(eventTypes),
-                                byuser: JSON.stringify(byuser),
-                                case_id: $(".case_or_lead option:selected").val(),
-                                searchbysol:bysol,
-                                searchbymytask:mytask,
-                                dateFilter:getDate(),
-                                taskLoad:$("#loadType").val()
-                            },
-                            success: function (doc) {
-                                $('.fc-view').html(doc);
-                                $("#preloaderData").hide();
-                            },
-                        });
-                    } else {
-                        $("#preloaderData").show();
-                        $.ajax({
-                            url: 'loadEventCalendar/load',
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                start: start.format(),
-                                end: end.format(),
-                                event_type: JSON.stringify(eventTypes),
-                                byuser: JSON.stringify(byuser),
-                                case_id: $(".case_or_lead option:selected").val(),
-                                searchbysol:bysol,
-                                searchbymytask:mytask,
-                                dateFilter:getDate(),
-                                taskLoad:$("#loadType").val()
-                            },
-                            success: function (doc) {
-                                var events = [];
-                                if (!!doc.result) {
-                                    $.map(doc.result, function (r) {
-                                        // console.log(r);
-                                        var color="#00cfd2";
-                                        if(r.etext != '') {
-                                            color = r.etext;
-                                        }
-                                        var sTime = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +' -';
-                                        var eTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.event_title +'</span>' : r.event_title;
-                                        if (r.is_all_day == 'yes') {
-                                            var t = eTitle;
-                                        } else {
-                                            var t = sTime + eTitle;
-                                        }
-                                        var resource_id = [];
-                                        if(r.event_linked_staff) {
-                                            $.each(r.event_linked_staff, function(ind, item) {
-                                                resource_id.push(item.user_id);
-                                            });
-                                        }
-                                        events.push({
-                                            id: r.event_recurring_id,
-                                            event_id: r.event_id,
-                                            title: t,
-                                            tTitle: r.event_title,
-                                            // start: r.start_date+'T'+r.st,
-                                            // end: r.end_date+'T'+r.et,
-                                            start: r.st,
-                                            end: r.et,
-                                            allDay: (r.is_all_day == 'yes') ? true : false, 
-                                            color: (r.is_all_day == 'yes') ? color : '#d5e9ce',
-                                            backgroundColor: (r.is_all_day == 'yes') ? color : '#d5e9ce',
-                                            textColor:'#000000',
-                                            resourceIds: resource_id,
-                                        });
-                                    });
-                                }
-                                if (!!doc.sol_result) {
-                                    $.map(doc.sol_result, function (r) {
-                                        console.log(r);
-                                        if(r.sol_satisfied == 'yes') {
-                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-success" style="width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
-                                        } else {
-                                            var t = '<span class="calendar-badge d-inline-block undefined badge badge-danger" style="width: 30px;">SOL</span>'+' ' + r.event_title;
-                                        }
-                                        var tplain = 'SOL'+' -' + r.event_title
-                                        events.push({
-                                            mysol:'yes',
-                                            case_id:r.case_unique_number,
-                                            id: r.id,
-                                            title: t,
-                                            tTitle: tplain,
-                                            start: r.start_date,
-                                            end: r.end_date,
-                                            textColor:'#000000',
-                                            backgroundColor: 'rgb(236, 238, 239)',
-                                            resourceId: r.created_by,
-                                        });
-                                    });
-                                }
-                                if (!!doc.mytask) {
-                                    $.map(doc.mytask, function (r) {
-                                        if(r.task_priority==3){
-                                            var cds="background-color: rgb(202, 66, 69); width: 30px;";
-                                        }else if(r.task_priority==2){
-                                            var cds="background-color: rgb(254, 193, 8); width: 30px;";
-                                        // }else if(r.task_priority==3){
-                                        //     var cds="background-color: rgb(40, 167, 68); width: 30px;";
-                                        }else{
-                                            var cds="background-color: rgb(40, 167, 68); width: 30px;";
-                                        }    
-                                        // var tTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.task_title +'</span>' : r.task_title;
-                                        var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'+cds+'">DUE</span>'+' ' + r.task_title
-                                        var tplain = 'DUE'+' -' + r.task_title
-                                        events.push({
-                                            mytask:'yes',
-                                            id: r.id,
-                                            title: t,
-                                            tTitle: tplain,
-                                            start: r.task_due_on,
-                                            end: r.task_due_on,
-                                            textColor:'#000000',
-                                            backgroundColor: 'rgb(236, 238, 239)',
-                                            resourceId: r.created_by,
-                                        });
-                                    });
-                                }
-                                callback(events);
-                                $("#preloaderData").hide();
-                            },
-                        });
-                    }
-                },
-                eventRender: function (event, element,view) {
-                    if(view.name == 'agendaWeek' || view.name == 'agendaDay') {
-                        element.find('.fc-title').html(event.title);
-                        element.find('.fc-title').append('<span class="yourCSS"></span> '); 
-                    } else{
-                        $(element).tooltip({
-                            title: event.tTitle
-                        });
-                        element.find('.fc-title').html(event.title);
-                    }
-                },
-                viewRender: function(view, element){
-                    var view = $('#calendarq').fullCalendar('getView');
-                    if (view.name == 'month' || view.name == 'week' || view.name == 'day') {
-                    }else{
-                        var currentdate = view.intervalStart;
-                        var endDate = view.intervalEnd;
-                        $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
-                        var dateText= $("#datepicker").val();
-                        date = moment(currentdate).format('YYYY-MM-DD');
-                        // $("#calendarq").fullCalendar('gotoDate', date);
-                    }
-                    if(view.name == "AgendaView") {
-                        $("#preloaderData").hide();
-                        if(localStorage.getItem('weekends')=='hide'){
-                            var chk="";
-                        }else{
-                            var chk="checked=checked";
-                        }
-                        
-                        $("#printicon").remove();
-                        $(".fc-right").append('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>'); 
-
-                        $("#settingicon").remove();
-                        $(".fc-right").append('<span id="settingicon"> <button class="btn btn-secondry dropdown-toggle" id="shuesuid" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i aria-hidden="true" class="fas fa-cog icon"></i> </button><div class="dropdown-menu bg-transparent shadow-none p-0 m-0" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 34px, 0px); top: 0px; left: 0px; will-change: transform "><div class="card"><div tabindex="-1" role="menu" aria-hidden="false" class="dropdown-menu dropdown-menu-right show" x-placement="top-end"> <b class="ml-2">Actions:</b> <button type="button" tabindex="0" role="menuitem" class="dropdown-item mb-1" onclick="markAsRead()">Mark All As Read</button>  <b class="ml-2">Settings:</b><a href="'+baseUrl+'/locations" tabindex="0" role="menuitem" class="dropdown-item">Locations</a> <b class="ml-2">Format Options:</b><label class="checkbox checkbox-outline-primary ml-2"><input type="checkbox" class="showweekend ml-2" '+chk+' value="1" onclick="callWeekend()"><span>Show Weekends</span><span class="checkmark"></span></label><span></span></button> </div> </div> </div> </span>'); 
-
-                        $("#addevbutton").remove();
-                        @can('event_add_edit')
-                        $(".fc-right").append(' <span id="addevbutton">\
-                            <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> \
-                                <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup(null, '+"'events'"+');">Add Event</button>\
-                            </a></span>'); 
-                        $( "#dp" ).insertBefore( ".fc-today-button" );
-                        @endcan
-                    
-                        $("#shuesuid").trigger('click');
-                        $("#preloaderData").hide();
-                        $('[data-toggle="tooltip"]').tooltip();
-                    }
-                },
-                eventAfterAllRender: function (view) {
-                    $("#preloaderData").hide();
-                    if(localStorage.getItem('weekends')=='hide'){
-                        var chk="";
-                    }else{
-                        var chk="checked=checked";
-                    }
-                    
-                    $("#printicon").remove();
-                    $(".fc-right").append('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>'); 
-
-                    $("#settingicon").remove();
-                    $(".fc-right").append('<span id="settingicon"> <button class="btn btn-secondry dropdown-toggle" id="shuesuid" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i aria-hidden="true" class="fas fa-cog icon"></i> </button><div class="dropdown-menu bg-transparent shadow-none p-0 m-0" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 34px, 0px); top: 0px; left: 0px; will-change: transform "><div class="card"><div tabindex="-1" role="menu" aria-hidden="false" class="dropdown-menu dropdown-menu-right show" x-placement="top-end"> <b class="ml-2">Actions:</b> <button type="button" tabindex="0" role="menuitem" class="dropdown-item mb-1" onclick="markAsRead()">Mark All As Read</button>  <b class="ml-2">Settings:</b><a href="'+baseUrl+'/locations" tabindex="0" role="menuitem" class="dropdown-item">Locations</a> <b class="ml-2">Format Options:</b><label class="checkbox checkbox-outline-primary ml-2"><input type="checkbox" class="showweekend ml-2" '+chk+' value="1" onclick="callWeekend()"><span>Show Weekends</span><span class="checkmark"></span></label><span></span></button> </div> </div> </div> </span>'); 
-
-                    $("#addevbutton").remove();
-                    @can('event_add_edit')
-                    $(".fc-right").append(' <span id="addevbutton">\
-                        <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> \
-                            <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup(null, '+"'events'"+');">Add Event</button>\
-                        </a></span>'); 
-                    $( "#dp" ).insertBefore( ".fc-today-button" );
-                    @endcan
-                   
-                    $("#shuesuid").trigger('click');
-                    $("#preloaderData").hide();
-                    $('[data-toggle="tooltip"]').tooltip();
-                },
-                eventClick: function(event) {
-                    if(event.mytask=="yes"){
-                        var redirectURL=baseUrl+'/tasks?id='+event.id;
-                        window.location.href=redirectURL;
-                    }else if(event.mysol=="yes"){
-                        var redirectURL=baseUrl+'/court_cases/'+event.case_id+'/info';
-                        window.location.href=redirectURL;
-                    }else {
-                        loadEventComment(event.event_id, event.id, 'events');
-                    }
-                },
-                dayClick: function(date, jsEvent, view) {
-                    // loadAddEventPopupFromCalendar(date.format());
-                    loadAddEventPopup(date.format(), 'events');
-                }
-            });
-            // calendar.render();            
-
-            var FC = $.fullCalendar; // a reference to FullCalendar's root namespace
-            var View = FC.View;      // the class that all views must inherit from
-            var AgendaView;          // our subclass
-            AgendaView = View.extend({ // make a subclass of View
-                initialize: function() {
-                },
-                // render: function() {
-                //     var view = $('#calendarq').fullCalendar('getView');
-                //     var start = view.start._d;
-                //     var end = view.end._d;
-                //     var eventTypes = getCheckedUser();
-                //         var byuser = getByUser();
-                //     $.ajax({
-                //             url: 'loadEventCalendar/loadAgendaView',
-                //             type: 'POST',
-                //             data: { start: moment(start).format('YYYY-MM-DD'), end: moment(end).format('YYYY-MM-DD'), event_type: eventTypes, byuser: byuser },
-                //             success: function (doc) {
-                //                 $('.fc-view').html(doc);
-                //                 $("#preloaderData").hide();
-                //             }
-                //         });
-                // },
-                setHeight: function(height, isAuto) {
-                },
-                renderEvents: function(events) {
-                },
-                destroyEvents: function() {
-                },
-                renderSelection: function(range) {
-                },
-                destroySelection: function() {
-                },
-            });
-            FC.views.custom = AgendaView; // register our class with the view system */
-
-            /* jQuery(".js-form-add-event").on("submit", function (e) {
-                e.preventDefault();
-                var data = $('#newEvent').val();
-                $('#newEvent').val('');
-                $('#external-events').prepend('<li class="list-group-item bg-success fc-event">' + data + '</li>');
-                initEvent();
-            }); */
 
         $('#deleteFromCommentBox').on('hidden.bs.modal', function () {
             // $('#calendarq').fullCalendar('refetchEvents');
@@ -1583,16 +1086,11 @@ $(document).ready(function () {
     function callWeekend(){
         if($(".showweekend").prop('checked') == true){
             localStorage.setItem('weekends', 'show');
-            // var newhiddendays = [];         // show Mon-Fr (hide Sat/Sun)
-            // $('#calendarq').fullCalendar('option', 'hiddenDays', newhiddendays);
             calendar.setOption('hiddenDays', []);
         }else{
             localStorage.setItem('weekends', 'hide');
-            // var newhiddendays = [0, 6];         // show Mon-Fr (hide Sat/Sun)
-            // $('#calendarq').fullCalendar('option', 'hiddenDays', newhiddendays);
             calendar.setOption('hiddenDays', [0, 6]);
         }
-        // window.location.reload();
         calendar.setOption('weekends', localStorage.getItem('weekends'));
         calendar.refetchEvents();
     }
@@ -1658,6 +1156,12 @@ $(document).ready(function () {
         $("#loadType").val("unread");
     }
     resetButton();
+
+    // Get user timezone offset
+    function getTimeZone() {
+        var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
+        return (offset < 0 ? "+" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2);
+    }
 </script>
 @stop
 @endsection

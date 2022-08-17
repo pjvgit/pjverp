@@ -85,8 +85,24 @@ $(document).ready(function() {
         sendMessage();
     });
 
+    var mousedownHappened = false;
+
+    $('body').on('mousedown', '#sendMessageButton', function(){
+        if ((($(".sendTo").val() == undefined) ? $(".sendTo").val() != undefined : $(".sendTo").val() != '' ) && $("#message_subject").val() != '' && $("#message_body").val() != '') {
+            mousedownHappened = true;
+        } else {
+            mousedownHappened = false;
+        }
+    });
+
     $(document).on('blur', '#message_body', function() {
-        sendMessage();
+        if (mousedownHappened) {
+            $("#action").val('submit');
+            sendMessage();
+            return false;
+        } else {
+            sendMessage();
+        }
     });
 
     $(document).on('submit', '#addMessage', function() {
@@ -94,6 +110,7 @@ $(document).ready(function() {
         sendMessage();
         return false;
     });
+
     $(document).on('click', '.closeMessage', function() {
         window.location.reload();
     });
@@ -230,7 +247,7 @@ function submitBtnDisableCheck(){
     if((($(".sendTo").val() == undefined) ? $(".sendTo").val() != undefined : $(".sendTo").val() != '' )  && $("#message_subject").val() != '' && $("#message_body").val() != ''){
         $(":submit").removeAttr("disabled");
     }else{
-        $(":submit").prop("disabled", true);
+        // $(":submit").prop("disabled", true);
     }
 }
 

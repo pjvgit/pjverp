@@ -59,7 +59,10 @@
                                             <li>Al confirmar tu pago, el cajero te entregará un comprobante impreso. <strong>En el podrás verificar que se haya realizado correctamente.</strong> Conserva este comprobante de pago.</li>
                                         </ol>                                                                
                                         <h4>NOTA IMPORTANTE:</h4>
-                                        <p>La referencia es válida por un periodo de <strong>7 días</strong> y expirará el día <strong>{{ $paymentDetail->expires_date }}</strong> a las <strong>{{ $paymentDetail->expires_time }}</strong> hrs. </p>
+                                        @php
+                                            $userTime = convertToUserTimezone($paymentDetail->conekta_reference_expires_at, auth()->user()->user_timezone ?? 'UTC');
+                                        @endphp
+                                        <p>La referencia es válida por un periodo de <strong>7 días</strong> y expirará el día <strong>{{ $userTime->format('d-m-Y') }}</strong> a las <strong>{{ $userTime->format('H:i') }}</strong> hrs. </p>
                                         <div class="opps-footnote">Al completar estos pasos recibirás un correo de confirmación de tu pago.<br></div>
                                         <hr>
                                     </div>

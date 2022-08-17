@@ -226,16 +226,10 @@
                                 <div>
                                     <div class="custom-rule-form align-items-baseline mt-2 mb-2 d-flex w-50"><span>Repeat
                                             every</span><input class="form-control mx-2 w-25" name="daily_weekname" type="number" min="1" max="100"
-                                            value="{{($evetData->daily_weekname)??'1'}}"><span class="ml-1">week(s)</span></div>
+                                            value="{{($evetData->event_interval_week)??'1'}}"><span class="ml-1">week(s)</span></div>
                                     <div>
                                         
                                         <div class="filter-options d-flex">
-                                            <div class="mr-3">
-                                                <label class="d-inline-flex align-items-center">
-                                                    <input id="Sun-option" name="custom[]" value="Sunday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Sunday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
-                                                    <span class="ml-2 ">Sun</span>
-                                                </label>
-                                            </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
                                                     <input id="Mon-option" name="custom[]" value="Monday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Monday', $evetData->custom_event_weekdays)) ? "checked" : "" }} >
@@ -270,6 +264,12 @@
                                                 <label class="d-inline-flex align-items-center">
                                                     <input id="Sat-option" name="custom[]" value="Saturday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Saturday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
                                                     <span class="ml-2 ">Sat</span>
+                                                </label>
+                                            </div>
+                                            <div class="mr-3">
+                                                <label class="d-inline-flex align-items-center">
+                                                    <input id="Sun-option" name="custom[]" value="Sunday" type="checkbox" {{ (!empty($evetData->custom_event_weekdays) && in_array('Sunday', $evetData->custom_event_weekdays)) ? "checked" : "" }}>
+                                                    <span class="ml-2 ">Sun</span>
                                                 </label>
                                             </div>
                                         </div>

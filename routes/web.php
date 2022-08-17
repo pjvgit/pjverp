@@ -22,7 +22,8 @@ Route::get('mail', function () {
     return $markdown->render('emails.event_reminder_email');
     return view('emails.invitation-email');
 });
-
+Route::get("newevents", "CalendarController@newindex")->name('newevents');
+Route::get("newloadevents", "CalendarController@newloadEventCalendar")->name('newloadevents');
 /* Route::get("events", function() {
     return view("errors.maintenance");
 })->name('events/');
@@ -1230,7 +1231,7 @@ Route::group(['namespace' => "ClientPortal"], function () {
     Route::post('update/client/profile/{token}', 'AuthController@updateClientProfile')->name("update/client/profile");
     Route::post('reset/password/{token}', 'AuthController@resetPassword')->name("reset/password");
     Route::get('terms/client/portal', 'AuthController@termsCondition')->name("terms/client/portal");
-    Route::post('get/timezone', 'AuthController@getTimezone')->name("get/timezone");
+    Route::get('get/timezone', 'AuthController@getTimezone')->name("get/timezone");
 
     // For switch account
     Route::get("login/sessions/launchpad/{id}", "AuthController@getSwitchAccount")->name("login/sessions/launchpad");
