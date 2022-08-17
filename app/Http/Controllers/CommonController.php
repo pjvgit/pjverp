@@ -32,8 +32,12 @@ class CommonController extends BaseController {
         $date->setTimezone($timezone);
         return $NewDate= $date->format("Y-m-d H:i:s");
     }
+
+    /**
+     * Made new function in helper file
+     */
     //Return remains days
-    public function daysReturns($date1){
+    /* public function daysReturns($date1){
         $date1 = $date1;
         // $date2 = date('Y-m-d');
         $date2 = convertUTCToUserTimeZone('dateOnly');
@@ -52,7 +56,7 @@ class CommonController extends BaseController {
             return $days. " days";
         }
         
-    }
+    } */
     public function getUserTypeText($user_level){
         $Title="";
         if($user_level==1){

@@ -185,7 +185,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div><input name="reminder_number[]" type="number" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
+                                        </div><input name="reminder_number[]" type="number" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}" min="0">
                                         <div class="col-3">
                                             <div>
                                                 <div class="">

@@ -114,9 +114,9 @@
                              if($TaskData->task_due_on >= date('Y-m-d') && $TaskData->task_due_on!='9999-12-30'){
                                  ?>
                                 <small class="text-muted"> in
-                                    {{$controllerLoad->daysReturns($TaskData->task_due_on)}}</small>
+                                    {{ daysReturns($TaskData->task_due_on) }}</small>
                                 <?php }else if($TaskData->task_due_on!='9999-12-30'){ ?>
-                                <small class="text-muted"> {{$controllerLoad->daysReturns($TaskData->task_due_on)}}
+                                <small class="text-muted"> {{ daysReturns($TaskData->task_due_on) }}
                                     ago</small>
                                 <?php } ?>
                             </div>

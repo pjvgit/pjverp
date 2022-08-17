@@ -555,11 +555,18 @@ if(isset($_GET['view']) &&  $_GET['view']=='agenda'){
 
 <script type="text/javascript">
 var calendar; var userTimezone = 'local';
-var authUserTimezone = "{{ $authUser->user_timezone }}";
-// userTimezone = moment.tz.guess();
+// var authUserTimezone = "{{ $authUser->user_timezone }}";
+var authUserTimezone = "{{ $userOffset }}";
 $(document).ready(function () {
-    getUserTimezone();
-    /* const { sliceEvents, createPlugin, Calendar } = FullCalendar
+    
+    var localTimezone = getTimeZone();
+    if(localTimezone == authUserTimezone) {
+        calendarTimezone = 'local';
+    } else {
+        calendarTimezone = "{{ $authUser->user_timezone }}";
+    }
+
+    const { sliceEvents, createPlugin, Calendar } = FullCalendar
     const CustomViewConfig = {
         classNames: [ 'agenda-custom-view' ],
         duration: { days: 31 },
@@ -608,300 +615,179 @@ $(document).ready(function () {
         views: {
             agendaview: CustomViewConfig
         }
-    }); */
-    
-    
-    // var calendarEl = document.getElementById('calendarq');
-    // calendar = new FullCalendar.Calendar(calendarEl, {
-    //     // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-    //     timeZone: userTimezone,
-    //     // timeZone: 'America/Mexico_City',
-    //     // timeZone: 'local',
-    //     plugins: [ CustomViewPlugin, ],
-    //     initialView: "{{ $defaultView }}",
-    //     // initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
-    //     themeSystem: "bootstrap4",
-    //     height: 700,
-    //     // hiddenDays: hd,
-    //     dayMaxEvents: true, // allow "more" link when too many events
-    //     headerToolbar: {
-    //         left: 'prev,next today',
-    //         center: 'title',
-    //         right: 'staffView,timeGridDay,timeGridWeek,dayGridMonth,agendaview'
-    //     },
-    //     buttonText:{
-    //         month:    'Month',
-    //         week:     'Week',
-    //         day:      'Day',
-    //         today : 'Today',
-    //     },
-    //     customButtons: {
-    //         agendaview: {
-    //             text: 'Agenda',
-    //             click: function () {
-    //                 calendar.changeView('agendaview');
-    //             }
-    //         },
-    //         staffView: {
-    //             text: 'Staff',
-    //             click: function () {
-    //                 calendar.changeView('staffView');
-    //                 calendar.refetchResources();
-    //                 calendar.refetchEvents();
-    //             }
-    //         },                
-    //         timeGridDay: {
-    //             text: 'Day',
-    //             click: function () {
-    //                 calendar.changeView('timeGridDay');
-    //                 calendar.refetchEvents();
-    //             }
-    //         },                
-    //     },
-    //     views: {
-    //         /* agendaview: {
-    //             type: 'agendaview',
-    //         }, */
-    //         staffView: {
-    //             type: 'resourceTimeGridDay',
-    //         },    
-    //     },
-    //     // displayEventTime: false,
-    //     eventTimeFormat: { // like '14:30:00'
-    //         hour: '2-digit',
-    //         minute: '2-digit',
-    //         hour12: true,
-    //     },
-    //     resources: function(info, successCallback, failureCallback) {
-    //         var byuser = getByUser();
-    //         $.ajax({
-    //             url: 'loadEventCalendar/loadStaffView',
-    //             type: 'POST',
-    //             data: {resType: "resources", byuser: byuser, view_name: 'staff'},
-    //             success: function (doc) {
-    //                 successCallback(doc);
-    //             }
-    //         });
-    //     },
-    //     events: function(info, successCallback, failureCallback) {
-    //         var startDate = info.start;
-    //         var endDate = info.end;
-    //         var eventTypes = [];
-    //         $.each($("input[name='event_type[]']:checked"), function(){
-    //             eventTypes.push($(this).val());
-    //         });
-    //         var byuser = getByUser();
-    //         var bysol=getSOL();
-    //         var mytask=getMytask();
-    //         $.ajax({
-    //             url: "{{ route('newloadevents') }}",
-    //             data: {
-    //                 // our hypothetical feed requires UNIX timestamps
-    //                 // start: info.start.valueOf(),
-    //                 // end: info.end.valueOf(),
-    //                 start: moment(startDate).format('YYYY-MM-DD'),
-    //                 end: moment(endDate).format('YYYY-MM-DD'),
-    //                 event_type: JSON.stringify(eventTypes),
-    //                 byuser: JSON.stringify(byuser),
-    //                 case_id: $(".case_or_lead option:selected").val(),
-    //                 searchbysol:bysol,
-    //                 searchbymytask:mytask,
-    //                 dateFilter:getDate(),
-    //                 taskLoad:$("#loadType").val(),
-    //                 timezone: userTimezone,
-    //             },
-    //             success: function(data) {
-    //                 successCallback(data);
-    //             }
-    //         });
-    //     },
-    //     /* events: function (info, callback, failureCallback) {
-    //         // if(viewName != 'Agenda') {
-    //         var startDate = info.start;
-    //         var endDate = info.end;
-    //         var eventTypes = [];
-    //         $.each($("input[name='event_type[]']:checked"), function(){
-    //             eventTypes.push($(this).val());
-    //         });
-    //         var byuser = getByUser();
-    //         var bysol=getSOL();
-    //         var mytask=getMytask();
-            
-    //         $("#preloaderData").show();
-    //         $.ajax({
-    //             url: 'loadEventCalendar/load',
-    //             type: 'POST',
-    //             dataType: 'json',
-    //             data: {
-    //                 start: moment(startDate).format('YYYY-MM-DD'),
-    //                 end: moment(endDate).format('YYYY-MM-DD'),
-    //                 event_type: JSON.stringify(eventTypes),
-    //                 byuser: JSON.stringify(byuser),
-    //                 case_id: $(".case_or_lead option:selected").val(),
-    //                 searchbysol:bysol,
-    //                 searchbymytask:mytask,
-    //                 dateFilter:getDate(),
-    //                 taskLoad:$("#loadType").val()
-    //             },
-    //             success: function (doc) {
-    //                 var events = [];
-    //                 if (!!doc.result) {
-    //                     $.map(doc.result, function (r) {
-    //                         var color="#00cfd2";
-    //                         if(r.etext != '') {
-    //                             color = r.etext;
-    //                         }
-    //                         var sTime = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +' -';
-    //                         var eTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.event_title +'</span>' : r.event_title;
-    //                         // var className = (r.is_read == 'no') ? 'font-weight-bold' : '';
-    //                         // var eTitle = r.event_title;
-    //                         if (r.is_all_day == 'yes') {
-    //                             var t = eTitle;
-    //                         } else {
-    //                             var t = sTime + eTitle;
-    //                         }
-    //                         var resource_id = [];
-    //                         if(r.event_linked_staff) {
-    //                             $.each(r.event_linked_staff, function(ind, item) {
-    //                                 resource_id.push(item.user_id);
-    //                             });
-    //                         }
-    //                         events.push({
-    //                             id: r.event_recurring_id,
-    //                             event_id: r.event_id,
-    //                             title: t,
-    //                             // title: r.event_title,
-    //                             tTitle: r.event_title,
-    //                             start: r.start_date_time,
-    //                             end: r.end_date_time,
-    //                             // classNames: [className],
-    //                             allDay: (r.is_all_day == 'yes') ? true : false, 
-    //                             color: (r.is_all_day == 'yes') ? color : '#d5e9ce',
-    //                             backgroundColor: (r.is_all_day == 'yes') ? color : '#d5e9ce',
-    //                             textColor:'#000000',
-    //                             resourceIds: resource_id,
-    //                         });
-    //                     });
-    //                 }
-    //                 if (!!doc.sol_result) {
-    //                     $.map(doc.sol_result, function (r) {
-    //                         if(r.sol_satisfied == 'yes') {
-    //                             var t = '<span class="calendar-badge d-inline-block undefined badge badge-success" style="width: 30px;"><i aria-hidden="true" class="fa fa-check"></i>SOL</span>'+' ' + r.event_title;
-    //                         } else {
-    //                             var t = '<span class="calendar-badge d-inline-block undefined badge badge-danger" style="width: 30px;">SOL</span>'+' ' + r.event_title;
-    //                         }
-    //                         var tplain = 'SOL'+' -' + r.event_title
-    //                         events.push({
-    //                             mysol:'yes',
-    //                             case_id:r.case_unique_number,
-    //                             id: r.id,
-    //                             title: t,
-    //                             tTitle: tplain,
-    //                             start: r.start_date,
-    //                             end: r.end_date,
-    //                             textColor:'#000000',
-    //                             backgroundColor: 'rgb(236, 238, 239)',
-    //                             resourceId: r.created_by,
-    //                         });
-    //                     });
-    //                 }
-    //                 if (!!doc.mytask) {
-    //                     $.map(doc.mytask, function (r) {
-    //                         if(r.task_priority==3){
-    //                             var cds="background-color: rgb(202, 66, 69); width: 30px;";
-    //                         }else if(r.task_priority==2){
-    //                             var cds="background-color: rgb(254, 193, 8); width: 30px;";
-    //                         // }else if(r.task_priority==3){
-    //                         //     var cds="background-color: rgb(40, 167, 68); width: 30px;";
-    //                         }else{
-    //                             var cds="background-color: rgb(40, 167, 68); width: 30px;";
-    //                         }    
-    //                         // var tTitle = (r.is_read == 'no') ? '<span style="background: transparent;font-weight: bold;color: black;">'+ r.task_title +'</span>' : r.task_title;
-    //                         var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'+cds+'">DUE</span>'+' ' + r.task_title
-    //                         var tplain = 'DUE'+' -' + r.task_title
-    //                         events.push({
-    //                             mytask:'yes',
-    //                             id: r.id,
-    //                             title: t,
-    //                             tTitle: tplain,
-    //                             start: r.task_due_on,
-    //                             end: r.task_due_on,
-    //                             textColor:'#000000',
-    //                             backgroundColor: 'rgb(236, 238, 239)',
-    //                             resourceId: r.created_by,
-    //                         });
-    //                     });
-    //                 }
-    //                 callback(events);
-    //                 $("#preloaderData").hide();
-    //             },
-    //         });
-    //         // }
-    //     }, */
-    //     eventDidMount: function(info) {
-    //         info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.event.title;
-    //         $(info.el).tooltip({
-    //             title: info.event.extendedProps.tTitle,
-    //         });
-    //     },
-    //     viewDidMount: function(arg){
-    //         var view = arg.view;
-    //         if (view.type == 'dayGridMonth' || view.type == 'timeGridWeek' || view.type == 'timeGridDay') {
-    //         }else{
-    //             var currentdate = view.activeStart;
-    //             var endDate = view.activeEnd;
-    //             $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
-    //             var dateText= $("#datepicker").val();
-    //             date = moment(currentdate).format('YYYY-MM-DD');
-    //         }
-            
-    //         // $("#preloaderData").hide();
-    //         if(localStorage.getItem('weekends')=='hide'){
-    //             var chk="";
-    //         }else{
-    //             var chk="checked=checked";
-    //         }
+    });
 
-    //         $("#addevbutton").remove();
-    //         @can('event_add_edit')
-    //         $(' <span id="addevbutton">\
-    //             <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> \
-    //                 <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup(null, '+"'events'"+');">Add Event</button>\
-    //             </a></span>').insertAfter(".fc-agendaview-button"); 
-    //         $( "#dp" ).insertAfter( ".fc-next-button" );
-    //         @endcan
+    var calendarEl = document.getElementById('calendarq');
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
+        timeZone: calendarTimezone,
+        plugins: [ CustomViewPlugin, ],
+        initialView: "{{ $defaultView }}",
+        // initialDate: new Date,
+        initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
+        themeSystem: "bootstrap4",
+        height: 700,
+        dayMaxEvents: true, // allow "more" link when too many events
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'staffView,timeGridDay,timeGridWeek,dayGridMonth,agendaview'
+        },
+        buttonText:{
+            month:    'Month',
+            week:     'Week',
+            day:      'Day',
+            today : 'Today',
+        },
+        customButtons: {
+            agendaview: {
+                text: 'Agenda',
+                click: function () {
+                    calendar.changeView('agendaview');
+                }
+            },
+            staffView: {
+                text: 'Staff',
+                click: function () {
+                    calendar.changeView('staffView');
+                    calendar.refetchResources();
+                    calendar.refetchEvents();
+                }
+            },                
+            timeGridDay: {
+                text: 'Day',
+                click: function () {
+                    calendar.changeView('timeGridDay');
+                    calendar.refetchEvents();
+                }
+            },                
+        },
+        views: {
+            /* agendaview: {
+                type: 'agendaview',
+            }, */
+            staffView: {
+                type: 'resourceTimeGridDay',
+            },    
+        },
+        // displayEventTime: false,
+        eventTimeFormat: { // like '14:30:00'
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        },
+        resources: function(info, successCallback, failureCallback) {
+            var byuser = getByUser();
+            $.ajax({
+                url: 'loadEventCalendar/loadStaffView',
+                type: 'POST',
+                data: {resType: "resources", byuser: byuser, view_name: 'staff'},
+                success: function (doc) {
+                    successCallback(doc);
+                }
+            });
+        },
+        events: function(info, successCallback, failureCallback) {
+            $("#preloaderData").show();
+            var startDate = info.start;
+            var endDate = info.end;
+            var eventTypes = [];
+            $.each($("input[name='event_type[]']:checked"), function(){
+                eventTypes.push($(this).val());
+            });
+            var byuser = getByUser();
+            var bysol=getSOL();
+            var mytask=getMytask();
+            $.ajax({
+                url: "{{ route('newloadevents') }}",
+                data: {
+                    // our hypothetical feed requires UNIX timestamps
+                    // start: info.start.valueOf(),
+                    // end: info.end.valueOf(),
+                    start: moment(startDate).format('YYYY-MM-DD'),
+                    end: moment(endDate).format('YYYY-MM-DD'),
+                    event_type: JSON.stringify(eventTypes),
+                    byuser: JSON.stringify(byuser),
+                    case_id: $(".case_or_lead option:selected").val(),
+                    searchbysol:bysol,
+                    searchbymytask:mytask,
+                    dateFilter:getDate(),
+                    taskLoad:$("#loadType").val(),
+                    // timezone: userTimezone,
+                    timezoneOffset: calendarTimezone
+                },
+                success: function(data) {
+                    successCallback(data);
+                    $("#preloaderData").hide();
+                }
+            });
+        },
+        eventDidMount: function(info) {
+            info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.event.title;
+            $(info.el).tooltip({
+                title: info.event.extendedProps.tTitle,
+            });
+        },
+        viewDidMount: function(arg){
+            var view = arg.view;
+            if (view.type == 'dayGridMonth' || view.type == 'timeGridWeek' || view.type == 'timeGridDay') {
+            }else{
+                var currentdate = view.activeStart;
+                var endDate = view.activeEnd;
+                // $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
+                // date = moment(currentdate).format('YYYY-MM-DD');
+            }
             
-    //         $("#settingicon").remove();
-    //         $('<span id="settingicon"> <button class="btn btn-secondry dropdown-toggle" id="shuesuid" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i aria-hidden="true" class="fas fa-cog icon"></i> </button><div class="dropdown-menu bg-transparent shadow-none p-0 m-0" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 34px, 0px); top: 0px; left: 0px; will-change: transform "><div class="card"><div tabindex="-1" role="menu" aria-hidden="false" class="dropdown-menu dropdown-menu-right show" x-placement="top-end"> <b class="ml-2">Actions:</b> <button type="button" tabindex="0" role="menuitem" class="dropdown-item mb-1" onclick="markAsRead()">Mark All As Read</button>  <b class="ml-2">Settings:</b><a href="'+baseUrl+'/locations" tabindex="0" role="menuitem" class="dropdown-item">Locations</a> <b class="ml-2">Format Options:</b><label class="checkbox checkbox-outline-primary ml-2"><input type="checkbox" class="showweekend ml-2" '+chk+' value="1" onclick="callWeekend()"><span>Show Weekends</span><span class="checkmark"></span></label><span></span></button> </div> </div> </div> </span>').insertAfter(".fc-agendaview-button"); 
+            if(localStorage.getItem('weekends')=='hide'){
+                var chk="";
+            }else{
+                var chk="checked=checked";
+            }
 
-    //         $("#printicon").remove();
-    //         $('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>').insertAfter(".fc-agendaview-button"); 
+            $("#addevbutton").remove();
+            @can('event_add_edit')
+            $(' <span id="addevbutton">\
+                <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> \
+                    <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup(null, '+"'events'"+');">Add Event</button>\
+                </a></span>').insertAfter(".fc-agendaview-button"); 
+            $( "#dp" ).insertAfter( ".fc-next-button" );
+            @endcan
+            
+            $("#settingicon").remove();
+            $('<span id="settingicon"> <button class="btn btn-secondry dropdown-toggle" id="shuesuid" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i aria-hidden="true" class="fas fa-cog icon"></i> </button><div class="dropdown-menu bg-transparent shadow-none p-0 m-0" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 34px, 0px); top: 0px; left: 0px; will-change: transform "><div class="card"><div tabindex="-1" role="menu" aria-hidden="false" class="dropdown-menu dropdown-menu-right show" x-placement="top-end"> <b class="ml-2">Actions:</b> <button type="button" tabindex="0" role="menuitem" class="dropdown-item mb-1" onclick="markAsRead()">Mark All As Read</button>  <b class="ml-2">Settings:</b><a href="'+baseUrl+'/locations" tabindex="0" role="menuitem" class="dropdown-item">Locations</a> <b class="ml-2">Format Options:</b><label class="checkbox checkbox-outline-primary ml-2"><input type="checkbox" class="showweekend ml-2" '+chk+' value="1" onclick="callWeekend()"><span>Show Weekends</span><span class="checkmark"></span></label><span></span></button> </div> </div> </div> </span>').insertAfter(".fc-agendaview-button"); 
+
+            $("#printicon").remove();
+            $('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>').insertAfter(".fc-agendaview-button"); 
         
-    //         $("#shuesuid").trigger('click');
-    //         // $("#preloaderData").hide();
-    //         $('[data-toggle="tooltip"]').tooltip();
-    //     },
-    //     eventClick: function(info) {
-    //         var event = info.event;
-    //         if(event.extendedProps.mytask=="yes"){
-    //             var redirectURL=baseUrl+'/tasks?id='+event.id;
-    //             window.location.href=redirectURL;
-    //         }else if(event.extendedProps.mysol=="yes"){
-    //             var redirectURL=baseUrl+'/court_cases/'+event.extendedProps.case_id+'/info';
-    //             window.location.href=redirectURL;
-    //         }else {
-    //             loadEventComment(event.extendedProps.event_id, event.id, 'events');
-    //         }
-    //     },
-    //     dateClick: function(info) {
-    //         @can('event_add_edit')
-    //         loadAddEventPopup(info.dateStr, 'events');
-    //         @endcan
-    //     }
-    // });
-    // calendar.render();
+            $("#shuesuid").trigger('click');
+            $('[data-toggle="tooltip"]').tooltip();
+        },
+        eventClick: function(info) {
+            var event = info.event;
+            if(event.extendedProps.mytask=="yes"){
+                var redirectURL=baseUrl+'/tasks?id='+event.id;
+                window.location.href=redirectURL;
+            }else if(event.extendedProps.mysol=="yes"){
+                var redirectURL=baseUrl+'/court_cases/'+event.extendedProps.case_id+'/info';
+                window.location.href=redirectURL;
+            }else {
+                loadEventComment(event.extendedProps.event_id, event.id, 'events');
+            }
+        },
+        dateClick: function(info) {
+            @can('event_add_edit')
+            loadAddEventPopup(info.dateStr, 'events');
+            @endcan
+        }
+    });
+    calendar.render();
+
+    calendarEl.querySelector('.fc-today-button').addEventListener('click', function() {
+        $('#datepicker').datepicker('setDate', new Date());
+    });
 
     $('body').on('click', '.fc-prev-button, .fc-next-button', function() {
+    // calendarEl.querySelector('.fc-prev-button, .fc-next-button').addEventListener('click', function() {
         var view = calendar.view;
         if (view.type == 'dayGridMonth') {
             var date = calendar.getDate();
@@ -912,8 +798,6 @@ $(document).ready(function () {
         }
     });
 
-    
-
         $("#datepicker").datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -923,19 +807,7 @@ $(document).ready(function () {
         }).on('changeDate', function(ev) {
             var date = new Date(ev.date);
             calendar.gotoDate( date );
-            /* calendar.setOption('visibleRange', {
-                start: moment(ev.date),
-                end: moment(ev.date, "DD-MM-YYYY").add(31, 'days'),
-            });
-            calendar.refetchEvents(); */
         });
-        var newDate = new Date,
-            date = newDate.getDate(),
-            month = newDate.getMonth(),
-            year = newDate.getFullYear();
-            
-        var today = moment().day();
-            
 
         $('#deleteFromCommentBox').on('hidden.bs.modal', function () {
             // $('#calendarq').fullCalendar('refetchEvents');
@@ -1214,16 +1086,11 @@ $(document).ready(function () {
     function callWeekend(){
         if($(".showweekend").prop('checked') == true){
             localStorage.setItem('weekends', 'show');
-            // var newhiddendays = [];         // show Mon-Fr (hide Sat/Sun)
-            // $('#calendarq').fullCalendar('option', 'hiddenDays', newhiddendays);
             calendar.setOption('hiddenDays', []);
         }else{
             localStorage.setItem('weekends', 'hide');
-            // var newhiddendays = [0, 6];         // show Mon-Fr (hide Sat/Sun)
-            // $('#calendarq').fullCalendar('option', 'hiddenDays', newhiddendays);
             calendar.setOption('hiddenDays', [0, 6]);
         }
-        // window.location.reload();
         calendar.setOption('weekends', localStorage.getItem('weekends'));
         calendar.refetchEvents();
     }
@@ -1290,246 +1157,11 @@ $(document).ready(function () {
     }
     resetButton();
 
-    // For get user timezone
-    function getUserTimezone() {
-        var timezone_offset_minutes = new Date().getTimezoneOffset();
-        timezone_offset_minutes = timezone_offset_minutes == 0 ? 0 : -timezone_offset_minutes;
-        $.ajax({
-            url: "{{ route('get/timezone') }}",
-            type: "GET",
-            global: false,
-            data: {timezone_offset_minutes: timezone_offset_minutes, _token: $('meta[name="csrf-token"]').attr('content')},
-            success: function(data) {
-                if(data != authUserTimezone) {
-                    userTimezone = authUserTimezone;
-                } else {
-                    userTimezone = 'local';
-                }
-                renderCalendar()
-            }
-        });
+    // Get user timezone offset
+    function getTimeZone() {
+        var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
+        return (offset < 0 ? "+" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2);
     }
-
-    function renderCalendar() {
-        const { sliceEvents, createPlugin, Calendar } = FullCalendar
-        const CustomViewConfig = {
-            classNames: [ 'agenda-custom-view' ],
-            duration: { days: 31 },
-            visibleRange: function(currentDate) {
-                return {
-                start: currentDate.clone(),
-                end: currentDate.clone().add(31, 'days') // exclusive end, so 3
-                };
-            },
-            content: function(props) {
-                // var viewData = '';
-                $("#preloaderAgendaView").show();
-                var eventTypes = [];
-                $.each($("input[name='event_type[]']:checked"), function(){
-                    eventTypes.push($(this).val());
-                });
-                var byuser = getByUser();
-                var bysol=getSOL();
-                var mytask=getMytask();
-                $.ajax({
-                    url: 'loadEventCalendar/loadAgendaView',
-                    type: 'POST',
-                    data: {
-                        start: props.dateProfile.currentRange.start.toUTCString(),
-                        end: props.dateProfile.currentRange.end.toUTCString(),
-                        event_type: JSON.stringify(eventTypes),
-                        byuser: JSON.stringify(byuser),
-                        case_id: $(".case_or_lead option:selected").val(),
-                        searchbysol:bysol,
-                        searchbymytask:mytask,
-                        dateFilter:getDate(),
-                        taskLoad:$("#loadType").val()
-                    },
-                    success: function (doc) {
-                        // viewData = doc;
-                        $('.agenda-custom-view').html(doc);
-                    },
-                    complete:function(data){
-                        $("#preloaderAgendaView").hide();
-                    }
-                });
-                // return {html: viewData};
-            }
-        }
-        const CustomViewPlugin = createPlugin({
-            views: {
-                agendaview: CustomViewConfig
-            }
-        });
-
-        var calendarEl = document.getElementById('calendarq');
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            // schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-            timeZone: userTimezone,
-            plugins: [ CustomViewPlugin, ],
-            initialView: "{{ $defaultView }}",
-            // initialDate: new Date,
-            initialDate: "{{ \Carbon\Carbon::now((!(empty($authUser->user_timezone))) ? $authUser->user_timezone : 'UTC')->format('Y-m-d') }}",
-            themeSystem: "bootstrap4",
-            height: 700,
-            dayMaxEvents: true, // allow "more" link when too many events
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'staffView,timeGridDay,timeGridWeek,dayGridMonth,agendaview'
-            },
-            buttonText:{
-                month:    'Month',
-                week:     'Week',
-                day:      'Day',
-                today : 'Today',
-            },
-            customButtons: {
-                agendaview: {
-                    text: 'Agenda',
-                    click: function () {
-                        calendar.changeView('agendaview');
-                    }
-                },
-                staffView: {
-                    text: 'Staff',
-                    click: function () {
-                        calendar.changeView('staffView');
-                        calendar.refetchResources();
-                        calendar.refetchEvents();
-                    }
-                },                
-                timeGridDay: {
-                    text: 'Day',
-                    click: function () {
-                        calendar.changeView('timeGridDay');
-                        calendar.refetchEvents();
-                    }
-                },                
-            },
-            views: {
-                /* agendaview: {
-                    type: 'agendaview',
-                }, */
-                staffView: {
-                    type: 'resourceTimeGridDay',
-                },    
-            },
-            // displayEventTime: false,
-            eventTimeFormat: { // like '14:30:00'
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-            },
-            resources: function(info, successCallback, failureCallback) {
-                var byuser = getByUser();
-                $.ajax({
-                    url: 'loadEventCalendar/loadStaffView',
-                    type: 'POST',
-                    data: {resType: "resources", byuser: byuser, view_name: 'staff'},
-                    success: function (doc) {
-                        successCallback(doc);
-                    }
-                });
-            },
-            events: function(info, successCallback, failureCallback) {
-                $("#preloaderData").show();
-                var startDate = info.start;
-                var endDate = info.end;
-                var eventTypes = [];
-                $.each($("input[name='event_type[]']:checked"), function(){
-                    eventTypes.push($(this).val());
-                });
-                var byuser = getByUser();
-                var bysol=getSOL();
-                var mytask=getMytask();
-                $.ajax({
-                    url: "{{ route('newloadevents') }}",
-                    data: {
-                        // our hypothetical feed requires UNIX timestamps
-                        // start: info.start.valueOf(),
-                        // end: info.end.valueOf(),
-                        start: moment(startDate).format('YYYY-MM-DD'),
-                        end: moment(endDate).format('YYYY-MM-DD'),
-                        event_type: JSON.stringify(eventTypes),
-                        byuser: JSON.stringify(byuser),
-                        case_id: $(".case_or_lead option:selected").val(),
-                        searchbysol:bysol,
-                        searchbymytask:mytask,
-                        dateFilter:getDate(),
-                        taskLoad:$("#loadType").val(),
-                        timezone: userTimezone,
-                    },
-                    success: function(data) {
-                        successCallback(data);
-                        $("#preloaderData").hide();
-                    }
-                });
-            },
-            eventDidMount: function(info) {
-                info.el.querySelectorAll('.fc-event-title')[0].innerHTML = info.event.title;
-                $(info.el).tooltip({
-                    title: info.event.extendedProps.tTitle,
-                });
-            },
-            viewDidMount: function(arg){
-                var view = arg.view;
-                if (view.type == 'dayGridMonth' || view.type == 'timeGridWeek' || view.type == 'timeGridDay') {
-                }else{
-                    var currentdate = view.activeStart;
-                    var endDate = view.activeEnd;
-                    // $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
-                    // date = moment(currentdate).format('YYYY-MM-DD');
-                }
-                
-                if(localStorage.getItem('weekends')=='hide'){
-                    var chk="";
-                }else{
-                    var chk="checked=checked";
-                }
-
-                $("#addevbutton").remove();
-                @can('event_add_edit')
-                $(' <span id="addevbutton">\
-                    <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;"> \
-                        <button class="btn btn-primary btn-rounded m-0" type="button" onclick="loadAddEventPopup(null, '+"'events'"+');">Add Event</button>\
-                    </a></span>').insertAfter(".fc-agendaview-button"); 
-                $( "#dp" ).insertAfter( ".fc-next-button" );
-                @endcan
-                
-                $("#settingicon").remove();
-                $('<span id="settingicon"> <button class="btn btn-secondry dropdown-toggle" id="shuesuid" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i aria-hidden="true" class="fas fa-cog icon"></i> </button><div class="dropdown-menu bg-transparent shadow-none p-0 m-0" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 34px, 0px); top: 0px; left: 0px; will-change: transform "><div class="card"><div tabindex="-1" role="menu" aria-hidden="false" class="dropdown-menu dropdown-menu-right show" x-placement="top-end"> <b class="ml-2">Actions:</b> <button type="button" tabindex="0" role="menuitem" class="dropdown-item mb-1" onclick="markAsRead()">Mark All As Read</button>  <b class="ml-2">Settings:</b><a href="'+baseUrl+'/locations" tabindex="0" role="menuitem" class="dropdown-item">Locations</a> <b class="ml-2">Format Options:</b><label class="checkbox checkbox-outline-primary ml-2"><input type="checkbox" class="showweekend ml-2" '+chk+' value="1" onclick="callWeekend()"><span>Show Weekends</span><span class="checkmark"></span></label><span></span></button> </div> </div> </div> </span>').insertAfter(".fc-agendaview-button"); 
-
-                $("#printicon").remove();
-                $('<span id="printicon"><a href="{{ route("print_events") }}" class="btn btn-link"><i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"title="" data-original-title="Print"></i></a></span>').insertAfter(".fc-agendaview-button"); 
-            
-                $("#shuesuid").trigger('click');
-                $('[data-toggle="tooltip"]').tooltip();
-            },
-            eventClick: function(info) {
-                var event = info.event;
-                if(event.extendedProps.mytask=="yes"){
-                    var redirectURL=baseUrl+'/tasks?id='+event.id;
-                    window.location.href=redirectURL;
-                }else if(event.extendedProps.mysol=="yes"){
-                    var redirectURL=baseUrl+'/court_cases/'+event.extendedProps.case_id+'/info';
-                    window.location.href=redirectURL;
-                }else {
-                    loadEventComment(event.extendedProps.event_id, event.id, 'events');
-                }
-            },
-            dateClick: function(info) {
-                @can('event_add_edit')
-                loadAddEventPopup(info.dateStr, 'events');
-                @endcan
-            }
-        });
-        calendar.render();
-
-        calendarEl.querySelector('.fc-today-button').addEventListener('click', function() {
-            $('#datepicker').datepicker('setDate', new Date());
-        });
-    }    
 </script>
 @stop
 @endsection
