@@ -340,13 +340,12 @@ class ReportsController extends BaseController
             // $Invoices = $Invoices->whereBetween("invoices.invoice_date",[$startDt,$endDt]);
             $Invoices = $Invoices->orderBy("invoices.id");            
             $Invoices = $Invoices->with('forwardedInvoices')->get();
-
             $caseBalanceForwarded = $caseInvoicePaidAmount =  0;
             foreach($Invoices as $k => $v){
                 if($v->status == 'Forwarded'){
-                    $caseBalanceForwarded += str_replace(",","",$v->total_amount);
+                    $caseBalanceForwarded += str_replace(",","",$v->due_amount);
                     if($v->case_id == $case->id){
-                        $invPaidRecors[$case->id][$v->id]['forwardedEntry'][] = str_replace(",","",$v->paid_amount);
+                        $invPaidRecors[$case->id][$v->id]['forwardedEntry'][] = str_replace(",","",$v->due_amount);
                         $totalInvoiceEntry += 1;
                         $invPaidRecors[$case->id][$v->id]['totalInvoiceEntry'] = $totalInvoiceEntry;
                     }
@@ -367,7 +366,7 @@ class ReportsController extends BaseController
                 $caseInvoicePaidAmount += str_replace(",","",$v->paid_amount);
                 if(str_replace(",","",$v->paid_amount) > 0){
                     if($v->case_id == $case->id){
-                        $invoicePayData = InvoiceHistory::where('invoice_id', $v->id)->whereBetween("created_at",[$startDt,$endDt])->whereIn('status',['1','2','3','4'])->select('amount','status')->get();
+                        $invoicePayData = InvoiceHistory::where('invoice_id', $v->id)->whereDate("created_at",'>=',$startDt)->whereDate("created_at",'<=',$endDt)->whereIn('status',['1','2','3','4','6'])->whereIn('acrtivity_title',['Payment Received','Payment Refund'])->select('amount','status')->get();
                         $invoicePayment = 0;
                         foreach($invoicePayData as $payment){
                             if ($payment->amount && $payment->amount > 0) {
@@ -378,11 +377,12 @@ class ReportsController extends BaseController
                                 }
                             }
                         }
+                        $invPaidRecors[$case->id][$v->id]['forwardedEntry'][] = $caseBalanceForwarded;
                         $invPaidRecors[$case->id][$v->id]['paidAmount'][] = str_replace(",","",$invoicePayment);
                         $invPaidRecors[$case->id][$v->id]['totalAmount'][] = str_replace(",","",$v->total_amount);
                     }
                 }
-            }
+            }           
             $cases[$key]['caseInvoicePaidAmount'] = number_format($caseInvoicePaidAmount,2);
             $cases[$key]['caseBalanceForwarded'] = number_format($caseBalanceForwarded,2);
             // get balance forwarded list
@@ -599,7 +599,6 @@ class ReportsController extends BaseController
                     }
                 }
             }
-            
             $cases[$key]['paidFlatfee'] = $payFlatfee;
             $cases[$key]['paidTimeEntry'] = $payTimeEntry;
             $cases[$key]['paidExpenses'] = $payExpenses;
@@ -608,7 +607,7 @@ class ReportsController extends BaseController
             $cases[$key]['paidInterest'] = $payInterest;
             $cases[$key]['paidTax'] = $payTax;
             $cases[$key]['paidAdditions'] = $payAdditions;
-            
+
             // dd($invPaidRecors);
             if($export_csv == 1){
                 $totalCaseFlatfees += str_replace(",","",$case->caseFlatfees); 
