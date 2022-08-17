@@ -141,7 +141,12 @@
                                     @endif
                                 </td>
                                 <td> {{$aData->status}} </td>
-                                <td> {{ daysReturns($aData->due_date_new, 'onlyDays') }} </td>
+                                <td> 
+                                    @php
+                                    $dueDate = convertUTCToUserDate($aData->due_date, @auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d');
+                                    @endphp
+                                    {{ ($aData->due_date!=NULL) ? daysReturns($dueDate, 'onlyDays') : 0}} 
+                                </td>
                         </tr>
                         @endforeach
                         <tr class="header total_row">
@@ -237,7 +242,12 @@
                                 @endif
                             </td>
                             <td> {{$aData->status}} </td>
-                            <td> {{ daysReturns($aData->due_date_new, 'onlyDays') }} </td>
+                            <td> 
+                                @php
+                                $dueDate = convertUTCToUserDate($aData->due_date, @auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d');
+                                @endphp
+                                {{ ($aData->due_date!=NULL) ? daysReturns($dueDate, 'onlyDays') : 0}} 
+                            </td>
                     </tr>
                     @endforeach
                     <tr class="header total_row">
