@@ -252,13 +252,10 @@ trait EventTrait {
             "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
             "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
             "event_type_id" => $request->event_type ?? NULL,
-            "start_date" => $start_date,
-            "end_date" => $end_date,
             "start_date" => $utc_start_date,
             "end_date" => $utc_end_date,
             "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
             "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
-            // "recurring_event_end_date" => $recurringEndDate,
             "recurring_event_end_date" => $utc_recurring_end_date,
             "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
             "event_description" => $request->description,
@@ -347,7 +344,6 @@ trait EventTrait {
                 $utc_start_date = $this->eventConvertTimestampToUtc($date->format('Y-m-d'), $request->start_time, $authUser->user_timezone, 'dateFromTime');
             }
             $request->start_date = $date->format('Y-m-d');
-            Log::info("daily day diff: ". $days);
             $eventRecurring = EventRecurring::create([
                 "event_id" => $caseEvent->id,
                 "start_date" => $utc_start_date,
@@ -700,7 +696,7 @@ trait EventTrait {
                 // $date->setTimezone('UTC');
                 $first_character = substr($offset, 0, 1);
                 $hour = substr($offset, 1);
-                $date = ($first_character == '-') ? Carbon::parse($date.' '.$time)->subHours($hour)->format('Y-m-d') : Carbon::parse($date.' '.$time)->addHours($hour)->format('Y-m-d');
+                $date = ($first_character == '-') ? Carbon::parse($date.' '.$time)->addHours($hour)->format('Y-m-d') : Carbon::parse($date.' '.$time)->subHours($hour)->format('Y-m-d');
                 return $date;
             } else {
                 $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $authUserTimezone);

@@ -630,8 +630,10 @@ class HomeController extends BaseController
      */
     public function popupNotification()
     {
+        $authUser = auth()->user();
         $todayDate = date('Y-m-d', strtotime(convertUTCToUserTimeZone('dateOnly')));
         $result = EventRecurring::whereJsonContains('event_reminders', ['reminder_type' => 'popup'])
+                    ->where('event_id', 811)
                     ->where(function($query) {
                         $query->whereJsonContains('event_reminders', ['remind_at' => date("Y-m-d")])
                         ->orWhereJsonContains('event_reminders', ["snooze_remind_at" => date("Y-m-d")]);
@@ -643,14 +645,15 @@ class HomeController extends BaseController
         
         if($result) {
             foreach($result as $key => $item) {
+                $event = $item->event;
                 $decodeReminders = encodeDecodeJson($item->event_reminders)->where('reminder_type', 'popup')->where('is_dismiss', 'no');
                 foreach($decodeReminders as $rkey => $ritem){
                     $parseRemindAt = (isset($ritem->remind_at)) ? Carbon::parse($ritem->remind_at)->isToday() : false;
                     $parseSnoozeRemindAt = (isset($ritem->snooze_remind_at)) ? Carbon::parse($ritem->snooze_remind_at)->isToday() : false;
                     if($parseRemindAt || $parseSnoozeRemindAt) {
-                    $users = $this->getEventLinkedUser($ritem, "popup", $item->event, $item);
+                    $users = $this->getEventLinkedUser($ritem, "popup", $event, $item);
                     if(isset($users) && count($users)) {  
-                        $eventStartTime = Carbon::parse($item->start_date.' '.$item->event->start_time);
+                        $eventStartTime = Carbon::parse($item->start_date.' '.$event->start_time);
                         $currentTime = Carbon::now();
                         $addEvent = false;
                         if(isset($ritem->user_popup_remind_detail)) {
@@ -665,7 +668,10 @@ class HomeController extends BaseController
                             } else {
                                 $remindTime = Carbon::parse($ritem->popup_remind_time);
                                 if($ritem->reminder_frequncy == "week" || $ritem->reminder_frequncy == "day") {
-                                    $addEvent = true;
+                                    $eventDateTime = ($event->is_full_day == 'no') ? convertUTCToUserTime($item->start_date.' '.$event->start_time, $authUser->user_timezone) : $item->user_start_date->format('Y-m-d');
+                                    if($todayDate == $eventDateTime->format('Y-m-d')) {
+                                        $addEvent = true;
+                                    }
                                 } else if($ritem->reminder_frequncy == "hour") {
                                     if(Carbon::parse($currentTime)->gte($remindTime) && Carbon::parse($eventStartTime)->gt(Carbon::parse($currentTime))) {
                                         $addEvent = true;
@@ -716,7 +722,7 @@ class HomeController extends BaseController
                                 "date_time" => date('M d', strtotime(convertUTCToUserTime(@$eventStartTime, auth()->user()->user_timezone))) ?? "",
                                 "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
                                 "type" => "event",
-                                "name" => $item->event->event_title/* . ' : '.$ritem->reminer_number.'='.$ritem->reminder_frequncy.' : '.$ritem->reminder_id ?? "-" */,
+                                "name" => $item->event->event_title. ' : '.$ritem->reminer_number.'='.$ritem->reminder_frequncy.' : '.$ritem->reminder_id ?? "-",
                                 "case_id" => $item->event->case_id ?? "",
                                 "case_unique_number" => $item->event->case->case_unique_number ?? "",
                                 "lead_id" => $item->event->lead_id ?? "",
@@ -769,7 +775,7 @@ class HomeController extends BaseController
                             "date_time" => date('M d Y', strtotime(@$item->task->task_due_on)) ?? "",
                             "created_by" => $item->task->taskCreatedByUser->full_name ?? "-",
                             "type" => "task",
-                            "name" => $item->task->task_title ?? "-",
+                            "name" => $item->task->task_title. ' : '.$item->reminer_number.'='.$item->reminder_frequncy.' : '.$item->id ?? "-",
                             "case_id" => $item->task->case_id ?? "",
                             "case_unique_number" => $item->task->case->case_unique_number ?? "",
                             "lead_id" => $item->task->lead_id ?? "",
