@@ -175,7 +175,7 @@
                         $totalCaseNonBillableDuration += str_replace(",","",$case->caseNonBillableDuration);
                         $totalCaseNonBillableEntry += str_replace(",","",$case->caseNonBillableEntry);
 
-                        $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment) - str_replace(",","",$case->caseNonBillableEntry);
+                        $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment) - str_replace(",","",$case->caseNonBillableEntry);
                         $totalCaseBilled += $totalBilled;
 
                         // collected amount

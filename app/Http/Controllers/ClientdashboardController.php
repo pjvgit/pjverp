@@ -4707,6 +4707,7 @@ class ClientdashboardController extends BaseController
             }
             $messagesData->users_json = encodeDecodeJson($updatedLinkedContact, 'encode');
         }
+        $messagesData->timestamps = false;
         $messagesData->save();
 
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")

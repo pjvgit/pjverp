@@ -301,7 +301,17 @@ class ClientdashboardController extends Controller
         if(isset($request->send_to)) {
             $sendTo = $request->send_to;
         }
-        array_push($sendTo, auth()->id()); 
+        array_push($sendTo, auth()->id());
+
+        foreach($sendTo as $uid) {
+            $jsonData[] = [
+                'user_id' => (string) $uid,
+                'is_read' => (auth()->id() == $uid) ? 'yes' : 'no',
+                'is_archive' => 'no',
+            ];
+        } 
+
+        // echo "<pre>"; print_r(encodeDecodeJson($jsonData, 'encode')); exit();
         $redirect = 'no';
         $Messages= Messages::find($request->message_id);
         $Messages->case_id=$request->case_id ?? NUll;
@@ -318,6 +328,7 @@ class ClientdashboardController extends Controller
             $Messages->is_draft=0;
             $redirect = 'yes';
         }
+        $Messages->users_json = encodeDecodeJson($jsonData, 'encode');
         $Messages->last_post_at = Carbon::now();
         $Messages->save();
 
