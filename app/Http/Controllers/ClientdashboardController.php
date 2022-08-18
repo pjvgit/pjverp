@@ -3373,7 +3373,6 @@ class ClientdashboardController extends BaseController
             $vCard .= "END:VCARD\r\n";
 
         }
-        // return $vCard;
         // $filePath = '/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/contacts.vcf"; // you can specify path here where you want to store file.
         $folderPath = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name);
         if(!File::isDirectory($folderPath)){
@@ -3414,7 +3413,6 @@ class ClientdashboardController extends BaseController
             // $vCard .= "FN:".$v->first_name."\r\n";
             $vCard .= "item1.ORG:".$v->first_name."\r\n";
             $vCard .= "ADR:;".$v->address2.";".$v->street.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";".$v->street."\n".$v->apt_unit."\n".$v->city."\n,".$v->state." ".$v->postal_code."\n".$countryName."\r\n";
-            // $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName."\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
             if($v->website != '') {
