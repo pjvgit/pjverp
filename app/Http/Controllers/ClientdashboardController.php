@@ -3314,7 +3314,8 @@ class ClientdashboardController extends BaseController
         $authUser = auth()->user();
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
                 ->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')
-                ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct')
+                ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',
+                "users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct')
                 ->where("user_level","2")->where("firm_name", $authUser->firm_name);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
             $user = $user->whereIn("users.user_status",[1,2,4]); 
@@ -3325,24 +3326,29 @@ class ClientdashboardController extends BaseController
         $vCard = '';
         foreach($user as $k=>$v){
             $getCompanyName = '';
+            $countryName="";
             if(!empty(explode(",",$v->multiple_compnay_id))){
                 $getCompanyList=$this->getCompanyLists($v->multiple_compnay_id);
-                if(count($getCompanyList) > 0){
-                    $companyCount =  count($getCompanyList);
-                    $getCompanyName .= ($companyCount > 0) ? $getCompanyList[$companyCount-1] : $getCompanyList[$companyCount];
+                $company_array=array();
+                foreach($getCompanyList as $cmpy){
+                    if($cmpy!=""){
+                        $company_array[]=$cmpy;
+                    }
+                    $getCompanyName=implode(",",$company_array);
                 }
             }
 
             if($v->country!=NULL){
-                $countryName=$this->getCountryName($v->country);
-            }else{
-                $countryName="";
+                $NameOfCountry=Countries::select("abv")->where("id",$v->country)->first();
+                if(!empty($NameOfCountry)){
+                    $countryName=$NameOfCountry['abv'];
+                }
             }
             $vCard .= "BEGIN:VCARD\r\n";
             $vCard .= "VERSION:3.0\r\n";
             $vCard .= "N:".$v->last_name.";".$v->first_name.";".$v->middle_name.";\r\n";
             $vCard .= "FN:".$v->first_name." ".$v->middle_name." ".$v->last_name."\r\n";
-            $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
+            $vCard .= "ADR:;".$v->apt_unit.";".$v->street.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";".$v->street."\n".$v->apt_unit."\n".$v->city."\n,".$v->state." ".$v->postal_code."\n".$countryName."\r\n";
             if(!empty($v->email)) {
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             }
@@ -3350,16 +3356,19 @@ class ClientdashboardController extends BaseController
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
             }
             if($getCompanyName != '') {
-                $vCard .= "ORG:".$getCompanyName."\r\n"; 
+                $vCard .= "item1.ORG:".$getCompanyName."\r\n"; 
             }
             if(!empty($v->job_title)) {
-                $vCard .= "TITLE:".$v->job_title."\r\n"; 
+                $vCard .= "item2.TITLE:".$v->job_title."\r\n"; 
             }
             if(!empty($v->notes)) {
                 $vCard .= "NOTE:".$v->notes."\r\n"; 
             }
             if(!empty($v->dob)) {
-                $vCard .= "BDAY:".date('Ymd', strtotime($v->dob))."\r\n"; 
+                $vCard .= "BDAY:".date('m/d/Y', strtotime($v->dob))."\r\n"; 
+            }
+            if(!empty($v->website)) {
+                $vCard .= "item3.URL:".$v->website."\r\n"; 
             }
             $vCard .= "END:VCARD\r\n";
 
@@ -3401,18 +3410,21 @@ class ClientdashboardController extends BaseController
             $vCard .= "VERSION:3.0\r\n";
             $vCard .= "N:;\r\n";
             $vCard .= "FN:;\r\n";
-            $vCard .= "ORG:".$v->first_name."\r\n";
-            $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
+            // $vCard .= "N:".$v->first_name.";\r\n";
+            // $vCard .= "FN:".$v->first_name."\r\n";
+            $vCard .= "item1.ORG:".$v->first_name."\r\n";
+            $vCard .= "ADR:;".$v->address2.";".$v->street.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";".$v->street."\n".$v->apt_unit."\n".$v->city."\n,".$v->state." ".$v->postal_code."\n".$countryName."\r\n";
+            // $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName."\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
             if($v->website != '') {
                 $vCard .= "URL:".$v->website."\r\n"; 
             }
             if(!empty($v->job_title)) {
-                $vCard .= "TITLE:".$v->job_title ?? ''."\r\n"; 
+                $vCard .= "TITLE:".$v->job_title."\r\n"; 
             }
             if(!empty($v->notes)) {
-                $vCard .= "NOTE:".$v->notes ?? ''."\r\n"; 
+                $vCard .= "NOTE:".$v->notes."\r\n"; 
             }
             $vCard .= "END:VCARD\r\n";
         }
