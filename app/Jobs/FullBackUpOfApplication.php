@@ -15,6 +15,7 @@ use App\Task,App\CaseTaskLinkedStaff,App\CaseEventLocation;
 use ZipArchive,File,DB,Validator,Session,Storage,Image;
 use Illuminate\Support\Facades\Input;
 use App\DeactivatedUser,App\Invoices;
+use Carbon\Carbon;
 
 class FullBackUpOfApplication implements ShouldQueue
 {
@@ -515,7 +516,33 @@ class FullBackUpOfApplication implements ShouldQueue
             if($event->deleted_at!=null){
                 $isArchived="TRUE";
             }
-            $eventCsvData[]=$event->event_title."|".$event->desc."|".$event->event_start_date.(($event->event_start_time!=null && $event->event_start_time!="")?" ".$event->event_start_time:"")."|".$event->event_end_date.(($event->event_end_time!=null && $event->event_end_time!="")?" ".$event->event_time:"")."|".(($event->event_recurring_type!=null)?"TRUE":"FALSE")."|".$event->case_title."|".$event->location. "|".(($event->is_event_private=="yes")?"TRUE":"FALSE")."|".$isArchived."|".$event->event_p_id."|".$comments."|".$sharedWith."|".$event->event_type;
+            if($event->event_start_time!=null && $event->event_start_time!=""){
+                $event_start_at=date("Y-m-d h:i:s A",strtotime($event->event_start_date." ".$event->event_start_time));
+                $date = Carbon::createFromFormat('Y-m-d h:i:s A', $event_start_at, "UTC");
+                $event_start=date("Y-m-d h:i:s A",strtotime($date->setTimezone($authUser->user_timezone)));
+
+            }else{
+                Log::info("Else");
+                $event_start_at=$event->event_start_date;
+                $date = Carbon::createFromFormat('Y-m-d', $event_start_at, "UTC");
+                $event_start=date("Y-m-d",strtotime($date->setTimezone($authUser->user_timezone)));
+            }
+            Log::info("Start   ".$event_start);
+            if($event->event_end_time!=null && $event->event_end_time!=""){
+                $event_end_at=date("Y-m-d h:i:s A",strtotime($event->event_end_date." ".$event->event_end_time));
+                $date = Carbon::createFromFormat('Y-m-d h:i:s A', $event_end_at, "UTC");
+                $event_end=date("Y-m-d h:i:s A",strtotime($date->setTimezone($authUser->user_timezone)));
+
+            }else{
+                Log::info("Else");
+                $event_end_at=$event->event_end_date;
+                $date = Carbon::createFromFormat('Y-m-d', $event_end_at, "UTC");
+                $event_end=date("Y-m-d",strtotime($date->setTimezone($authUser->user_timezone)));
+            }
+            
+            Log::info("End   ".$event_end);
+            // $event_end = convertUTCToUserDate($event->event_end_date.(($event->event_end_time!=null && $event->event_end_time!="")?" ".$event->event_end_time:""), $authUser->user_timezone ?? 'UTC')->format('m/d/Y h:i:s A');
+            $eventCsvData[]=$event->event_title."|".$event->desc."|".$event_start."|".$event_end."|".(($event->event_recurring_type!=null)?"TRUE":"FALSE")."|".$event->case_title."|".$event->location. "|".(($event->is_event_private=="yes")?"TRUE":"FALSE")."|".$isArchived."|".$event->event_p_id."|".$comments."|".$sharedWith."|".$event->event_type;
         }        
         $file_path =  $folderPath.'/events.csv';  
         $file = fopen($file_path,"w+");
