@@ -868,6 +868,7 @@ class ContractController extends BaseController
         $user = $user->offset($requestData['start'])->limit($requestData['length']);
         $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $user = $user->get()->each->setAppends(['lastloginnewformate', 'full_name', 'created_date_new']);
+        foreach ($user as $value) { $value->group_name = ($value->group_name == '') ? 'Unassigned' : $value->group_name; }
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
             "recordsTotal"    => intval( $totalData ),  // total number of records
