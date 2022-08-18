@@ -1082,7 +1082,7 @@ class CaseController extends BaseController
                                 $query->where('case_id', $case_id);
                             });
                 if(!isset($request->upcoming_events) || $request->upcoming_events == 'on') {
-                    $allEvent = $allEvent->whereDate("start_date", ">=", Carbon::now($authUser->user_timezone ?? 'UTC')->format('Y-m-d'));
+                    $allEvent = $allEvent->whereDate("start_date", ">=", date('Y-m-d'));
                 }
                 $allEvent = $allEvent->orderBy("start_date", "ASC")->with("event", "event.eventType")->get();
 
@@ -1092,11 +1092,12 @@ class CaseController extends BaseController
                 if(count($allEvent)) {
                     foreach($allEvent as $key => $item) {
                         $startDateTime= ($item->event->is_full_day == 'no') ? convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone) : $item->user_start_date;
-                        $endDateTime= ($item->event->is_full_day == 'no') ? convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone) : $item->user_end_date;
-                        $finalDataList[] = (object)[
-                            'item' => $item,
-                            's_date_time' => ($item->event->is_full_day == 'no') ? $startDateTime->format('Y-m-d H:i:s') : $item->user_start_date->format('Y-m-d').' 00:00:00',
-                        ];
+                        if($startDateTime->format('Y-m-d') >= Carbon::now($authUser->user_timezone ?? 'UTC')->format('Y-m-d')) {
+                            $finalDataList[] = (object)[
+                                'item' => $item,
+                                's_date_time' => ($item->event->is_full_day == 'no') ? $startDateTime->format('Y-m-d H:i:s') : $item->user_start_date->format('Y-m-d').' 00:00:00',
+                            ];
+                        }
                     }
                     if(count($finalDataList)) {
                         $allEvents = collect($finalDataList)->sortBy(function ($product, $key) {
