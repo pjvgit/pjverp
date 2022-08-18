@@ -668,10 +668,7 @@ class HomeController extends BaseController
                             } else {
                                 $remindTime = Carbon::parse($ritem->popup_remind_time);
                                 if($ritem->reminder_frequncy == "week" || $ritem->reminder_frequncy == "day") {
-                                    $eventDateTime = ($event->is_full_day == 'no') ? convertUTCToUserTime($item->start_date.' '.$event->start_time, $authUser->user_timezone) : $item->user_start_date->format('Y-m-d');
-                                    if($todayDate == $eventDateTime->format('Y-m-d')) {
-                                        $addEvent = true;
-                                    }
+                                    $addEvent = true;
                                 } else if($ritem->reminder_frequncy == "hour") {
                                     if(Carbon::parse($currentTime)->gte($remindTime) && Carbon::parse($eventStartTime)->gt(Carbon::parse($currentTime))) {
                                         $addEvent = true;
@@ -740,12 +737,13 @@ class HomeController extends BaseController
         // For task
         $result = TaskReminder::where("reminder_type", "popup")
                     ->where(function($query) {
-                        $query->whereDate("remind_at", Carbon::now()) 
-                        ->orWhereDate("snooze_remind_at", Carbon::now())
+                        $query->whereDate("remind_at", date("Y-m-d")) 
+                        ->orWhereDate("snooze_remind_at", date("Y-m-d"))
                         ->orWhereJsonContains('staff_remind_detail', ['remind_at' => date("Y-m-d")])
                         ->orWhereJsonContains('staff_remind_detail', ["snooze_remind_at" => date("Y-m-d")]);
-                    })   
-                    // ->where("is_dismiss", "no")
+                    })->whereHas('task', function($q) {
+                        $q->whereNotNull('task_due_on')->where('task_due_on', '!=', '9999-12-30');
+                    })
                     // ->where("task_id", 90)
                     ->with('task', 'task.taskLinkedStaff', 'task.case', 'task.lead', 'task.case.caseStaffAll', 'task.lead.userLeadAdditionalInfo')
                     ->get();
@@ -753,6 +751,7 @@ class HomeController extends BaseController
             foreach($result as $key => $item) {
                 $users = $this->getTaskLinkedUser($item, "popup");
                 if(count($users)) {
+                    $task = $item->task;
                     $addTask = false;
                     if($item->staff_remind_detail != null){
                         $staffReminders = encodeDecodeJson($item->staff_remind_detail)->where('user_id',auth()->id())->toArray();
@@ -762,7 +761,7 @@ class HomeController extends BaseController
                                 $addTask = true;
                             }
                         }else{
-                            $addTask = true;    
+                            $addTask = true;
                         }
                     }else {
                         $addTask = true;
@@ -772,16 +771,16 @@ class HomeController extends BaseController
                             "event_recurring_id" => "",
                             "task_id" => $item->task_id,
                             "reminder_id" => $item->id,
-                            "date_time" => date('M d Y', strtotime(@$item->task->task_due_on)) ?? "",
-                            "created_by" => $item->task->taskCreatedByUser->full_name ?? "-",
+                            "date_time" => date('M d Y', strtotime(@$task->task_due_on)) ?? "",
+                            "created_by" => $task->taskCreatedByUser->full_name ?? "-",
                             "type" => "task",
-                            "name" => $item->task->task_title. ' : '.$item->reminer_number.'='.$item->reminder_frequncy.' : '.$item->id ?? "-",
-                            "case_id" => $item->task->case_id ?? "",
-                            "case_unique_number" => $item->task->case->case_unique_number ?? "",
-                            "lead_id" => $item->task->lead_id ?? "",
-                            "case_lead" => (($item->task->case_id) ? $item->task->case->case_title : (($item->task->lead_id) ? $item->task->lead->full_name : "<No Case/Lead>") ),
+                            "name" => $task->task_title. ' : '.$item->reminer_number.'='.$item->reminder_frequncy.' : '.$item->id ?? "-",
+                            "case_id" => $task->case_id ?? "",
+                            "case_unique_number" => $task->case->case_unique_number ?? "",
+                            "lead_id" => $task->lead_id ?? "",
+                            "case_lead" => (($task->case_id) ? $task->case->case_title : (($task->lead_id) ? $task->lead->full_name : "<No Case/Lead>") ),
                             "location" => "-",
-                            "priority" => $item->task->priority_text ?? "-"
+                            "priority" => $task->priority_text ?? "-"
                         ];
                     }
                 }
