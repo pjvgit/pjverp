@@ -5908,7 +5908,15 @@ class BillingController extends BaseController
             $caseCllientSelection = CaseClientSelection::select("*")->where("case_client_selection.selected_user",$client_id)->get()->pluck("case_id");
 
             //List all case by client 
-            $caseListByClient = CaseMaster::select("*")->whereIn('case_master.id',$caseCllientSelection)->select("*")->get();
+            $caseListByClient = CaseMaster::select("id", "case_title")->whereIn('case_master.id',$caseCllientSelection);
+            if($authUser->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+                $caseListByClient = $caseListByClient->where('firm_id', $authUser->firm_name);
+            }else{
+                $caseListByClient = $caseListByClient->whereHas('caseStaffAll', function($query) {
+                    $query->where('user_id', auth()->id());
+                });
+            }
+            $caseListByClient = $caseListByClient->get();
             
             //Get the case data
             $caseMaster = CaseMaster::whereId($case_id)->with("caseAllClient")->first();
