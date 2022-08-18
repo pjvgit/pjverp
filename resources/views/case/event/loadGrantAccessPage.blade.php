@@ -86,8 +86,8 @@
                         $("#cleintUSER_"+{{$UserMasterData->id}}).prop('checked',"checked");
                         $("#cleintUSER_"+{{$UserMasterData->id}}).attr("data-client_portal_enable",1);
                         var userId = $("#grantAccessPage #client_id").val();
-                        $("#loadTaskSection #attend_user_"+ userId).prop('disabled', false);
-                        $("#loadTaskSection #attend_user_"+ userId).removeClass('not-enable-portal');
+                        $("#attend_user_"+ userId).prop('disabled', false);
+                        $("#attend_user_"+ userId).removeClass('not-enable-portal');
                         if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
                             $("#SelectAllLeadShare").prop('checked', true);
                         } else {

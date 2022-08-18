@@ -21,12 +21,13 @@ class Invoices extends Model
         'invoice_setting' => 'array',
     ];
     
-    protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status",/*"check_portal_access",*/"invoice_id", "days_aging"];
+    protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status",/*"check_portal_access",*/"invoice_id"];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     } 
 
-    public function getDaysAgingAttribute(){
+    // Not required. Created a Helper function to get days
+    /* public function getDaysAgingAttribute(){
         if($this->due_date != null){
             $date = \Carbon\Carbon::parse($this->due_date_new);
             $now = \Carbon\Carbon::now();
@@ -34,7 +35,7 @@ class Invoices extends Model
         }else{
             return '--';
         }
-    }
+    } */
 
     public function getTotalAmountNewAttribute(){
         return number_format($this->total_amount,2);
