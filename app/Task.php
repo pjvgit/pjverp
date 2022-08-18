@@ -149,8 +149,10 @@ class Task extends Authenticatable
             $text = "High";
         else if($this->task_priority == 2)
             $text = "Medium";
-        else
+        else if($this->task_priority == 1)
             $text = "Low";
+        else
+            $text = '';
         return $text;
     }
 

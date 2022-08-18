@@ -22,21 +22,32 @@ class EventController extends Controller
      */
     public function index()
     {
-        /* $events = CaseEvent::whereHas("eventLinkedContact", function($query) {
-                        $query->where('users.id', auth()->id());
-                    })->whereDate('start_date', '>=', Carbon::now())->orderBy('start_date', 'asc')
-                    ->with(["eventLinkedContact" => function($query) {
-                        $query->where('users.id', auth()->id())->select("case_event_linked_contact_lead.is_view");
-                    }])->get(); */
         $authUser = auth()->user();
         $authUserId = (string) auth()->id();
-        $currentDate = convertUTCToUserDate(Carbon::now()->format('Y-m-d'), $authUser->user_timezone)->format('Y-m-d');
-        $events = EventRecurring::whereJsonContains('event_linked_contact_lead', ["contact_id" => $authUserId])
-                    ->whereDate('start_date', '>=', $currentDate)
+        $events = [];
+        $currentDate = Carbon::now($authUser->user_timezone ?? 'UTC')->format('Y-m-d');
+        $allEvent = EventRecurring::whereJsonContains('event_linked_contact_lead', ["contact_id" => $authUserId])
+                    ->whereDate('start_date', '>=', date('Y-m-d'))
                     ->whereHas('event', function($query) {
                         $query->where('is_SOL', 'no');
                     })
                     ->orderBy('start_date', 'asc')->with("event")->get();
+        if(count($allEvent)) {
+            foreach($allEvent as $key => $item) {
+                $startDateTime= ($item->event->is_full_day == 'no') ? convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone) : $item->user_start_date;
+                if($startDateTime->format('Y-m-d') >= $currentDate) {
+                    $finalDataList[] = (object)[
+                        'item' => $item,
+                        's_date_time' => ($item->event->is_full_day == 'no') ? $startDateTime->format('Y-m-d H:i:s') : $item->user_start_date->format('Y-m-d').' 00:00:00',
+                    ];
+                }
+            }
+            if(count($finalDataList)) {
+                $events = collect($finalDataList)->sortBy(function ($product, $key) {
+                    return $product->s_date_time;
+                })->values();
+            }
+        }
         return view("client_portal.events.index", compact('events', 'authUser'));
     }
 

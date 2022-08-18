@@ -108,7 +108,11 @@ class ReportsController extends BaseController
                     $clientArray[$v->practice_area_title][] = $v;       
                 }
                 if($export_csv == 1){
-                    $daysAging = daysReturns($v->due_date_new, 'onlyDays');
+                    $daysAging = 0;
+                    if($v->due_date != Null) {
+                        $dueDate = convertUTCToUserDate($v->due_date, $authUser->user_timezone ?? 'UTC')->format('Y-m-d');
+                        $daysAging = daysReturns($dueDate, 'onlyDays');
+                    }
                     $casesCsvData[]=$v->invoice_id."|".$v->contact_name."|".$v->ctitle."|".$v->total_amount_new."|".$v->paid_amount_new."|".$v->due_amount_new."|".(($v->due_date!=NULL)? $v->due_date_new : '--')."|".$v->status."|".$daysAging;
                 }
             }
@@ -313,10 +317,10 @@ class ReportsController extends BaseController
             ->leftJoin("case_master","case_master.id","=","expense_entry.case_id")
             ->leftJoin("invoices","invoices.id","=","expense_entry.invoice_link")
             ->select('expense_entry.*')
-            ->where("case_master.id",$case->id)->where("expense_entry.status",'paid')->whereNull("invoices.deleted_at");
+            ->where("case_master.id",$case->id)->where("expense_entry.status",'paid')
+            ->whereNull("invoices.deleted_at");
             $ExpenseEntry = $ExpenseEntry->whereBetween("expense_entry.entry_date",[$startDt,$endDt]);
             $ExpenseEntry = $ExpenseEntry->get();
-            
             $caseExpenseEntry = 0;
             foreach($ExpenseEntry as $k => $v){
                 if($v->time_entry_billable == "yes"){
@@ -341,13 +345,12 @@ class ReportsController extends BaseController
             // $Invoices = $Invoices->whereBetween("invoices.invoice_date",[$startDt,$endDt]);
             $Invoices = $Invoices->orderBy("invoices.id");            
             $Invoices = $Invoices->with('forwardedInvoices')->get();
-
             $caseBalanceForwarded = $caseInvoicePaidAmount =  0;
             foreach($Invoices as $k => $v){
                 if($v->status == 'Forwarded'){
-                    $caseBalanceForwarded += str_replace(",","",$v->total_amount);
+                    $caseBalanceForwarded += str_replace(",","",$v->due_amount);
                     if($v->case_id == $case->id){
-                        $invPaidRecors[$case->id][$v->id]['forwardedEntry'][] = str_replace(",","",$v->paid_amount);
+                        $invPaidRecors[$case->id][$v->id]['forwardedEntry'][] = str_replace(",","",$v->due_amount);
                         $totalInvoiceEntry += 1;
                         $invPaidRecors[$case->id][$v->id]['totalInvoiceEntry'] = $totalInvoiceEntry;
                     }
@@ -368,12 +371,23 @@ class ReportsController extends BaseController
                 $caseInvoicePaidAmount += str_replace(",","",$v->paid_amount);
                 if(str_replace(",","",$v->paid_amount) > 0){
                     if($v->case_id == $case->id){
-                        $invoicePayment = InvoicePayment::where('invoice_id', $v->id)->whereBetween("payment_date",[$startDt,$endDt])->sum('amount_paid');
+                        $invoicePayData = InvoiceHistory::where('invoice_id', $v->id)->whereDate("created_at",'>=',$startDt)->whereDate("created_at",'<=',$endDt)->whereIn('status',['1','2','3','4','6'])->whereIn('acrtivity_title',['Payment Received','Payment Refund'])->select('amount','status')->get();
+                        $invoicePayment = 0;
+                        foreach($invoicePayData as $payment){
+                            if ($payment->amount && $payment->amount > 0) {
+                                if ($payment->status != 4) {
+                                    $invoicePayment += $payment->amount;
+                                } else {
+                                    $invoicePayment -= $payment->amount;
+                                }
+                            }
+                        }
+                        $invPaidRecors[$case->id][$v->id]['forwardedEntry'][] = $caseBalanceForwarded;
                         $invPaidRecors[$case->id][$v->id]['paidAmount'][] = str_replace(",","",$invoicePayment);
                         $invPaidRecors[$case->id][$v->id]['totalAmount'][] = str_replace(",","",$v->total_amount);
                     }
                 }
-            }
+            }           
             $cases[$key]['caseInvoicePaidAmount'] = number_format($caseInvoicePaidAmount,2);
             $cases[$key]['caseBalanceForwarded'] = number_format($caseBalanceForwarded,2);
             // get balance forwarded list
@@ -382,7 +396,8 @@ class ReportsController extends BaseController
             
             $InvoiceAdjustment=InvoiceAdjustment::leftJoin("invoices","invoices.id","=","invoice_adjustment.invoice_id")
             ->select('invoice_adjustment.*')
-            ->where("invoice_adjustment.case_id",$case->id)->whereNull("invoices.deleted_at");
+            ->where("invoice_adjustment.case_id",$case->id)->whereNull("invoices.deleted_at")
+            ->whereNotNull("invoice_adjustment.invoice_id");
             // $InvoiceAdjustment = $InvoiceAdjustment->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt]);
             $InvoiceAdjustment = $InvoiceAdjustment->whereDate("invoice_adjustment.created_at", '>=', $startDt)->whereDate("invoice_adjustment.created_at", '<=', $endDt);
             $InvoiceAdjustment = $InvoiceAdjustment->get();
@@ -589,7 +604,6 @@ class ReportsController extends BaseController
                     }
                 }
             }
-            
             $cases[$key]['paidFlatfee'] = $payFlatfee;
             $cases[$key]['paidTimeEntry'] = $payTimeEntry;
             $cases[$key]['paidExpenses'] = $payExpenses;
@@ -598,7 +612,7 @@ class ReportsController extends BaseController
             $cases[$key]['paidInterest'] = $payInterest;
             $cases[$key]['paidTax'] = $payTax;
             $cases[$key]['paidAdditions'] = $payAdditions;
-            
+
             // dd($invPaidRecors);
             if($export_csv == 1){
                 $totalCaseFlatfees += str_replace(",","",$case->caseFlatfees); 
