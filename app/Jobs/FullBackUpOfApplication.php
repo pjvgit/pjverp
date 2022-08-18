@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-use App\CaseMaster,App\User,App\CasePracticeArea,App\CaseClientSelection,App\CaseStaff,App\AccountActivity,App\ClientNotes,App\CaseStage,App\ClientFullBackup,App\ExpenseEntry,App\TaskTimeEntry,App\Countries,App\InvoicePayment,App\FlatFeeEntry,App\InvoiceAdjustment,App\CaseEventComment;
+use App\CaseMaster,App\User,App\CasePracticeArea,App\CaseClientSelection,App\CaseStaff,App\Event,App\AccountActivity,App\ClientNotes,App\CaseStage,App\ClientFullBackup,App\ExpenseEntry,App\TaskTimeEntry,App\Countries,App\InvoicePayment,App\FlatFeeEntry,App\InvoiceAdjustment,App\CaseEventComment;
 use App\Task,App\CaseTaskLinkedStaff,App\CaseEventLocation;
 use ZipArchive,File,DB,Validator,Session,Storage,Image;
 use Illuminate\Support\Facades\Input;
@@ -408,7 +408,7 @@ class FullBackUpOfApplication implements ShouldQueue
                     foreach ($contactlist as $kk => $vv){
                         $contacts[] = $vv->fullname;
                     }
-                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4 || $v->user_status==3) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
+                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4 || $v->user_status==3) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".$v->notes."|".(($v->created_at!="")?date("m/d/Y", strtotime($v->created_at)):"");
                 }
             }
 
@@ -457,58 +457,72 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateEventsCSV($request, $folderPath, $authUser){
-        $casesCsvData=[];
-        
-        if(isset($request['include_archived'])){  
-            $deleted_at = '' ;
-        }else{
-            $deleted_at = ' AND case_events.deleted_at is null' ;
-        }
+    public function generateEventsCSV($request, $folderPath, $authUser){   
+        $eventCsvData=[];
+        $eventHeader="Name|Description|Start Time|End Time|All day|Case Name|Location|Private?|Archived|LegalCase ID|Comments|Shared With|Event Type";
+        $eventCsvData[]=$eventHeader;
+        $events=Event::leftJoin("event_recurrings","event_recurrings.event_id","=","events.id")
+        ->leftJoin("case_master","case_master.id","=","events.case_id")
+        ->leftJoin("case_events","case_events.id","=","events.case_id")
+        ->leftJoin("case_event_location","case_event_location.id","=","events.event_location_id")
+        ->leftJoin("event_type","event_type.id","=","events.event_type_id")
+        ->select("events.id as event_p_id","events.case_id","events.lead_id","events.parent_event_id","events.event_title","events.event_type_id","events.is_full_day",
+            "events.recurring_event_end_date","events.event_location_id","events.is_event_private","events.is_recurring","events.event_recurring_type","events.firm_id",
+            "events.created_by","events.created_at","events.deleted_at","events.event_description as desc","events.start_date as event_start_date",
+            "events.start_time as event_start_time","events.end_date as event_end_date","events.end_time as event_end_time",
+            
+            "event_recurrings.id as r_id","event_recurrings.event_id","event_recurrings.event_comments","event_recurrings.event_linked_staff","event_recurrings.event_linked_contact_lead",
+            DB::raw('CONCAT_WS(", ",case_event_location.location_name,case_event_location.address1,case_event_location.address2,case_event_location.city,case_event_location.state,case_event_location.postal_code) as location'),
+            "case_event_location.location_name","case_event_location.address1","case_event_location.address2","case_event_location.city","case_event_location.state","case_event_location.postal_code",
 
-        //If Parent user logged in then show all child case to parent
-        if($request['export_cases'] == 1 && $authUser->parent_user=="0"){
+            "event_type.title as event_type",
+            "case_master.case_title as case_title"    
+        )->with("eventType");
+        
+        if($request['export_cases'] == 1 && $authUser->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');
             $getChildUsers[]=$authUser->id;
-            $where = " case_events.created_by in (".str_replace(['[',']'],'',$getChildUsers).")";
+            $events = $events->whereIn('events.created_by',$getChildUsers);
         }else{
-            $where = " case_events.created_by = ".$authUser->id;
+            $events = $events->where('events.created_by',$authUser->id);
         }
 
-        $query = "select case_events.id,case_events.event_title,case_events.all_day,case_events.start_date,case_events.start_time,case_events.end_date,case_events.end_time,case_events.case_id,case_events.lead_id,case_events.event_location_id,case_events.event_description,case_events.is_event_private,case_events.created_by,case_events.firm_id,case_events.deleted_at,case_events.event_type,case_master.case_title,CONCAT(case_event_location.location_name,', ',case_event_location.address1,', ',case_event_location.address2,', ',case_event_location.city,', ',case_event_location.state,', ',case_event_location.postal_code) as location,
-        (SELECT group_concat(user_id) FROM case_event_linked_staff WHERE event_id = case_events.id) as sharedWith from case_events 
-        left join case_master on case_master.id =  case_events.case_id left join case_event_location on case_event_location.id =  case_events.event_location_id
-        where".$where." and (case_events.case_id is not null or case_events.lead_id is not null) and (case_events.parent_evnt_id = 0 or case_events.id = case_events.parent_evnt_id)".$deleted_at.";";
-        $allEvents = DB::select($query);
-
-        if(count($allEvents) > 0){
-            $casesCsvData[]="Name|Description|Start Time|End Time|All day|Case Name|Location|Private?|Archived|LegalCase ID|Comments|Shared With|Event Type";
-            
-            foreach ($allEvents as $k=>$v){
-                $sharedWithResult = '';
-                if($v->sharedWith != NULL){
-                    $sharedWith = DB::select("SELECT group_concat(concat(users.first_name,' ',users.last_name)) as us FROM `users` WHERE `id` IN (".$v->sharedWith.")");
-                    $sharedWithResult .= $sharedWith[0]->us;
-                }
-                $comments = [];
-                $commentsData = CaseEventComment::select("comment")->where("event_id",$v->id)->get();
-                if(count($commentsData) > 0){
-                    foreach($commentsData as $kk=>$vv){
-                        if($vv->comment != null){
-                            $comments[] = $vv->comment;
-                        }
+        if(isset($request['include_archived'])){  
+            $events = $events->withTrashed();
+        }
+        $events = $events->groupBy("event_id")->get();
+        foreach($events as $event){
+            $comments="";
+            if($event->event_comments!=null){
+                $comment_arr=array();
+                foreach(json_decode($event->event_comments) as $comment){
+                    if($comment->comment!=""){
+                        $comment_arr[]=$comment->comment;
                     }
                 }
-                $casesCsvData[]=$v->event_title."|".$v->event_description."|".$v->start_date.' '.$v->start_time."|".$v->end_date.' '.$v->end_time."|".(($v->all_day == 'yes') ? 'true' : 'false')."|".$v->case_title."|".$v->location."|".(($v->is_event_private == 'yes') ? 'true' : 'false')."|".(($v->deleted_at != NULL) ? 'true' : 'false')."|".$v->id."|".implode(PHP_EOL, $comments)."|".str_replace(",",PHP_EOL,$sharedWithResult)."|".$v->event_type;
+                $comments=implode(PHP_EOL,$comment_arr);
             }
-
-            $file_path =  $folderPath.'/events.csv';  
-            $file = fopen($file_path,"w+");
-            foreach ($casesCsvData as $exp_data){
+            $sharedWith="";
+            if($event->event_linked_staff!=null){
+                $shared_arr=array();
+                foreach(json_decode($event->event_linked_staff) as $shared){
+                    $user_data=User::where("id","=",$shared->user_id)->first();
+                    $shared_arr[]=$user_data->first_name." ".$user_data->last_name;
+                }
+                $sharedWith=implode(PHP_EOL,$shared_arr);
+            }
+            $isArchived="FALSE";
+            if($event->deleted_at!=null){
+                $isArchived="TRUE";
+            }
+            $eventCsvData[]=$event->event_title."|".$event->desc."|".$event->event_start_date.(($event->event_start_time!=null && $event->event_start_time!="")?" ".$event->event_start_time:"")."|".$event->event_end_date.(($event->event_end_time!=null && $event->event_end_time!="")?" ".$event->event_time:"")."|".(($event->event_recurring_type!=null)?"TRUE":"FALSE")."|".$event->case_title."|".$event->location. "|".(($event->is_event_private=="yes")?"TRUE":"FALSE")."|".$isArchived."|".$event->event_p_id."|".$comments."|".$sharedWith."|".$event->event_type;
+        }        
+        $file_path =  $folderPath.'/events.csv';  
+        $file = fopen($file_path,"w+");
+        foreach ($eventCsvData as $exp_data){
             fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
-            }   
-            fclose($file); 
-        }
+        }   
+        fclose($file); 
         return true; 
     }
     
