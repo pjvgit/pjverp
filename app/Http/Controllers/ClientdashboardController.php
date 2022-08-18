@@ -914,6 +914,7 @@ class ClientdashboardController extends BaseController
 
     public function loadTrustHistory(Request $request)
     {   
+        $authUser = auth()->user();
         $data = TrustHistory::where("client_id", $request->client_id);
         if($request->filter_type == 'user') {
             $data = $data->whereNull('allocated_to_case_id')->whereNull('allocated_to_lead_case_id');
@@ -973,12 +974,12 @@ class ClientdashboardController extends BaseController
                 }
                 return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
             })
-            ->editColumn('payment_date', function ($data) {
+            ->editColumn('payment_date', function ($data) use($authUser) {
                 if($data->payment_date) {
-                    // $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone ?? 'UTC');
+                    $pDate = convertUTCToUserDate($data->payment_date, $authUser->user_timezone);
                     // $pDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',@$data->payment_date.' 00:00:00',auth()->user()->user_timezone ?? 'UTC');
-                    $pDate = Carbon::createFromFormat('Y-m-d', $data->payment_date, "UTC");
-                    $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
+                    // $pDate = Carbon::createFromFormat('Y-m-d', $data->payment_date, "UTC");
+                    // $pDate->setTimezone($authUser->user_timezone ?? 'UTC');
                     return $pDate->format("M d, Y");
                     if ($pDate->isToday()) {
                         return "Today";
@@ -1133,8 +1134,9 @@ class ClientdashboardController extends BaseController
                         $onlinePaymentStatus = ($data->online_payment_status == 'pending') ? "(Payment Pending)" : (($data->online_payment_status == 'expired') ? "(Expired)" : "");
                         $ftype="Deposit into Trust ".$allocateTxt." ".$isRefund.$onlinePaymentStatus;
                         if(in_array($data->is_invoice_fund_request_overpaid, ['partial','full']) && !empty($data->related_to_invoice_id)) {
+                            $note = ($data->is_invoice_fund_request_overpaid == 'full') ? __('billing.trust_history_invoice_full_overpaid_note') : __('billing.trust_history_invoice_partial_overpaid_note');
                             $ftype .= '<div class="position-relative" style="float: right;">
-                                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'.__('billing.trust_history_invoice_overpaid_note').'</div>">
+                                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'.$note.'</div>">
                                                 <img style="border: none;" src="'. asset('icon/note.svg') .'">
                                             </a>
                                         </div>';

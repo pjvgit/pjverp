@@ -5,10 +5,9 @@
     <section id="events_view">
         <h1 class="primary-heading">Upcoming Events</h1>
         <ul class="list">
-            @forelse ($events as $key => $item)
+            @forelse ($events as $key1 => $item1)
                 @php
-                    // $startDateTime= convertUTCToUserTime($item->start_date.' '.@$item->event->start_time, $userTimezone ?? 'UTC');
-                    // $endDateTime= convertUTCToUserTime($item->end_date.' '.@$item->event->end_time, $userTimezone ?? 'UTC');
+                    $item = $item1->item;
                     if($item->event->is_full_day == 'no') {
                         $startDateTime= convertToUserTimezone($item->start_date.' '.$item->event->start_time, $authUser->user_timezone);
                         $endDateTime= convertToUserTimezone($item->end_date.' '.$item->event->end_time, $authUser->user_timezone);

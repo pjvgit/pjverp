@@ -189,7 +189,7 @@
                                 </div>
                                 
                             </div>
-                            </span>
+                        </span>
                         <div class="form-group row recurring-div" id="repeat_dropdown">
                             <label for="inputEmail3" class="col-sm-2 col-form-label">Frequency</label>
                             <div class="col-md-3 form-group mb-3">
@@ -615,15 +615,6 @@
             'timeFormat': 'g:i A',
             'forceRoundTime': true 
         });
-      
-        // Initialize Datepair
-        var dateContainer = document.getElementById('editDateInputPanel');
-        var datepair = new Datepair(dateContainer, {
-            'dateClass': 'edit-input-date',
-            'timeClass': 'edit-input-time',
-            'startClass': 'edit-input-start',
-            'endClass': 'edit-input-end'
-        });
 
         /* $('#editDateInputPanel').on('change', '.edit-input-start', function() {
             $('#editDateInputPanel .edit-input-end').timepicker('option', 'minTime', $(this).val());
@@ -636,6 +627,15 @@
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
+        });
+
+        // Initialize Datepair
+        var dateContainer = document.getElementById('editDateInputPanel');
+        var datepair = new Datepair(dateContainer, {
+            'dateClass': 'edit-input-date',
+            'timeClass': 'edit-input-time',
+            'startClass': 'edit-input-start',
+            'endClass': 'edit-input-end'
         });
         
         $("#start_date").datepicker().on('change',function(e){
