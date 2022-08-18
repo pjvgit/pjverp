@@ -864,6 +864,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             stateSave: true,
             searching: false,
             "order": [[0, "desc"]],
+            oLanguage: {sProcessing: '<div class="loadscreen" id="preloader" style="display: block;"><div class="loader"><img class="logo mb-3" src="{{asset("images/logo.png")}}" style="display: none" alt=""><div class="loader-bubble loader-bubble-primary d-block"></div></div></div>'},
             "ajax":{
                 url :"loadCase", // json datasource
                 type: "get",  // method  , by default get

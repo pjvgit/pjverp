@@ -113,8 +113,7 @@ class User extends Authenticatable
      */
     public function staffCases()
     {
-        return $this->belongsToMany(CaseMaster::class, 'case_staff', 'user_id', 'case_id')->where("case_master.is_entry_done","1")
-                ->whereNull("case_master.case_close_date")->whereNull("case_staff.deleted_at");
+        return $this->belongsToMany(CaseMaster::class, 'case_staff', 'user_id', 'case_id')->where("case_master.is_entry_done","1")->where("case_staff.is_deactivate_reassign","no")->whereNull("case_master.case_close_date")->whereNull("case_staff.deleted_at");
     }
 
     /**
