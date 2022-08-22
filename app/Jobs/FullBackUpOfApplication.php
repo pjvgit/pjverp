@@ -174,7 +174,7 @@ class FullBackUpOfApplication implements ShouldQueue
                 ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
                 ->leftJoin('user_role','user_role.id','case_client_selection.user_role')
                 ->leftJoin('client_group','client_group.id','users_additional_info.contact_group_id')
-                ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact")
+                ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact","case_client_selection.allocated_trust_balance")
                 ->where("case_client_selection.case_id",$v->id);
                 if(isset($request['include_archived'])){
                     $caseCllientSelection = $caseCllientSelection->withTrashed();
@@ -216,7 +216,7 @@ class FullBackUpOfApplication implements ShouldQueue
                 $case_arc=($v->deleted_at==null)?"FALSE":"TRUE";
                 $solDate = ($v->case_statute_date) ? convertUTCToUserDate($v->case_statute_date, $timezone)->format('m/d/Y') : '';
                 $caseBalance = Invoices::where('case_id', $v->id)->sum('due_amount');
-                $casesCsvData[]=$v->case_title."|".$v->case_number."|".$caseOpenDate."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".$caseCloseDate."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."|".$solDate."|".number_format($v->total_allocated_trust_balance ?? 0, 2)."|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|".$caseBalance."|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description)."|".$case_arc;
+                $casesCsvData[]=$v->case_title."|".$v->case_number."|".$caseOpenDate."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".$caseCloseDate."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."|".$solDate."|".number_format($caseCllientSelection->where("deleted_at",null)->sum('allocated_trust_balance') ?? 0, 2)."|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|".$caseBalance."|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description)."|".$case_arc;
                 
                 // Notes Entry
                 $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
@@ -329,7 +329,15 @@ class FullBackUpOfApplication implements ShouldQueue
                 } else if($v->c_amt=="0.00" && $v->d_amt > 0) {
                     $amount="-".$v->d_amt;
                 }
-                $casesCsvData[] = date('m/d/Y',strtotime($v->added_date))."|".$v->related."|".$v->contact_by_name."|".$v->case_title."|".$v->entered_by."|".$v->payment_note."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".$amount."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;    
+                $is_refunded="FALSE";
+                if($v->is_refunded=='yes'){
+                    $is_refunded="TRUE";
+                }
+                $is_refund="FALSE";
+                if($v->refund_ref_id!=null && $v->payment_status=="refund entry"){
+                    $is_refund="TRUE";
+                }
+                $casesCsvData[] = date('m/d/Y',strtotime($v->added_date))."|".$v->related."|".$v->contact_by_name."|".$v->case_title."|".$v->entered_by."|".$v->payment_note."|".$v->payment_method."|".$is_refund."|".$is_refunded."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".$amount."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;    
             }
 
             $file_path =  $folderPath.'/account_activities.csv';
@@ -409,7 +417,7 @@ class FullBackUpOfApplication implements ShouldQueue
                     foreach ($contactlist as $kk => $vv){
                         $contacts[] = $vv->fullname;
                     }
-                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4 || $v->user_status==3) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".$v->notes."|".(($v->created_at!="")?date("m/d/Y", strtotime($v->created_at)):"");
+                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4 || $v->user_status==3) ? 'true' : 'false')."|".$v->notes."|".$v->credit_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".$v->notes."|".(($v->created_at!="")?date("m/d/Y", strtotime($v->created_at)):"");
                 }
             }
 
@@ -519,28 +527,22 @@ class FullBackUpOfApplication implements ShouldQueue
             if($event->event_start_time!=null && $event->event_start_time!=""){
                 $event_start_at=date("Y-m-d h:i:s A",strtotime($event->event_start_date." ".$event->event_start_time));
                 $date = Carbon::createFromFormat('Y-m-d h:i:s A', $event_start_at, "UTC");
-                $event_start=date("Y-m-d h:i:s A",strtotime($date->setTimezone($authUser->user_timezone)));
-
+                $event_start=date("m/d/Y h:i:s A",strtotime($date->setTimezone($authUser->user_timezone)));
             }else{
-                Log::info("Else");
                 $event_start_at=$event->event_start_date;
                 $date = Carbon::createFromFormat('Y-m-d', $event_start_at, "UTC");
-                $event_start=date("Y-m-d",strtotime($date->setTimezone($authUser->user_timezone)));
+                $event_start=date("m/d/Y",strtotime($date->setTimezone($authUser->user_timezone)));
             }
-            Log::info("Start   ".$event_start);
             if($event->event_end_time!=null && $event->event_end_time!=""){
                 $event_end_at=date("Y-m-d h:i:s A",strtotime($event->event_end_date." ".$event->event_end_time));
                 $date = Carbon::createFromFormat('Y-m-d h:i:s A', $event_end_at, "UTC");
-                $event_end=date("Y-m-d h:i:s A",strtotime($date->setTimezone($authUser->user_timezone)));
-
+                $event_end=date("m/d/Y h:i:s A",strtotime($date->setTimezone($authUser->user_timezone)));
             }else{
-                Log::info("Else");
                 $event_end_at=$event->event_end_date;
                 $date = Carbon::createFromFormat('Y-m-d', $event_end_at, "UTC");
-                $event_end=date("Y-m-d",strtotime($date->setTimezone($authUser->user_timezone)));
+                $event_end=date("m/d/Y",strtotime($date->setTimezone($authUser->user_timezone)));
             }
             
-            Log::info("End   ".$event_end);
             // $event_end = convertUTCToUserDate($event->event_end_date.(($event->event_end_time!=null && $event->event_end_time!="")?" ".$event->event_end_time:""), $authUser->user_timezone ?? 'UTC')->format('m/d/Y h:i:s A');
             $eventCsvData[]=$event->event_title."|".$event->desc."|".$event_start."|".$event_end."|".(($event->event_recurring_type!=null)?"TRUE":"FALSE")."|".$event->case_title."|".$event->location. "|".(($event->is_event_private=="yes")?"TRUE":"FALSE")."|".$isArchived."|".$event->event_p_id."|".$comments."|".$sharedWith."|".$event->event_type;
         }        
@@ -831,7 +833,15 @@ class FullBackUpOfApplication implements ShouldQueue
                 } else if($v->c_amt=="0.00" && $v->d_amt > 0) {
                     $amount="-".$v->d_amt;
                 }
-                $casesCsvData[] = date('m/d/Y',strtotime($v->added_date))."|".$v->related."|".$v->contact_by_name."|".$v->case_title."|".$v->entered_by."|".$v->payment_note."|".$v->payment_method."|".(($v->is_refunded=="yes")?"TRUE":"FALSE")."|".(($v->is_refunded=="yes")?"TRUE":"FALSE")."|false|false|".$amount."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|false|false|false|".$v->t_amt."|".$v->id;    
+                $is_refunded="FALSE";
+                if($v->is_refunded=='yes'){
+                    $is_refunded="TRUE";
+                }
+                $is_refund="FALSE";
+                if($v->refund_ref_id!=null && $v->payment_status=="refund entry"){
+                    $is_refund="TRUE";
+                }
+                $casesCsvData[] = date('m/d/Y',strtotime($v->added_date))."|".$v->related."|".$v->contact_by_name."|".$v->case_title."|".$v->entered_by."|".$v->payment_note."|".$v->payment_method."|".$is_refund."|".$is_refunded."|false|false|".$amount."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|false|false|false|".$v->t_amt."|".$v->id;    
             }
             $file_path =  $folderPath.'/trust_activities.csv';  
             $file = fopen($file_path,"w+");
