@@ -668,7 +668,8 @@ class HomeController extends BaseController
                             } else {
                                 $remindTime = Carbon::parse($ritem->popup_remind_time);
                                 if($ritem->reminder_frequncy == "week" || $ritem->reminder_frequncy == "day") {
-                                    $addEvent = true;
+                                    if($remindTime->format('Y-m-d') == $todayDate)
+                                        $addEvent = true;
                                 } else if($ritem->reminder_frequncy == "hour") {
                                     if(Carbon::parse($currentTime)->gte($remindTime) && Carbon::parse($eventStartTime)->gt(Carbon::parse($currentTime))) {
                                         $addEvent = true;
@@ -716,10 +717,10 @@ class HomeController extends BaseController
                                 "event_recurring_id" => $item->id,
                                 "task_id" => "",
                                 "reminder_id" => $ritem->reminder_id,
-                                "date_time" => date('M d', strtotime(convertUTCToUserTime(@$eventStartTime, auth()->user()->user_timezone))) ?? "",
+                                "date_time" => ($event->is_full_day == 'no') ? convertToUserTimezone(@$eventStartTime, $authUser->user_timezone)->format('M d') : $item->user_start_date->format('M d'),
                                 "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
                                 "type" => "event",
-                                "name" => $item->event->event_title. ' : '.$ritem->reminer_number.'='.$ritem->reminder_frequncy.' : '.$ritem->reminder_id ?? "-",
+                                "name" => $item->event->event_title. ' : '.$ritem->reminer_number.'='.$ritem->reminder_frequncy.' : '.$item->id ?? "-",
                                 "case_id" => $item->event->case_id ?? "",
                                 "case_unique_number" => $item->event->case->case_unique_number ?? "",
                                 "lead_id" => $item->event->lead_id ?? "",
