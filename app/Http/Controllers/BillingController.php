@@ -6357,7 +6357,7 @@ class BillingController extends BaseController
                     // Update invoice settings
                     // $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
                     $invoieFirstPaymentPlan = $InvoiceSave->invoiceInstallment;
-                    $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $invoieFirstPaymentPlan);
+                    $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, NULL, $invoieFirstPaymentPlan);
                     $InvoiceSave->save();
                 }
             }else{
