@@ -706,7 +706,7 @@ class FullBackUpOfApplication implements ShouldQueue
         $casesCsvData=[];
 
         $CaseEventLocation = CaseEventLocation::leftJoin('countries','case_event_location.country',"=","countries.id")
-        ->select('case_event_location.*','countries.name');
+        ->select('case_event_location.*','countries.name')->where("case_event_location.firm_id", $authUser->firm_name)->where('location_future_use', 'yes');
         //If Parent user logged in then show all child case to parent
         if($request['export_cases'] == 1 && $authUser->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');

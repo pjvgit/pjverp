@@ -700,7 +700,15 @@ class ContractController extends BaseController
                 $caseStaffData =  CaseStaff::where('user_id',$request->user_id)->get();
                 if(count($caseStaffData) > 0){
                     foreach($caseStaffData as $k =>$v){
-                        CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $request->user_id], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        CaseStaff::where('case_id', $v->case_id)->where('user_id', $request->user_id)->update(['is_deactivate_reassign' => 'yes']);
+                        CaseStaff::updateOrCreate(
+                            ['case_id' => $v->case_id,
+                            'user_id' => $request->assign_to, ],
+                            ['case_id' => $v->case_id,
+                            'user_id' => $request->assign_to,
+                            'created_by' => Auth::User()->id]
+                        );
+                        // CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $request->user_id], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
                 $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$request->user_id)->get();
@@ -713,7 +721,7 @@ class ContractController extends BaseController
                             'user_id' => $request->assign_to, ],
                             ['task_id' => $v->task_id,
                             'user_id' => $request->assign_to,
-                            'created_by' => auth()->id()]
+                            'created_by' => Auth::User()->id]
                         );
                     }
                 }
@@ -784,10 +792,18 @@ class ContractController extends BaseController
             if(!empty($userDeactivate)){       
                 $userDeactivate->assigned_to = $request->assign_to;
                 $userDeactivate->save();
-                $caseStaffData =  CaseStaff::where('user_id',$user_id)->withTrashed()->get();
+                $caseStaffData =  CaseStaff::where('user_id',$user_id)->where('is_deactivate_reassign', 'yes')->get();
                 if(count($caseStaffData) > 0){
                     foreach($caseStaffData as $k =>$v){
-                        CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $user_id], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        CaseStaff::where('case_id', $v->case_id)->update(['is_deactivate_reassign' => 'yes']);
+                        CaseStaff::updateOrCreate(
+                            ['case_id' => $v->case_id,
+                            'user_id' => $request->assign_to, ],
+                            ['case_id' => $v->case_id,
+                            'user_id' => $request->assign_to,
+                            'created_by' => Auth::User()->id]
+                        );
+                        // CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $user_id], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
                 $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$user_id)->get();
@@ -800,7 +816,7 @@ class ContractController extends BaseController
                             'user_id' => $request->assign_to, ],
                             ['task_id' => $v->task_id,
                             'user_id' => $request->assign_to,
-                            'created_by' => auth()->id()]
+                            'created_by' => Auth::User()->id]
                         );
                     }
                 }
@@ -868,6 +884,7 @@ class ContractController extends BaseController
         $user = $user->offset($requestData['start'])->limit($requestData['length']);
         $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $user = $user->get()->each->setAppends(['lastloginnewformate', 'full_name', 'created_date_new']);
+        foreach ($user as $value) { $value->group_name = ($value->group_name == '') ? 'Unassigned' : $value->group_name; }
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
             "recordsTotal"    => intval( $totalData ),  // total number of records
@@ -1643,14 +1660,15 @@ class ContractController extends BaseController
         $case = $case->where("case_staff.user_id",base64_decode($requestData['user_id']));
         $case = $case->where("case_master.firm_id",Auth::user()->firm_name); //Logged in user not visible in grid
         $case = $case->where("case_master.is_entry_done","1");
+        $case = $case->where("case_staff.is_deactivate_reassign","no");
         $case = $case->whereNull("case_staff.deleted_at");
         $case = $case->whereNull("case_master.deleted_at");
-        $totalData=$case->count();
-        $totalFiltered = $totalData; 
         $case = $case->groupBy('case_staff.case_id');
         $case = $case->offset($requestData['start'])->limit($requestData['length']);
         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $case = $case->get();
+        $totalData=$case->count();
+        $totalFiltered = $totalData; 
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  

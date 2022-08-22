@@ -33,7 +33,7 @@
             <div class="col-md-6 form-group mb-3">
                 <select class="form-control contact_group" id="contact_group" name="contact_group"
                     data-placeholder="Select Contact Group">
-                    <!-- <option value="">Select Contact Group</option> -->
+                    <option value="">Select Contact Group</option>
                     <?php foreach($ClientGroup as $key=>$val){?>
                     <option <?php if($UsersAdditionalInfo->contact_group_id==$val->id){ echo "selected=selected"; }?>  value="{{$val->id}}"> {{$val->group_name}}</option>
                     <?php } ?>
