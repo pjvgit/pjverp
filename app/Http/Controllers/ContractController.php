@@ -479,6 +479,7 @@ class ContractController extends BaseController
      public function SendWelcomeEmail(Request $request)
      {
             $user =  User::where(["id" => $request->user_id])->first();
+            $refUser = Auth::User()->first_name . " ". Auth::User()->last_name;
             $getTemplateData = EmailTemplate::find(6);
              $fullName=$user->first_name. ' ' .$user->last_name;
              $email=$user->email;
@@ -498,7 +499,7 @@ class ContractController extends BaseController
              $userEmail = [
                  "from" => FROM_EMAIL,
                  "from_title" => FROM_EMAIL_TITLE,
-                 "subject" => Auth::User()->first_name.' '.Auth::User()->last_name.' '.$getTemplateData->subject.' Legalcase',
+                 "subject" => $refUser." ".$getTemplateData->subject. " ". TITLE,
                  "to" => $user->email,
                  "full_name" => $fullName,
                  "mail_body" => $mail_body
