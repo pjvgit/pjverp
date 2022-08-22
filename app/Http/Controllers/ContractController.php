@@ -498,7 +498,7 @@ class ContractController extends BaseController
              $userEmail = [
                  "from" => FROM_EMAIL,
                  "from_title" => FROM_EMAIL_TITLE,
-                 "subject" => $getTemplateData->subject,
+                 "subject" => Auth::User()->first_name.' '.Auth::User()->last_name.' '.$getTemplateData->subject.' Legalcase',
                  "to" => $user->email,
                  "full_name" => $fullName,
                  "mail_body" => $mail_body
