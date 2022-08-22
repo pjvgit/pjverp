@@ -65,7 +65,7 @@
 
     @if (count($pendingPayments))
     <h3 class="mt-4"> Online Payments Pending </h3>
-    <table class="payment_history" style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;float:right; border-bottom: none;border-top: none;margin-bottom:10px;" border="1">
+    <table class="payment_history" style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;border-bottom: none;border-top: none;margin-bottom:10px;" border="1">
         <tbody>
             <tr class="invoice_info_row invoice_header_row invoice-table-row">
                 <td class="invoice_info_bg" style="width: 12%;">Activity</td>
