@@ -734,15 +734,19 @@ function getUnreadEventCount()
  * This function is copied from CommonController and made some changes
  */
 function daysReturns($date1, $type = null){
-    $date1 = $date1;
+    $date1 = Carbon::parse($date1);
     // $date2 = date('Y-m-d');
-    $date2 = convertUTCToUserTimeZone('dateOnly');
+    $date2 = Carbon::parse(convertUTCToUserTimeZone('dateOnly'));
     
-    $diff = abs(strtotime($date2) - strtotime($date1));
+    /* $diff = abs(strtotime($date2) - strtotime($date1));
     
     $years = floor($diff / (365*60*60*24));
     $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
-    $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+    $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24)); */
+
+    $years = $date2->diffInYears($date1);
+    $months = $date2->diffInMonths($date1);
+    $days = $date2->diffInDays($date1);
     
     if(isset($type) && $type == 'onlyDays') {
         return $days;

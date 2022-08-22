@@ -189,7 +189,7 @@
                                 </div>
                                 
                             </div>
-                            </span>
+                        </span>
                         <div class="form-group row recurring-div" id="repeat_dropdown">
                             <label for="inputEmail3" class="col-sm-2 col-form-label">Frequency</label>
                             <div class="col-md-3 form-group mb-3">
@@ -301,7 +301,7 @@
                         <div class="form-group row endondiv recurring-div" id="endondiv">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
-                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->is_no_end_date=='no' && $evetData->end_on)) ? \Carbon\Carbon::parse($evetData->end_on)->format('m/d/Y') : "" }}" 
+                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->is_no_end_date=='no' && $evetData->end_on)) ? convertUTCToUserDate($evetData->end_on, $authUser->user_timezone)->format('m/d/Y') : "" }}" 
                                     name="end_on" type="text" placeholder="mm/dd/yyyy" {{ (($evetData->is_no_end_date=='no' && $evetData->end_on)) ? "" : "disabled" }}><label class="form-check-label">
                                     <input class=" pt-2" type="checkbox" <?php if($evetData->is_no_end_date=='yes') { echo "checked=checked";} ?>  id="no_end_date_checkbox"
                                         name="no_end_date_checkbox">
@@ -615,15 +615,6 @@
             'timeFormat': 'g:i A',
             'forceRoundTime': true 
         });
-      
-        // Initialize Datepair
-        var dateContainer = document.getElementById('editDateInputPanel');
-        var datepair = new Datepair(dateContainer, {
-            'dateClass': 'edit-input-date',
-            'timeClass': 'edit-input-time',
-            'startClass': 'edit-input-start',
-            'endClass': 'edit-input-end'
-        });
 
         /* $('#editDateInputPanel').on('change', '.edit-input-start', function() {
             $('#editDateInputPanel .edit-input-end').timepicker('option', 'minTime', $(this).val());
@@ -636,6 +627,15 @@
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
+        });
+
+        // Initialize Datepair
+        var dateContainer = document.getElementById('editDateInputPanel');
+        var datepair = new Datepair(dateContainer, {
+            'dateClass': 'edit-input-date',
+            'timeClass': 'edit-input-time',
+            'startClass': 'edit-input-start',
+            'endClass': 'edit-input-end'
         });
         
         $("#start_date").datepicker().on('change',function(e){
