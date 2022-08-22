@@ -6356,8 +6356,9 @@ class BillingController extends BaseController
                     }
                     // Update invoice settings
                     // $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
-                    $invoieFirstPaymentPlan = $InvoiceSave->invoiceFirstInstallment;
-                    $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $invoieFirstPaymentPlan->due_date) ?? $InvoiceSave->invoice_reminders;
+                    $invoieFirstPaymentPlan = $InvoiceSave->invoiceInstallment;
+                    $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $invoieFirstPaymentPlan);
+                    $InvoiceSave->save();
                 }
             }else{
                 InvoicePaymentPlan::where("invoice_id",$InvoiceSave->id)->delete();
@@ -6365,6 +6366,7 @@ class BillingController extends BaseController
                 // Update invoice settings
                 // $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
                 $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $InvoiceSave->due_date) ?? $InvoiceSave->invoice_reminders;
+                $InvoiceSave->save();
             }
 
             if(!empty($request->forwarded_invoices)) {
