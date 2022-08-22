@@ -1279,7 +1279,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         });
 
         $('#saveAssignTaskForm').submit(function (e) {
-            $("#innerLoader").css('display', 'block');
+            $("#preloader").css('display', 'block');
             e.preventDefault();
 
             if (!$('#saveAssignTaskForm').valid()) {

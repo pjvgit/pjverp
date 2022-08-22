@@ -108,7 +108,11 @@ class ReportsController extends BaseController
                     $clientArray[$v->practice_area_title][] = $v;       
                 }
                 if($export_csv == 1){
-                    $daysAging = daysReturns($v->due_date_new, 'onlyDays');
+                    $daysAging = 0;
+                    if($v->due_date != Null) {
+                        $dueDate = convertUTCToUserDate($v->due_date, $authUser->user_timezone ?? 'UTC')->format('Y-m-d');
+                        $daysAging = daysReturns($dueDate, 'onlyDays');
+                    }
                     $casesCsvData[]=$v->invoice_id."|".$v->contact_name."|".$v->ctitle."|".$v->total_amount_new."|".$v->paid_amount_new."|".$v->due_amount_new."|".(($v->due_date!=NULL)? $v->due_date_new : '--')."|".$v->status."|".$daysAging;
                 }
             }

@@ -157,7 +157,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                         </div>
                                                                     </div>
                                                                 </div><input name="event_reminder_number[]"
-                                                                    class="form-control col-2 reminder-number"
+                                                                    class="form-control col-2 reminder-number" type="number" min="0"
                                                                     value="{{$rval->reminer_number}}">
                                                                 <div class="col-4">
                                                                     <div>
@@ -219,7 +219,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                         </div>
                                                                     </div>
                                                                 </div><input name="event_reminder_number[]"
-                                                                    class="form-control col-2 reminder-number"
+                                                                    class="form-control col-2 reminder-number" type="number" min="0"
                                                                     value="1">
                                                                 <div class="col-4">
                                                                     <div>
@@ -272,7 +272,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                     </div>
                                                                 </div>
                                                                 <input name="task_reminder_number[]"
-                                                                    class="form-control col-2 reminder-number"
+                                                                    class="form-control col-2 reminder-number" type="number" min="0"
                                                                     value="{{$rval->reminer_number}}">
                                                                 <div class="col-4">
                                                                     <div>
@@ -330,7 +330,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                     </div>
                                                                 </div>
                                                                 <input name="task_reminder_number[]"
-                                                                    class="form-control col-2 reminder-number"
+                                                                    class="form-control col-2 reminder-number" type="number" min="0"
                                                                     value="1">
                                                                 <div class="col-4">
                                                                     <div>

@@ -914,6 +914,7 @@ class ClientdashboardController extends BaseController
 
     public function loadTrustHistory(Request $request)
     {   
+        $authUser = auth()->user();
         $data = TrustHistory::where("client_id", $request->client_id);
         if($request->filter_type == 'user') {
             $data = $data->whereNull('allocated_to_case_id')->whereNull('allocated_to_lead_case_id');
@@ -973,12 +974,12 @@ class ClientdashboardController extends BaseController
                 }
                 return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
             })
-            ->editColumn('payment_date', function ($data) {
+            ->editColumn('payment_date', function ($data) use($authUser) {
                 if($data->payment_date) {
-                    // $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone ?? 'UTC');
+                    $pDate = convertUTCToUserDate($data->payment_date, $authUser->user_timezone);
                     // $pDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',@$data->payment_date.' 00:00:00',auth()->user()->user_timezone ?? 'UTC');
-                    $pDate = Carbon::createFromFormat('Y-m-d', $data->payment_date, "UTC");
-                    $pDate->setTimezone(auth()->user()->user_timezone ?? 'UTC');
+                    // $pDate = Carbon::createFromFormat('Y-m-d', $data->payment_date, "UTC");
+                    // $pDate->setTimezone($authUser->user_timezone ?? 'UTC');
                     return $pDate->format("M d, Y");
                     if ($pDate->isToday()) {
                         return "Today";
@@ -1133,8 +1134,9 @@ class ClientdashboardController extends BaseController
                         $onlinePaymentStatus = ($data->online_payment_status == 'pending') ? "(Payment Pending)" : (($data->online_payment_status == 'expired') ? "(Expired)" : "");
                         $ftype="Deposit into Trust ".$allocateTxt." ".$isRefund.$onlinePaymentStatus;
                         if(in_array($data->is_invoice_fund_request_overpaid, ['partial','full']) && !empty($data->related_to_invoice_id)) {
+                            $note = ($data->is_invoice_fund_request_overpaid == 'full') ? __('billing.trust_history_invoice_full_overpaid_note') : __('billing.trust_history_invoice_partial_overpaid_note');
                             $ftype .= '<div class="position-relative" style="float: right;">
-                                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'.__('billing.trust_history_invoice_overpaid_note').'</div>">
+                                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'.$note.'</div>">
                                                 <img style="border: none;" src="'. asset('icon/note.svg') .'">
                                             </a>
                                         </div>';
@@ -3314,7 +3316,8 @@ class ClientdashboardController extends BaseController
         $authUser = auth()->user();
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
                 ->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')
-                ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct')
+                ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',
+                "users.id as uid", "users.user_status as ustatus","users_additional_info.*",'users.created_at as uct')
                 ->where("user_level","2")->where("firm_name", $authUser->firm_name);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
             $user = $user->whereIn("users.user_status",[1,2,4]); 
@@ -3325,24 +3328,29 @@ class ClientdashboardController extends BaseController
         $vCard = '';
         foreach($user as $k=>$v){
             $getCompanyName = '';
+            $countryName="";
             if(!empty(explode(",",$v->multiple_compnay_id))){
                 $getCompanyList=$this->getCompanyLists($v->multiple_compnay_id);
-                if(count($getCompanyList) > 0){
-                    $companyCount =  count($getCompanyList);
-                    $getCompanyName .= ($companyCount > 0) ? $getCompanyList[$companyCount-1] : $getCompanyList[$companyCount];
+                $company_array=array();
+                foreach($getCompanyList as $cmpy){
+                    if($cmpy!=""){
+                        $company_array[]=$cmpy;
+                    }
+                    $getCompanyName=implode(",",$company_array);
                 }
             }
 
             if($v->country!=NULL){
-                $countryName=$this->getCountryName($v->country);
-            }else{
-                $countryName="";
+                $NameOfCountry=Countries::select("abv")->where("id",$v->country)->first();
+                if(!empty($NameOfCountry)){
+                    $countryName=$NameOfCountry['abv'];
+                }
             }
             $vCard .= "BEGIN:VCARD\r\n";
             $vCard .= "VERSION:3.0\r\n";
             $vCard .= "N:".$v->last_name.";".$v->first_name.";".$v->middle_name.";\r\n";
             $vCard .= "FN:".$v->first_name." ".$v->middle_name." ".$v->last_name."\r\n";
-            $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
+            $vCard .= "ADR:;".$v->apt_unit.";".$v->street.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";".$v->street."\n".$v->apt_unit."\n".$v->city."\n,".$v->state." ".$v->postal_code."\n".$countryName."\r\n";
             if(!empty($v->email)) {
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             }
@@ -3350,21 +3358,23 @@ class ClientdashboardController extends BaseController
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
             }
             if($getCompanyName != '') {
-                $vCard .= "ORG:".$getCompanyName."\r\n"; 
+                $vCard .= "item1.ORG:".$getCompanyName."\r\n"; 
             }
             if(!empty($v->job_title)) {
-                $vCard .= "TITLE:".$v->job_title."\r\n"; 
+                $vCard .= "item2.TITLE:".$v->job_title."\r\n"; 
             }
             if(!empty($v->notes)) {
                 $vCard .= "NOTE:".$v->notes."\r\n"; 
             }
             if(!empty($v->dob)) {
-                $vCard .= "BDAY:".date('Ymd', strtotime($v->dob))."\r\n"; 
+                $vCard .= "BDAY:".date('m/d/Y', strtotime($v->dob))."\r\n"; 
+            }
+            if(!empty($v->website)) {
+                $vCard .= "item3.URL:".$v->website."\r\n"; 
             }
             $vCard .= "END:VCARD\r\n";
 
         }
-        // return $vCard;
         // $filePath = '/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/contacts.vcf"; // you can specify path here where you want to store file.
         $folderPath = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name);
         if(!File::isDirectory($folderPath)){
@@ -3401,18 +3411,20 @@ class ClientdashboardController extends BaseController
             $vCard .= "VERSION:3.0\r\n";
             $vCard .= "N:;\r\n";
             $vCard .= "FN:;\r\n";
-            $vCard .= "ORG:".$v->first_name."\r\n";
-            $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
+            // $vCard .= "N:".$v->first_name.";\r\n";
+            // $vCard .= "FN:".$v->first_name."\r\n";
+            $vCard .= "item1.ORG:".$v->first_name."\r\n";
+            $vCard .= "ADR:;".$v->address2.";".$v->street.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";".$v->street."\n".$v->apt_unit."\n".$v->city."\n,".$v->state." ".$v->postal_code."\n".$countryName."\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
             if($v->website != '') {
                 $vCard .= "URL:".$v->website."\r\n"; 
             }
             if(!empty($v->job_title)) {
-                $vCard .= "TITLE:".$v->job_title ?? ''."\r\n"; 
+                $vCard .= "TITLE:".$v->job_title."\r\n"; 
             }
             if(!empty($v->notes)) {
-                $vCard .= "NOTE:".$v->notes ?? ''."\r\n"; 
+                $vCard .= "NOTE:".$v->notes."\r\n"; 
             }
             $vCard .= "END:VCARD\r\n";
         }
