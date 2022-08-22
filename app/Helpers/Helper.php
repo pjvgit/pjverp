@@ -760,3 +760,15 @@ function daysReturns($date1, $type = null){
         return $days. " days";
     }
 }
+
+/**
+ * Convert UTC to user timezone using offset not timezone name
+ */
+function convertDateToUserTimeOffset($date, $timezone)
+{
+    $offset = Carbon::now($timezone)->offsetHours;
+    $first_character = substr($offset, 0, 1);
+    $hour = substr($offset, 1);
+    $date = ($first_character == '-') ? Carbon::parse($date)->addHours($hour) : Carbon::parse($date)->subHours($hour);
+    return $date;
+}

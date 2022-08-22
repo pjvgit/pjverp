@@ -701,6 +701,7 @@ class ContractController extends BaseController
                 if(count($caseStaffData) > 0){
                     foreach($caseStaffData as $k =>$v){
                         CaseStaff::where('case_id', $v->case_id)->where('user_id', $request->user_id)->update(['is_deactivate_reassign' => 'yes']);
+                        CaseStaff::where('case_id', $v->case_id)->where('user_id', $request->user_id)->delete();
                         CaseStaff::updateOrCreate(
                             ['case_id' => $v->case_id,
                             'user_id' => $request->assign_to, ],
@@ -716,6 +717,7 @@ class ContractController extends BaseController
                     foreach($CaseTaskLinkedStaffData as $k =>$v){
                         // CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->user_id], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                         CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $request->user_id)->update(['is_deactivate_reassign' => 'yes']);
+                        CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $request->user_id)->delete();
                         CaseTaskLinkedStaff::updateOrCreate(
                             ['task_id' => $v->task_id,
                             'user_id' => $request->assign_to, ],
@@ -789,13 +791,16 @@ class ContractController extends BaseController
             // assing all case to new staff
             $user_id = base64_decode($request->user_id);
             $userDeactivate = DeactivatedUser::where('user_id', $user_id)->first();
-            if(!empty($userDeactivate)){       
-                $userDeactivate->assigned_to = $request->assign_to;
-                $userDeactivate->save();
-                $caseStaffData =  CaseStaff::where('user_id',$user_id)->where('is_deactivate_reassign', 'yes')->get();
+            if(!empty($userDeactivate)){    
+                $caseStaffData =  CaseStaff::where('user_id',$user_id);
+                if(!empty($userDeactivate->assign_to)) {
+                    $caseStaffData = $caseStaffData->where('is_deactivate_reassign', 'yes')->withTrashed();
+                }
+                $caseStaffData = $caseStaffData->get();
                 if(count($caseStaffData) > 0){
                     foreach($caseStaffData as $k =>$v){
                         CaseStaff::where('case_id', $v->case_id)->update(['is_deactivate_reassign' => 'yes']);
+                        CaseStaff::where('case_id', $v->case_id)->delete();
                         CaseStaff::updateOrCreate(
                             ['case_id' => $v->case_id,
                             'user_id' => $request->assign_to, ],
@@ -806,11 +811,15 @@ class ContractController extends BaseController
                         // CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $user_id], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
-                $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$user_id)->get();
-                
+                $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$user_id);
+                if(!empty($userDeactivate->assign_to)) {
+                    $CaseTaskLinkedStaffData = $CaseTaskLinkedStaffData->where('is_deactivate_reassign', 'yes')->withTrashed();
+                }
+                $CaseTaskLinkedStaffData = $CaseTaskLinkedStaffData->get();
                 if(count($CaseTaskLinkedStaffData) > 0){
                     foreach($CaseTaskLinkedStaffData as $k =>$v){
                         CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $user_id)->update(['is_deactivate_reassign' => 'yes']);
+                        CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $user_id)->delete();
                         CaseTaskLinkedStaff::updateOrCreate(
                             ['task_id' => $v->task_id,
                             'user_id' => $request->assign_to, ],
@@ -826,6 +835,16 @@ class ContractController extends BaseController
 
                 // CaseStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
                 // CaseTaskLinkedStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
+
+                if(!empty($userDeactivate->assign_to)) {
+                    DeactivatedUser::create([
+                        'user_id' => $request->user_id,
+                        'assigned_to' => $request->assign_to,
+                    ]);
+                } else {
+                    $userDeactivate->assigned_to = $request->assign_to;
+                    $userDeactivate->save();
+                }
                 session(['popup_success' => 'Transferring tasks and events for selected user. It may take a couple minutes for this to complete.']);
 
                 return response()->json(['errors'=>'']);

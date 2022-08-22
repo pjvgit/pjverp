@@ -977,9 +977,7 @@ class ClientdashboardController extends BaseController
             ->editColumn('payment_date', function ($data) use($authUser) {
                 if($data->payment_date) {
                     $pDate = convertUTCToUserDate($data->payment_date, $authUser->user_timezone);
-                    // $pDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',@$data->payment_date.' 00:00:00',auth()->user()->user_timezone ?? 'UTC');
-                    // $pDate = Carbon::createFromFormat('Y-m-d', $data->payment_date, "UTC");
-                    // $pDate->setTimezone($authUser->user_timezone ?? 'UTC');
+                    // $pDate = convertDateToUserTimeOffset($data->payment_date, $authUser->user_timezone);
                     return $pDate->format("M d, Y");
                     if ($pDate->isToday()) {
                         return "Today";
