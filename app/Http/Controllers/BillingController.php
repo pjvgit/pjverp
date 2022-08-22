@@ -5908,7 +5908,15 @@ class BillingController extends BaseController
             $caseCllientSelection = CaseClientSelection::select("*")->where("case_client_selection.selected_user",$client_id)->get()->pluck("case_id");
 
             //List all case by client 
-            $caseListByClient = CaseMaster::select("*")->whereIn('case_master.id',$caseCllientSelection)->select("*")->get();
+            $caseListByClient = CaseMaster::select("id", "case_title")->whereIn('case_master.id',$caseCllientSelection);
+            if($authUser->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+                $caseListByClient = $caseListByClient->where('firm_id', $authUser->firm_name);
+            }else{
+                $caseListByClient = $caseListByClient->whereHas('caseStaffAll', function($query) {
+                    $query->where('user_id', auth()->id());
+                });
+            }
+            $caseListByClient = $caseListByClient->get();
             
             //Get the case data
             $caseMaster = CaseMaster::whereId($case_id)->with("caseAllClient")->first();
@@ -6348,8 +6356,9 @@ class BillingController extends BaseController
                     }
                     // Update invoice settings
                     // $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
-                    $invoieFirstPaymentPlan = $InvoiceSave->invoiceFirstInstallment;
-                    $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $invoieFirstPaymentPlan->due_date) ?? $InvoiceSave->invoice_reminders;
+                    $invoieFirstPaymentPlan = $InvoiceSave->invoiceInstallment;
+                    $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $invoieFirstPaymentPlan);
+                    $InvoiceSave->save();
                 }
             }else{
                 InvoicePaymentPlan::where("invoice_id",$InvoiceSave->id)->delete();
@@ -6357,6 +6366,7 @@ class BillingController extends BaseController
                 // Update invoice settings
                 // $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
                 $InvoiceSave->invoice_reminders = $this->updateInvoiceSetting($InvoiceSave, $InvoiceSave->due_date) ?? $InvoiceSave->invoice_reminders;
+                $InvoiceSave->save();
             }
 
             if(!empty($request->forwarded_invoices)) {
