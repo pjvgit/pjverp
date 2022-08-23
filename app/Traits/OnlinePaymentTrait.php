@@ -101,6 +101,7 @@ trait OnlinePaymentTrait {
                 'amount_paid' => $amount,
                 'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
                 'payment_date' => date('Y-m-d'),
+                "payment_datetime" => Carbon::now(),
                 'fund_type' => 'diposit',
                 'related_to_fund_request_id' => $fundRequest->id,
                 'allocated_to_case_id' => $fundRequest->allocated_to_case_id,

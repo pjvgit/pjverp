@@ -169,4 +169,12 @@ class TrustHistory extends Authenticatable
             return "";
         }
     }
+
+    /**
+     * Set attribute for payment date and time
+     */
+    public function setPaymentDateTimeAttribute($value)
+    {
+        $this->attributes['payment_datetime'] = Carbon::parse($this->attributes['payment_date'].' '.date('H:i:s'))->format('Y-m-d H:i:s');
+    }
 }

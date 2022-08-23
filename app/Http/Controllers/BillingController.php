@@ -1720,6 +1720,7 @@ class BillingController extends BaseController
                         $TrustInvoice->amount_paid=$request->amount;
                         $TrustInvoice->current_trust_balance=$userAdditionalInfo->trust_account_balance;
                         $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+                        $TrustInvoice->payment_datetime = Carbon::now();
                         $TrustInvoice->notes=$request->notes;
                         $TrustInvoice->fund_type='payment';
                         $TrustInvoice->related_to_invoice_id = $request->invoice_id;
@@ -1749,6 +1750,7 @@ class BillingController extends BaseController
                         $TrustInvoice->amount_paid=$request->amount;
                         $TrustInvoice->current_trust_balance=$userAdditionalInfo->trust_account_balance;
                         $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+                        $TrustInvoice->payment_datetime = Carbon::now();
                         $TrustInvoice->notes=$request->notes;
                         $TrustInvoice->fund_type='payment';
                         $TrustInvoice->related_to_invoice_id = $request->invoice_id;
@@ -6625,6 +6627,7 @@ class BillingController extends BaseController
                     "withdraw_amount" => $request->amount,
                     "current_trust_balance" => $trustAccountAmount,
                     "payment_date" => date('Y-m-d'),
+                    "payment_datetime" => Carbon::now(),
                     "payment_method" => "Trust",
                     "notes" => "Payment from Trust (Trust Account) to Operating (Operating Account)",
                     "fund_type" => 'withdraw',
@@ -7074,6 +7077,7 @@ class BillingController extends BaseController
                             "client_id" => $UsersAdditionalInfo->user_id,
                             "refund_amount" => $request->amount,
                             "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                            "payment_datetime" => Carbon::now(),
                             "payment_method" => "Trust Refund",
                             "fund_type" => 'refund payment',
                             "current_trust_balance" => @$UsersAdditionalInfo->trust_account_balance,
@@ -8229,6 +8233,7 @@ class BillingController extends BaseController
                     $TrustInvoice->amount_paid=$request->amount;
                     $TrustInvoice->current_trust_balance=@$userData->trust_account_balance;
                     $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d"), auth()->user()->user_timezone);
+                    $TrustInvoice->payment_datetime = Carbon::now();
                     $TrustInvoice->notes=$request->notes;
                     $TrustInvoice->fund_type='payment';
                     $TrustInvoice->related_to_invoice_id = $invoice_id;
@@ -10069,6 +10074,7 @@ class BillingController extends BaseController
             $TrustInvoice->amount_paid=$request->amount;
             $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
             $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), $authUserTimezone);
+            $TrustInvoice->payment_datetime = Carbon::now();
             $TrustInvoice->notes=$request->notes;
             $TrustInvoice->fund_type='diposit';
             $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
@@ -12314,6 +12320,7 @@ class BillingController extends BaseController
                         'amount_paid' => $payableAmount,
                         'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
                         'payment_date' => convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), $authUser->user_timezone ?? 'UTC'),
+                        "payment_datetime" => Carbon::now(),
                         'fund_type' => 'diposit',
                         'related_to_fund_request_id' => @$fundRequest->id,
                         'allocated_to_case_id' => ($request->case_id != '') ? $request->case_id : @$fundRequest->allocated_to_case_id,
