@@ -976,8 +976,8 @@ class ClientdashboardController extends BaseController
             })
             ->editColumn('payment_date', function ($data) use($authUser) {
                 if($data->payment_date) {
-                    // $pDate = convertUTCToUserDate($data->payment_datetime, $authUser->user_timezone);
-                    $pDate = convertDateToUserTimeOffset($data->payment_datetime, $authUser->user_timezone);
+                    // $pDate = convertUTCToUserDate($data->payment_date, $authUser->user_timezone);
+                    $pDate = convertDateToUserTimeOffset($data->payment_datetime ?? $data->payment_date, $authUser->user_timezone);
                     return $pDate->format("M d, Y");
                     if ($pDate->isToday()) {
                         return "Today";
@@ -1199,6 +1199,7 @@ class ClientdashboardController extends BaseController
             $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
             // $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
             $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+            $TrustInvoice->payment_datetime = Carbon::now();
             $TrustInvoice->notes=$request->notes;
             $TrustInvoice->fund_type='withdraw';
             $TrustInvoice->created_by=Auth::user()->id; 
@@ -1321,6 +1322,7 @@ class ClientdashboardController extends BaseController
                 $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
                 // $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
                 $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+                $TrustInvoice->payment_datetime = Carbon::now();
                 $TrustInvoice->notes=$request->notes;
                 $TrustInvoice->fund_type=$fund_type;
                 $TrustInvoice->refund_ref_id=$request->transaction_id;
@@ -5472,6 +5474,7 @@ class ClientdashboardController extends BaseController
                 "amount_paid" => $diffAmtAbs,
                 "current_trust_balance" => $userAddInfo->trust_account_balance,
                 "payment_date" => date('Y-m-d'),
+                "payment_datetime" => Carbon::now(),
                 "notes" => ($diffAmt > 0) ? 'Deallocate Trust Funds from #'.$request->case_id : 'Allocate Trust Funds from #'.$request->client_id,
                 "fund_type" => ($diffAmt > 0) ? 'deallocate_trust_fund' : 'allocate_trust_fund',
                 "allocated_to_case_id" => $request->case_id,
