@@ -211,7 +211,7 @@
                                                 </div>
                                             </div>
                                         <div class="fieldGroupCopy copy hide" style="display: none;">
-                                                <div class="col-md-2 form-group mb-3">
+                                                <div class="col-md-3 form-group mb-3">
                                                     <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
                                                     @foreach(getEventReminderTpe() as $k =>$v)
                                                         <option value="{{$k}}">{{$v}}</option>

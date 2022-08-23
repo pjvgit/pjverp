@@ -323,6 +323,7 @@ class BillingController extends Controller
                                     'amount_paid' => $payableAmount,
                                     'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
                                     'payment_date' => date('Y-m-d'),
+                                    "payment_datetime" => Carbon::now(),
                                     'fund_type' => 'diposit',
                                     'related_to_fund_request_id' => $fundRequest->id,
                                     'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
@@ -419,12 +420,14 @@ class BillingController extends Controller
 
                             // Send confirm email to lawyer/invoice created user
                             $user = User::whereId($fundRequest->created_by)->first();
+                            if($user) {
                             $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 31, $requestOnlinePayment, 'user', 'fundrequest'));
-                            
+                            }
                             // Send confirm email to firm owner/lead attorney
                             $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
+                            if($firmOwner && @$user->id != $firmOwner->id) {
                             $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 31, $requestOnlinePayment, 'user', 'fundrequest'));
-
+                            }
                             DB::commit();
                             return redirect()->route('client/bills/payments/confirmation', ['fundrequest', encodeDecodeId($requestOnlinePayment->id, 'encode')]);
                         }
@@ -533,12 +536,14 @@ class BillingController extends Controller
 
                             // Send confirm email to lawyer/invoice created user
                             $user = User::whereId($invoice->created_by)->first();
+                            if($user) {
                             $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 31, $invoiceOnlinePayment, 'user', 'invoice'));
-                            
+                            }
                             // Send confirm email to firm owner/lead attorney
                             $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
+                            if($firmOwner && @$user->id != $firmOwner->id) {
                             $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 31, $invoiceOnlinePayment, 'user', 'invoice'));
-
+                            }
                             DB::commit();
                             return redirect()->route('client/bills/payments/confirmation', ['invoice', encodeDecodeId($invoiceOnlinePayment->id, 'encode')]);
                         }
@@ -1124,42 +1129,6 @@ class BillingController extends Controller
                 if(empty($anyPending)) {
                     DB::table('invoices')->where('id', $invoice->id)->update(["online_payment_status" => 'paid']);
                 }
-
-                /* $caseId = ($invoice->case_id != 0 && $invoice->is_lead_invoice == 'no') ? $invoice->case_id : Null; 
-                $leadCaseId = ($invoice->case_id == Null || $invoice->is_lead_invoice == 'yes') ? $invoice->user_id : Null;
-
-                // Get user additional info
-                $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
-                $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
-                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
-                Log::info("oxxo cash move payment to trust account");
-                $trustHistoryId = DB::table('trust_history')->insertGetId([
-                    'client_id' => $paymentDetail->user_id,
-                    'payment_method' => $paymentMethod,
-                    'amount_paid' => $paymentDetail->amount,
-                    'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
-                    'payment_date' => date('Y-m-d'),
-                    'fund_type' => 'diposit',
-                    'online_payment_status' => 'paid',
-                    'related_to_invoice_id' => $invoice->id,
-                    "allocated_to_case_id" => $caseId ?? Null,
-                    "allocated_to_lead_case_id" => $leadCaseId ?? Null,
-                    'created_by' => $paymentDetail->user_id,
-                    'created_at' => Carbon::now(),
-                ]);
-                if(isset($caseId)) {
-                    DB::table('case_master')->where('id', $caseId)->increment("total_allocated_trust_balance", $paymentDetail->amount);
-                    // CaseMaster::where('id', $caseId)->increment('total_allocated_trust_balance', $paymentDetail->amount);
-                    DB::table("case_client_selection")->where("case_id", $caseId)->where("selected_user", $paymentDetail->user_id)->increment('allocated_trust_balance', $paymentDetail->amount);
-                    // CaseClientSelection::where('case_id', $caseId)->where('selected_user', $paymentDetail->user_id)->increment('allocated_trust_balance', $paymentDetail->amount);
-                }
-                if(isset($leadCaseId)) {
-                    DB::table("lead_additional_info")->where("user_id", $leadCaseId)->increment("allocated_trust_balance", $paymentDetail->amount);
-                    // LeadAdditionalInfo::where("user_id", $leadCaseId)->increment('allocated_trust_balance', $paymentDetail->amount);
-                }
-                $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
-                // For update next/previous trust balance
-                $this->updateNextPreviousTrustBalance($paymentDetail->user_id); */
                 $this->savePaymentToTrustFund($paymentDetail, $invoice, $paymentDetail->amount, 'full');
             } else {
                 Log::info("receive oxxo cash payment");
@@ -1234,12 +1203,14 @@ class BillingController extends Controller
 
                     // Send confirmation email to invoice created user
                     $user = User::whereId($invoice->created_by)->first();
+                    if($user) {
                     $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
-
+                    }
                     // Send confirm email to firm owner/lead attorney
                     $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                    if($firmOwner && @$user->id != $firmOwner->id) {
                     $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
-
+                    }
                     Log::info('invoice cash payment webhook successfull');
 
                 } else if($paymentDetail->payment_method == 'bank transfer') {
@@ -1249,12 +1220,14 @@ class BillingController extends Controller
 
                     // Send confirmation email to invoice created user
                     $user = User::whereId($invoice->created_by)->first();
+                    if($user) {
                     $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
-
+                    }
                     // Send confirm email to firm owner/lead attorney
                     $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                    if($firmOwner && @$user->id != $firmOwner->id) {
                     $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
-
+                    }
                     Log::info('invoice bank payment webhook successfull');
                 } else {
                 }
@@ -1313,6 +1286,7 @@ class BillingController extends Controller
                     'amount_paid' => $dueAmt,
                     'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
                     'payment_date' => date('Y-m-d'),
+                    "payment_datetime" => Carbon::now(),
                     'fund_type' => 'diposit',
                     'related_to_fund_request_id' => $fundRequest->id,
                     'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
@@ -1396,12 +1370,14 @@ class BillingController extends Controller
 
             // Send confirmation email to fundRequest created user
             $user = User::whereId($fundRequest->created_by)->first();
+            if($user) {
             $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fundrequest'));
-
+            }
             // Send confirm email to firm owner/lead attorney
             $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+            if($firmOwner && @$user->id != $firmOwner->id) {
             $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fundrequest'));
-
+            }
             Log::info('fundRequest cash payment webhook successfull');
 
         } else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') { 
@@ -1411,12 +1387,14 @@ class BillingController extends Controller
 
             // Send confirmation email to fundRequest created user
             $user = User::whereId($fundRequest->created_by)->first();
+            if($user) {
             $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
-
+            }
             // Send confirm email to firm owner/lead attorney
             $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+            if($firmOwner && @$user->id != $firmOwner->id) {
             $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
-            
+            }
             Log::info('fundRequest bank payment webhook successfull');
         } else {
             Log::info("No email sent for request:". @$fundRequest->id);
@@ -1445,6 +1423,7 @@ class BillingController extends Controller
                 'amount_paid' => $payableAmount,
                 'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
                 'payment_date' => date('Y-m-d'),
+                "payment_datetime" => Carbon::now(),
                 'fund_type' => 'diposit',
                 'allocated_to_case_id' => $paymentDetail->allocated_to_case_id,
                 'created_by' => $paymentDetail->user_id,
@@ -1532,12 +1511,14 @@ class BillingController extends Controller
 
             // Send confirmation email to fundRequest created user
             $user = User::whereId($paymentDetail->created_by)->first();
+            if($user) {
             $this->dispatch(new OnlinePaymentEmailJob($client, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fund'));
-
+            }
             // Send confirm email to firm owner/lead attorney
             $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+            if($firmOwner && @$user->id != $firmOwner->id) {
             $this->dispatch(new OnlinePaymentEmailJob($client, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fund'));
-
+            }
             Log::info('fund cash payment webhook successfull');
 
         } else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') { 
@@ -1547,12 +1528,14 @@ class BillingController extends Controller
 
             // Send confirmation email to fundRequest created user
             $user = User::whereId($paymentDetail->created_by)->first();
+            if($user) {
             $this->dispatch(new OnlinePaymentEmailJob($client, $user, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'fund'));
-
+            }
             // Send confirm email to firm owner/lead attorney
             $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+            if($firmOwner && @$user->id != $firmOwner->id) {
             $this->dispatch(new OnlinePaymentEmailJob($client, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'fund'));
-            
+            }
             Log::info('fund bank payment webhook successfull');
         } else {
             Log::info("No email sent for fund user:". @$client->id);

@@ -54,13 +54,14 @@ trait OnlinePaymentTrait {
         $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
         $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
         DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $amount);
-        Log::info("oxxo cash move payment to trust account");
+        Log::info("oxxo cash move payment to trust account and time is: ". Carbon::now());
         $trustHistoryId = DB::table('trust_history')->insertGetId([
             'client_id' => $paymentDetail->user_id,
             'payment_method' => $paymentMethod,
             'amount_paid' => $amount,
             'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
             'payment_date' => date('Y-m-d'),
+            'payment_datetime' => Carbon::now(),
             'fund_type' => 'diposit',
             'online_payment_status' => 'paid',
             'related_to_invoice_id' => $invoice->id,
@@ -100,6 +101,7 @@ trait OnlinePaymentTrait {
                 'amount_paid' => $amount,
                 'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
                 'payment_date' => date('Y-m-d'),
+                "payment_datetime" => Carbon::now(),
                 'fund_type' => 'diposit',
                 'related_to_fund_request_id' => $fundRequest->id,
                 'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
