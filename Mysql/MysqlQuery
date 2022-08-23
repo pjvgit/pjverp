@@ -1,3 +1,7 @@
+------------------------------------ 23-AUG-2022 ------------------------------
+ALTER TABLE `trust_history`
+ADD `payment_datetime` timestamp NULL AFTER `payment_date`;
+
 ------------------------------------ 18-AUG-2022 ------------------------------
 ALTER TABLE `case_staff`
 ADD `is_deactivate_reassign` enum('yes','no') NOT NULL DEFAULT 'no' AFTER `rate_amount`;

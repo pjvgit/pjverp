@@ -534,11 +534,17 @@ class ContractController extends BaseController
                     $userProfileCreatedBy = User::select('users.id as pid' ,'users.user_title as ptitle',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'))->where("users.id",$userProfile->parent_user)->get();             
                 }
             }
+            if(!empty($userProfile) && $userProfile->user_status == '3') {
+                $caseIds = CaseStaff::where('user_id', $contractUserID)->where('is_deactivate_reassign', 'yes')->withTrashed()->pluck('case_id')->toArray();
+            } else {
+                $caseIds = CaseStaff::where('user_id', $contractUserID)->pluck('case_id')->toArray();
+            }
             $CaseMasterData=$CaseMasterClient=$practiceAreaList=$caseStageList=$selectdUSerList=$loadFirmUser=$CaseMasterCompany =[];
             if(\Route::current()->getName()=="contacts/attorneys/cases"){
                 $getChildUsers=$this->getParentAndChildUserIds();
-                $childUSersCase = CaseStaff::select("case_id")->where('user_id',$contractUserID)->get()->pluck('case_id');
-                $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
+                // $childUSersCase = CaseStaff::select("case_id")->where('user_id',$contractUserID)->get()->pluck('case_id');
+                // $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
+                $CaseMasterData = CaseMaster::where("firm_id", $userProfile->firm_name)->whereIn("case_master.id",$caseIds)->where('is_entry_done',"1")->get();
                 // $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
                 $CaseMasterClient = userClientList();
                 // $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
@@ -555,10 +561,7 @@ class ContractController extends BaseController
             }
 
             // $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")->leftjoin("users","case_staff.user_id","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type")->where("case_staff.user_id",$contractUserID)->where("firm_name",Auth::user()->firm_name)->where("case_master.is_entry_done","1")->get();
-            $case = CaseMaster::where("firm_id", auth()->user()->firm_name)->where("is_entry_done", "1")
-                    ->whereHas("caseStaffDetails", function($query) use($contractUserID) {
-                        $query->where("users.id", $contractUserID);
-                    })->get();
+            $case = CaseMaster::where("firm_id", $userProfile->firm_name)->where("is_entry_done", "1")->whereIn('id', $caseIds)->get();
             $DeactivatedUserData = DeactivatedUser::where('user_id',$contractUserID)->first();   
             
             return view('contract.attorneysView',compact('userProfile','userProfileCreatedBy','id','CaseMasterClient','CaseMasterCompany','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','case','DeactivatedUserData'));
@@ -794,14 +797,16 @@ class ContractController extends BaseController
             $userDeactivate = DeactivatedUser::where('user_id', $user_id)->first();
             if(!empty($userDeactivate)){    
                 $caseStaffData =  CaseStaff::where('user_id',$user_id);
-                if(!empty($userDeactivate->assign_to)) {
+                if(!empty($userDeactivate->assigned_to)) {
                     $caseStaffData = $caseStaffData->where('is_deactivate_reassign', 'yes')->withTrashed();
                 }
                 $caseStaffData = $caseStaffData->get();
                 if(count($caseStaffData) > 0){
                     foreach($caseStaffData as $k =>$v){
-                        CaseStaff::where('case_id', $v->case_id)->update(['is_deactivate_reassign' => 'yes']);
-                        CaseStaff::where('case_id', $v->case_id)->delete();
+                        if(empty($userDeactivate->assigned_to)) {
+                            CaseStaff::where('case_id', $v->case_id)->where('user_id',$user_id)->update(['is_deactivate_reassign' => 'yes']);
+                            CaseStaff::where('case_id', $v->case_id)->where('user_id',$user_id)->delete();
+                        }
                         CaseStaff::updateOrCreate(
                             ['case_id' => $v->case_id,
                             'user_id' => $request->assign_to, ],
@@ -813,14 +818,16 @@ class ContractController extends BaseController
                     }
                 }
                 $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$user_id);
-                if(!empty($userDeactivate->assign_to)) {
+                if(!empty($userDeactivate->assigned_to)) {
                     $CaseTaskLinkedStaffData = $CaseTaskLinkedStaffData->where('is_deactivate_reassign', 'yes')->withTrashed();
                 }
                 $CaseTaskLinkedStaffData = $CaseTaskLinkedStaffData->get();
                 if(count($CaseTaskLinkedStaffData) > 0){
                     foreach($CaseTaskLinkedStaffData as $k =>$v){
-                        CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $user_id)->update(['is_deactivate_reassign' => 'yes']);
-                        CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $user_id)->delete();
+                        if(empty($userDeactivate->assigned_to)) {
+                            CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $user_id)->update(['is_deactivate_reassign' => 'yes']);
+                            CaseTaskLinkedStaff::where('task_id', $v->task_id)->where('user_id', $user_id)->delete();
+                        }
                         CaseTaskLinkedStaff::updateOrCreate(
                             ['task_id' => $v->task_id,
                             'user_id' => $request->assign_to, ],
@@ -837,7 +844,7 @@ class ContractController extends BaseController
                 // CaseStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
                 // CaseTaskLinkedStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
 
-                if(!empty($userDeactivate->assign_to)) {
+                if(!empty($userDeactivate->assigned_to)) {
                     DeactivatedUser::create([
                         'user_id' => $request->user_id,
                         'assigned_to' => $request->assign_to,
@@ -1672,17 +1679,22 @@ class ContractController extends BaseController
               CaseStaff::where("case_staff.user_id",$vv->user_id)->where("case_staff.case_id",$vv->case_id)->delete();
             }
         }
-
+        $user_id = base64_decode($requestData['user_id']);
+        $userProfile = User::where('id', $user_id)->first();
+        if(!empty($userProfile) && $userProfile->user_status == '3') {
+            $caseIds = CaseStaff::where('user_id', $user_id)->where('is_deactivate_reassign', 'yes')->withTrashed()->pluck('case_id')->toArray();
+        } else {
+            $caseIds = CaseStaff::where('user_id', $user_id)->pluck('case_id')->toArray();
+        }
         $columns = array('id', 'case_title', 'case_desc', 'case_number', 'case_status','case_unique_number');
         $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")
         ->leftjoin("users","case_staff.user_id","=","users.id")
         ->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type","users.user_title");
-        $case = $case->where("case_staff.user_id",base64_decode($requestData['user_id']));
         $case = $case->where("case_master.firm_id",Auth::user()->firm_name); //Logged in user not visible in grid
         $case = $case->where("case_master.is_entry_done","1");
-        $case = $case->where("case_staff.is_deactivate_reassign","no");
-        $case = $case->whereNull("case_staff.deleted_at");
+        $case = $case->whereIn('case_master.id', $caseIds);
         $case = $case->whereNull("case_master.deleted_at");
+        // $case = $case->where("case_staff.user_id",base64_decode($requestData['user_id']));
         $case = $case->groupBy('case_staff.case_id');
         $case = $case->offset($requestData['start'])->limit($requestData['length']);
         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);

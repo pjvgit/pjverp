@@ -103,7 +103,7 @@
             <div class="col">
                 @forelse (firmSolReminders() as $key => $item)
                     <div class="row form-group fieldGroup">
-                        <div class="col-md-2 form-group mb-3">
+                        <div class="col-md-3 form-group mb-3">
                             <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
                                 @foreach(getEventReminderTpe() as $k =>$v)
                                         <option value="{{$k}}" <?php if(@$item->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
@@ -119,7 +119,7 @@
                     </div>
                 @empty
                 @endforelse
-                <div class="test-sol-reminders fieldGroup">
+                <div class="test-sol-reminders">
                     
                     <div>
                         <button type="button" class="btn btn-link pl-0 add-more">Add a reminder</button>

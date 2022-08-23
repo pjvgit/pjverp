@@ -454,7 +454,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     $(document).ready(function() {
         $(".add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
-            $('body').find('.fieldGroup:last').after(fieldHTML);
+            $('body').find('.fieldGroup:last').before(fieldHTML);
         });
         // $('#smartwizard,#smartwizard1').smartWizard({
         //     selected: 0,

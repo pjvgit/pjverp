@@ -11881,12 +11881,14 @@ class BillingController extends BaseController
 
                     // Send confirm email to lawyer/invoice created user
                     $user = User::whereId($invoice->created_by)->first();
+                    if($user) {
                     $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 31, $invoiceOnlinePayment, 'user', 'invoice'));
-                    
+                    }
                     // Send confirm email to firm owner/lead attorney
                     $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
+                    if($firmOwner && @$user->id != $firmOwner->id) {
                     $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 31, $invoiceOnlinePayment, 'user', 'invoice'));
-
+                    }
                     DB::commit();
                 }
             }
@@ -12423,11 +12425,14 @@ class BillingController extends BaseController
 
                 // Send confirm email to lawyer/invoice created user
                 $user = User::whereId($client->created_by)->first();
+                if($user) {
                 $this->dispatch(new OnlinePaymentEmailJob($fundRequest ?? $client, $user, $emailTemplateId = 31, $requestOnlinePayment, 'user', $emailType));
-                
+                }
                 // Send confirm email to firm owner/lead attorney
                 $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
+                if($firmOwner && @$user->id != $firmOwner->id) {
                 $this->dispatch(new OnlinePaymentEmailJob($fundRequest ?? $client, $firmOwner, $emailTemplateId = 31, $requestOnlinePayment, 'user', $emailType));
+                }
                 DB::commit();
             }
         }
