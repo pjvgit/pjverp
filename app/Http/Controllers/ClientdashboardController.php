@@ -4877,7 +4877,7 @@ class ClientdashboardController extends BaseController
             ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
             ->leftJoin('user_role','user_role.id','case_client_selection.user_role')
             ->leftJoin('client_group','client_group.id','users_additional_info.contact_group_id')
-            ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact")
+            ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact","case_client_selection.allocated_trust_balance")
             ->where("case_client_selection.case_id",$v->id)
             ->get();
             
@@ -4924,7 +4924,7 @@ class ClientdashboardController extends BaseController
                 ( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".
                 ( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."|".
                 $solDate."|".
-                number_format($v->total_allocated_trust_balance ?? 0, 2)."|".
+                number_format($caseCllientSelection->where("deleted_at",null)->sum('allocated_trust_balance') ?? 0, 2)."|".
                 $v->id."|".
                 $contactList."|".
                 $v->billing_method."|".

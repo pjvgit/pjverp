@@ -771,3 +771,13 @@ p {
 .task-due-yellow {
     color: rgb(254, 193, 8);
 }
+.text-dark .slider{
+    background-color: #4d4d4d !important;
+}
+.text-dark input:checked+.slider{
+    background-color: #4caf50 !important;
+}
+.custom-scrollable-div .modal-body{
+    height: calc(100vh - 120px);
+    overflow: auto;
+}
