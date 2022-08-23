@@ -752,7 +752,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 </div>
                                             </div>
                                         <div class="fieldGroupCopy copy hide" style="display: none;">
-                                                <div class="col-md-2 form-group mb-3">
+                                                <div class="col-md-3 form-group mb-3">
                                                     <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
                                                     @foreach(getEventReminderTpe() as $k =>$v)
                                                         <option value="{{$k}}">{{$v}}</option>
@@ -1690,6 +1690,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
     $("#case_statute").on('change.dp', function (e) {
         $("#addMoreReminder").show();
+    });
+
+    $(".add-more").click(function () {
+        var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
+            '</div>';
+        $('body').find('.fieldGroup:last').before(fieldHTML);
     });
 </script>
 

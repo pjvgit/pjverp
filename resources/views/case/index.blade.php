@@ -336,7 +336,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                         </div>
                                                     @empty
                                                     @endforelse
-                                                    <div class="test-sol-reminders fieldGroup">
+                                                    <div class="test-sol-reminders">
                                                         <div>
                                                             <button type="button" class="btn btn-link pl-0 add-more">Add a reminder</button>
                                                         </div>
