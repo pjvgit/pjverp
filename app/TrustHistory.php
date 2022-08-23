@@ -20,7 +20,8 @@ class TrustHistory extends Authenticatable
 
     protected $fillable = ['client_id', 'payment_method', 'amount_paid', 'withdraw_amount', 'withdraw_from_account', 'payment_date', 'notes', 'fund_type', 
                 'current_trust_balance', 'refund_ref_id', 'is_refunded', 'refund_amount', 'related_to_invoice_id', 'created_by', 'updated_by', 'related_to_fund_request_id',
-                'allocated_to_case_id', 'related_to_invoice_payment_id', 'allocated_to_lead_case_id', 'online_payment_status', 'is_invoice_cancelled', 'is_invoice_fund_request_overpaid'];
+                'allocated_to_case_id', 'related_to_invoice_payment_id', 'allocated_to_lead_case_id', 'online_payment_status', 'is_invoice_cancelled', 'is_invoice_fund_request_overpaid',
+                'payment_datetime'];
 
     protected $appends  = ['createdatnewformate','added_date','newduedate','invoice_amt','invoice_paid_amt','is_overdue','trust_balance','paid','withdraw','refund','related_to'];
     public function getCreatedatnewformateAttribute(){
