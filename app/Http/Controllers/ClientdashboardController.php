@@ -3195,7 +3195,7 @@ class ClientdashboardController extends BaseController
                 $Archive="FALSE";
             }
             if($clientVal->dob!=NULL){
-                $DOB=date('m/d/Y',strtotime($clientVal->dob));
+                $DOB=date('m-d-Y',strtotime($clientVal->dob));
             }else{
                 $DOB="";
             }     
@@ -3215,7 +3215,7 @@ class ClientdashboardController extends BaseController
                 $casesLinkId='';
             }
             $webpage=$clientVal->website;
-            $createdAt = date('m/d/Y',strtotime(convertUTCToUserTime($clientVal->user_created_at, $authUser->user_timezone ?? 'UTC')));
+            $createdAt = date('m-d-Y H:i:s',strtotime(convertUTCToUserTime($clientVal->user_created_at, $authUser->user_timezone ?? 'UTC')));
             $trustBalance = $clientVal->trust_account_balance ?? 0;
             $clientCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->middle_name."|".$clientVal->last_name."|".$getCompanyName."|".$clientVal->job_title."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->work_phone."|".$clientVal->home_phone."|".$clientVal->mobile_number."|".$contactGroup."|".$clientVal->email."|".$webpage."|".$trustBalance."|".$Portal."|".$Archive."|".$DOB."|".$clientVal->notes."|".$clientVal->driver_license."|".$clientVal->license_state."|".$welcomeMsg."|".$notes."|".$cases."|".$casesLinkId."|".$createdAt;
         }
@@ -3292,7 +3292,7 @@ class ClientdashboardController extends BaseController
             }else{
                 $contacts='';
             }
-            $createdAt=date('m/d/Y',strtotime(convertUTCToUserTime($clientVal->uct, $authUser->user_timezone ?? 'UTC')));
+            $createdAt=date('m-d-Y H:i:s',strtotime(convertUTCToUserTime($clientVal->uct, $authUser->user_timezone ?? 'UTC')));
             $trustBalance = $clientVal->trust_account_balance ?? 0;
             $CompanyCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->mobile_number."|".$clientVal->email."|".$clientVal->website."|".$trustBalance."|".$Archive."|".$clientVal->notes."|".$contacts."|".$cases."|".$casesLinkId."|".$notes."|".$createdAt;
         }
@@ -4908,9 +4908,9 @@ class ClientdashboardController extends BaseController
             $leadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("lead_attorney","!=",null)->first();
             $originatingAttorney = CaseStaff::join('users','users.id','=','case_staff.originating_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("originating_attorney","!=",null)->first();
             $timezone = $authUser->user_timezone ?? 'UTC';
-            $caseOpenDate = ($v->case_open_date) ? convertUTCToUserDate($v->case_open_date, $timezone)->format('m/d/Y') : '';
-            $caseCloseDate = ($v->case_close_date) ? convertUTCToUserDate($v->case_close_date, $timezone)->format('m/d/Y') : '';
-            $solDate = ($v->case_statute_date) ? convertUTCToUserDate($v->case_statute_date, $timezone)->format('m/d/Y') : '';
+            $caseOpenDate = ($v->case_open_date) ? convertUTCToUserDate($v->case_open_date, $timezone)->format('m-d-Y') : '';
+            $caseCloseDate = ($v->case_close_date) ? convertUTCToUserDate($v->case_close_date, $timezone)->format('m-d-Y') : '';
+            $solDate = ($v->case_statute_date) ? convertUTCToUserDate($v->case_statute_date, $timezone)->format('m-d-Y') : '';
             $caseBalance = Invoices::where('case_id', $v->id)->sum('due_amount');
             $casesCsvData[]= $v->case_title."|".
                 $v->case_number."|".
@@ -4936,7 +4936,7 @@ class ClientdashboardController extends BaseController
             $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
             if(count($ClientNotesData) > 0){
                 foreach($ClientNotesData as $key=>$notes) {
-                $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".$caseOpenDate."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
+                    $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".$caseOpenDate."|".date("m-d-Y H:i:s",strtotime($notes->created_at))."|".date("m-d-Y H:i:s",strtotime($notes->updated_at))."|".$notes->note_subject."|". strip_tags($notes->notes);
                 }
             }
         }
