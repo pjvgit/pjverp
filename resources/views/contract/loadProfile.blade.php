@@ -244,9 +244,11 @@ $userTitle = unserialize(USER_TITLE);
         });
     });
     $('#updateProfile').submit(function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
         $("#submit").attr("disabled", true);
         $("#innerLoader").css('display', 'block');
-        e.preventDefault();
+        
 
         if (!$('#updateProfile').valid()) {
             $("#innerLoader").css('display', 'none');
