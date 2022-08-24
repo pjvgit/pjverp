@@ -170,9 +170,10 @@ class BillingSettingController extends BaseController
         if($request->is_accept_online_payment == 'yes') {
             $data['public_key'] = $request->public_key;
             $data['private_key'] = $request->private_key;
+            $data['paypal_public_key'] = $request->paypal_public_key;
+            $data['paypal_private_key'] = $request->paypal_private_key;
         }
-        $paymentSetting = FirmOnlinePaymentSetting::updateOrCreate(
-            [
+        $paymentSetting = FirmOnlinePaymentSetting::updateOrCreate([
                 'id' => $request->setting_id,
             ], $data);
 

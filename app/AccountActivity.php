@@ -1,6 +1,7 @@
 <?php
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +16,7 @@ class AccountActivity extends Authenticatable
 
     protected $fillable = ['user_id', 'related_to', 'case_id', 'credit_amount', 'debit_amount', 'total_amount', 'entry_date', 'status', 'notes', 'pay_type', 'firm_id', 
         'section', 'from_pay', 'payment_method', 'payment_type', 'is_refunded', 'refund_ref_id', 'payment_status', 'invoice_history_id', 'trust_history_id', 'is_lead_invoice', 
-        'created_by', 'updated_by'];
+        'created_by', 'updated_by', 'entry_datetime'];
 
     protected $appends  = ['added_date','case','decode_id','contact','refund_title','related','enter_by','enter_by_user_level','c_amt','d_amt','t_amt', 'payment_note'];
     public function getDecodeIdAttribute(){
@@ -33,9 +34,10 @@ class AccountActivity extends Authenticatable
 
     }
     public function getAddedDateAttribute(){
-        return date('M j, Y',strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($this->entry_date)), auth()->user()->user_timezone ?? 'UTC')));
+        // return date('M j, Y',strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($this->entry_date)), auth()->user()->user_timezone ?? 'UTC')));
         // $userTime = convertUTCToUserTime($this->entry_date, auth()->user()->user_timezone ?? 'UTC');
         // return date('M j, Y',strtotime($userTime));
+        return convertDateToUserTimeOffset((($this->entry_datetime) ? $this->entry_datetime : $this->entry_date), auth()->user()->user_timezone ?? 'UTC')->format('M j, Y');
     }
 
     public function getCaseAttribute(){
@@ -188,5 +190,13 @@ class AccountActivity extends Authenticatable
     public function invoiceHistory()
     {
         return $this->belongsTo(InvoiceHistory::class, 'invoice_history_id');
+    }
+
+    /**
+     * Set attribute for entry date and time
+     */
+    public function setEntryDateTimeAttribute($value)
+    {
+        $this->attributes['entry_datetime'] = Carbon::parse($this->attributes['entry_date'].' '.date('H:i:s'))->format('Y-m-d H:i:s');
     }
 }

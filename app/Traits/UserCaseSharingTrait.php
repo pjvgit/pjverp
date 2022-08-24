@@ -2,7 +2,9 @@
  
 namespace App\Traits;
 
+use App\CaseTaskLinkedStaff;
 use App\EventRecurring;
+use App\Task;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -16,7 +18,7 @@ trait UserCaseSharingTrait {
         // Link user with events
         $authUser = auth()->user();
         $eventRecurrings = EventRecurring::whereHas('event', function($query) use($caseId, $authUser) {
-            $query->where("firm_id", $authUser->firm_name)->where('is_event_private', 'no');
+            $query->where("firm_id", $authUser->firm_name)->where('is_event_private', 'no')->whereNotNull('case_id');
             if($caseId) {
                 $query->where('case_id', $caseId);
             }
@@ -154,6 +156,33 @@ trait UserCaseSharingTrait {
                         $newArray[] = $sitem;
                     }
                     $item->fill(['event_linked_staff' => encodeDecodeJson($newArray, 'encode')])->save();
+            }
+        }
+    }
+
+    /**
+     * Link firm user/staff to case task
+     */
+    public function shareTaskToUser($caseId = null, $staffUserId, $isEventRead = 'no')
+    {
+        // Link user with events
+        $authUser = auth()->user();
+        $allTask = Task::where("firm_id", $authUser->firm_name)->whereNotNull('case_id');
+        if($caseId) {
+            $allTask = $allTask->where('case_id', $caseId);
+        }
+        $allTask = $allTask->get();
+        if($allTask) {
+            foreach($allTask as $key => $item) {
+
+                CaseTaskLinkedStaff::create([
+                    'task_id' => $item->id,
+                    'user_id' => $staffUserId,
+                    'linked_or_not_with_case' => 'yes',
+                    'is_assign' => "yes",
+                    'is_read' => $isEventRead,
+                    'created_by' => auth()->id(),
+                ]);
             }
         }
     }

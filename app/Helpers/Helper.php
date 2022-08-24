@@ -769,6 +769,6 @@ function convertDateToUserTimeOffset($date, $timezone)
     $offset = Carbon::now($timezone)->offsetHours;
     $first_character = substr($offset, 0, 1);
     $hour = substr($offset, 1);
-    $date = ($first_character == '-') ? Carbon::parse($date)->addHours($hour) : Carbon::parse($date)->subHours($hour);
+    $date = ($first_character == '-') ? Carbon::parse($date)->subHours($hour) : Carbon::parse($date)->addHours($hour);
     return $date;
 }

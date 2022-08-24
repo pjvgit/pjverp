@@ -1,3 +1,13 @@
+------------------------------------ 24-AUG-2022 ------------------------------
+ALTER TABLE `firm_online_payment_settings`
+ADD `paypal_public_key` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `is_accept_interest_free_monthly_payment`,
+ADD `paypal_private_key` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `paypal_public_key`;
+
+ALTER TABLE `account_activity`
+ADD `entry_datetime` timestamp NULL AFTER `entry_date`;
+
+ALTER TABLE `deposit_into_credit_history`
+ADD `payment_datetime` timestamp NULL AFTER `payment_date`;
 ------------------------------------ 23-AUG-2022 ------------------------------
 ALTER TABLE `trust_history`
 ADD `payment_datetime` timestamp NULL AFTER `payment_date`;
