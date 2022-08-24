@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\AccountActivity;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use phpDocumentor\Reflection\Types\Null_;
@@ -21,6 +22,7 @@ trait TrustAccountActivityTrait {
         $AccountActivity->debit_amount =$historyData['debit_amount'];
         $AccountActivity->total_amount =$historyData['total_amount'];
         $AccountActivity->entry_date =$historyData['entry_date'];
+        $AccountActivity->entry_datetime = Carbon::now();
         $AccountActivity->status =$historyData['status'];
         $AccountActivity->payment_method=$historyData['payment_method'];
         $AccountActivity->payment_type=$historyData['payment_type'];

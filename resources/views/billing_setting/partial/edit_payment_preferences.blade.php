@@ -37,6 +37,18 @@
                 <label for="is_accept_interest_free_monthly_payment">Enabled</label>
             </div>
         </div>
+        <div class="form-group row">
+            <div class="col-3 col-form-label"> Paypal Public Key </div>
+            <div class="col-9 form-control-plaintext">
+                <input type="text" class="form-control" name="paypal_public_key" id="paypal_public_key" value="{{ $paymentSetting->paypal_public_key ?? '' }}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-3 col-form-label"> Paypal Private Key </div>
+            <div class="col-9 form-control-plaintext">
+                <input type="text" class="form-control" name="paypal_private_key" id="paypal_private_key" value="{{ $paymentSetting->paypal_private_key ?? '' }}">
+            </div>
+        </div>
     </div>
 </form>
 <div>

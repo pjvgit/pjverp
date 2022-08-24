@@ -20,6 +20,7 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "2.4",
         "mikehaertl/phpwkhtmltopdf": "^2.4",
+        "paypal/rest-api-sdk-php": "^1.14",
         "spatie/laravel-permission": "^5.4",
         "yajra/laravel-datatables-oracle": "^9.18"
     },

@@ -4666,6 +4666,7 @@ class BillingController extends BaseController
                             "payment_method" => "payment",
                             "deposit_amount" => @$item['applied_amount'] ?? 0,
                             "payment_date" => date('Y-m-d'),
+                            "payment_datetime" => Carbon::now(),
                             "payment_type" => "payment",
                             "total_balance" => @$userAddInfo->credit_account_balance,
                             "related_to_invoice_id" => $InvoiceSave->id,
@@ -7148,6 +7149,7 @@ class BillingController extends BaseController
                             "user_id" => $creditHistory->user_id,
                             "deposit_amount" => $request->amount,
                             "payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
+                            "payment_datetime" => Carbon::now(),
                             "payment_method" => "refund",
                             "payment_type" => $fund_type,
                             "total_balance" => $UsersAdditionalInfo->credit_account_balance,
@@ -8434,7 +8436,7 @@ class BillingController extends BaseController
         $totalFiltered = $totalData; 
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
-        $FetchQuery = $FetchQuery->orderBy("id","DESC");
+        $FetchQuery = $FetchQuery->orderBy("entry_date","DESC");
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
@@ -8470,7 +8472,7 @@ class BillingController extends BaseController
             $FetchQuery = $FetchQuery->whereBetween('entry_date', [$startDt,$endDt]);
             // $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
         }
-        $FetchQuery = $FetchQuery->orderBy("id","DESC");
+        $FetchQuery = $FetchQuery->orderBy("entry_date","DESC");
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         
         if(isset($request->exportType)){
@@ -8498,7 +8500,7 @@ class BillingController extends BaseController
                     }else{
                         $case_title = $Case->case_title ?? 'none';
                     }
-                    $casesCsvData[] = date('m-d-Y', strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($v->entry_date)), auth()->user()->user_timezone ?? 'UTC')))."|".(($v->section=="request") ? "#R-".$v->related : "#".$v->related)."|".($Contact->name ?? '')."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
+                    $casesCsvData[] = convertDateToUserTimeOffset((($v->entry_datetime) ? $v->entry_datetime : $v->entry_date), auth()->user()->user_timezone ?? 'UTC')->format('m-d-Y')."|".(($v->section=="request") ? "#R-".$v->related : "#".$v->related)."|".($Contact->name ?? '')."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
                 }
 
                 $file_path =  $folderPath.'/account_activities.csv';  
@@ -8580,7 +8582,7 @@ class BillingController extends BaseController
         $totalFiltered = $totalData; 
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
-        $FetchQuery = $FetchQuery->orderBy('id', 'desc');
+        $FetchQuery = $FetchQuery->orderBy('entry_date', 'desc');
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
@@ -8607,7 +8609,7 @@ class BillingController extends BaseController
             $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[1]))))), auth()->user()->user_timezone ?? 'UTC')));
             $FetchQuery = $FetchQuery->whereBetween('entry_date', [$startDt,$endDt]); 
         }
-        $FetchQuery = $FetchQuery->orderBy("id","DESC");
+        $FetchQuery = $FetchQuery->orderBy("entry_date","DESC");
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         if(isset($request->exportType)){
             $casesCsvData=[];
@@ -8634,7 +8636,7 @@ class BillingController extends BaseController
                     }else{
                         $case_title = $Case->case_title ?? '';
                     }
-                    $casesCsvData[] = date('m-d-Y', strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($v->entry_date)), auth()->user()->user_timezone ?? 'UTC')))."|".(($v->section=="request") ? "#R-".$v->related : $v->related)."|".@$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
+                    $casesCsvData[] = convertDateToUserTimeOffset((($v->entry_datetime) ? $v->entry_datetime : $v->entry_date), auth()->user()->user_timezone ?? 'UTC')->format('m-d-Y')."|".(($v->section=="request") ? "#R-".$v->related : $v->related)."|".@$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
                 }
 
                 $file_path =  $folderPath.'/account_activities.csv';  
@@ -9839,6 +9841,7 @@ class BillingController extends BaseController
             $DepositIntoCreditHistory->deposit_amount=$request->amount;
             $DepositIntoCreditHistory->payment_method = $request->payment_method;
             $DepositIntoCreditHistory->payment_date = convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), $authUser->user_timezone);
+            $DepositIntoCreditHistory->payment_datetime = Carbon::now();
             $DepositIntoCreditHistory->notes = $request->notes;
             $DepositIntoCreditHistory->total_balance = ($userAddInfo->credit_account_balance + $request->amount);
             $DepositIntoCreditHistory->payment_type = "deposit";
@@ -11445,6 +11448,7 @@ class BillingController extends BaseController
                     "payment_method" => "payment",
                     "deposit_amount" => $request->amount ?? 0,
                     "payment_date" => convertDateToUTCzone(date('Y-m-d',strtotime($request->payment_date)), $authUser->user_timezone),
+                    "payment_datetime" => Carbon::now(),
                     "payment_type" => "payment",
                     "total_balance" => $userAddInfo->credit_account_balance,
                     "related_to_invoice_id" => $InvoiceData->id,
@@ -11567,6 +11571,7 @@ class BillingController extends BaseController
                         "payment_method" => "payment",
                         "deposit_amount" => $finalAmt ?? 0,
                         "payment_date" => convertDateToUTCzone(date("Y-m-d"), auth()->user()->user_timezone),
+                        "payment_datetime" => Carbon::now(),
                         "payment_type" => "payment",
                         "total_balance" => @$userData->credit_account_balance,
                         "related_to_invoice_id" => $Invoices->id,
@@ -11853,6 +11858,7 @@ class BillingController extends BaseController
                         'credit_amount' => $payableAmount ?? 0.00,
                         'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
                         'entry_date' => date('Y-m-d'),
+                        'entry_datetime' => Carbon::now(),
                         'payment_method' => 'Card',
                         'payment_type' => "payment",
                         'invoice_history_id' => $invoiceHistory->id ?? Null,
@@ -12352,6 +12358,7 @@ class BillingController extends BaseController
                         'credit_amount' => $payableAmount ?? 0.00,
                         'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
                         'entry_date' => date('Y-m-d'),
+                        'entry_datetime' => Carbon::now(),
                         'payment_method' => "Card",
                         'payment_type' => "deposit",
                         'pay_type' => "trust",
@@ -12379,6 +12386,7 @@ class BillingController extends BaseController
                         'deposit_amount' => $payableAmount,
                         'payment_method' => "card",
                         'payment_date' => convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), $authUser->user_timezone ?? 'UTC'),
+                        "payment_datetime" => Carbon::now(),
                         'total_balance' => @$userAdditionalInfo->credit_account_balance,
                         'payment_type' => "deposit",
                         'firm_id' => $client->firm_name,
@@ -12400,6 +12408,7 @@ class BillingController extends BaseController
                             'credit_amount' => $payableAmount ?? 0.00,
                             'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
                             'entry_date' => convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), $authUser->user_timezone ?? 'UTC'),
+                            'entry_datetime' => Carbon::now(),
                             'payment_method' => 'Card',
                             'payment_type' => "deposit",
                             'trust_history_id' => $creditHistory->id ?? Null,

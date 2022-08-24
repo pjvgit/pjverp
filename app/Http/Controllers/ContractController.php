@@ -208,14 +208,6 @@ class ContractController extends BaseController
                 }
                 break; 
             case '2':
-                /* if(Auth::user()->parent_user==0){
-                    $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-                    $getChildUsers[]=Auth::user()->id;
-                    $caseMaster = CaseMaster::whereIn('created_by', $getChildUsers)->get();
-                }else{
-                    $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
-                    $caseMaster = CaseMaster::where('created_by', $childUSersCase)->get();
-                } */
                 $caseMaster = CaseMaster::where('firm_id', $user->firm_name)->whereNull('case_close_date')->get();
                 foreach ($caseMaster as $case){
                     // if(isset($request->case_list) && $request->case_list !=''){
@@ -263,7 +255,11 @@ class ContractController extends BaseController
 
         // Link user with events
         if(isset($request->sharing_setting_1)) {
-            $this->shareEventToUser((isset($request->case_list) && $request->case_list !='') ? $request->case_list : Null, $user->id, (isset($request->sharing_setting_2)) ? 'yes' : 'no');
+            $this->shareEventToUser((isset($request->case_list) && $request->case_list !='') ? $request->case_list : Null, $user->id, (isset($request->sharing_setting_3)) ? 'yes' : 'no');
+        }
+
+        if(isset($request->sharing_setting_2)) {
+            $this->shareTaskToUser((isset($request->case_list) && $request->case_list !='') ? $request->case_list : Null, $user->id, (isset($request->sharing_setting_3)) ? 'yes' : 'no');
         }
 
         return response()->json(['errors'=>'','user_id'=>$user->id]);

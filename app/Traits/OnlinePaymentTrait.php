@@ -135,6 +135,7 @@ trait OnlinePaymentTrait {
                 'deposit_amount' => $amount,
                 'payment_method' => strtolower($paymentMethod),
                 'payment_date' => date("Y-m-d"),
+                'payment_datetime' => Carbon::now(),
                 'total_balance' => @$userAdditionalInfo->credit_account_balance,
                 'payment_type' => "deposit",
                 'firm_id' => $paymentDetail->firm_id,

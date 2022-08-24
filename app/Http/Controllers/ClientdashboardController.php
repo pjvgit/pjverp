@@ -4114,6 +4114,7 @@ class ClientdashboardController extends BaseController
      */
     public function loadCreditHistory(Request $request)
     {
+        $authUser = auth()->user();
         $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")
                 ->orderBy("created_at", "desc")
                 // ->with("invoice", "user");
@@ -4146,10 +4147,11 @@ class ClientdashboardController extends BaseController
                 }
                 return $action;
             })
-            ->editColumn('payment_date', function ($data) {
+            ->editColumn('payment_date', function ($data) use($authUser) {
                 // return $data->payment_date ?? "--";
                 if($data->payment_date) {
-                    $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone);
+                    // $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone);
+                    $pDate = convertDateToUserTimeOffset((($data->payment_datetime) ? $data->payment_datetime : $data->payment_date), $authUser->user_timezone);
                     return $pDate->format("M d, Y");
                     if ($pDate->isToday()) {
                         return "Today";
@@ -4285,6 +4287,7 @@ class ClientdashboardController extends BaseController
                 "deposit_amount" => $request->amount,
                 // "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
                 "payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone),
+                "payment_datetime" => Carbon::now(),
                 "payment_type" => "withdraw",
                 "total_balance" => $UsersAdditionalInfo->credit_account_balance,
                 "notes" => $request->notes,
@@ -4364,6 +4367,7 @@ class ClientdashboardController extends BaseController
                     "deposit_amount" => $request->amount,
                     // "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
                     "payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone),
+                    "payment_datetime" => Carbon::now(),
                     "payment_method" => "refund",
                     "payment_type" => $fund_type,
                     "total_balance" => $UsersAdditionalInfo->credit_account_balance,
