@@ -49,6 +49,7 @@
                         @can('edit_firm_user_permission')
                         <a class="dropdown-item" href="{{ route('contacts/attorneys') }}" >Firm User Permissions</a>
                         @endcan
+                        <a class="dropdown-item" href="{{ route('integration/apps') }}" >Integrations & Apps</a>
                         @if (auth()->user()->getUserFirms() > 1)
                         <a class="dropdown-item" href="{{ route('login/sessions/launchpad', encodeDecodeId(auth()->id(), 'encode')) }}" >Switch Account</a>
                         @endif
