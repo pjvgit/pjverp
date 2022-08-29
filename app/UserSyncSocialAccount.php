@@ -12,5 +12,16 @@ class UserSyncSocialAccount extends Model
         'user_id', 'social_type', 'social_id', 'email', 'access_token', 'refresh_token', 'craeted_by', 'calendar_id'
     ];
 
-    // protected $casts = ['access_token' => 'json', 'refresh_token' => 'json'];
+    protected $appends = ['service_name'];
+
+    public function getServiceNameAttribute()
+    {
+        if($this->social_type == 'google') {
+            return 'Google';
+        } else if($this->social_type == 'outlook') {
+            return 'Outlook';
+        } else {
+            return '';
+        }
+    }
 }

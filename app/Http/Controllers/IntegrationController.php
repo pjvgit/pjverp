@@ -14,7 +14,8 @@ class IntegrationController extends Controller {
 
     public function index()
     {
-        return view("integration.index");
+        $syncAccount = UserSyncSocialAccount::where('user_id', auth()->id())->first();
+        return view("integration.index", compact('syncAccount'));
     }
 
     /**
@@ -149,5 +150,11 @@ class IntegrationController extends Controller {
           
 
         return "success";
+    }
+
+    public function loadSyncCalendarSetting(Request $request)
+    {
+        $syncAccount = UserSyncSocialAccount::whereId($request->sync_id)->where('user_id', auth()->id())->first();
+        return view("integration.partial.load_sync_calendar_setting", compact('syncAccount'));
     }
 }
