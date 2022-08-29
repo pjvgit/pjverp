@@ -1,3 +1,19 @@
+------------------------------------ 26-AUG-2022 ------------------------------
+CREATE TABLE `user_sync_social_accounts` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `user_id` int(11) NOT NULL,
+  `social_type` enum('google','outlook') NULL,
+  `social_id` varchar(255) NULL,
+  `email` varchar(255) NULL,
+  `access_token` text COLLATE 'utf8mb4_general_ci' NULL,
+  `refresh_token` text COLLATE 'utf8mb4_general_ci' NULL,
+  `calendar_id` varchar(255) NULL,
+  `craeted_by` int(11) NULL,
+  `created_at` timestamp NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL
+);
+
 ------------------------------------ 24-AUG-2022 ------------------------------
 ALTER TABLE `firm_online_payment_settings`
 ADD `paypal_public_key` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `is_accept_interest_free_monthly_payment`,

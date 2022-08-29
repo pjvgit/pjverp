@@ -781,3 +781,35 @@ p {
     height: calc(100vh - 120px);
     overflow: auto;
 }
+i.calendar-integration-outlook {
+    background-image: url('../../../icon/cal_int_outlook_calendar.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 64px;
+    width: 64px;
+}
+
+i.calendar-integration-google {
+    background-image: url('../../../icon/cal_int_google_calendar.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 64px;
+    width: 64px;
+}
+.btn-cta-secondary {
+    color: #fff;
+    background-color: #27bfad;
+    border-color: #27bfad;
+}
+i.calendar-instruction-mc-in-google {
+    background-image: url('../../../icon/mycase_in_google.png');
+}
+i.calendar-instruction-google-in-mc {
+    background-image: url('../../../icon/google_in_mycase.png');
+}
+i.calendar-instruction-google-in-mc, i.calendar-instruction-mc-in-google {
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 180px;
+    width: 200px;
+}
