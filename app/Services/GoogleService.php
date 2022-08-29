@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-class GoogleServices
+class GoogleService
 {
     protected $client;
 
