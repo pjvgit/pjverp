@@ -316,7 +316,7 @@ $(document).ready(function(){
                         localStorage.setItem("pauseCounter", 'yes');
                         localStorage.setItem("smart_timer_running", 'yes');
                         localStorage.setItem("resumeCounterClicked", 'yes');
-                        intervalId = setInterval(timerstart, 1000);
+                        // intervalId = setInterval(timerstart, 1000);
                         $(".timer-actions-button").hide();
                     } else {
                         $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
@@ -698,9 +698,9 @@ window.addEventListener("beforeunload", function(e) {
     // before closing the browser ************** //
 
     // added the delay otherwise database operation will not work
-    for (var i = 0; i < 500000000; i++) {}
-    removeLocalStorage();
-    return undefined;
+    // for (var i = 0; i < 500000000; i++) {}
+    // removeLocalStorage();
+    // return undefined;
 });
 // End
 
