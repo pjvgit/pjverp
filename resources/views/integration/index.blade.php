@@ -19,9 +19,9 @@
                 </div>
                 <div class="card-footer">
                     <div class="d-flex align-items-center">
-                        {{-- <div class="marketplace-actions ml-auto d-flex-align-items-center"> 
+                        <div class="marketplace-actions ml-auto d-flex-align-items-center"> 
                             <a class="calendar-integration-uninstall" target="_blank" href="https://login.microsoftonline.com/common/adminconsent?client_id=a6ce0a65-b5ac-4dbe-87c9-dbfb31828762&state=12345&redirect_uri=https://localhost/outlook/access/token" >Sync with LegalCase</a> 
-                        </div> --}}
+                        </div>
                         @if($syncAccount)
                         <div class="marketplace-actions ml-auto d-flex-align-items-center"> 
                             <i class="fas fa-cog ml-auto" aria-hidden="true"></i> 
@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-center mb-4">
-                    <a href="{{route('google/oauth')}}" id="sync_cal_btn" class="btn btn-primary">Set Up Sync</a>
+                    <a href="#" id="sync_cal_btn" class="btn btn-primary">Set Up Sync</a>
                 </div>
                 <div>
                     <p><span class="font-weight-bold">What to expect: </span>Once you select your service, you'll need to grant LegalCase permission to access your calendar. After you've granted permission, you'll be returned to LegalCase to finish configuring the application.</p>
@@ -88,15 +88,15 @@
             <div class="modal-body">
                 <div class="alert alert-success fade show" role="alert">
                     <div class="d-flex align-items-start"><i aria-hidden="true" class="fa fa-check fa-lg mr-3 mt-1"></i>
-                        <div class="w-100" style="overflow: hidden;"><strong>Google Sync Successful! </strong><span>Events will sync <strong>automatically</strong>. It may take 5-10 minutes for events to sync.</span></div>
+                        <div class="w-100" style="overflow: hidden;"><strong>{{ @$syncAccount->service_name }} Sync Successful! </strong><span>Events will sync <strong>automatically</strong>. It may take 5-10 minutes for events to sync.</span></div>
                     </div>
                 </div>
                 <div class="row ">
                     <div class="col-12 col-md-4"><i class="calendar-instruction-mc-in-google"></i></div>
                     <div class="pl-0 col-12 col-md-8">
-                        <h4><strong>LegalCase Events in Google</strong></h4>
+                        <h4><strong>LegalCase Events in {{ @$syncAccount->service_name }}</strong></h4>
                         <ul class="pl-3">
-                            <li><strong>View &amp; Create</strong> LegalCase events by selecting the LegalCase checkbox on Google calendar.</li>
+                            <li><strong>View &amp; Create</strong> LegalCase events by selecting the LegalCase checkbox on {{ @$syncAccount->service_name }} calendar.</li>
                             <br>
                             <li>Your LegalCase events from the last 3 months and onwards will be synced.</li>
                         </ul>
@@ -106,19 +106,19 @@
                 <div class="mt-4 row ">
                     <div class="col-12 col-md-4"><i class="calendar-instruction-google-in-mc p-2"></i></div>
                     <div class="pl-0 col-12 col-md-8">
-                        <h4><strong>Google Events in LegalCase</strong></h4>
+                        <h4><strong>{{ @$syncAccount->service_name }} Events in LegalCase</strong></h4>
                         <ul class="pl-3">
-                            <li>Google events will <strong>automatically</strong> be synced to your LegalCase Calendar.</li>
+                            <li>{{ @$syncAccount->service_name }} events will <strong>automatically</strong> be synced to your LegalCase Calendar.</li>
                             <br>
-                            <li><strong>View</strong> the Google sync status at the bottom of your LegalCase Calendar.</li>
+                            <li><strong>View</strong> the {{ @$syncAccount->service_name }} sync status at the bottom of your LegalCase Calendar.</li>
                         </ul>
                     </div>
                 </div>
             </div>
             <div class="justify-content-between modal-footer">
                 <div class="w-100 d-flex justify-content-end">
-                    <button type="button" class="btn btn-link">Close</button>
-                    <button type="button" class="btn btn-primary">Go To Calendar</button>
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <a href="{{ route('events/') }}" class="btn btn-primary">Go To Calendar</a>
                 </div>
             </div>
         </div>
@@ -170,8 +170,8 @@
             </div>
             <div class="justify-content-between modal-footer">
                 <div class="w-100 d-flex justify-content-end">
-                    <button type="button" class="btn btn-link">Cancel</button>
-                    <button type="button" class="ml-2 btn btn-danger">Uninstall</button>
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="ml-2 btn btn-danger" onclick="uninstallCalendra()">Uninstall</button>
                 </div>
             </div>
         </div>
@@ -180,7 +180,10 @@
 @endsection
 
 @section('page-js')
-<script src="{{ asset("assets\js\custom\integration\index.js?").env('CACHE_BUSTER_VERSION') }}">
-
+<script src="{{ asset("assets\js\custom\integration\index.js?").env('CACHE_BUSTER_VERSION') }}"></script>
+<script>
+@if(session()->get('show_success_modal') == 'yes')
+    $("#calendar_inte_work").modal('show');
+@endif
 </script>
 @endsection
