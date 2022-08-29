@@ -1410,14 +1410,18 @@ class HomeController extends BaseController
             session(["smart_timer_id" => $SmartTimer->id]);
             $startTime1 = Carbon::parse($SmartTimer->started_at);
             $finishTime1 = Carbon::now();
-            $runningSeconds = $finishTime1->diffInSeconds($startTime1);
-            if($SmartTimer->paused_seconds > 0){
-                $runningSeconds = $runningSeconds - $SmartTimer->paused_seconds;
-            }
-            if($SmartTimer->is_pause == 1){
-                $runningSeconds = $SmartTimer->paused_at;
-            }
-            return response()->json(["status" => "success","smartTimer" => $SmartTimer, 'runningSeconds' => $runningSeconds]);
+            
+            // $runningSeconds = $finishTime1->diffInSeconds($startTime1);
+            // dd($runningSeconds);
+            // if($SmartTimer->paused_seconds > 0){
+            //     $runningSeconds = $runningSeconds - $SmartTimer->paused_seconds;
+            // }
+            
+            // if($SmartTimer->is_pause == 1){
+            //     $runningSeconds = $SmartTimer->paused_at;
+            // }
+            
+            return response()->json(["status" => "success","smartTimer" => $SmartTimer]);
         }else{
             return response()->json(["status" => "error","smart_timer_id" => "", "counter" => 0]);
         }

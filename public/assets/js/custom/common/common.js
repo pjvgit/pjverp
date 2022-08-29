@@ -1,4 +1,9 @@
-let totalSeconds = 0;document.addEventListener('visibilitychange',function(e){if(document.hidden===false){totalSeconds=localStorage.getItem("last_seconds");console.log('Done');}});
+let totalSeconds = 0;
+document.addEventListener('visibilitychange',function(e){
+    if(document.hidden===false){
+        totalSeconds=localStorage.getItem("last_seconds");
+    }
+});
 let hour = 0;
 let minute = 0;
 let seconds = 0;
@@ -294,11 +299,11 @@ $(document).ready(function(){
                 if (localStorage.getItem("last_seconds") > 0) {
                     totalSeconds = localStorage.getItem("last_seconds")
                 } else {
-                    totalSeconds = data.runningSeconds;
+                    totalSeconds = data.smartTimer.paused_at;
                     localStorage.setItem("last_seconds", totalSeconds);
                 }
                 hour = Math.floor(totalSeconds / 3600);
-                minute = Math.floor((totalSeconds - hour * 3600) / 60);
+                minute = Math.floor((totalSeconds - (hour * 3600)) / 60);
                 seconds = totalSeconds - (hour * 3600 + minute * 60);
                 $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
                 $("#smart_timer_id").val(data.smartTimer.id);
@@ -412,7 +417,6 @@ $(window).on('storage', function (e) {
 
 var interval = setInterval(function () {
     if(localStorage.getItem("pauseCounterClicked") === 'yes') {
-        console.log('storage > Pause Timer');
         localStorage.setItem("last_seconds", localStorage.getItem("last_paused_seconds"))
         // $(".timerCounter").hide();
         $(".logoutTimerAlert").hide();
@@ -436,7 +440,6 @@ var interval = setInterval(function () {
         }, 1000);
     }
     if(localStorage.getItem("resumeCounterClicked") === 'yes') {
-        console.log('storage > Resume Timer');
         // $(".timerCounter").hide();
         $(".logoutTimerAlert").show();
         if (!intervalId) {
@@ -530,9 +533,10 @@ function timerstart() {
         $(".js-timer-root .text-nowrap .time-status").html("");
         $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: green !important;'></i>&nbsp;");
 
-        ++totalSeconds;localStorage.setItem("last_seconds", totalSeconds);
+        ++totalSeconds;
+        localStorage.setItem("last_seconds", totalSeconds);
         hour = Math.floor(totalSeconds / 3600);
-        minute = Math.floor((totalSeconds - hour * 3600) / 60);
+        minute = Math.floor((totalSeconds - (hour * 3600)) / 60);
         seconds = totalSeconds - (hour * 3600 + minute * 60);
         $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
     }
