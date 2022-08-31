@@ -57,4 +57,23 @@ return [
         // Enables incremental scopes (useful if in the future we need access to another type of data).
         'include_granted_scopes' => true,
     ],
+
+    'outlook' => [
+        // Our Google API credentials.
+        'client_id' => env('OUTLOOK_CLIENT_ID'),
+        'client_secret_value' => env('OUTLOOK_CLIENT_SECRET_VALUE'),
+        
+        // The URL to redirect to after the OAuth process.
+        'redirect_uri' => env('OUTLOOK_REDIRECT_URI'),
+        
+        // The URL that listens to Google webhook notifications (Part 3).
+        'webhook_uri' => env('OUTLOOK_WEBHOOK_URI', Null),
+        
+        // Let the user know what we will be using from his Google account.
+        'scopes' => "openid+https%3A%2F%2Foutlook.office.com%2Fuser.read+https%3A%2F%2Foutlook.office.com%2Fcalendars.readwrite+offline_access%20openid%20email%20profile",
+        
+        // Enables automatic token refresh.
+        'approval_prompt' => 'select_account',  // OR value should be 'consent'
+        // 'approval_prompt' => 'consent',
+    ],
 ];

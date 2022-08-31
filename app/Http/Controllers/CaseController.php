@@ -23,6 +23,7 @@ use App\FirmEventReminder;
 use App\FlatFeeEntry,App\Messages,App\UserPreferanceReminder;
 use Illuminate\Support\Str;
 use App\Jobs\EventCommentEmailJob;
+use App\Jobs\EventSyncToSocialAccountJob;
 use App\Jobs\LeadEventInvitationEmailJob;
 use App\Traits\CaseEventTrait;
 use App\Traits\EventTrait;
@@ -2229,6 +2230,8 @@ class CaseController extends BaseController
                 "event_linked_staff" => $this->getEventLinkedStaffJson($caseEvent, $request),
                 "event_linked_contact_lead" => $this->getEventLinkedContactLeadJson($caseEvent, $request),
             ]);  
+
+            $this->dispatch(new EventSyncToSocialAccountJob($authUser, $caseEvent, $eventRecurring));
 
             $this->saveEventRecentActivity($request, $caseEvent->id, $eventRecurring->id, 'add');
 
