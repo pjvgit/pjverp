@@ -23,7 +23,7 @@ use App\FirmEventReminder;
 use App\FlatFeeEntry,App\Messages,App\UserPreferanceReminder;
 use Illuminate\Support\Str;
 use App\Jobs\EventCommentEmailJob;
-use App\Jobs\EventSyncToSocialAccountJob;
+use App\Jobs\SyncEventToSocialAccountJob;
 use App\Jobs\LeadEventInvitationEmailJob;
 use App\Traits\CaseEventTrait;
 use App\Traits\EventTrait;
@@ -2233,7 +2233,7 @@ class CaseController extends BaseController
             ]);  
 
             if(getAuthUserSocialAccount()) {
-                $this->dispatch(new EventSyncToSocialAccountJob($authUser, $caseEvent, $eventRecurring));
+                $this->dispatch(new SyncEventToSocialAccountJob($authUser, $caseEvent, $eventRecurring));
             }
             $this->saveEventRecentActivity($request, $caseEvent->id, $eventRecurring->id, 'add');
 
