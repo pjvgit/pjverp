@@ -1,3 +1,12 @@
+------------------------------------ 29-AUG-2022 ------------------------------
+ALTER TABLE `user_sync_social_accounts`
+CHANGE `access_token` `access_token` text COLLATE 'utf8mb4_general_ci' NULL AFTER `email`,
+CHANGE `refresh_token` `refresh_token` text COLLATE 'utf8mb4_general_ci' NULL AFTER `access_token`,
+CHANGE `calendar_id` `calendar_id` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `refresh_token`,
+ADD `calendar_name` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `calendar_id`,
+ADD `calendar_timezone` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `calendar_name`,
+ADD `is_event_deleted` enum('no','yes') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'no' AFTER `calendar_timezone`;
+
 ------------------------------------ 26-AUG-2022 ------------------------------
 CREATE TABLE `user_sync_social_accounts` (
   `id` bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,

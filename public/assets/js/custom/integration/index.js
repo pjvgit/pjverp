@@ -9,11 +9,11 @@ $(".cal-service").on("click", function() {
     $(".cal-service").removeClass("btn-cta-secondary");
     $(this).removeClass("btn-secondary");
     $(this).addClass("btn-cta-secondary");
-    if($(this).attr('data-testid') == 'google-service-auth-btn') {
-        $("#sync_cal_btn").prop("href", "{{route('google/oauth')}}");
+    if($(this).attr('id') == 'google-service-auth-btn') {
+        $("#sync_cal_btn").prop("href", baseUrl+"/google/oauth");
     }
-    else if($(this).attr('data-testid') == 'outlook-service-auth-btn') {
-        $("#sync_cal_btn").prop("href", "{{route('outlook/oauth')}}");
+    else if($(this).attr('id') == 'outlook-service-auth-btn') {
+        $("#sync_cal_btn").prop("href", baseUrl+"/outlook/oauth");
     } else {
         $("#sync_cal_btn").prop("href", "javascript:;");
     }
@@ -31,4 +31,18 @@ $("#calendar-integration-settings").on("click", function() {
             $("#calendar_inte_setting").modal('show');
         }
     })
-})
+});
+
+// For uninstall sync calendar
+function uninstallCalendra() {
+    var isDeleteEvent = $("#delete-calendar-checkbox-option").val();
+    alert(isDeleteEvent);
+    $.ajax({
+        url: baseUrl+'/uninstall/sync/calendar',
+        type: 'GET',
+        data: {is_delete_event: isDeleteEvent},
+        success: function(response) {
+            window.location.reload();
+        }
+    })
+}
