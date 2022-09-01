@@ -1692,7 +1692,7 @@ class ContractController extends BaseController
         $case = $case->whereNull("case_master.deleted_at");
         // $case = $case->where("case_staff.user_id",base64_decode($requestData['user_id']));
         $case = $case->groupBy('case_staff.case_id');
-        $case = $case->offset($requestData['start'])->limit($requestData['length']);
+        // $case = $case->offset($requestData['start'])->limit($requestData['length']);
         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $case = $case->get();
         $totalData=$case->count();
