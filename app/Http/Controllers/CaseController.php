@@ -4396,8 +4396,9 @@ class CaseController extends BaseController
                 $eventReminders = [];
                 $decodeReminder = encodeDecodeJson($eventRecurring->event_reminders) ?? [];
                 if(isset($request->reminder['user_type'])) {
-                    $request->request->add(['start_date' => $eventRecurring->start_date]);
-                    $request->request->add(['start_time' => $eventRecurring->event->start_time]);
+                    $startDateTime = convertUTCToUserTime(Carbon::parse($eventRecurring->start_date.' '.$eventRecurring->event->start_time),auth()->user()->user_timezone);
+                    $request->request->add(['start_date' => Carbon::parse($startDateTime)->format('Y-m-d')]);
+                    $request->request->add(['start_time' => Carbon::parse($startDateTime)->format('H:i:s')]);
                     $reminderNo = $decodeReminder->last()->reminder_id ?? 0;
                     foreach($request->reminder['user_type'] as $key => $item) {
                         $isExist = $decodeReminder->where('reminder_id', @$request->reminder['id'][$key])->where('created_by', $authUserId)->first();
