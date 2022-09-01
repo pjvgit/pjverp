@@ -7,6 +7,7 @@ use App\UserSyncSocialAccount;
 use Exception;
 use Illuminate\Http\Request;
 use Microsoft\Graph\Graph;
+use Microsoft\Graph\Model;
 
 class IntegrationController extends Controller {
 
@@ -22,14 +23,14 @@ class IntegrationController extends Controller {
     public function getOutlookAccessToken()
     {
         header('Content-Type: text/html; charset=utf-8');
-        $client_id     = env('OUTLOOK_CLIENT_ID');
-        $client_secret = env('OUTLOOK_CLIENT_SECRET_VALUE');
-        // $client_scope = env('OUTLOOK_GRAPH_USER_SCOPES');
-        $client_scope = "openid+https%3A%2F%2Foutlook.office.com%2Fuser.read+https%3A%2F%2Foutlook.office.com%2Fcalendars.readwrite+offline_access%20openid%20email%20profile";
-        $redirect_uri  = route('outlook/oauth'); 
+        $client_id     = config('services.outlook.client_id');
+        $client_secret = config('services.outlook.client_secret_value');
+        $client_scope = config('services.outlook.scopes');
+        $redirect_uri  = config('services.outlook.redirect_uri'); 
+        $approval_prompt  = config('services.outlook.approval_prompt'); 
         
         $response   = "";
-        $response   = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=".$client_id."&scope=".$client_scope."&response_type=code&redirect_uri=".urlencode($redirect_uri)."&prompt=select_account";  //&prompt=consent
+        $response   = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=".$client_id."&scope=".$client_scope."&response_type=code&redirect_uri=".urlencode($redirect_uri)."&prompt=".$approval_prompt;  //&prompt=consent
         if(!isset($_GET['code']))
         {
             return redirect()->to($response);
@@ -55,14 +56,6 @@ class IntegrationController extends Controller {
 
                 $account = json_decode($output, true);
                 $accessToken = $account['access_token'];
-                /* $graph = new Graph();
-                $graph->setBaseUrl("https://graph.microsoft.com/")->setAccessToken($accessToken);
-
-                return $user = $graph->setApiVersion("2.0")
-                            ->createRequest("GET", "/me")
-                            ->addHeaders(array("Content-Type" => "application/json"))
-                            ->setReturnType(\App\User::class)
-                            ->execute(); */
 
                 $syncAccount = UserSyncSocialAccount::updateOrCreate([
                     'user_id' => auth()->id(),
@@ -72,6 +65,17 @@ class IntegrationController extends Controller {
                     'access_token' => $accessToken,
                     'refresh_token' => $account['refresh_token'],
                 ]);
+
+                /* $graph = new Graph();
+                $graph->setBaseUrl("https://graph.microsoft.com/")->setAccessToken($accessToken);
+
+                return $user = $graph->setApiVersion("v2.0")
+                            ->createRequest("GET", "/me")
+                            ->addHeaders(array("Content-Type" => "application/json"))
+                            ->setReturnType(\App\User::class)
+                            ->execute(); */
+
+                
                 session()->flash('show_success_modal', 'yes');
                 return redirect()->route('integration/apps');
             } catch (Exception $exception) {
@@ -97,13 +101,11 @@ class IntegrationController extends Controller {
         $account = $google->service('Oauth2')->userinfo->get();
     
         $syncAccount = UserSyncSocialAccount::updateOrCreate([
-                // Map the account's id to the `google_id`.
-                'social_id' => $account->id,
+                'social_id' => $account->id, // Map the account's id to the `google_id`.
             ], [
                 'user_id' => auth()->id(),
-                // Use the first email address as the Google account's name.
+                'social_type' => 'google',
                 'email' => $account->email ?? '',
-                // Last but not least, save the access token for later use.
                 'access_token' => $accessToken['access_token'],
                 'refresh_token' => $google->getRefreshToken(),
             ]
@@ -131,14 +133,14 @@ class IntegrationController extends Controller {
     public function createEvent(Request $request, GoogleService $google)
     {
         $googleAccount = UserSyncSocialAccount::where('user_id', auth()->id())->whereNotNull('access_token')->first();
-        $google->setAccessToken($googleAccount->access_token);
+        /* $google->setAccessToken($googleAccount->access_token);
         if ($google->isAccessTokenExpired()) {
             $accessToken = $google->fetchAccessTokenWithRefreshToken($googleAccount->refresh_token);
             $googleAccount->update([
                 'access_token' => json_encode($accessToken),
             ]);
-        }
-        // $google->connectUsing($googleAccount->access_token)->service('Calendar');
+        } */
+        $google->connectUsing($googleAccount);
         $service = $google->service('Calendar');
         if(empty($googleAccount->calendar_id)) {
             $calendar = new \Google\Service\Calendar\Calendar();
@@ -180,6 +182,7 @@ class IntegrationController extends Controller {
         // $cal = new \Google\Service\Calendar($google);
         $calendarId = $googleAccount->calendar_id;
         $event = $service->events->insert($calendarId, $event);
+        printf('Event id: %s\n', $event->id);
         printf('Event created: %s\n', $event->htmlLink);
           
 
@@ -215,7 +218,55 @@ class IntegrationController extends Controller {
             $google->revokeToken($token);
             $syncAccount->delete();
             session()->flash('success', 'Calendar Integration will be uninstalled, but it may take a few minutes.');
+        } else if($syncAccount && $syncAccount->social_type == 'outlook') {
+
+            /* $google->setAccessToken($syncAccount->access_token);
+            if ($google->isAccessTokenExpired()) {
+                $accessToken = $google->fetchAccessTokenWithRefreshToken($syncAccount->refresh_token);
+                $syncAccount->update([
+                    'access_token' => $accessToken['access_token'],
+                ]);
+            } */
+            $syncAccount->refresh();
+            $token = $syncAccount->access_token;
+            // $google->revokeToken($token);
+            $syncAccount->delete();
+            session()->flash('success', 'Calendar Integration will be uninstalled, but it may take a few minutes.');
         }
         return redirect()->route('integration/apps');
+    }
+
+    public function createOutlookEvent()
+    {
+        $syncAccount = UserSyncSocialAccount::where('user_id', auth()->id())->first();
+        $redirect_uri  = config('services.outlook.redirect_uri');
+        $client_id     = config('services.outlook.client_id');
+        $client_secret = config('services.outlook.client_secret_value');
+        $data = "client_id=".$client_id."&redirect_uri=".urlencode($redirect_uri)."&client_secret=".urlencode($client_secret)."&refresh_token=".$syncAccount->refresh_token."&grant_type=refresh_token";	
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://login.microsoftonline.com/common/oauth2/v2.0/token");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);	
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded',));
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $output = curl_exec($ch);
+
+        $account = json_decode($output, true);
+        $accessToken = $account['access_token'];
+
+        $syncAccount->fill(['access_token' => $accessToken, 'refresh_token' => $account['refresh_token']])->save();
+        $graph = new Graph();
+        $graph->setBaseUrl("https://graph.microsoft.com/")
+               ->setApiVersion("v2.0")
+               ->setAccessToken($accessToken); 
+        // dd($graph);
+        $user = $graph->createRequest("GET","/me")
+                    // ->addHeaders(array("Content-Type" => "application/json"))
+                    ->setReturnType(Model\User::class)
+                    ->setTimeout("1000")
+                    ->execute();   
+
+        echo "Hello, I am $user->getGivenName() ";
     }
 }

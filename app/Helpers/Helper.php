@@ -19,6 +19,7 @@ use App\Task;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\UsersAdditionalInfo;
+use App\UserSyncSocialAccount;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 
@@ -771,4 +772,12 @@ function convertDateToUserTimeOffset($date, $timezone)
     $hour = substr($offset, 1);
     $date = ($first_character == '-') ? Carbon::parse($date)->subHours($hour) : Carbon::parse($date)->addHours($hour);
     return $date;
+}
+
+/**
+ * Check auth user has linked social account or not
+ */
+function getAuthUserSocialAccount()
+{
+    return UserSyncSocialAccount::where('user_id', auth()->id())->first();
 }

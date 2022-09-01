@@ -35,10 +35,15 @@ class GoogleService
         return new $classname($this->client);
     }
 
-    /* public function connectUsing($token)
+    public function connectUsing($googleAccount)
     {
-        $this->client->setAccessToken($token);
-
+        $this->client->setAccessToken($googleAccount->access_token);
+        if ($this->client->isAccessTokenExpired()) {
+            $accessToken = $this->client->fetchAccessTokenWithRefreshToken($googleAccount->refresh_token);
+            $googleAccount->update([
+                'access_token' => $accessToken['access_token'],
+            ]);
+        }
         return $this;
-    } */
+    }
 }

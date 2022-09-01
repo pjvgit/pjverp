@@ -1223,6 +1223,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get("load/calendar/setting", "IntegrationController@loadSyncCalendarSetting")->name("load/calendar/setting");
     Route::get("uninstall/sync/calendar", "IntegrationController@uninstallSyncCalendar")->name("uninstall/sync/calendar");
     Route::get("add/event", "IntegrationController@createEvent")->name("add/event");
+    Route::get("outlook/event", "IntegrationController@createOutlookEvent")->name("outlook/event");
 });
 
 /**
