@@ -33,7 +33,7 @@
             </div>
             <div class="mb-2 no-gutters row ">
                 <div class="col-4"><strong>Synced Calendar:</strong></div>
-                <div class="synced-calendar col-8"><span>{{ $syncAccount->calendar_id ?? '' }}</span></div>
+                <div class="synced-calendar col-8"><span>{{ $syncAccount->calendar_name ?? '' }}</span></div>
             </div>
             <div class="no-gutters row ">
                 <div class="col-4"><strong>Status:</strong></div>

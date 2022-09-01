@@ -139,7 +139,7 @@
                 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Sync Now</button>
+                <button type="button" class="btn btn-primary" onclick="syncEventNow()">Sync Now</button>
             </div>
         </div>
     </div>
@@ -163,7 +163,12 @@
                             <div class="">
                                 <label class="d-inline-flex align-items-center">
                                     <input id="delete-calendar-checkbox-option" name="delete-calendar-checkbox" type="checkbox"><span class="ml-2 "></span></label>
-                            </div><span><i class="fas fa-circle pr-1 text-danger"></i>Delete "{{ @$syncAccount->calendar_id }}" calendar and events from my {{ @$syncAccount->service_name }} Calendar account<div class="text-black-50 small">All 7 non-recurring event(s) will be removed from your {{ @$syncAccount->service_name }} Calendar</div><div class="text-black-50 small">All 2 recurring event(s) will be removed from your {{ @$syncAccount->service_name }} Calendar</div></span></div>
+                            </div>
+                            <span><i class="fas fa-circle pr-1 text-danger"></i>Delete "{{ @$syncAccount->calendar_name }}" calendar and events from my {{ @$syncAccount->service_name }} Calendar account
+                                {{-- <div class="text-black-50 small">All 7 non-recurring event(s) will be removed from your {{ @$syncAccount->service_name }} Calendar</div>
+                                <div class="text-black-50 small">All 2 recurring event(s) will be removed from your {{ @$syncAccount->service_name }} Calendar</div> --}}
+                            </span>
+                        </div>
                     </div>
                     <div class="col-2"><i class="calendar-integration-google mb-1"></i></div>
                 </div>
