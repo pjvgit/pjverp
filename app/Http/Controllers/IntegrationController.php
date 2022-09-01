@@ -104,6 +104,7 @@ class IntegrationController extends Controller {
                 'social_id' => $account->id, // Map the account's id to the `google_id`.
             ], [
                 'user_id' => auth()->id(),
+                'social_type' => 'google',
                 'email' => $account->email ?? '',
                 'access_token' => $accessToken['access_token'],
                 'refresh_token' => $google->getRefreshToken(),
@@ -181,6 +182,7 @@ class IntegrationController extends Controller {
         // $cal = new \Google\Service\Calendar($google);
         $calendarId = $googleAccount->calendar_id;
         $event = $service->events->insert($calendarId, $event);
+        printf('Event id: %s\n', $event->id);
         printf('Event created: %s\n', $event->htmlLink);
           
 

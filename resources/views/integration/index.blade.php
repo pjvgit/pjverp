@@ -19,9 +19,9 @@
                 </div>
                 <div class="card-footer">
                     <div class="d-flex align-items-center">
-                        <div class="marketplace-actions ml-auto d-flex-align-items-center"> 
+                        {{-- <div class="marketplace-actions ml-auto d-flex-align-items-center"> 
                             <a class="calendar-integration-uninstall" target="_blank" href="https://login.microsoftonline.com/common/adminconsent?client_id=a6ce0a65-b5ac-4dbe-87c9-dbfb31828762&state=12345&redirect_uri=https://localhost/outlook/access/token" >Sync with LegalCase</a> 
-                        </div>
+                        </div> --}}
                         @if($syncAccount)
                         <div class="marketplace-actions ml-auto d-flex-align-items-center"> 
                             <i class="fas fa-cog ml-auto" aria-hidden="true"></i> 
