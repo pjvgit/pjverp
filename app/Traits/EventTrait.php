@@ -5,7 +5,7 @@ namespace App\Traits;
 use App\Event;
 use App\EventRecurring;
 use App\Http\Controllers\CommonController;
-use App\Jobs\EventSyncToSocialAccountJob;
+use App\Jobs\SyncEventToSocialAccountJob;
 use App\Jobs\LeadEventInvitationEmailJob;
 use App\User;
 use Carbon\Carbon;
@@ -294,7 +294,7 @@ trait EventTrait {
         } */
 
         if(getAuthUserSocialAccount()) {
-            $this->dispatch(new EventSyncToSocialAccountJob($authUser, $caseEvent, $eventRecurring));
+            $this->dispatch(new SyncEventToSocialAccountJob($authUser, $caseEvent, $eventRecurring));
         }
 
         $this->saveEventRecentActivity($request, $caseEvent->id, @$eventRecurring->id, 'add');

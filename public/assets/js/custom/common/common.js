@@ -19,6 +19,7 @@ function popupNotification() {
     $.ajax({
         url: baseUrl + "/get/popup/notification",
         type: 'GET',
+        global: false,
         success: function(result) {
             if (result.view != "") {
                 if (typeof $.cookie('is_popup_dismissed') === 'undefined') {

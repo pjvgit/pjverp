@@ -13,7 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class EventSyncToSocialAccountJob implements ShouldQueue
+class SyncEventToSocialAccountJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $authUser, $event, $eventRecurring;
@@ -36,22 +36,12 @@ class EventSyncToSocialAccountJob implements ShouldQueue
      */
     public function handle()
     {        
-        $google = new GoogleService;
         $googleAccount = UserSyncSocialAccount::where('user_id', $this->authUser->id)->whereNotNull('access_token')->first();
+
+        $google = new GoogleService;
         $google->connectUsing($googleAccount);
         $service = $google->service('Calendar');
-        if(empty($googleAccount->calendar_id)) {
-            $calendar = new \Google\Service\Calendar\Calendar();
-            $calendar->setSummary('LegalCase');
-            $calendar->setTimeZone($this->authUser->user_timezone);
-            $createdCalendar = $service->calendars->insert($calendar);
-            $googleAccount->update([
-                'calendar_id' => $createdCalendar->getId(), 
-                'calendar_name' => $calendar->getSummary(), 
-                'calendar_timezone' => $this->authUser->user_timezone
-            ]);
-        }
-        $googleAccount->refresh();
+
         $event = $this->event;
         $eventRecurring = $this->eventRecurring;
         $timezone = $this->authUser->user_timezone;
@@ -87,18 +77,22 @@ class EventSyncToSocialAccountJob implements ShouldQueue
                 }
                 $rRule .= 'INTERVAL='.$event->event_interval_day;
             } else if($event->event_recurring_type == 'EVERY_BUSINESS_DAY') {
-                $rRule = 'RRULE:FREQ=DAILY;';
+                $rRule = 'RRULE:FREQ=WEEKLY;';
                 if($event->is_no_end_date == 'no' && $event->end_on) {
                     $rRule .= 'UNTIL='.convertUTCToUserDate($event->end_on, $timezone)->format('Ymd').';';
                 }
-                $rRule .= 'INTERVAL='.$event->event_interval_day;
-                
+                $rRule .= 'BYDAY='.'MO,TU,WE,TH,FR';
+                                
             } else if($event->event_recurring_type == 'CUSTOM') {
                 $rRule = 'RRULE:FREQ=WEEKLY;';
                 if($event->is_no_end_date == 'no' && $event->end_on) {
                     $rRule .= 'UNTIL='.convertUTCToUserDate($event->end_on, $timezone)->format('Ymd').';';
                 }
-                // explode(',', $event->custom_event_weekdays)
+                $weekDays = '';
+                foreach($event->custom_event_weekdays as $wday) {
+                    $weekDays .= strtoupper(substr($wday, 0, 2)).',';
+                }
+                $rRule .= 'BYDAY='.$weekDays.';';
                 $rRule .= 'INTERVAL='.$event->event_interval_week;
                 
             } else if($event->event_recurring_type == 'WEEKLY') {
@@ -109,7 +103,7 @@ class EventSyncToSocialAccountJob implements ShouldQueue
                 $rRule .= 'INTERVAL='.$event->event_interval_week;
                 
             } else if($event->event_recurring_type == 'MONTHLY') {
-                $rRule = 'RRULE:FREQ=DAILY;';
+                $rRule = 'RRULE:FREQ=MONTHLY;';
                 if($event->is_no_end_date == 'no' && $event->end_on) {
                     $rRule .= 'UNTIL='.convertUTCToUserDate($event->end_on, $timezone)->format('Ymd').';';
                 }
@@ -165,7 +159,7 @@ class EventSyncToSocialAccountJob implements ShouldQueue
                 } else {
                     $minutes = $ritem->reminer_number;
                 }
-                if($minutes <= 40320) {
+                if($minutes <= 40320 && count($overrides) <= 5) {
                     $overrides[] = [ 'method' => $ritem->reminder_type, 'minutes' => $minutes];
                 }
             }

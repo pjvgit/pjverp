@@ -35,8 +35,7 @@ $("#calendar-integration-settings").on("click", function() {
 
 // For uninstall sync calendar
 function uninstallCalendra() {
-    var isDeleteEvent = $("#delete-calendar-checkbox-option").val();
-    alert(isDeleteEvent);
+    var isDeleteEvent = $("#delete-calendar-checkbox-option:checked").val();
     $.ajax({
         url: baseUrl+'/uninstall/sync/calendar',
         type: 'GET',
@@ -46,3 +45,22 @@ function uninstallCalendra() {
         }
     })
 }
+
+function syncEventNow() {
+    $.ajax({
+        url: baseUrl+'/event/sync/calendar',
+        type: 'GET',
+        data: {},
+        success: function(response) {
+
+        }
+    })
+}
+
+$(document)
+ .ajaxStart(function () {
+     $('#preloader').show();   //ajax request went so show the loading image
+ })
+ .ajaxStop(function () {
+     $('#preloader').hide();   //got response so hide the loading image
+ });

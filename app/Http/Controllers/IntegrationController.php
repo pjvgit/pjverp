@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SyncAllEventToSocialAccountJob;
 use App\Services\GoogleService;
 use App\UserSyncSocialAccount;
 use Exception;
@@ -108,6 +109,7 @@ class IntegrationController extends Controller {
                 'email' => $account->email ?? '',
                 'access_token' => $accessToken['access_token'],
                 'refresh_token' => $google->getRefreshToken(),
+                'created_by' => auth()->id(),
             ]
         );
         
@@ -125,7 +127,11 @@ class IntegrationController extends Controller {
                 'calendar_timezone' => $authUser->user_timezone
             ]);
         }
-    
+
+        // Sync events to social account calendar
+        $this->dispatch(new SyncAllEventToSocialAccountJob($authUser));
+
+        session()->flash('show_success_modal', 'yes');
         return redirect()->route('integration/apps');
     }
 
@@ -142,6 +148,11 @@ class IntegrationController extends Controller {
         } */
         $google->connectUsing($googleAccount);
         $service = $google->service('Calendar');
+        /* $calendar = $service->calendars->get($googleAccount->calendar_id);
+        $calendar->setSummary($googleAccount->calendar_name.' (Un-synced)');
+        $updatedCalendar = $service->calendars->update($googleAccount->calendar_id, $calendar);
+        return $updatedCalendar;
+        exit; */
         if(empty($googleAccount->calendar_id)) {
             $calendar = new \Google\Service\Calendar\Calendar();
             $calendar->setSummary('LegalCase');
@@ -199,23 +210,37 @@ class IntegrationController extends Controller {
     }
 
     /**
+     * Sync events to social calendar
+     */
+    public function eventSyncCalendar()
+    {
+        $authUser = auth()->user();
+        $this->dispatch(new SyncAllEventToSocialAccountJob($authUser));
+
+        return 'success';
+    }
+
+    /**
      * Uninstall synced calendar
      */
     public function uninstallSyncCalendar(Request $request, GoogleService $google)
     {
+        // return $request->all();
         $syncAccount = UserSyncSocialAccount::where('user_id', auth()->id())->first();
         if($syncAccount && $syncAccount->social_type == 'google') {
-
-            $google->setAccessToken($syncAccount->access_token);
-            if ($google->isAccessTokenExpired()) {
-                $accessToken = $google->fetchAccessTokenWithRefreshToken($syncAccount->refresh_token);
-                $syncAccount->update([
-                    'access_token' => $accessToken['access_token'],
-                ]);
+            $google->connectUsing($syncAccount);
+            $service = $google->service('Calendar');
+            if(isset($request->is_delete_event)) {
+                $service->calendars->delete($syncAccount->calendar_id);
+                $syncAccount->fill(['is_event_deleted' => 'yes'])->save();
+            } else {
+                $calendar = $service->calendars->get($syncAccount->calendar_id);
+                $calendar->setSummary($syncAccount->calendar_name.' (Un-synced)');
+                $updatedCalendar = $service->calendars->update($syncAccount->calendar_id, $calendar);
+                $syncAccount->fill(['calendar_name' => $calendar->getSummary()])->save();
             }
             $syncAccount->refresh();
-            $token = $syncAccount->access_token;
-            $google->revokeToken($token);
+            $google->revokeToken($syncAccount->access_token);
             $syncAccount->delete();
             session()->flash('success', 'Calendar Integration will be uninstalled, but it may take a few minutes.');
         } else if($syncAccount && $syncAccount->social_type == 'outlook') {
