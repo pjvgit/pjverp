@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model;
+use Microsoft\Graph\Model\Calendar;
 
 class IntegrationController extends Controller {
 
@@ -49,9 +50,9 @@ class IntegrationController extends Controller {
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, "https://login.microsoftonline.com/".$tenant."/oauth2/v2.0/token");
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);	
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                /* curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                     'Content-Type: application/x-www-form-urlencoded',
-                    ));
+                    )); */
                 curl_setopt($ch, CURLOPT_POST, TRUE);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -59,7 +60,7 @@ class IntegrationController extends Controller {
 
                 $account = json_decode($output);
                 $accessToken = $account->access_token;
-                session()->put('outlook_access_token', $account->access_token);
+                
                 $syncAccount = UserSyncSocialAccount::updateOrCreate([
                     'user_id' => auth()->id(),
                     ], [
@@ -69,6 +70,29 @@ class IntegrationController extends Controller {
                     'refresh_token' => $account->refresh_token,
                     'expires_in' => Carbon::now()->addSeconds($account->expires_in),
                 ]);
+
+                /* $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
+                $newresponse = $guzzle->request('GET', '/v1.0/me',
+                    ['headers' => [
+                            'Authorization' => " Bearer EwBoA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAQXlPMFAC2NahrkRlygFCd4cVBtOF36WIz710GgIJ5j2Y7qxVeGi8IzVzyDczIxR8K6nrmP9ymvZVD5jJCm3bsnxmu6NMyEJCwa5nvqw0oYuv8F+tcAv0QqKGkcE2+WYpjFT/KaoTXaakWbzEfGnVx0G3nvhYCsYSlNAFthJ7A8IiWXsZNsG5wppmJj4E6L0EhMwHc9TevzWNDCF9a7zYYNwHaB2GXHLujATXn3uOyjnPLegORETzSi/Xdw8ClfbSCwjayANsMEsnoDHxX23zK3gkNBc7op/M59+yU/bKMEYWskVYp1EhJl3CZcjTBQkfFNSz135zi0W7xTyT1CClAQDZgAACK5QDo2NE/4kOALHEL/4Lzybm/W7YGNlTFIJlUvdwvzLlO6oSI1jI9QeSbmqvP3TAZhIlCwz+p/e5kDaX9W/naF6JYpYoeZZTGUnv2XTCfeE8WJhofxRFBdLZa/TQJ2H+uxw3O10qQ8p1egD+TosZj3LPI2ktn1SCBZs0pUkREa4HzluUn70r9y8qwcRh182fl9Xf/K3tJT6wnoTIO23uX/2/3Tqm9iIx7ZC1tk5tHoaGdtFA/TNUL+qskSeiWrql4rW9NagXAy5L9jOW0CGT+OpsHVw8r8LDCRB87txNb1GSWVjYHN0X19rXBzp+GgAY3/YnWuQIMglfQBnbsHL5VV12uZ9RxSYjoTLt289okPDgYIkf3RAeV6fhyQDl46bYzK1bN+8fPNoNK26Bc74wJ0jDKRzUaUmnHka0o01cy385UqYvdU2OL2qlSza8WMpNTLBu7hhC8yW0pWx+q96lXgK92UCbbT5dbrMjoypiSJIV2U4JCavdWk5S1owilrxLHHJkeuGgBvDvOeHvtUSwZCr5FHAsIDfJk4U/QDjarS6lZIOPfUkVX4KbvNgkCgwYEpM5pnwHBkkVBnDDJTytMBv4KMf7o4p9hohhFbnnLJC0RDpnI5aHET4PW05Sw5rMx6MsR/yySyryX7DpTbcU+fmFikqDi3ksjzTr4jcnJjUmNIuaMq7YkBGv9vtBFJH/WuZ0HYzgamgAZ9TzDcSiGedOf5NPHohPQbYGBRakRQSz/AOjqPWUr50RPNETyiOfQJngQI="
+                        ]
+                    ]
+                )->getBody()->getContents();
+                $user = json_decode($newresponse);
+                $syncAccount->fill(['email' => $user->userPrincipalName ?? '', 'social_id' => $user->id])->save();
+
+                $accessToken = env('OUTLOOK_ACCESS_TOKEN');
+                $graph = new Graph();
+                $graph->setAccessToken($accessToken);
+                
+                $response = $graph->createRequest('POST', '/me/calendars')
+                            ->attachBody(['name' => 'LegalCase1'])
+                            ->execute();
+                $calendar = json_decode($response);
+                $syncAccount->fill([
+                    'calendar_id' => $calendar->id,
+                    'calendar_name' => $calendar->name
+                ])->save(); */
                 
                 session()->flash('show_success_modal', 'yes');
                 return redirect()->route('integration/apps');
@@ -283,30 +307,29 @@ class IntegrationController extends Controller {
             ])->save();
         }
 
-        /* $credentials = base64_encode($client_id .':' . $client_secret ) ;
-        $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
-        return $newresponse = $guzzle->request(
+        // To get logged-in user detail
+        /* $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
+        $newresponse = $guzzle->request(
             'GET',
             '/v1.0/me',
-            ['headers' => 
-                [
-                    'Authorization' => " Bearer EwBgA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAfRMbXGLJHRGx9TMXfR+28BMOssassxCbbd1hkZKWh8G+DgcVi2WX0lmqhUZpwV6txahOszHgoxtmhPKosYHKMANCxkKc0v/BdazHXISPpMHxVIeB4/tSkdgZH5MABldQxi2vn7cINjSZDoHR8sOU2TqVuknyxjhoqlFg3hvZkNgAtSyR/yrVjHEf28AtsjvwJGAItUXYmT4dWbfkcUXR+So6ixK5+nWjjpv3Ff+0JTiHXUP3Y/Cw55mSJFv8C70Gi57tF20EzYHfv7WxDDYnSBADB6FVDEzEk9I+TsSPlzyzUKktRQ98UQY+9TlcMP4akxp+aXreYp9NPASrQIdXD8DZgAACLQGq7IMHUrQMAL/G3aTjGMhOH9hj9A7jDJs28B+fA33hAkwd/yJWcl8tR0RZGnFcyssEMmxYCVKewzWCQvxF9rwmslNxxCX6CFtwL9v+JfTOIFVQ4t6LZ5U5sqqtgArOQrU7slxVNAmI0QhiMHf3GGt9QJNZgJezemNhB7BdkXaH+0m2SsS5YSN49QR0mqlMU77J//E/1ul2OIMduJokA6gtBMbUi9EymXac5eJV7f4V5xkYvvpyZENQecyLhgMXW19JM+U6QnVbyMffm22caNZjktPJCdEHj0Sv/5xYHyv3d5+tyaWZrTFn7q+FLLYaKHr0lBdgBOmPzmcpfl/Hyi3kXYoimKZbU1UOKuCVSjJduJ4tZXBFbG6U0Lcn7YJ8zYfExIst1nmDZZVKiWwJuZsW/8oVG9+SvEKclpJ6rBMW+paGLiH5GS1XEWTU5pE+GrwMtvFpB4k751o7NAGgUl3KNzf5VnLVqWWmK7SJitJ52VkukubRiLfOrqSA+aujFHb30OYlW5WQSo7Ks1DRmMc3vPoQ1ZpKxhKF9DENTa48AFwyXBsirim6WsC6qp/yMMofG1GYdNm5zl1TAyfpdxZPo6QfJvCcVLlqqqX9IfDau47kEa31mt8F6PeANRODJRKVFGi7r1L0r24C0yHDcjzLOsW/M77UpFuvEAVTAwfEAH+XAM3+nmOosMvHYaXnIyl3FFqzoF9oPIq1Bs6JhkrYPhwCuoWKnkrWZ+jZlin0YEyvRhwwA01+HkC"
+            ['headers' => [
+                    'Authorization' => " Bearer EwBoA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAQXlPMFAC2NahrkRlygFCd4cVBtOF36WIz710GgIJ5j2Y7qxVeGi8IzVzyDczIxR8K6nrmP9ymvZVD5jJCm3bsnxmu6NMyEJCwa5nvqw0oYuv8F+tcAv0QqKGkcE2+WYpjFT/KaoTXaakWbzEfGnVx0G3nvhYCsYSlNAFthJ7A8IiWXsZNsG5wppmJj4E6L0EhMwHc9TevzWNDCF9a7zYYNwHaB2GXHLujATXn3uOyjnPLegORETzSi/Xdw8ClfbSCwjayANsMEsnoDHxX23zK3gkNBc7op/M59+yU/bKMEYWskVYp1EhJl3CZcjTBQkfFNSz135zi0W7xTyT1CClAQDZgAACK5QDo2NE/4kOALHEL/4Lzybm/W7YGNlTFIJlUvdwvzLlO6oSI1jI9QeSbmqvP3TAZhIlCwz+p/e5kDaX9W/naF6JYpYoeZZTGUnv2XTCfeE8WJhofxRFBdLZa/TQJ2H+uxw3O10qQ8p1egD+TosZj3LPI2ktn1SCBZs0pUkREa4HzluUn70r9y8qwcRh182fl9Xf/K3tJT6wnoTIO23uX/2/3Tqm9iIx7ZC1tk5tHoaGdtFA/TNUL+qskSeiWrql4rW9NagXAy5L9jOW0CGT+OpsHVw8r8LDCRB87txNb1GSWVjYHN0X19rXBzp+GgAY3/YnWuQIMglfQBnbsHL5VV12uZ9RxSYjoTLt289okPDgYIkf3RAeV6fhyQDl46bYzK1bN+8fPNoNK26Bc74wJ0jDKRzUaUmnHka0o01cy385UqYvdU2OL2qlSza8WMpNTLBu7hhC8yW0pWx+q96lXgK92UCbbT5dbrMjoypiSJIV2U4JCavdWk5S1owilrxLHHJkeuGgBvDvOeHvtUSwZCr5FHAsIDfJk4U/QDjarS6lZIOPfUkVX4KbvNgkCgwYEpM5pnwHBkkVBnDDJTytMBv4KMf7o4p9hohhFbnnLJC0RDpnI5aHET4PW05Sw5rMx6MsR/yySyryX7DpTbcU+fmFikqDi3ksjzTr4jcnJjUmNIuaMq7YkBGv9vtBFJH/WuZ0HYzgamgAZ9TzDcSiGedOf5NPHohPQbYGBRakRQSz/AOjqPWUr50RPNETyiOfQJngQI="
                 ]
             ]
-        )->getBody()->getContents(); */
-
+        )->getBody()->getContents();
+        $user = json_decode($newresponse); */
+        $accessToken = env('OUTLOOK_ACCESS_TOKEN');
         $graph = new Graph();
-        $graph->setBaseUrl("https://graph.microsoft.com/")
-               ->setApiVersion("v1.0")
-               ->setAccessToken(session()->get('outlook_access_token')); 
-                //   ->setAccessToken('EwBoA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAbzDI5KOz4rc5BuLpNDnDezWi7Nz8zm+vrc1+p6acVctZEsYcWRTyjkHsdwXSvl97EW5Ii+LG7kpfq5Xxpf24/HJ8tYQXLXo2L2Mb9YOty/ZWAXzw3gWeVRzB6yjTwCawXwo765QegfBv0UDOgYVYk27ZWI6QIs/9Z07HeI1X+zlHVskecn8z7KYQ+nbIGdjlX3tHr/4Mql7/FNaVAW2jLJMNiscqwdlTjbV2gFJGclKanwBQgn6DqKIwQEri04ea/tLAdgMBOzVVAiBj63McxGOLswGC9+kHw19bth+Dw2QCUdKR+hxLTTFULLqnU9or3WdFS994RpUxck+d7pJBxwDZgAACD5oWKwPClO1OAKG6gSwIuKJPQ/I4fid5ixnt88ztGsxs7yHYrE2LpqHVinIMPqeWnYA1QdPdZMQunqDT3DbNXiDdn9S9Yt891hQ3c7meyTaX7EnzQaw9XdDFtUzIHujX+8vfcbwLxVsqm9kruW7wY4hMD/IfiQXFO8Ly8VrGKqZXetR9chxedbQ4tJkuf3lvUwIEiKqkpyrwhiojBU/9v+esKVzDvjCH/dqdu4WYluv0TJ8ruwJdOtSLeGknLCQDK+XLeM1i28md9tEuCMLpFpHt+MdEEEaMHIJ78+8OlE1+mKhfAgEX3ILG/eEu77cTP8OB/nh3AzrAZvnJTCTW+CcPZD0LlSVHs2X5D2H6iqVibMpbAjkw/rUVy+jRWfEO4cQVmSlEgfiGt6wOjExhBLdQBFyIxj9rNFUHT7I5XdjeU2KQNN0Lf0F9PV69YZUiVUQMgPBuzpENbzMFZxvYaP4x//LoLhtPn1y5ylOVI9A/cgPSnumvxAqjOvGEMQP5G9xddEtr++d6d+lzLGIfPQRSav2AMkcQRLKlkiEbvhxjrAsMJWVK/3EpEofKG4VPFzVLEaEk1J1T/+Tx9eiHjQedQ84nsdLsGIqZpyHAbXcZhpRLExdlmR+bYK0GDwB7TMnS/FWA6bkzulgNV9I+Hskp8YOYmLCPLquUn6dnyl6Lnc8Zqe5Vj5mYpPf4IZfi6/8GZekCsH92aEjf37WvG2Tx2VR0WjOLXDXDVfnQwunbDWVL2Hj3ieJpCFvg6uOZqWegQI='); 
-        // dd($graph);
-        $user = $graph->createRequest("GET","/me")
-                    ->addHeaders(array("Content-Type" => "application/json"))
-                    // ->setReturnType(Model\User::class)
-                    ->setTimeout("1000")
-                    ->execute();   
-        dd($user);
-        echo "Hello, I am $user->userPrincipalName ";
+        $graph->setAccessToken("EwBoA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAYgu6Ui5H51+kXNYFQX+zdXUogeo0MTvmjD5c5OMoSrIU1HZaG62ko6DCKwXqUcZvsXV3QMh6YUv+cgS5LOgdOy77ynIsZfdZLiHSnLGjZ3+Tk/jIFMRAvmJXTBdCQf9jtlRwL29cG0TyCJAGjvLoV3VAutV2gWTLSdNA9incOy12amVAL3WmPs2UQ3boB5xJgXjWzpy15tX4bGSsnR19jWRi2nlgp3Zli300+372dqxatrqxQW7r4LYsLmuqEtCiZuwvuNjscTutK5HEAN745DvoyDs+jthLS0B2S/MnRVt/MZ2f2R51TUOY45SJokvsndsX6lM6egKZKjt47CDAkUDZgAACCg8ILWRYH/6OAI8SWXRHnU5hsbZa1R24Tul23QUAebEi94GqRQbHbWnyjJm/tx3D4hsaaBe/StWug6MNqf9TPEJi8ERxKhFV7/u1TdGMx82tiFpjiN1sWEAaOAM0ExWfgzuZIHNkTdz8TDQyOioe64LrAvZlc5Y+xxsYBHX8nI9VMPVHEVETvn4haXN23hY01QentaYrOqE2O3mfMppnDMQoDpFVJsvKTSHki6Z8je1H9sm1mecHLp9e7b4+OD7M7hXW0UoQdiibv92/6HhDJ97C5FXlFRl5ByfCZgZJ9p0zp0yugz87Msl+heGeV3ezYyyjjDkXEEgITQq+EqqkwhZXizh+YpOtMR0MjqQihRyKeDmugnf9iRYtZU15q7Qe/6u3Q1G021nuKIvoSPPd1cQcD5pRuo9zjn+VZ8qBIaRCKEu5PZ9bg+wSqfuSypVCazQvG3qHYHh18gii9h/vxT4nzmMicyeW0oSiy79B6D2+sp7RJbg55spXBxvp9eHWkxVKYb+mGTGOitLjByVkO4czb2wc1mcAokepQTqtpbNzu15jHYLgPFKDMGXtwaivln83KALM/4RlI+Bu6uiwuOOhYpUHmYXUmJMJqGxHfyaNoqcxDlc7/2bitY75x6ejiaYqfdCZMwOdVebur1oyuMM3gTJ6OmWgtRavxmIuV5aDcq/is6d8/IpvdTfgWzKQF/tN/PeXRVU4wEcakFJ8EGr4DCVrifedck8+GaoCgJwTol5tSP8z7wDEOCn2x9qx3iHgQI=");
+        
+        $response = $graph->createRequest('POST', '/me/calendars')
+                    ->attachBody(['name' => 'LegalCase5'])
+                    ->execute();
+        $calendar = $response;
+        $syncAccount->fill([
+            'calendar_id' => @$calendar->id,
+            'calendar_name' => $calendar->name
+        ])->save();
+        return $syncAccount;
     }
 }
