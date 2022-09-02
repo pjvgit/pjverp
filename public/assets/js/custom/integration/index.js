@@ -41,6 +41,7 @@ function uninstallCalendra() {
         type: 'GET',
         data: {is_delete_event: isDeleteEvent},
         success: function(response) {
+            $("#uninstall_sync_calendar").modal('hide');
             window.location.reload();
         }
     })
