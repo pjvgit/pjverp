@@ -669,7 +669,7 @@ trait EventTrait {
         else if($request->snooze_type == "day")
             $remindTime = Carbon::parse($snoozedTime)->addDays($request->snooze_time)->format('Y-m-d');
         else if($request->snooze_type == "week")
-            $remindTime = Carbon::parse($snoozedTime)->addDays($request->snooze_time)->format('Y-m-d H:i');
+            $remindTime = Carbon::parse($snoozedTime)->addDays($request->snooze_time)->format('Y-m-d');
         else
             $remindTime = Carbon::parse($snoozedTime)->addMinutes($request->snooze_time)->format('Y-m-d H:i');
         return $remindTime;
