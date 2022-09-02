@@ -1,3 +1,11 @@
+------------------------------------ 02-SEP-2022 ------------------------------
+ALTER TABLE `user_sync_social_accounts`
+ADD `expires_in` timestamp NULL AFTER `access_token`;
+
+ALTER TABLE `user_sync_social_accounts`
+CHANGE `access_token` `access_token` longtext COLLATE 'utf8mb4_general_ci' NULL AFTER `email`,
+CHANGE `refresh_token` `refresh_token` longtext COLLATE 'utf8mb4_general_ci' NULL AFTER `expires_in`;
+
 ------------------------------------ 01-SEP-2022 ------------------------------
 CREATE TABLE `event_sync_to_user_social_accounts` (
   `id` bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,

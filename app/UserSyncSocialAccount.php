@@ -9,7 +9,8 @@ class UserSyncSocialAccount extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'social_type', 'social_id', 'email', 'access_token', 'refresh_token', 'craeted_by', 'calendar_id', 'calendar_name', 'calendar_timezone', 'is_event_deleted'
+        'user_id', 'social_type', 'social_id', 'email', 'access_token', 'refresh_token', 'craeted_by', 'calendar_id', 'calendar_name', 'calendar_timezone', 
+        'is_event_deleted', 'expires_in'
     ];
 
     protected $appends = ['service_name'];
