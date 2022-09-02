@@ -745,9 +745,9 @@ class HomeController extends BaseController
                     })->whereHas('task', function($q) {
                         $q->whereNotNull('task_due_on')->where('task_due_on', '!=', '9999-12-30');
                     })
-                    // ->where("task_id", 90)
                     ->with('task', 'task.taskLinkedStaff', 'task.case', 'task.lead', 'task.case.caseStaffAll', 'task.lead.userLeadAdditionalInfo')
                     ->get();
+                    
         if($result) {
             foreach($result as $key => $item) {
                 $users = $this->getTaskLinkedUser($item, "popup");
