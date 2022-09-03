@@ -1,4 +1,8 @@
 ------------------------------------ 02-SEP-2022 ------------------------------
+ALTER TABLE `event_sync_to_user_social_accounts`
+ADD `social_type` enum('google','outlook') NULL AFTER `user_sync_sa_id`;
+
+------------------------------------ 02-SEP-2022 ------------------------------
 ALTER TABLE `user_sync_social_accounts`
 ADD `expires_in` timestamp NULL AFTER `access_token`;
 
