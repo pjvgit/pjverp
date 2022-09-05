@@ -26,6 +26,12 @@ class IntegrationController extends Controller {
         return view("integration.index", compact('syncAccount'));
     }
 
+    public function getOutlookAuthorization()
+    {
+        
+
+    }
+
     /**
      * Outlook oAuth
      */
@@ -45,20 +51,18 @@ class IntegrationController extends Controller {
             return redirect()->to($response);
         }
 
-        $output = "";
         //  Redeem the authorization code for tokens office 365 using PHP
-        if(isset($_GET['code']))
-        {
-            $auth = $_GET['code'];
-            try {		
-                // $data = "client_id=".$client_id."&redirect_uri=".urlencode($redirect_uri)."&client_secret=".urlencode($client_secret)."&code=".$auth."&grant_type=authorization_code";
-                $data = "client_id=".$client_id."&redirect_uri=".$redirect_uri."&client_secret=".$client_secret."&code=".$auth."&grant_type=authorization_code";
+        $auth = $_GET['code'];
+        try {		
+            if(isset($_GET['code'])) {
+                $data = "client_id=".$client_id."&redirect_uri=".urlencode($redirect_uri)."&client_secret=".urlencode($client_secret)."&code=".$auth."&grant_type=authorization_code";
+                // $data = "client_id=".$client_id."&redirect_uri=".$redirect_uri."&client_secret=".$client_secret."&code=".$auth."&grant_type=authorization_code";
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, "https://login.microsoftonline.com/".$tenant."/oauth2/v2.0/token");
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);	
-                /* curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                     'Content-Type: application/x-www-form-urlencoded',
-                    )); */
+                    ));
                 curl_setopt($ch, CURLOPT_POST, TRUE);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -76,37 +80,45 @@ class IntegrationController extends Controller {
                     'refresh_token' => $account->refresh_token,
                     'expires_in' => Carbon::now()->addSeconds($account->expires_in),
                 ]);
-
-                /* $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
-                $newresponse = $guzzle->request('GET', '/v1.0/me', [
-                        'headers' => [
-                            'Authorization' => " Bearer EwBoA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAQXlPMFAC2NahrkRlygFCd4cVBtOF36WIz710GgIJ5j2Y7qxVeGi8IzVzyDczIxR8K6nrmP9ymvZVD5jJCm3bsnxmu6NMyEJCwa5nvqw0oYuv8F+tcAv0QqKGkcE2+WYpjFT/KaoTXaakWbzEfGnVx0G3nvhYCsYSlNAFthJ7A8IiWXsZNsG5wppmJj4E6L0EhMwHc9TevzWNDCF9a7zYYNwHaB2GXHLujATXn3uOyjnPLegORETzSi/Xdw8ClfbSCwjayANsMEsnoDHxX23zK3gkNBc7op/M59+yU/bKMEYWskVYp1EhJl3CZcjTBQkfFNSz135zi0W7xTyT1CClAQDZgAACK5QDo2NE/4kOALHEL/4Lzybm/W7YGNlTFIJlUvdwvzLlO6oSI1jI9QeSbmqvP3TAZhIlCwz+p/e5kDaX9W/naF6JYpYoeZZTGUnv2XTCfeE8WJhofxRFBdLZa/TQJ2H+uxw3O10qQ8p1egD+TosZj3LPI2ktn1SCBZs0pUkREa4HzluUn70r9y8qwcRh182fl9Xf/K3tJT6wnoTIO23uX/2/3Tqm9iIx7ZC1tk5tHoaGdtFA/TNUL+qskSeiWrql4rW9NagXAy5L9jOW0CGT+OpsHVw8r8LDCRB87txNb1GSWVjYHN0X19rXBzp+GgAY3/YnWuQIMglfQBnbsHL5VV12uZ9RxSYjoTLt289okPDgYIkf3RAeV6fhyQDl46bYzK1bN+8fPNoNK26Bc74wJ0jDKRzUaUmnHka0o01cy385UqYvdU2OL2qlSza8WMpNTLBu7hhC8yW0pWx+q96lXgK92UCbbT5dbrMjoypiSJIV2U4JCavdWk5S1owilrxLHHJkeuGgBvDvOeHvtUSwZCr5FHAsIDfJk4U/QDjarS6lZIOPfUkVX4KbvNgkCgwYEpM5pnwHBkkVBnDDJTytMBv4KMf7o4p9hohhFbnnLJC0RDpnI5aHET4PW05Sw5rMx6MsR/yySyryX7DpTbcU+fmFikqDi3ksjzTr4jcnJjUmNIuaMq7YkBGv9vtBFJH/WuZ0HYzgamgAZ9TzDcSiGedOf5NPHohPQbYGBRakRQSz/AOjqPWUr50RPNETyiOfQJngQI="
-                        ]
-                    ]
-                )->getBody()->getContents();
-                $user = json_decode($newresponse);
-                $syncAccount->fill(['email' => $user->userPrincipalName ?? '', 'social_id' => $user->id])->save();
-
-                $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
-                $newresponse = $guzzle->request('POST', '/v1.0/me/calendars', [
-                    'headers' => [
-                        'Authorization' => "Bearer EwBoA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAaS0+fv3NGstH7Nn7vykGPjNqgk+jzH3BzWn86B/kVvgs9i77DIF+ie8It4xO2kvx3VhiBl4Y8y5PgeN8D/1LrPkIblsn9Tanr/g9zMcrIKm3lgvPWTGjNQFzfGtGddVIWYELTJMn01AwnBWnTv+ehytUgeGjr0Bc86Ipkte0YDh74BVdWKwmCHsyC9hoFIU5Bk5UdLCbrGu3hPNZoSPZmVb40w49KdiqpO783aZev+ixstXMhIbwk2K2lh6YOLw2y3Z7CrTH7pgwLp32KCpmtw1LN8+JXbmo3PpLiVL89YvdH8H4EoZRj85ox5JvwWVJ0U/U6SMBMdv+S1wm2CXDicDZgAACJ1M3iG7oFKdOALB9SlZll59B9wgxyIdzLkr5EtLQ0sK8AxTiO2f8Df/VsThbPOxjQjtoi+5pecDDejO86lx2w4TRCHSZsQlryFIkww0M37GA+Hu5FQ74mtRYn1ZU2u/hWsGOj1FCzWMHjlXWB4Q4ge+c/3oveDKKzfsarSTjQSxVfoieqEwnWz33bSngNxsJ4Dj5dwaQRWIaw/YbGlqL+7t2s2d+TVI9m5PS0gbDD73ozFYUKfwpwxJAnD4hv7b7709SYgpobEJUoAvGuaghuSuhDiKgjMzHF22YSLZSLhDzBMBdX2Um76eOS/lb/z7xcoRUtExz6M+V8cgqxCkMB06HmRB3a/bMS9/MfUmrrdiblrlmE2xlUZmi5dDtDvxYLkYhCjzl+GdyNr4Fpjt22tN3yS97GfLpJ0GU5oATQzjyzqjRKwX4h9uJYTL/sgpHR+hSvOkMkGbNHTkcSiIjwoN5X3ws5SfF7Bov5aFYuTn270iR1lg4BIbDlMxKeT9h19u8hLs3b0LdEhtrx5k/z2GTgtTY3YsbK+pzKWxl87xR65j5ECTxtyVi2AfEMcMwqSn4dTA9K6XUEpD2QomyrZlpRCmKxWuE4k+px21mju1r9qocrp5CVG+h1Voo6e9JCYzjvwjd59pqVzS9j4Hy0PFqXGvv8kIF5cn0rC8HbPMJCDLDK95xBu1M4UPRt99W/stUA+/svhFmby7uOdTFRK/C3RiExrCeblug0RYxr3yaFxOeOGi2KU89onrsGzbPki9gQI=",
-                        'content-type' => "application/json",
-                    ], 'json' => ['name' => 'LegalCase10']
-                ])->getBody()->getContents();
-                $calendar = json_decode($newresponse);
-                $syncAccount->fill([
-                    'calendar_id' => $calendar->id,
-                    'calendar_name' => $calendar->name
-                ])->save(); */
-                
-                session()->flash('show_success_modal', 'yes');
-                return redirect()->route('integration/apps');
-            } catch (Exception $exception) {
-                return redirect()->back()->with('error', $exception->getMessage());
-            }            
+            }
+            // session()->flash('show_success_modal', 'yes');
+            // return redirect()->route('integration/apps');
+            return redirect()->route('outlook/user/detail');
+        } catch (Exception $exception) {
+            return redirect()->back()->with('error', $exception->getMessage());
         }
     }    
+
+    public function getOutlookUserDetail()
+    {
+        $syncAccount = UserSyncSocialAccount::where('user_id', auth()->id())->first();
+        $accessToken = (string) $syncAccount->access_token;
+        $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
+        $newresponse = $guzzle->request('GET', '/v1.0/me', [
+                'headers' => [
+                    'Authorization' => "Bearer ".$accessToken
+                ]
+            ]
+        )->getBody()->getContents();
+        $user = json_decode($newresponse);
+        $syncAccount->fill(['email' => $user->userPrincipalName ?? '', 'social_id' => $user->id])->save();
+
+        $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
+        $newresponse = $guzzle->request('POST', '/v1.0/me/calendars', [
+            'headers' => [
+                'Authorization' => "Bearer ".$accessToken,
+                'content-type' => "application/json",
+            ], 'json' => ['name' => $this->getCalendarName('outlook')]
+        ])->getBody()->getContents();
+        $calendar = json_decode($newresponse);
+        $syncAccount->fill([
+            'calendar_id' => $calendar->id,
+            'calendar_name' => $calendar->name
+        ])->save();
+
+        session()->flash('show_success_modal', 'yes');
+        return redirect()->route('integration/apps');
+    }
 
     /**
      * Google oAuth 
@@ -135,11 +147,11 @@ class IntegrationController extends Controller {
                 'created_by' => auth()->id(),
             ]
         );
-        
+        $calendarName = $this->getCalendarName('google');
         $service = $google->service('Calendar');
         if(empty($syncAccount->calendar_id)) {
             $calendar = new \Google\Service\Calendar\Calendar();
-            $calendar->setSummary('LegalCase');
+            $calendar->setSummary($calendarName);
             $calendar->setTimeZone($authUser->user_timezone);
 
             $createdCalendar = $service->calendars->insert($calendar);
@@ -268,16 +280,35 @@ class IntegrationController extends Controller {
             session()->flash('success', 'Calendar Integration will be uninstalled, but it may take a few minutes.');
         } else if($syncAccount && $syncAccount->social_type == 'outlook') {
 
-            /* $google->setAccessToken($syncAccount->access_token);
-            if ($google->isAccessTokenExpired()) {
-                $accessToken = $google->fetchAccessTokenWithRefreshToken($syncAccount->refresh_token);
-                $syncAccount->update([
-                    'access_token' => $accessToken['access_token'],
-                ]);
-            } */
+            if(isset($request->is_delete_event)) {
+                // Delete outlook calendar
+                $calendarId = $syncAccount->calendat_id;
+                $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
+                $newresponse = $guzzle->request('delete', '/v1.0/me/calendars/'.$calendarId, [
+                        'headers' => [ 'Authorization' => "Bearer ".$syncAccount->access_token ], 
+                        'http_errors' => false
+                    ]
+                );
+                $syncAccount->fill(['is_event_deleted' => 'yes'])->save();
+            } else {
+                // Update outlook calendar name
+                $calNewName = $syncAccount->calendar_name.' (Un-synced)';
+                $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
+                $newresponse = $guzzle->request('PATCH', '/v1.0/me/calendars/'.(string)$syncAccount->calendar_id, [
+                        'headers' => [ 'Authorization' => "Bearer ".$syncAccount->access_token, 'content-type' => "application/json",],
+                        'json' => ['name' => $calNewName]
+                    ]
+                )->getBody()->getContents();
+                $calendar = json_decode($newresponse);
+                $syncAccount->fill(['calendar_name' => $calendar->name])->save();
+            }
             $syncAccount->refresh();
-            $token = $syncAccount->access_token;
-            // $google->revokeToken($token);
+            // Revoke access token
+            /* $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
+                $newresponse = $guzzle->request('POST', '/v1.0/me/revokeSignInSessions', [
+                        'headers' => [ 'Authorization' => "Bearer ".$syncAccount->access_token ], 
+                    ]
+                )->getBody()->getContents(); */
             $syncAccount->delete();
             session()->flash('success', 'Calendar Integration will be uninstalled, but it may take a few minutes.');
         }
@@ -287,7 +318,7 @@ class IntegrationController extends Controller {
     public function createOutlookEvent()
     {
         $syncAccount = UserSyncSocialAccount::where('user_id', auth()->id())->first();
-        $accessToken = $syncAccount->access_token;
+        $accessToken = (string) $syncAccount->access_token;
         $redirect_uri  = config('services.outlook.redirect_uri');
         $client_id     = config('services.outlook.client_id');
         $client_secret = config('services.outlook.client_secret_value');
@@ -312,6 +343,17 @@ class IntegrationController extends Controller {
                 'expires_in' => Carbon::now()->addSeconds($account->expires_in),
             ])->save();
         } */
+
+        $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
+        $newresponse = $guzzle->request('GET', '/v1.0/me', [
+                'headers' => [
+                    // 'Authorization' => " Bearer EwBoA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAQXlPMFAC2NahrkRlygFCd4cVBtOF36WIz710GgIJ5j2Y7qxVeGi8IzVzyDczIxR8K6nrmP9ymvZVD5jJCm3bsnxmu6NMyEJCwa5nvqw0oYuv8F+tcAv0QqKGkcE2+WYpjFT/KaoTXaakWbzEfGnVx0G3nvhYCsYSlNAFthJ7A8IiWXsZNsG5wppmJj4E6L0EhMwHc9TevzWNDCF9a7zYYNwHaB2GXHLujATXn3uOyjnPLegORETzSi/Xdw8ClfbSCwjayANsMEsnoDHxX23zK3gkNBc7op/M59+yU/bKMEYWskVYp1EhJl3CZcjTBQkfFNSz135zi0W7xTyT1CClAQDZgAACK5QDo2NE/4kOALHEL/4Lzybm/W7YGNlTFIJlUvdwvzLlO6oSI1jI9QeSbmqvP3TAZhIlCwz+p/e5kDaX9W/naF6JYpYoeZZTGUnv2XTCfeE8WJhofxRFBdLZa/TQJ2H+uxw3O10qQ8p1egD+TosZj3LPI2ktn1SCBZs0pUkREa4HzluUn70r9y8qwcRh182fl9Xf/K3tJT6wnoTIO23uX/2/3Tqm9iIx7ZC1tk5tHoaGdtFA/TNUL+qskSeiWrql4rW9NagXAy5L9jOW0CGT+OpsHVw8r8LDCRB87txNb1GSWVjYHN0X19rXBzp+GgAY3/YnWuQIMglfQBnbsHL5VV12uZ9RxSYjoTLt289okPDgYIkf3RAeV6fhyQDl46bYzK1bN+8fPNoNK26Bc74wJ0jDKRzUaUmnHka0o01cy385UqYvdU2OL2qlSza8WMpNTLBu7hhC8yW0pWx+q96lXgK92UCbbT5dbrMjoypiSJIV2U4JCavdWk5S1owilrxLHHJkeuGgBvDvOeHvtUSwZCr5FHAsIDfJk4U/QDjarS6lZIOPfUkVX4KbvNgkCgwYEpM5pnwHBkkVBnDDJTytMBv4KMf7o4p9hohhFbnnLJC0RDpnI5aHET4PW05Sw5rMx6MsR/yySyryX7DpTbcU+fmFikqDi3ksjzTr4jcnJjUmNIuaMq7YkBGv9vtBFJH/WuZ0HYzgamgAZ9TzDcSiGedOf5NPHohPQbYGBRakRQSz/AOjqPWUr50RPNETyiOfQJngQI="
+                    'Authorization' => "Bearer ".$accessToken
+                ]
+            ]
+        )->getBody()->getContents();
+        $user = json_decode($newresponse);
+        $syncAccount->fill(['email' => $user->userPrincipalName ?? '', 'social_id' => $user->id])->save();
 
         /* $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
         $newresponse = $guzzle->request('POST', '/v1.0/me/calendars', [
@@ -373,5 +415,17 @@ class IntegrationController extends Controller {
         ])->getBody()->getContents();
         $calendar = json_decode($newresponse);
         dd($calendar);
+    }
+
+    public function getCalendarName($cType)
+    {
+        $lastCalendarName = UserSyncSocialAccount::where('social_type', $cType)->whereNotNull('calendar_name')->withTrashed()->orderBy('id', 'desc')->first();
+        if($lastCalendarName) {
+            $str = (int) substr($lastCalendarName->calendar_name, strpos($lastCalendarName->calendar_name, "-") + 1);
+            $calendarName = "LegalCase-".($str + 1);
+        } else {
+            $calendarName = "LegalCase";
+        }
+        return $calendarName;
     }
 }

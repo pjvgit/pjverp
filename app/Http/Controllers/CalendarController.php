@@ -17,6 +17,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist,App\AllHistory;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\UsersAdditionalInfo,App\LeadAdditionalInfo,App\CaseEventLinkedContactLead;
+use App\UserSyncSocialAccount;
 use Illuminate\Support\Facades\Log;
 
 class CalendarController extends BaseController
@@ -198,8 +199,8 @@ class CalendarController extends BaseController
         }else{
             AllHistory::where('type','event')->where('created_by', Auth::user()->parent_user)->update(['is_read'=>0]);
         }
-        // return view('calendar.indexnew',compact('CaseMasterData','EventType','staffData'));
-        return view('calendar.index',compact('CaseMasterData','EventType','staffData', 'calendarView', 'authUser', 'userOffset'));
+        $syncAccount = UserSyncSocialAccount::where('user_id', $authUser->id)->whereNotNull('access_token')->first();
+        return view('calendar.index',compact('CaseMasterData','EventType','staffData', 'calendarView', 'authUser', 'userOffset', 'syncAccount'));
     }
     public function loadEventCalendar (Request $request)
     {        

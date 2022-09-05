@@ -70,7 +70,7 @@ return [
         'webhook_uri' => env('OUTLOOK_WEBHOOK_URI', Null),
         
         // Let the user know what we will be using from his Google account.
-        'scopes' => "openid+https%3A%2F%2Foutlook.office.com%2Fuser.read+https%3A%2F%2Foutlook.office.com%2Fcalendars.readwrite+offline_access%20openid%20email%20profile",
+        'scopes' => "openid+https%3A%2F%2Foutlook.office.com%2Fuser.read+https%3A%2F%2Foutlook.office.com%2Fcalendars.readwrite+offline_access%20openid%20email%20profile+https%3A%2F%2Foutlook.office.com%2Fuser.readwrite.all",
         
         // Enables automatic token refresh.
         'approval_prompt' => 'select_account',  // OR value should be 'consent'

@@ -69,6 +69,7 @@
 
 {{-- <div class="separator-breadcrumb border-top"></div> --}}
 <div id="calendar_view_div">
+@if(isset($syncAccount))
 <div class="row">
     <div class="col-md-2 pt-0">
         
@@ -298,11 +299,12 @@
         </div>
         <div id="calendar-sync-status" class="w-100 justify-content-end d-flex align-items-center p-1">
             <i class="fas fa-check text-success mr-1"></i>
-            <button type="button" class="calendar-service font-weight-bold p-1 border-0 btn btn-link" aria-label="calendar sync status">Google Calendar</button>
+            <button type="button" class="calendar-service font-weight-bold p-1 border-0 btn btn-link" aria-label="calendar sync status">{{ $syncAccount->service_name }} Calendar</button>
             <span class="status-text mr-1">&nbsp;-&nbsp;<strong>Status: </strong><span class="sync-status">Up to date</span></span>
         </div>
     </div>
 </div>
+@endif
 <input type="hidden" name="loadType" id="loadType" value="all">
 </div>
 {{-- @else

@@ -1218,7 +1218,9 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     });
 
     Route::get("integration/apps", "IntegrationController@index")->name("integration/apps");
+    Route::get("outlook/authorize", "IntegrationController@getOutlookAuthorization")->name("outlook/authorize");
     Route::get("outlook/oauth", "IntegrationController@getOutlookAccessToken")->name("outlook/oauth");
+    Route::get("outlook/user/detail", "IntegrationController@getOutlookUserDetail")->name("outlook/user/detail");
     Route::get("google/oauth", "IntegrationController@getGoogleAuth")->name("google/oauth");
     Route::get("load/calendar/setting", "IntegrationController@loadSyncCalendarSetting")->name("load/calendar/setting");
     Route::get("event/sync/calendar", "IntegrationController@eventSyncCalendar")->name("event/sync/calendar");

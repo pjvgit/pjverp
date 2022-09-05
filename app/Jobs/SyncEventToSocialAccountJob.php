@@ -358,7 +358,7 @@ class SyncEventToSocialAccountJob implements ShouldQueue
         $guzzle = new \GuzzleHttp\Client(['base_uri' => 'https://graph.microsoft.com']);
         $newresponse = $guzzle->request('POST', '/v1.0/me/calendars/'.$syncAccount->calendar_id.'/events', [
             'headers' => [
-                'Authorization' => "Bearer EwBoA8l6BAAUkj1NuJYtTVha+Mogk+HEiPbQo04AAYGSsHvGW7bxiilBlXmZIUB7Kgdc2OirkpKQidp2bgGIdHemwvPLNA4ARZBIu4jpfWa2obzx0G/F35f6NOqkMUHjN7cWK6HXGzSeXdy3lcDCirNC0iaAF8PfvzEsuBrBLVIrOa4qWrVXRemn2AnXRiIi7yNfhRklk9CmsMydzk8FuEQH5EQOb9Dkd9roz33X6IJSw02jq/gHvb7C7QYRbvSUopTY1IXoNJkwPDUYTiV+hBSQiCZ5dXBZancyT8tzvGggI/mV3On1Tt2PPtpuWS8LmcXl3JuIhWM2fwe7aoKK5fW+FcgHVAYxJ9SGyBEEtDjkO9Uezw+ny0h3perX1X0DZgAACLRnbyqT8P2HOAIFnYGRccHMbi5TCBmifxlIEwERS8QI4KX4dvH7OxS41r9NOqUYXw4nE1VZ0/thzcNXXwQOyO96H4iMbGzsD3eZH6ogQkwtthLD1LjO2Qy2/975+AavS9V5F0WzdN9HIHiHOi8ACdEMlC5Opk1h8olB9IhNh1EvK+5DQ/4NvBh/QpTeh9tOg3KbBRwoWGGgnow8pGxIXfZkNUFRSiN7UzK8m46MwFW3PDw8EKHdV6ycrKjCJin+kE4G7SdpJK2sEWaG/JX3Ph9yC8yS+YO8+Lvv5Q0/wEcJgDZx4+2fCt9c1fZYLxuiJvHPmLCkNQqQ9nW0gRARrA0SUSAd5jt142jWKk31006LVWcwzBd+ZFi8SygWFpxb7btxHQIQUlDPUq2qVt0OeWnjn1Sh+KnYviL3ylzfmb3WEvxmgOEuN7bEndyWHYd0cNwIV7Ywm8r6uKPn92Jydv19pSac7G9OwJKnvF7kGpaN8v7Tuuwjyr/iJArAPkj4g9YVwTL8q+M+CGoj8JRoYyB/yaucJs2A7/9936djuVmECWBeEsP/baiQaU2g7jV+WMiQDNJSfdp313/GMV7tpxJ4Fty7F9MBrc2NUR3vZu1brBL5ICMpJptyvMKusHUm60lW/kKBLrcax1q4ALZdMjtpnu6cPLLgcOU48HZFCs4EsFyKLU8HFfOV6DH9LEaatPQVofyZPh9FKbk4bCG2snbW9Fd7epCBZ0OmLBhqasvv9J5s1vDaYi+8Q8u21FRjqmAogQI=",
+                'Authorization' => "Bearer ".$syncAccount->access_token,
                 'content-type' => "application/json",
             ],
             'json' => $eventJson
